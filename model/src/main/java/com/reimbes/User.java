@@ -2,11 +2,11 @@ package com.reimbes;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Data
-@Builder
 @Entity
 public class User {
 
@@ -34,11 +34,5 @@ public class User {
         ADMIN,
         USER
     }
-
-    public User(String id, String username, String password, Role role) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.role = role;
-    }
+    public User() {}
 }

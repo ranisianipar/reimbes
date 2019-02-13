@@ -21,10 +21,14 @@ public class DataInitiation {
 
     @EventListener
     public void initAdminAccount(ContextRefreshedEvent event){
-        User user = userRepository.findByUsername("root");
-        if (user == null){
-            User newUser = new User(UUID.randomUUID().toString(), "root", "root",User.Role.ADMIN);
-            userRepository.save(newUser);
-        }
+//        User user = userRepository.findByUsername("root");
+//        if (user == null){
+//            User newUser = new User();
+//            newUser.setId(UUID.randomUUID().toString());
+//            newUser.setUsername("root");
+//            newUser.setPassword("root");
+//            newUser.setRole(User.Role.ADMIN);
+//            userRepository.save(newUser);
+//        }
     }
 }
