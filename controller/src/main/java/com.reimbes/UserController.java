@@ -1,19 +1,19 @@
 package com.reimbes;
 
-import com.reimbes.request.LoginRequest;
+import com.reimbes.implementation.UserServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 
 @CrossOrigin(origins = Constant.BASE_URL)
 @RestController
-//@RequestMapping(Constant.USER_PREFIX)
+@RequestMapping(Constant.USER_PREFIX)
 public class UserController {
 
-
-    @PostMapping(Constant.LOGIN_URL)
-    public void login(@RequestParam String username, @RequestParam String password) {
-
-        return;
-    }
+    @Autowired
+    UserServiceImpl userService;
 
     // .xls
     @GetMapping(Constant.MONTHLY_REPORT)
@@ -21,8 +21,25 @@ public class UserController {
         return;
     }
 
-    @PostMapping(Constant.ADD_USER)
-    public void addUser() {
-        return;
+    @PostMapping
+    public User createUser(@RequestBody User user) throws Exception{
+        return userService.create(user);
     }
+
+    @DeleteMapping("/all")
+    public void deleteUsers() {
+        userService.deleteAll().toString();
+    }
+
+
+    @GetMapping("/all")
+    public List<User> getAllUser() {
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/random")
+    public User getRandomUser() {
+        return userService.getRandomUser();
+    }
+
 }
