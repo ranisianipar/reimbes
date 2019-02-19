@@ -1,38 +1,35 @@
 package com.reimbes;
 
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Set;
 
 @Data
 @Entity
-public class User {
-
-    /*
-    * QUESTION: relasi one-to-one buat User ke Admin/Employee? butuh kolom ID yg ngereference ke msg2
-    * object
-    * MUNGKIN SOLUSI: Bikin abstract class GeneralUser(usern, pass)
-    *
-    * KENDALA TERBESAR: gmn caranya ngebedain repository tiap role user? biar User.java cuma jadi wadah buat ambil
-    * username sama password dari admin/employee repo. Jadi ga ada userRepository
-    * */
-
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class User implements Serializable{
 
     @Id
-    public String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id;
 
-    public String username;
-    public String password;
+    private String username;
+    private String password;
+    private Role role;
 
-    @Column(nullable = false)
-    public Role role;
+    // gimana caranya biar bidirectional? +/-?
+//    @OneToMany(mappedBy = "user")
+//    private Set<Transaction> transactions;
 
+
+    public User() {}
 
     public enum Role {
         ADMIN,
         USER
     }
-    public User() {}
 }
+

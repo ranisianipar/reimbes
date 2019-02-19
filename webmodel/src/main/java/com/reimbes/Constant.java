@@ -2,15 +2,20 @@ package com.reimbes;
 
 public class Constant {
 
-    public static final String  BASE_URL = "http://localhost:8080/api";
+    public static final String BASE_URL = "http://localhost:8080/api";
+    public static final String ROOT_URL = "/";
     public static final String LOGIN_URL = "/login";
+    public static final String LOGOUT_URL = "/logout";
 
-    public static final String USER_PREFIX = "/user";
-    public static final String EMPLOYEE_PREFIX = "/employees";
-
-    //admin
+    // user
+    public static final String USER_PREFIX = "/users";
     public static final String MONTHLY_REPORT = "/monthly-report";
+
+    // admin
     public static final String ADD_USER = "/_add/user";
+
+    // transaction
+    public static final String TRANSACTION_PREFIX = "/transactions";
 
 
     // RESPONSE CODE
