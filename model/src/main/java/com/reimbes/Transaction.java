@@ -17,8 +17,11 @@ public class Transaction implements Serializable{
     @Column(name = "transaction_id")
     private long id;
 
+    // standard crud attributes
     private Date createdDate;
     private Date updatedDate;
+
+    private Date date;
     private long amount;
     private Category category;
 
