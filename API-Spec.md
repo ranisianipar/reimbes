@@ -26,13 +26,13 @@ Reims is a reimbursement management system web-based application, which is mobil
 #### Request Body
 **[/api/users][PlUser]**
 > {
-> "email":"xxxxxxx@yyyyy.com"
+> "email":"xxxxxxx@yyyyy.com",
 > "password":"zzzzzzz"
 > }
 
 **[/api/login][PlLogin]**
 > {
-> "email":"xxxxxxx@yyyyy.com"
+> "email":"xxxxxxx@yyyyy.com",
 > "password":"zzzzzzz"
 > }
 
@@ -55,8 +55,8 @@ Reims is a reimbursement management system web-based application, which is mobil
 #### Request Body
 **/api/transactions/_monthly_report**
 > {
-> "month":"mm"
-> "year":"yyyy"
+> "month":"mm",
+> "year":"yyyy",
 > "category":"FUEL"
 > }
 **Note: category could be ALL, FUEL, or PARKING*
