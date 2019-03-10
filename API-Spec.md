@@ -37,7 +37,8 @@ Reims is a reimbursement management system web-based application, which is mobil
 > }
 
 ### Transaction
-*only for authorized user*
+only for authenticated User
+
 | METHOD | URL | NOTES
 | ------ | ------ | ------ |
 | GET | [/api/transactions][PlTransaction] | get all transactions |
