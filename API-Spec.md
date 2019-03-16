@@ -55,11 +55,11 @@ only for authenticated User
 - support pagination on URL Path, add this on url: &page=P&size=S&sortBy=date
 #### Request Body
 **/api/transactions/_monthly_report**
-{
-   "month":"mm",
-   "year":"yyyy",
-   "category":"FUEL"
-}
+> {
+>    "month":"mm", <br />
+>    "year":"yyyy", <br />
+>    "category":"FUEL" <br />
+> }
 **Note: category could be ALL, FUEL, or PARKING*
 
 
