@@ -25,16 +25,16 @@ Reims is a reimbursement management system web-based application, which is mobil
 
 #### Request Body
 **[/api/users][PlUser]**
-> {
-> "email":"xxxxxxx@yyyyy.com",
-> "password":"zzzzzzz"
-> }
+> { <br />
+> "email":"xxxxxxx@yyyyy.com", <br />
+> "password":"zzzzzzz" <br />
+> } <br />
 
 **[/api/login][PlLogin]**
-> {
-> "email":"xxxxxxx@yyyyy.com",
-> "password":"zzzzzzz"
-> }
+> { <br />
+>  "email":"xxxxxxx@yyyyy.com", <br />
+>  "password":"zzzzzzz" <br />
+> } <br />
 
 ### Transaction
 only for authenticated User
@@ -55,11 +55,11 @@ only for authenticated User
 - support pagination on URL Path, add this on url: &page=P&size=S&sortBy=date
 #### Request Body
 **/api/transactions/_monthly_report**
-> {
+> { <br />
 >    "month":"mm", <br />
 >    "year":"yyyy", <br />
 >    "category":"FUEL" <br />
-> }
+> } <br />
 **Note: category could be ALL, FUEL, or PARKING*
 
 
