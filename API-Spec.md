@@ -56,9 +56,9 @@ only for authenticated User
 #### Request Body
 **/api/transactions/_monthly_report**
 > {
-> "month":"mm",
-> "year":"yyyy",
-> "category":"FUEL"
+>   "month":"mm",
+>   "year":"yyyy",
+>   "category":"FUEL"
 > }
 **Note: category could be ALL, FUEL, or PARKING*
 
