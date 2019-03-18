@@ -1,14 +1,20 @@
 package com.reimbes;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
+import java.util.Collections;
 
 
-@Data
 @Entity
-public class ReimsUser{
+@Data
+public class ReimsUser {
 
     /*
     * QUESTION: relasi one-to-one buat ReimsUser ke Admin/Employee? butuh kolom ID yg ngereference ke msg2
