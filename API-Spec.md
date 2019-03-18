@@ -20,21 +20,73 @@ Reims is a reimbursement management system web-based application, which is mobil
 | DELETE | [/api/users/{id}][PlUserId] | delete a user | ADMIN
 
 #### Filtering
-**/api/users?&page=P&size=S&sortBy=email**
-- support pagination on URL Path, add this on url: &page=P&size=S&sortBy=date
+**/api/users?page=P&size=S&sortBy=email**
+- support pagination on URL Path, add this on url: page=P&size=S&sortBy=date
 
 #### Request Body
-**[/api/users][PlUser]**
-> {
-> "email":"xxxxxxx@yyyyy.com",
-> "password":"zzzzzzz"
-> }
-
-**[/api/login][PlLogin]**
-> {
-> "email":"xxxxxxx@yyyyy.com",
-> "password":"zzzzzzz"
-> }
+[POST] **[/api/users][PlUser]**
+``` json
+{
+"email":"xxxxxxx@yyyyy.com",
+"password":"zzzzzzz"
+}
+```
+[POST] **[/api/login][PlLogin]**
+``` json
+{
+"email":"xxxxxxx@yyyyy.com",
+"password":"zzzzzzz"
+}
+```
+#### Response Body
+[POST] **[/api/login][PlLogin]**
+**Note: value of the header*
+``` json
+{
+    "Authorization":"Bearer xxxx"
+}
+```
+[GET] **[/api/users][PlUser]**
+``` json
+{
+    "code": 200,
+    "errorCode": null,
+    "errorMessage": null,
+    "totalRecords": 10,
+    "totalPages": 2,
+    "paging": {
+       "size": 7,
+       "sortBy":"ASC"
+    },
+    "value": [
+        {
+        "id":1,
+        "username":"user1"
+        },
+        {
+        "id":2,
+        "username":"user2"
+        }
+    ]
+}
+```
+[GET] **[/api/users/1][PlUserId]**
+``` json
+{
+    "code": 200,
+    "errorCode": null,
+    "errorMessage": null,
+    "totalRecords": 1,
+    "totalPages": 1,
+    "paging": null,
+    "value": [
+        {
+        "id":1,
+        "username":"user1"
+        }
+    ]
+}
+```
 
 ### Transaction
 only for authenticated User
@@ -43,7 +95,7 @@ only for authenticated User
 | ------ | ------ | ------ |
 | GET | [/api/transactions][PlTransaction] | get all transactions |
 | GET | [/api/transactions/{id}][PlTransactionId] | get transaction by ID |
-| GET | [/api/transactions/_monthly-report][PlTransactionReport] | download transaction |
+| GET | [/api/transactions/monthly-report][PlTransactionReport] | download transaction |
 | POST | [/api/transactions][PlTransaction] | create a transaction |
 | DELETE | [/api/transactions][PlTransaction] | delete all transation |
 | DELETE | [/api/transactions/{id}][PlTransactionId] | delete a transaction |
@@ -52,17 +104,83 @@ only for authenticated User
 **/api/transactions?month=mm&year=yyyy&category=ALL**
 - example value: month=04&&year=2001&&category=PARKING
 - category: enum [ALL; FUEL; PARKING]
-- support pagination on URL Path, add this on url: &page=P&size=S&sortBy=date
+- support pagination on URL Path, add this on url: page=P&size=S&sortBy=date
 #### Request Body
-**/api/transactions/_monthly_report**
-> {
-> "month":"mm",
-> "year":"yyyy",
-> "category":"FUEL"
-> }
+
+[POST] **[/api/transactions][PlTransaction]**
+``` json
+{
+"image": {}
+}
+```
+
+[GET] **[/api/transactions/monthly-report][PlTransactionReport]**
+``` json
+{
+"month":"mm",
+"year":"yyyy",
+"category":"FUEL"
+}
+```
 **Note: category could be ALL, FUEL, or PARKING*
+#### Response Body
+[GET] **[/api/transactions][PlTransaction]**
+``` json
+{
+    "code": 200,
+    "errorCode": null,
+    "errorMessage": null,
+    "totalRecords": 10,
+    "totalPages": 2,
+    "paging": null,
+    "value": [
+        {
+        "id":1,
+        "imagePath":"/user1/transaction1.jpg",
+        "category":"FUEL",
+        "amount":125000,
+        "notes": null,
+        "purchasedDate":"12/04/2010"
+        ....
+        },
+        {
+         // transaction object
+        }
+    ]
+}
+```
+[GET] **[/api/transactions/1][PlTransactionId]**
+``` json
+{
+    "code": 200,
+    "errorCode": null,
+    "errorMessage": null,
+    "totalRecords": 10,
+    "totalPages": 2,
+    "paging": null,
+    "value": [
+        {
+        "id":1,
+        "imagePath":"/user1/transaction1.jpg",
+        "category":"FUEL",
+        "amount":125000,
+        "notes": null,
+        "purchasedDate":"12/04/2010"
+        ....
+        }
+    ]
+}
+```
 
-
+[GET] **[/api/transactions/monthly-report][PlTransactionReport]**
+``` json
+{
+    "code": 200,
+    "errorCode": null,
+    "errorMessage": null,
+    "value": []
+}
+```
 
 ### Additional
 
@@ -73,10 +191,10 @@ only for authenticated User
    [PlUserId]: <https://localhost:8080/api/users/1>
    [PlLogin]: <https://localhost:8080/api/login>
    [PlLogout]: <https://localhost:8080/api/logout>
-   
+
    [PlTransaction]: <https://localhost:8080/transactions>
    [PlTransactionId]: <https://localhost:8080/transactions/1>
-   [PlTransactionReport]: <https://localhost:8080/transactions/_monthly_report>
+   [PlTransactionReport]: <https://localhost:8080/transactions/monthly-report>
    
    
   
