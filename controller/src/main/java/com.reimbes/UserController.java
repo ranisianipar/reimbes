@@ -1,17 +1,19 @@
 package com.reimbes;
 
 import com.reimbes.constant.UrlConstants;
+import com.reimbes.implementation.UserServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 
 @CrossOrigin(origins = UrlConstants.BASE_URL)
 @RestController
 @RequestMapping(UrlConstants.USER_PREFIX)
 public class UserController {
 
-    @GetMapping("/{id}")
-    public String getUser(@PathVariable String id) {
-        return "GET USER ID: "+id;
-    }
+    @Autowired
+    UserServiceImpl userService;
+
 
     // .xls
     @GetMapping(UrlConstants.MONTHLY_REPORT)
@@ -19,8 +21,5 @@ public class UserController {
         return;
     }
 
-    @PostMapping(UrlConstants.ADD_USER)
-    public void addUser() {
-        return;
-    }
+
 }
