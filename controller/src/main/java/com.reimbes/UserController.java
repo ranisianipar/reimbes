@@ -1,27 +1,25 @@
 package com.reimbes;
 
-import com.reimbes.request.LoginRequest;
+import com.reimbes.constant.UrlConstants;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = Constant.BASE_URL)
+@CrossOrigin(origins = UrlConstants.BASE_URL)
 @RestController
-//@RequestMapping(Constant.USER_PREFIX)
+@RequestMapping(UrlConstants.USER_PREFIX)
 public class UserController {
 
-
-    @PostMapping(Constant.LOGIN_URL)
-    public void login(@RequestParam String username, @RequestParam String password) {
-
-        return;
+    @GetMapping("/{id}")
+    public String getUser(@PathVariable String id) {
+        return "GET USER ID: "+id;
     }
 
     // .xls
-    @GetMapping(Constant.MONTHLY_REPORT)
+    @GetMapping(UrlConstants.MONTHLY_REPORT)
     public void getMonthlyReport() {
         return;
     }
 
-    @PostMapping(Constant.ADD_USER)
+    @PostMapping(UrlConstants.ADD_USER)
     public void addUser() {
         return;
     }

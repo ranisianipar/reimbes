@@ -1,6 +1,6 @@
 package com.reimbes.implementation;
 
-import com.reimbes.User;
+import com.reimbes.ReimsUser;
 import com.reimbes.UserRepository;
 import com.reimbes.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +13,11 @@ public class UserServiceImpl implements UserService {
 //    PasswordEncoder encoder;
 
     @Override
-    public User login(String username, String password) throws Exception {
-        User user = userRepository.findByUsername(username);
-        if (user == null) throw new Exception(username);
+    public ReimsUser login(String username, String password) throws Exception {
+        ReimsUser reimsUser = userRepository.findByUsername(username);
+        if (reimsUser == null) throw new Exception(username);
         else if(password == null) throw new Exception("Password cant be null");
 
-        return user;
+        return reimsUser;
     }
 }

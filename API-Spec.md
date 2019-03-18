@@ -12,12 +12,12 @@ Reims is a reimbursement management system web-based application, which is mobil
 | ------ | ------ | ------ | ------ |
 | GET | [/api/users][PlUser] | get all users | (authorized) USER
 | GET | [/api/users/{id}][PlUserId] | get users by ID | (authorized) USER
-| POST | [/api/users][PlUser] | create a user | ADMIN | ADMIN
-| POST | [/api/users/{id}][PlUserId] | update user data | (authorized) USER
+| POST | [/api/users][PlUser] | create a reimsUser | ADMIN | ADMIN
+| POST | [/api/users/{id}][PlUserId] | update reimsUser data | (authorized) USER
 | POST | [/api/login][PlLogin] | authentication, create session | ALL
 | POST | [/api/logout][PlLogout] | clear session | ALL
 | DELETE | [/api/users][PlUser] | delete all users | ADMIN
-| DELETE | [/api/users/{id}][PlUserId] | delete a user | ADMIN
+| DELETE | [/api/users/{id}][PlUserId] | delete a reimsUser | ADMIN
 
 #### Filtering
 **/api/users?page=P&size=S&sortBy=email**
@@ -79,12 +79,10 @@ Reims is a reimbursement management system web-based application, which is mobil
     "totalRecords": 1,
     "totalPages": 1,
     "paging": null,
-    "value": [
-        {
+    "value": {
         "id":1,
         "username":"user1"
-        }
-    ]
+     }
 }
 ```
 
@@ -158,8 +156,7 @@ only for authenticated User
     "totalRecords": 10,
     "totalPages": 2,
     "paging": null,
-    "value": [
-        {
+    "value": {
         "id":1,
         "imagePath":"/user1/transaction1.jpg",
         "category":"FUEL",
@@ -167,8 +164,7 @@ only for authenticated User
         "notes": null,
         "purchasedDate":"12/04/2010"
         ....
-        }
-    ]
+     }
 }
 ```
 
