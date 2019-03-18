@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
+
     @Autowired
     private UserRepository userRepository;
 
@@ -19,6 +20,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser login(String username, String password) throws Exception {
         ReimsUser reimsUser = userRepository.findByUsername(username);
         if (reimsUser == null) throw new Exception(username);
+
         else if(password == null) throw new Exception("Password cant be null");
 
         return reimsUser;
