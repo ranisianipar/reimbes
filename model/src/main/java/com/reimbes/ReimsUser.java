@@ -1,8 +1,6 @@
 package com.reimbes;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
@@ -37,7 +35,7 @@ public class ReimsUser {
     private String password;
 
     @Column(nullable = false)
-    public Role role;
+    private Role role;
 
 
     public enum Role {

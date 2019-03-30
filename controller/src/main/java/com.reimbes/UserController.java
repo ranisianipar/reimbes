@@ -12,13 +12,18 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    UserServiceImpl userService;
+    private UserServiceImpl userService;
 
 
     // .xls
     @GetMapping(UrlConstants.MONTHLY_REPORT)
-    public void getMonthlyReport() {
-        return;
+    public String getMonthlyReport() {
+        return "Get monthly report";
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        return "USER TEST";
     }
 
 

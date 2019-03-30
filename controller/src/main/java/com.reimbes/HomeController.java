@@ -13,8 +13,13 @@ public class HomeController {
     private UserDetailsService userService;
 
 
-    @GetMapping(UrlConstants.DUMMY_URL)
+    @GetMapping(UrlConstants.LOGOUT_URL)
     public String logout() {
         return "LOGOUT";
+    }
+
+    @GetMapping("test")
+    public String test() {
+        return "ALL TEST";
     }
 }

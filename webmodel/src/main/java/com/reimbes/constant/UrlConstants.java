@@ -5,7 +5,7 @@ public class UrlConstants {
     public static final String BASE_URL = "http://localhost:8080/api";
     public static final String LOGIN_URL = "/login";
     public static final String LOGOUT_URL = "/logout";
-    public static final String DUMMY_URL = "/dummy";
+    public static final String IMAGE_FOLDER_PATH = "C:/Users/Z/Documents/reims-img/";
 
     //prefix
     public static final String ADMIN_PREFIX = "/admin";
@@ -16,9 +16,8 @@ public class UrlConstants {
     public static final String MONTHLY_REPORT = "/monthly-report";
     public static final String ADD_USER = "/_add_user";
 
+    // others
+    public static final String UPLOAD = "/_upload";
+    public static final String ID_PARAM = "/{id:.+}";
 
-    // RESPONSE CODE
-    public static final int CODE_OK = 200;
-    public static final int CODE_BAD_REQUEST = 500;
-    public static final int CODE_UNAUTHORIZED = 403;
 }
