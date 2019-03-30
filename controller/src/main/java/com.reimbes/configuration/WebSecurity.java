@@ -34,9 +34,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers(UrlConstants.LOGIN_URL).permitAll()
-                .antMatchers(UrlConstants.ADMIN_PREFIX+"**", UrlConstants.ADMIN_PREFIX+"/**").hasRole("ADMIN")
-                .antMatchers(UrlConstants.USER_PREFIX+"**", UrlConstants.USER_PREFIX+"/**"
-                    ,UrlConstants.TRANSACTION_PREFIX+"**", UrlConstants.TRANSACTION_PREFIX+"/**").hasRole("USER")
+                .antMatchers(UrlConstants.ADMIN_PREFIX, UrlConstants.ADMIN_PREFIX+"/**").hasAuthority("ADMIN")
+                .antMatchers(UrlConstants.USER_PREFIX, UrlConstants.USER_PREFIX+"/**"
+                    ,UrlConstants.TRANSACTION_PREFIX, UrlConstants.TRANSACTION_PREFIX+"/**").hasAuthority("USER")
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(new JWTAuthenticationFilter(authenticationManager()))
@@ -50,9 +50,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder())
         .and()
         .inMemoryAuthentication()
-            .withUser("admin").password("admin123").roles("ADMIN")
+            .withUser("admin").password("admin123").authorities("ADMIN")
                 .and()
-                .withUser("user").password("user123").roles("USER");
+                .withUser("user").password("user123").authorities("USER");
     }
 
     @Bean

@@ -2,7 +2,6 @@ package com.reimbes.implementation;
 
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -15,14 +14,14 @@ public class UserDetailsImpl implements UserDetails {
     private String password;
     private Collection authorities;
 
-        public UserDetailsImpl(String username, String password, Collection<SimpleGrantedAuthority> list){
+        public UserDetailsImpl(String username, String password, Collection<GrantedAuthority> list){
         this.username = username;
         this.password = password;
         authorities = list;
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Collection<GrantedAuthority> getAuthorities() {
         return authorities;
     }
 

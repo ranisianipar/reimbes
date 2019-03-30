@@ -16,4 +16,9 @@ public class AdminController {
     public ReimsUser addUser(@RequestBody ReimsUser user) throws Exception{
         return adminService.createUser(user);
     }
+
+    @GetMapping("/test")
+    public String test() {
+        return "ADMIN TEST";
+    }
 }
