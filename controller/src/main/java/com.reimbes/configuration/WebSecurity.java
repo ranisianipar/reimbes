@@ -54,7 +54,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         .inMemoryAuthentication()
             .withUser("admin").password("admin123").authorities("ADMIN")
                 .and()
-                .withUser("user").password("user123").authorities("USER");
+                .withUser("ADMIN").password("ADMIN123").authorities("ADMIN");
     }
 
     @Bean
