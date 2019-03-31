@@ -1,7 +1,7 @@
 package com.reimbes.implementation;
 
 import com.reimbes.ReimsUser;
-import com.reimbes.UserRepository;
+import com.reimbes.ReimsUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,19 +12,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    private UserRepository userRepository;
+    private ReimsUserRepository reimsUserRepository;
 
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        ReimsUser reimsUser = userRepository.findByUsername(username);
+        ReimsUser reimsUser = reimsUserRepository.findByUsername(username);
 
         if (reimsUser == null ) {
             throw new UsernameNotFoundException(username);

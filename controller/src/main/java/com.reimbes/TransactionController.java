@@ -2,13 +2,21 @@ package com.reimbes;
 
 
 import com.reimbes.constant.UrlConstants;
+import com.reimbes.implementation.TransactionServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @CrossOrigin(origins = UrlConstants.BASE_URL)
 @RestController
 @RequestMapping(UrlConstants.TRANSACTION_PREFIX)
 public class TransactionController {
+
+    @Autowired
+    private TransactionServiceImpl transactionService;
 
     @GetMapping
     public String getAllTransaction() {
@@ -26,8 +34,9 @@ public class TransactionController {
     }
 
     @PostMapping(UrlConstants.UPLOAD)
-    public String uploadImage(@RequestParam("image") MultipartFile image) {
-        return "image path";
+    public String uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image) throws IOException {
+
+        return transactionService.upload(request, image);
     }
 
 
