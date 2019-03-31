@@ -1,4 +1,4 @@
-package com.reimbes.configuration;
+package com.reimbes.authentication;
 
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
