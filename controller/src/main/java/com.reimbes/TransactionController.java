@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 
 @CrossOrigin(origins = UrlConstants.BASE_URL)
 @RestController
@@ -34,7 +33,7 @@ public class TransactionController {
     }
 
     @PostMapping(UrlConstants.UPLOAD)
-    public String uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image) throws IOException {
+    public String uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image) throws Exception {
 
         return transactionService.upload(request, image);
     }
