@@ -20,7 +20,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -33,44 +32,17 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction create(HttpServletRequest request, Transaction transaction) throws Exception{
-        // dihubungin ke user yg bersangkutan
-        List<String> errorMessages = new ArrayList();
-
-
-        // check the transaction value
         HashMap userDetails = JWTAuthorizationFilter.getCurrentUserDetails(request);
         String username = (String) userDetails.get("username");
-        System.out.println("USER DETAILS:"+userDetails.toString());
         ReimsUser user;
 
-
         user = userService.getUserByUsername(username);
-        // bisa diganti
+        // ADAPTABLE
         if (user == null) {
             throw new Exception("In-Memory user not allowed");
         }
-
-        // validate the value and value type
-        // date dicek harus ada isinya, dan sesuai ketentuan Date
-
-        if (transaction.getDate() == null)
-            errorMessages.add("null date");
-
-        if (transaction.getAmount() == 0)
-            errorMessages.add("zero amount");
-
-        if (transaction.getCategory() == null)
-            errorMessages.add("null category");
-
-        // validate image path
-        // kalo transaction.getImagePath() == null raise error ga? [belom dihandle]
-        if (!Files.exists(Paths.get(UrlConstants.IMAGE_FOLDER_PATH+transaction.getImagePath())))
-            errorMessages.add("invalid image path");
-
-        if (errorMessages.isEmpty())
-            throw new Exception("Data constraint");
-
         transaction.setUser(user);
+        validate(transaction);
         return transactionRepository.save(transaction);
     }
 
@@ -101,8 +73,6 @@ public class TransactionServiceImpl implements TransactionService {
             throw new Exception("In memory user");
         }
 
-        System.out.println("USER ID:"+userId);
-
         String filename = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ userId +"\\");
 
         if (!Files.exists(Paths.get(filename)))
@@ -112,5 +82,29 @@ public class TransactionServiceImpl implements TransactionService {
         InputStream inputStream = image.getInputStream();
         Files.copy(inputStream, Paths.get(filename));
         return localPath;
+    }
+
+    private void validate(Transaction transaction) throws Exception{
+        // validate the value and value type
+        // date dicek harus ada isinya, dan sesuai ketentuan Date
+
+        List<String> errorMessages = new ArrayList();
+
+        if (transaction.getDate() == null)
+            errorMessages.add("null date");
+
+        if (transaction.getAmount() == 0)
+            errorMessages.add("zero amount");
+
+        if (transaction.getCategory() == null)
+            errorMessages.add("null category");
+
+        // validate image path
+        // kalo transaction.getImagePath() == null raise error ga? [belom dihandle]
+        if (!Files.exists(Paths.get(UrlConstants.IMAGE_FOLDER_PATH+transaction.getImagePath())))
+            errorMessages.add("invalid image path");
+
+        if (errorMessages.isEmpty())
+            throw new Exception("Data constraint");
     }
 }
