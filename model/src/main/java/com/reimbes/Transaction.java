@@ -2,6 +2,8 @@ package com.reimbes;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -27,7 +29,8 @@ public class Transaction implements Serializable{
 
     // user one to many transaction
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    @JoinColumn(name = "user_id", updatable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ReimsUser user;
 
     // jadi kalo orang ga ngirim foto dariawal/manual ga bisa nambahin foto

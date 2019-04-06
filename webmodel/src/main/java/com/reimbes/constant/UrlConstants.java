@@ -5,7 +5,7 @@ public class UrlConstants {
     public static final String BASE_URL = "http://localhost:8080/api";
     public static final String LOGIN_URL = "/login";
     public static final String LOGOUT_URL = "/logout";
-    public static final String IMAGE_FOLDER_PATH = "C:\\Users\\Z\\Documents\\reims-img";
+    public static final String IMAGE_FOLDER_PATH = "C:\\Users\\Z\\Documents\\future\\reimbes\\reims-img\\";
 
     //prefix
     public static final String ADMIN_PREFIX = "/admin";

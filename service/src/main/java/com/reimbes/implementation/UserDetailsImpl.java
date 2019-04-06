@@ -14,7 +14,7 @@ public class UserDetailsImpl implements UserDetails {
     private String password;
     private Collection authorities;
 
-        public UserDetailsImpl(String username, String password, Collection<GrantedAuthority> list){
+    public UserDetailsImpl(String username, String password, Collection<GrantedAuthority> list){
         this.username = username;
         this.password = password;
         authorities = list;
@@ -28,6 +28,10 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public String getPassword() {
         return password;
+    }
+
+    public String getUserId() {
+        return username;
     }
 
     @Override

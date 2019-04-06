@@ -29,8 +29,8 @@ public class TransactionController {
     }
 
     @PostMapping
-    public String createTransaction(@RequestBody Transaction newTransaction) {
-        return "new Transction has been created";
+    public Transaction createTransaction(HttpServletRequest request, @RequestBody Transaction newTransaction) throws Exception{
+        return transactionService.create(request, newTransaction);
     }
 
     @PostMapping(UrlConstants.UPLOAD)
