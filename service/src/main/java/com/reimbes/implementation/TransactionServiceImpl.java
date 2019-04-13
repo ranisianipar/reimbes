@@ -93,7 +93,13 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction uploadReal(MultipartFile image) {
+    public byte[] getPhoto(String imagePath) {
+        imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
+        try {
+            return Files.readAllBytes(Paths.get(imagePath));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
