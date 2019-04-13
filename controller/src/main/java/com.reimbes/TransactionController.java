@@ -1,7 +1,6 @@
 package com.reimbes;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.response.TransactionResponse;
