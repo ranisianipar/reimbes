@@ -19,4 +19,5 @@ public class UrlConstants {
     // others
     public static final String UPLOAD = "/_upload";
     public static final String ID_PARAM = "/{id:.+}";
+    public static final String IMAGEPATH_PARAM = "/{imagePath:.+}";
 }

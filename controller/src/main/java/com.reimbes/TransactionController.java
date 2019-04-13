@@ -27,6 +27,11 @@ public class TransactionController {
         return "Get transaction by ID: "+id;
     }
 
+    @GetMapping(UrlConstants.IMAGEPATH_PARAM)
+    public byte[] getPhoto(@PathVariable String imagePath) {
+        return transactionService.getPhoto(imagePath);
+    }
+
     @PostMapping
     public Transaction createTransaction(HttpServletRequest request, @RequestBody Transaction newTransaction) throws Exception{
         return transactionService.create(request, newTransaction);
@@ -36,12 +41,6 @@ public class TransactionController {
     public String uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image) throws Exception {
         return transactionService.upload(request, image);
     }
-
-    @PostMapping(UrlConstants.UPLOAD+"_real")
-    public Transaction uploadImageReal(MultipartFile image) {
-        return transactionService.uploadReal(image);
-    }
-
 
     @DeleteMapping(UrlConstants.ID_PARAM)
     public String deleteById(@PathVariable String id) {

@@ -34,11 +34,12 @@ public class CVAzure implements OcrService {
     private static final String uriBase =
             "https://southeastasia.api.cognitive.microsoft.com/vision/v2.0/read/core/asyncBatchAnalyze";
 
-    private static final String imageToAnalyze =
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/" +
-                    "Cursive_Writing_on_Notebook_paper.jpg/800px-Cursive_Writing_on_Notebook_paper.jpg";
+    // will be the param of readImage
+//    private static final String imageToAnalyze =
+//            "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/" +
+//                    "Cursive_Writing_on_Notebook_paper.jpg/800px-Cursive_Writing_on_Notebook_paper.jpg";
 
-    public static void readImage() {
+    public static void readImage(String imageToAnalyze) {
         CloseableHttpClient httpTextClient = HttpClientBuilder.create().build();
         CloseableHttpClient httpResultClient = HttpClientBuilder.create().build();;
 
