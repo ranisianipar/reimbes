@@ -9,16 +9,6 @@ import javax.validation.constraints.NotNull;
 @Data
 public class ReimsUser {
 
-    /*
-    * QUESTION: relasi one-to-one buat ReimsUser ke Admin/Employee? butuh kolom ID yg ngereference ke msg2
-    * object
-    * MUNGKIN SOLUSI: Bikin abstract class GeneralUser(usern, pass)
-    *
-    * KENDALA TERBESAR: gmn caranya ngebedain repository tiap role user? biar ReimsUser.java cuma jadi wadah buat ambil
-    * username sama password dari admin/employee repo. Jadi ga ada userRepository
-    * */
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;

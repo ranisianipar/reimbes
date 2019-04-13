@@ -26,16 +26,13 @@ public class Transaction implements Serializable{
     private Date date;
     private long amount;
     private Category category;
+    private String imagePath;
 
     // user one to many transaction
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id", updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ReimsUser user;
-
-    // jadi kalo orang ga ngirim foto dariawal/manual ga bisa nambahin foto
-    @Column(updatable = false)
-    private String imagePath;
 
     public enum Category {
         FUEL,

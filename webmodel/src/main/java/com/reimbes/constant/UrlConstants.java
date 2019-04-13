@@ -5,7 +5,7 @@ public class UrlConstants {
     public static final String BASE_URL = "http://localhost:8080/api";
     public static final String LOGIN_URL = "/login";
     public static final String LOGOUT_URL = "/logout";
-    public static final String IMAGE_FOLDER_PATH = "C:\\Users\\Z\\Documents\\future\\reimbes\\reims-img\\";
+    public static final String IMAGE_FOLDER_PATH = "D:\\reimes-img\\";
 
     //prefix
     public static final String ADMIN_PREFIX = "/admin";
@@ -19,5 +19,4 @@ public class UrlConstants {
     // others
     public static final String UPLOAD = "/_upload";
     public static final String ID_PARAM = "/{id:.+}";
-
 }
