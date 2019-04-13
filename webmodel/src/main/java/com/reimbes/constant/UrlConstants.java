@@ -18,6 +18,11 @@ public class UrlConstants {
 
     // others
     public static final String UPLOAD = "/_upload";
+    public static final String SHOW_IMAGE_PREFIX = "/_show-image";
     public static final String ID_PARAM = "/{id:.+}";
-    public static final String IMAGEPATH_PARAM = "/{imagePath:.+}";
+
+    // URI
+    public static final String URI_IMAGE_BASE =
+            BASE_URL+TRANSACTION_PREFIX+ UrlConstants.SHOW_IMAGE_PREFIX+"/";
+
 }
