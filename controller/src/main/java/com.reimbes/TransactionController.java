@@ -1,12 +1,15 @@
 package com.reimbes;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.response.TransactionResponse;
+import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,7 +36,7 @@ public class TransactionController {
         return transactionService.getPhoto(imagePath);
     }
 
-    @GetMapping("/_ocr-this")
+    @GetMapping(UrlConstants.OCR)
     public TransactionResponse getOcrResult(@RequestParam String imagePath) {
         return null;
     }
@@ -44,8 +47,8 @@ public class TransactionController {
     }
 
     @PostMapping(UrlConstants.UPLOAD)
-    public String uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image) throws Exception {
-        return transactionService.upload(request, image);
+    public String uploadImage(HttpServletRequest request, @RequestParam("image") String imageValue) throws Exception {
+        return transactionService.upload(request, imageValue);
     }
 
     @DeleteMapping(UrlConstants.ID_PARAM)
@@ -58,4 +61,10 @@ public class TransactionController {
         return "delete many transaction";
     }
 
+    private MapperFacade getMapper(Transaction transaction) {
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+        mapperFactory.classMap(Transaction.class, TransactionResponse.class)
+                .byDefault().register();
+        return mapperFactory.getMapperFacade();
+    }
 }
