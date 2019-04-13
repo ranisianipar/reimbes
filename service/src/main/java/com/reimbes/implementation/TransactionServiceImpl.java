@@ -13,13 +13,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -48,7 +49,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void delete(long id) {
-
         // tahap nge-query transactionnya --> cari yang user nya dia
         transactionRepository.delete(id);
     }
@@ -63,25 +63,38 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findOne(id);
     }
 
+    // bakal return object hasil OCR --> TransactionResponse
     @Override
     public String upload(HttpServletRequest req, MultipartFile image) throws Exception {
         HashMap userDetails = JWTAuthorizationFilter.getCurrentUserDetails(req);
         String userId;
+
         try {
-            userId = userService.getUserByUsername((String) userDetails.get("username")).getId(); // GANTI
+            userId = userService.getUserByUsername((String) userDetails.get("username")).getId();
         } catch (NullPointerException e) {
             throw new Exception("In memory user");
         }
+        String folderName = userId +"\\";
+        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ folderName);
 
-        String filename = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ userId +"\\");
+        if (!Files.exists(Paths.get(path)))
+            Files.createDirectory(Paths.get(path));
 
-        if (!Files.exists(Paths.get(filename)))
-            Files.createDirectory(Paths.get(filename));
-        String localPath = filename + image.getName() + image.getOriginalFilename() + image.getContentType();
+        path = path + image.getOriginalFilename();
 
         InputStream inputStream = image.getInputStream();
-        Files.copy(inputStream, Paths.get(filename));
-        return localPath;
+        try {
+            Files.copy(inputStream, Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return folderName+ image.getOriginalFilename();
+    }
+
+    @Override
+    public Transaction uploadReal(MultipartFile image) {
+        return null;
     }
 
     private void validate(Transaction transaction) throws Exception{

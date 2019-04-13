@@ -34,8 +34,12 @@ public class TransactionController {
 
     @PostMapping(UrlConstants.UPLOAD)
     public String uploadImage(HttpServletRequest request, @RequestParam("image") MultipartFile image) throws Exception {
-
         return transactionService.upload(request, image);
+    }
+
+    @PostMapping(UrlConstants.UPLOAD+"_real")
+    public Transaction uploadImageReal(MultipartFile image) {
+        return transactionService.uploadReal(image);
     }
 
 
