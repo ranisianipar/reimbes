@@ -15,6 +15,8 @@ import org.json.JSONObject;
 
 import java.net.URI;
 
+import static com.reimbes.constant.UrlConstants.URI_IMAGE_BASE;
+
 public class CVAzure implements OcrService {
     // **********************************************
     // *** Update or verify the following values. ***
@@ -34,12 +36,10 @@ public class CVAzure implements OcrService {
     private static final String uriBase =
             "https://southeastasia.api.cognitive.microsoft.com/vision/v2.0/read/core/asyncBatchAnalyze";
 
-    // will be the param of readImage
-//    private static final String imageToAnalyze =
-//            "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/" +
-//                    "Cursive_Writing_on_Notebook_paper.jpg/800px-Cursive_Writing_on_Notebook_paper.jpg";
 
     public static void readImage(String imageToAnalyze) {
+        imageToAnalyze = URI_IMAGE_BASE + imageToAnalyze;
+
         CloseableHttpClient httpTextClient = HttpClientBuilder.create().build();
         CloseableHttpClient httpResultClient = HttpClientBuilder.create().build();;
 

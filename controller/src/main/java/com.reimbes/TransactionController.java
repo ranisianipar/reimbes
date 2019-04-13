@@ -3,6 +3,7 @@ package com.reimbes;
 
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.implementation.TransactionServiceImpl;
+import com.reimbes.response.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,9 +28,14 @@ public class TransactionController {
         return "Get transaction by ID: "+id;
     }
 
-    @GetMapping(UrlConstants.IMAGEPATH_PARAM)
-    public byte[] getPhoto(@PathVariable String imagePath) {
+    @GetMapping(UrlConstants.SHOW_IMAGE_PREFIX)
+    public byte[] getPhoto(@RequestParam String imagePath) {
         return transactionService.getPhoto(imagePath);
+    }
+
+    @GetMapping("/_ocr-this")
+    public TransactionResponse getOcrResult(@RequestParam String imagePath) {
+        return null;
     }
 
     @PostMapping

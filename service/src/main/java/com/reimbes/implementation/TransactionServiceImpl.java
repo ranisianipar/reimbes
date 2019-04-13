@@ -29,6 +29,9 @@ public class TransactionServiceImpl implements TransactionService {
     private TransactionRepository transactionRepository;
 
     @Autowired
+    private CVAzure ocrService;
+
+    @Autowired
     private UserServiceImpl userService;
 
     @Override
