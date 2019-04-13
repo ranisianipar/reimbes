@@ -1,12 +1,13 @@
 package com.reimbes.response;
 
 import com.reimbes.Transaction;
+import com.reimbes.request.TransactionRequest;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class TransactionResponse {
+public class TransactionResponse<T extends TransactionRequest> {
     private long id;
     private String imagePath;
     private String user; // contains the username
@@ -19,8 +20,7 @@ public class TransactionResponse {
     private long amount;
     private Transaction.Category category;
 
-    // some specific attributes those depending to the category
-    // ....
+    private T transactionDetails;
 
 
 }
