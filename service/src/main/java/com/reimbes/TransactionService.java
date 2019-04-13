@@ -9,7 +9,7 @@ public interface TransactionService {
     void delete(long id);
     void deleteAll();
     Transaction get(long id);
-    String upload(HttpServletRequest req, MultipartFile image) throws Exception;
+    String upload(HttpServletRequest req, String image) throws Exception;
     byte[] getPhoto(String imagePath);
 
     // .xls

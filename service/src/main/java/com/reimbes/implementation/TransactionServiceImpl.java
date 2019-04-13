@@ -7,12 +7,17 @@ import com.reimbes.TransactionService;
 
 import com.reimbes.authentication.JWTAuthorizationFilter;
 import com.reimbes.constant.UrlConstants;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -68,7 +73,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     // bakal return object hasil OCR --> TransactionResponse
     @Override
-    public String upload(HttpServletRequest req, MultipartFile image) throws Exception {
+    public String upload(HttpServletRequest req, String imageValue) throws Exception {
         HashMap userDetails = JWTAuthorizationFilter.getCurrentUserDetails(req);
         String userId;
 
@@ -83,16 +88,21 @@ public class TransactionServiceImpl implements TransactionService {
         if (!Files.exists(Paths.get(path)))
             Files.createDirectory(Paths.get(path));
 
-        path = path + image.getOriginalFilename();
+        String filename = UUID.randomUUID()+".jpg";
+        path = path + filename;
 
-        InputStream inputStream = image.getInputStream();
+        //This will decode the String which is encoded by using Base64 class
+        byte[] data = Base64.decodeBase64(imageValue);
+
+        InputStream inputStream = new ByteArrayInputStream(data);
+
         try {
             Files.copy(inputStream, Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return folderName+ image.getOriginalFilename();
+        return folderName+ filename;
     }
 
     @Override
