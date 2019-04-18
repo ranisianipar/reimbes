@@ -48,7 +48,6 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
                         null, (Collection<? extends GrantedAuthority>) userDetails.get("roles"));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        System.out.println("CHAIN =>"+chain);
         chain.doFilter(req, res);
     }
 
