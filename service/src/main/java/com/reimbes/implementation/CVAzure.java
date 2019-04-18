@@ -12,11 +12,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
+import org.springframework.stereotype.Service;
 
 import java.net.URI;
 
 import static com.reimbes.constant.UrlConstants.URI_IMAGE_BASE;
 
+@Service
 public class CVAzure implements OcrService {
     // **********************************************
     // *** Update or verify the following values. ***

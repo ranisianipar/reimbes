@@ -8,6 +8,7 @@ import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,17 +22,17 @@ public class TransactionController {
     private TransactionServiceImpl transactionService;
 
     @GetMapping
-    public String getAllTransaction() {
-        return "All transaction";
+    public String getAllTransaction(HttpServletRequest req) {
+        return "SOON";
     }
 
     @GetMapping(UrlConstants.ID_PARAM)
-    public String getTransaction(@PathVariable String id) {
+    public String getTransaction(@PathVariable String id, HttpServletRequest req) {
         return "Get transaction by ID: "+id;
     }
 
     @GetMapping(UrlConstants.SHOW_IMAGE_PREFIX)
-    public byte[] getPhoto(@RequestParam String imagePath) {
+    public byte[] getPhoto(@RequestParam String imagePath, HttpServletRequest req) {
         return transactionService.getPhoto(imagePath);
     }
 
@@ -51,7 +52,7 @@ public class TransactionController {
     }
 
     @DeleteMapping(UrlConstants.ID_PARAM)
-    public String deleteById(@PathVariable String id) {
+    public String deleteById(@PathVariable String id, HttpServletRequest req) {
         return "delete by ID: "+id;
     }
 
