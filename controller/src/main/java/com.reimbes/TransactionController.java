@@ -3,12 +3,12 @@ package com.reimbes;
 
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.implementation.TransactionServiceImpl;
+import com.reimbes.response.BaseResponse;
 import com.reimbes.response.TransactionResponse;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +28,7 @@ public class TransactionController {
 
     @GetMapping(UrlConstants.ID_PARAM)
     public String getTransaction(@PathVariable String id, HttpServletRequest req) {
-        return "Get transaction by ID: "+id;
+        return "Get transaction by ID: "+id+"[SOON]";
     }
 
     @GetMapping(UrlConstants.SHOW_IMAGE_PREFIX)
@@ -42,13 +42,18 @@ public class TransactionController {
     }
 
     @PostMapping
-    public Transaction createTransaction(HttpServletRequest request, @RequestBody Transaction newTransaction) throws Exception{
-        return transactionService.create(request, newTransaction);
+    public BaseResponse<TransactionResponse> createTransaction(HttpServletRequest request, @RequestBody Transaction newTransaction) throws Exception{
+        BaseResponse br = new BaseResponse();
+        TransactionResponse tr = getMapper().map(transactionService.create(request, newTransaction), TransactionResponse.class);
+        br.setValue(tr);
+        return br;
     }
 
     @PostMapping(UrlConstants.UPLOAD)
-    public String uploadImage(HttpServletRequest request, @RequestParam("image") String imageValue) throws Exception {
-        return transactionService.upload(request, imageValue);
+    public BaseResponse uploadImage(HttpServletRequest request, @RequestParam("image") String imageValue) throws Exception {
+        BaseResponse br = new BaseResponse();
+        br.setValue(transactionService.upload(request, imageValue));
+        return br;
     }
 
     @DeleteMapping(UrlConstants.ID_PARAM)
@@ -61,7 +66,7 @@ public class TransactionController {
         return "delete many transaction";
     }
 
-    private MapperFacade getMapper(Transaction transaction) {
+    private MapperFacade getMapper() {
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
         mapperFactory.classMap(Transaction.class, TransactionResponse.class)
                 .byDefault().register();

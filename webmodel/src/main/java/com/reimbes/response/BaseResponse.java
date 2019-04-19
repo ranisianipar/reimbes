@@ -16,4 +16,9 @@ public class BaseResponse<T> {
     T value;
     boolean success;
 
+    public BaseResponse() {
+        this.code = 200;
+        this.success = true;
+    }
+
 }
