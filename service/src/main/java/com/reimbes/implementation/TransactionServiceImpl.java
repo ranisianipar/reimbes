@@ -6,9 +6,14 @@ import com.reimbes.TransactionRepository;
 import com.reimbes.TransactionService;
 
 import com.reimbes.authentication.JWTAuthorizationFilter;
+import com.reimbes.constant.ResponseCode;
 import com.reimbes.constant.UrlConstants;
+import com.reimbes.exception.DataConstraintException;
+import com.reimbes.exception.NotFoundException;
+import com.reimbes.exception.ReimsException;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
@@ -34,16 +39,18 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private UserServiceImpl userService;
 
-    @Override
-    public Transaction create(HttpServletRequest request, Transaction transaction) throws Exception{
-        HashMap userDetails = JWTAuthorizationFilter.getCurrentUserDetails(request);
-        String username = (String) userDetails.get("username");
-        ReimsUser user;
+    @Autowired
+    private JWTAuthorizationFilter authorizationFilter;
 
-        user = userService.getUserByUsername(username);
-        // ADAPTABLE
+    @Override
+    public Transaction create(HttpServletRequest request, Transaction transaction) throws ReimsException{
+        HashMap userDetails = authorizationFilter.getCurrentUserDetails(request);
+        ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
+
         if (user == null) {
-            throw new Exception("In-Memory user not allowed");
+            throw new ReimsException("In-Memory user not allowed"
+                    , HttpStatus.METHOD_NOT_ALLOWED
+                    , ResponseCode.UNAUTHORIZED);
         }
         transaction.setUser(user);
         validate(transaction);
@@ -51,25 +58,34 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public void delete(long id) {
-        // tahap nge-query transactionnya --> cari yang user nya dia
+    public void delete(HttpServletRequest request, long id) throws ReimsException{
+        HashMap userDetails = authorizationFilter.getCurrentUserDetails(request);
+        ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
+        Transaction transaction = transactionRepository.findOne(id);
+        if (transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
         transactionRepository.delete(id);
     }
 
     @Override
-    public void deleteAll() {
-        transactionRepository.deleteAll();
+    public void deleteAll(HttpServletRequest request) {
+        HashMap userDetails = authorizationFilter.getCurrentUserDetails(request);
+        ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
+        transactionRepository.deleteByUser(user);
     }
 
     @Override
-    public Transaction get(long id) {
+    public Transaction get(HttpServletRequest request, long id) throws ReimsException{
+        HashMap userDetails = authorizationFilter.getCurrentUserDetails(request);
+        ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
+        Transaction transaction = transactionRepository.findOne(id);
+        if (transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
+
         return transactionRepository.findOne(id);
     }
 
-    // bakal return object hasil OCR --> TransactionResponse
     @Override
-    public String upload(HttpServletRequest req, String imageValue) throws Exception {
-        HashMap userDetails = JWTAuthorizationFilter.getCurrentUserDetails(req);
+    public String upload(HttpServletRequest request, String imageValue) throws Exception {
+        HashMap userDetails = authorizationFilter.getCurrentUserDetails(request);
         String userId;
 
         try {
@@ -111,7 +127,7 @@ public class TransactionServiceImpl implements TransactionService {
         return null;
     }
 
-    private void validate(Transaction transaction) throws Exception{
+    private void validate(Transaction transaction) throws ReimsException{
         // validate the value and value type
         // date dicek harus ada isinya, dan sesuai ketentuan Date
 
@@ -132,6 +148,6 @@ public class TransactionServiceImpl implements TransactionService {
             errorMessages.add("invalid image path");
 
         if (errorMessages.isEmpty())
-            throw new Exception("Data constraint");
+            throw new DataConstraintException("Data constraint");
     }
 }

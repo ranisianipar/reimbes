@@ -23,10 +23,13 @@ public class AdminController {
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
             br.setValue(getMapper().map(adminService.createUser(user), UserResponse.class));
-            return br;
         } catch (ReimsException r) {
-            return ReimsException.getErrorResponse(r);
+            br.setErrorMessage(r.getMessage());
+            br.setSuccess(false);
+            br.setCode(r.getCode());
+            br.setErrorCode(r.getHttpStatus());
         }
+        return br;
     }
 
     private MapperFacade getMapper() {
