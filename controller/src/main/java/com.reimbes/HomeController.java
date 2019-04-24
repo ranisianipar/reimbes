@@ -1,7 +1,7 @@
 package com.reimbes;
 
-import com.reimbes.authentication.JWTAuthenticationFilter;
 import com.reimbes.constant.UrlConstants;
+import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.response.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,11 +18,11 @@ public class HomeController {
     private UserDetailsService userService;
 
     @Autowired
-    private JWTAuthenticationFilter authenticationFilter;
+    private AuthServiceImpl authService;
 
     @GetMapping(UrlConstants.LOGOUT_URL)
     public BaseResponse logout(HttpServletRequest req) {
-        authenticationFilter.logout(req);
+        authService.logout(req);
         return new BaseResponse();
     }
 
