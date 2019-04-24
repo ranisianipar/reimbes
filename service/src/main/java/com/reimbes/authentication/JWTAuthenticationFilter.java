@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Service;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -24,9 +25,6 @@ import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.reimbes.constant.SecurityConstants.*;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
-
-//    private String username;
 
     @Autowired
     private ActiveTokenRepository activeTokenRepository;
@@ -49,7 +47,6 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             ReimsUser creds = new ObjectMapper()
                     .readValue(req.getInputStream(), ReimsUser.class);
 
-//            username = creds.getUsername();
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             creds.getUsername(),
@@ -82,11 +79,5 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .sign(HMAC512(SECRET.getBytes()));
         res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
         activeTokenRepository.save(new ActiveToken(token));
-
-    }
-
-    public void logout(HttpServletRequest req) {
-        String token = req.getHeader(HEADER_STRING);
-        activeTokenRepository.delete(new ActiveToken(token));
     }
 }

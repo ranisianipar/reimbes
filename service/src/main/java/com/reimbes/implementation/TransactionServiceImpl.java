@@ -5,7 +5,6 @@ import com.reimbes.Transaction;
 import com.reimbes.TransactionRepository;
 import com.reimbes.TransactionService;
 
-import com.reimbes.authentication.JWTAuthorizationFilter;
 import com.reimbes.constant.ResponseCode;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
@@ -40,11 +39,11 @@ public class TransactionServiceImpl implements TransactionService {
     private UserServiceImpl userService;
 
     @Autowired
-    private JWTAuthorizationFilter authorizationFilter;
+    private AuthServiceImpl authService;
 
     @Override
     public Transaction create(HttpServletRequest request, Transaction transaction) throws ReimsException{
-        HashMap userDetails = authorizationFilter.getCurrentUserDetails(request);
+        HashMap userDetails = authService.getCurrentUserDetails(request);
         ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
 
         if (user == null) {
@@ -59,7 +58,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void delete(HttpServletRequest request, long id) throws ReimsException{
-        HashMap userDetails = authorizationFilter.getCurrentUserDetails(request);
+        HashMap userDetails = authService.getCurrentUserDetails(request);
         ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
@@ -68,14 +67,14 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void deleteAll(HttpServletRequest request) {
-        HashMap userDetails = authorizationFilter.getCurrentUserDetails(request);
+        HashMap userDetails = authService.getCurrentUserDetails(request);
         ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
         transactionRepository.deleteByUser(user);
     }
 
     @Override
     public Transaction get(HttpServletRequest request, long id) throws ReimsException{
-        HashMap userDetails = authorizationFilter.getCurrentUserDetails(request);
+        HashMap userDetails = authService.getCurrentUserDetails(request);
         ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
@@ -85,7 +84,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public String upload(HttpServletRequest request, String imageValue) throws Exception {
-        HashMap userDetails = authorizationFilter.getCurrentUserDetails(request);
+        HashMap userDetails = authService.getCurrentUserDetails(request);
         String userId;
 
         try {
