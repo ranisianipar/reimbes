@@ -3,6 +3,9 @@ package com.reimbes.authentication;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.reimbes.ActiveToken;
+import com.reimbes.ActiveTokenRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,6 +27,9 @@ import static com.reimbes.constant.SecurityConstants.*;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
+    @Autowired
+    private ActiveTokenRepository activeTokenRepository;
+
     public JWTAuthorizationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
@@ -34,13 +40,10 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
                                     FilterChain chain) throws IOException, ServletException {
         String token = req.getHeader(HEADER_STRING);
 
-        if (token == null || !token.startsWith(TOKEN_PREFIX)) {
+        if (token == null || !token.startsWith(TOKEN_PREFIX) || !activeTokenRepository.existsByToken(token)) {
             chain.doFilter(req, res);
             return;
         }
-        // di cek di redis --> KALO LOGOUT, HAPUS DI REDIS
-        // if (token isNotExist in redis)
-        // yg ditaro di-redis id user
 
         HashMap userDetails = getCurrentUserDetails(req);
         UsernamePasswordAuthenticationToken authentication =
@@ -51,7 +54,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         chain.doFilter(req, res);
     }
 
-    public static HashMap getCurrentUserDetails(HttpServletRequest request) {
+    public HashMap getCurrentUserDetails(HttpServletRequest request) {
         String token = request.getHeader(HEADER_STRING);
         if (token != null) {
             // parse the token.

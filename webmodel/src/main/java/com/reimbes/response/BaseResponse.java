@@ -1,5 +1,6 @@
 package com.reimbes.response;
 
+import com.reimbes.constant.ResponseCode;
 import lombok.Data;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,7 @@ public class BaseResponse<T> {
     boolean success;
 
     public BaseResponse() {
-        this.code = 200;
+        this.code = ResponseCode.OK;
         this.success = true;
     }
 

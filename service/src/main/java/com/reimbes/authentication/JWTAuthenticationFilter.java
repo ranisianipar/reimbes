@@ -2,7 +2,10 @@ package com.reimbes.authentication;
 
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.reimbes.ActiveToken;
+import com.reimbes.ActiveTokenRepository;
 import com.reimbes.ReimsUser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,7 +26,11 @@ import static com.reimbes.constant.SecurityConstants.*;
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 
-    private String username;
+//    private String username;
+
+    @Autowired
+    private ActiveTokenRepository activeTokenRepository;
+
     private AuthenticationManager authenticationManager;
 
     public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
@@ -42,7 +49,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             ReimsUser creds = new ObjectMapper()
                     .readValue(req.getInputStream(), ReimsUser.class);
 
-            username = creds.getUsername();
+//            username = creds.getUsername();
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             creds.getUsername(),
@@ -74,6 +81,12 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withClaim("role", role)
                 .sign(HMAC512(SECRET.getBytes()));
         res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
+        activeTokenRepository.save(new ActiveToken(token));
 
+    }
+
+    public void logout(HttpServletRequest req) {
+        String token = req.getHeader(HEADER_STRING);
+        activeTokenRepository.delete(new ActiveToken(token));
     }
 }
