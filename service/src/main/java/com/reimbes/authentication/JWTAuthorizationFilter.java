@@ -21,11 +21,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
 import static com.reimbes.constant.SecurityConstants.*;
+
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -45,7 +45,8 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
                                     FilterChain chain) throws IOException, ServletException {
         String token = req.getHeader(HEADER_STRING);
 
-        if (token == null || !token.startsWith(TOKEN_PREFIX) || !activeTokenRepository.existsByToken(token)) {
+//        !activeTokenRepository.existsByToken(token)
+        if (token == null || !token.startsWith(TOKEN_PREFIX)) {
             chain.doFilter(req, res);
             return;
         }
