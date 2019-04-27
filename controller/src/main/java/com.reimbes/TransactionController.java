@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @CrossOrigin(origins = UrlConstants.BASE_URL)
 @RestController
-@RequestMapping(UrlConstants.TRANSACTION_PREFIX)
+@RequestMapping(UrlConstants.API_PREFIX+UrlConstants.TRANSACTION_PREFIX)
 public class TransactionController {
 
     @Autowired

@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @CrossOrigin(origins = UrlConstants.BASE_URL)
 @RestController
-@RequestMapping("/")
+@RequestMapping(UrlConstants.API_PREFIX)
 public class HomeController {
 
     @Autowired
