@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReimsUserRepository extends JpaRepository<ReimsUser, Long> {
-    public ReimsUser findByUsername(String username);
+    ReimsUser findByUsername(String username);
 }

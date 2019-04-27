@@ -6,12 +6,19 @@ import com.reimbes.ActiveToken;
 import com.reimbes.ActiveTokenRepository;
 import com.reimbes.ReimsUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.FilterChain;
@@ -24,13 +31,18 @@ import java.util.*;
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.reimbes.constant.SecurityConstants.*;
 
+/*
+* SOURCE: https://stackoverflow.com/questions/19896870/why-is-my-spring-autowired-field-null
+*
+* */
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    @Autowired
-    private ActiveTokenRepository activeTokenRepository;
+//    @Autowired
+//    private ActiveTokenRepository activeTokenRepository;
 
     private AuthenticationManager authenticationManager;
 
+    @Autowired
     public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
@@ -66,7 +78,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest req,
                                             HttpServletResponse res,
                                             FilterChain chain,
-                                            Authentication auth) throws IOException, ServletException {
+                                            Authentication auth) throws IOException, ServletException{
 
         UserDetails user = (UserDetails) auth.getPrincipal();
         Collection authorities = user.getAuthorities();
@@ -78,6 +90,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withClaim("role", role)
                 .sign(HMAC512(SECRET.getBytes()));
         res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
-        activeTokenRepository.save(new ActiveToken(token));
+
+//        activeTokenRepository.save(new ActiveToken(token));
     }
 }
