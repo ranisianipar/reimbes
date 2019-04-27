@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = UrlConstants.BASE_URL)
 @RestController
-@RequestMapping(UrlConstants.ADMIN_PREFIX)
+@RequestMapping(UrlConstants.API_PREFIX+UrlConstants.ADMIN_PREFIX)
 public class AdminController {
 
     @Autowired

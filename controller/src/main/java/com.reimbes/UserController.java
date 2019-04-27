@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = UrlConstants.BASE_URL)
 @RestController
-@RequestMapping(UrlConstants.USER_PREFIX)
+@RequestMapping(UrlConstants.API_PREFIX+UrlConstants.USER_PREFIX)
 public class UserController {
 
     @Autowired
