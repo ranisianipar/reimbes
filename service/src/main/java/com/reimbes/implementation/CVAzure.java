@@ -1,31 +1,41 @@
 package com.reimbes.implementation;
 
 import com.reimbes.OcrService;
+import com.reimbes.constant.SecurityConstants;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
 
 import static com.reimbes.constant.UrlConstants.URI_IMAGE_BASE;
 
+
 @Service
 public class CVAzure implements OcrService {
+
+    @Autowired
+    private TransactionServiceImpl transactionService;
+
     // **********************************************
     // *** Update or verify the following values. ***
     // **********************************************
 
     // Replace <Subscription Key> with your valid subscription key.
-    private static final String subscriptionKey = "<Subscription Key>";
+    private static final String subscriptionKey = SecurityConstants.OCR_KEY;
 
     // You must use the same Azure region in your REST API method as you used to
     // get your subscription keys. For example, if you got your subscription keys
@@ -39,8 +49,8 @@ public class CVAzure implements OcrService {
             "https://southeastasia.api.cognitive.microsoft.com/vision/v2.0/read/core/asyncBatchAnalyze";
 
 
-    public static void readImage(String imageToAnalyze) {
-        imageToAnalyze = URI_IMAGE_BASE + imageToAnalyze;
+    public void readImage(String imagePath) {
+        byte[] imageValue = transactionService.getPhoto(imagePath);
 
         CloseableHttpClient httpTextClient = HttpClientBuilder.create().build();
         CloseableHttpClient httpResultClient = HttpClientBuilder.create().build();;
@@ -59,12 +69,12 @@ public class CVAzure implements OcrService {
             HttpPost request = new HttpPost(uri);
 
             // Request headers.
-            request.setHeader("Content-Type", "application/json");
+            request.setHeader("Content-Type", "application/octet-stream");
             request.setHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
 
             // Request body.
-            StringEntity requestEntity =
-                    new StringEntity("{\"url\":\"" + imageToAnalyze + "\"}");
+            ByteArrayEntity requestEntity = new
+                    ByteArrayEntity(imageValue, ContentType.APPLICATION_OCTET_STREAM);
             request.setEntity(requestEntity);
 
             // Two REST API methods are required to extract handwritten text.
@@ -127,6 +137,7 @@ public class CVAzure implements OcrService {
                 // Format and display the JSON response.
                 String jsonString = EntityUtils.toString(responseEntity);
                 JSONObject json = new JSONObject(jsonString);
+                // passing ke algo buat nyusun kata
                 System.out.println("Text recognition result response: \n");
                 System.out.println(json.toString(2));
             }

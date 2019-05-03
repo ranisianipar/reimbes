@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -51,12 +52,36 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
             return;
         }
 
-        HashMap userDetails = authService.getCurrentUserDetails(req);
+        HashMap userDetails = getCurrentUserDetails(req);
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails.get("username"),
                         null, (Collection<? extends GrantedAuthority>) userDetails.get("roles"));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(req, res);
+    }
+
+    public HashMap getCurrentUserDetails(HttpServletRequest request) {
+        String token = request.getHeader(HEADER_STRING);
+        if (token != null) {
+            // parse the token.
+            DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
+                    .build()
+                    .verify(token.replace(TOKEN_PREFIX, ""));
+            String user = decodedJWT.getSubject();
+
+            String role = decodedJWT.getClaim("role").asString();
+
+            if (user != null) {
+                HashMap<String, Object> userDetails = new HashMap<>();
+                // will be useful if we provide multi-access to user
+                Collection<GrantedAuthority> roles = new ArrayList();
+                roles.add(new SimpleGrantedAuthority(role));
+                userDetails.put("username", user);
+                userDetails.put("roles",roles);
+                return userDetails;
+            }
+        }
+        return null;
     }
 }

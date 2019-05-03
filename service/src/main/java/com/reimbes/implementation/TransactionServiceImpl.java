@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -83,7 +85,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public String upload(HttpServletRequest request, String imageValue) throws Exception {
+    public String upload(HttpServletRequest request, MultipartFile imageValue) throws Exception {
         HashMap userDetails = authService.getCurrentUserDetails(request);
         String userId;
 
@@ -94,7 +96,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
         String folderName = userId +"\\";
         String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ folderName);
-
+//
         if (!Files.exists(Paths.get(path)))
             Files.createDirectory(Paths.get(path));
 
@@ -102,8 +104,8 @@ public class TransactionServiceImpl implements TransactionService {
         path = path + filename;
 
         //This will decode the String which is encoded by using Base64 class
-        byte[] data = Base64.decodeBase64(imageValue);
-
+//        byte[] data = Base64.decodeBase64(imageValue);
+        byte[] data = imageValue.getBytes();
         InputStream inputStream = new ByteArrayInputStream(data);
 
         try {
@@ -112,7 +114,7 @@ public class TransactionServiceImpl implements TransactionService {
             e.printStackTrace();
         }
 
-        return folderName+ filename;
+        return folderName+filename;
     }
 
     @Override
