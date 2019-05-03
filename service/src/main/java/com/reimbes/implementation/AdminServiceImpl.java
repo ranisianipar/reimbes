@@ -16,4 +16,9 @@ public class AdminServiceImpl implements AdminService {
     public ReimsUser createUser(ReimsUser user) throws Exception{
         return userService.create(user);
     }
+
+    @Override
+    public void deleteUser(long id) {
+        userService.deleteUser(id);
+    }
 }

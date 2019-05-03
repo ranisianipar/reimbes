@@ -10,18 +10,14 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
-
-import static com.reimbes.constant.UrlConstants.URI_IMAGE_BASE;
 
 
 @Service
@@ -30,9 +26,6 @@ public class CVAzure implements OcrService {
     @Autowired
     private TransactionServiceImpl transactionService;
 
-    // **********************************************
-    // *** Update or verify the following values. ***
-    // **********************************************
 
     // Replace <Subscription Key> with your valid subscription key.
     private static final String subscriptionKey = SecurityConstants.OCR_KEY;
@@ -41,10 +34,6 @@ public class CVAzure implements OcrService {
     // get your subscription keys. For example, if you got your subscription keys
     // from the West US region, replace "westcentralus" in the URL
     // below with "westus".
-    //
-    // Free trial subscription keys are generated in the "westus" region.
-    // If you use a free trial subscription key, you shouldn't need to change
-    // this region.
     private static final String uriBase =
             "https://southeastasia.api.cognitive.microsoft.com/vision/v2.0/read/core/asyncBatchAnalyze";
 
@@ -144,6 +133,11 @@ public class CVAzure implements OcrService {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public String getReadeableResult(JSONObject ocrResult) {
+        
+        return "";
     }
 }
 

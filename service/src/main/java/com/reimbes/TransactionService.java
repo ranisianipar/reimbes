@@ -12,6 +12,7 @@ public interface TransactionService {
     Transaction get(HttpServletRequest req, long id) throws ReimsException;
     String upload(HttpServletRequest req, MultipartFile image) throws Exception;
     byte[] getPhoto(String imagePath); // is it ok to dont check the user?
+    void deletePhoto(String imagePath);
 
     // .xls
 }
