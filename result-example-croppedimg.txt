@@ -1,0 +1,984 @@
+Text recognition result response: 
+
+{
+  "recognitionResults": [{
+    "unit": "pixel",
+    "width": 900,
+    "page": 1,
+    "clockwiseOrientation": 359.5,
+    "lines": [
+      {
+        "boundingBox": [
+          175,
+          55,
+          582,
+          49,
+          583,
+          94,
+          176,
+          100
+        ],
+        "words": [
+          {
+            "boundingBox": [
+              171,
+              56,
+              264,
+              54,
+              264,
+              99,
+              170,
+              99
+            ],
+            "confidence": "Low",
+            "text": "GAHH"
+          },
+          {
+            "boundingBox": [
+              281,
+              54,
+              400,
+              52,
+              401,
+              98,
+              281,
+              99
+            ],
+            "text": "NINGA"
+          },
+          {
+            "boundingBox": [
+              420,
+              52,
+              534,
+              50,
+              534,
+              95,
+              421,
+              97
+            ],
+            "confidence": "Low",
+            "text": "THANK"
+          },
+          {
+            "boundingBox": [
+              534,
+              50,
+              579,
+              50,
+              580,
+              93,
+              534,
+              95
+            ],
+            "text": "IN"
+          }
+        ],
+        "text": "GAHH NINGA THANK IN"
+      },
+      {
+        "boundingBox": [
+          116,
+          294,
+          809,
+          288,
+          810,
+          331,
+          117,
+          337
+        ],
+        "words": [
+          {
+            "boundingBox": [
+              116,
+              300,
+              154,
+              299,
+              154,
+              337,
+              115,
+              337
+            ],
+            "text": "In"
+          },
+          {
+            "boundingBox": [
+              203,
+              297,
+              227,
+              297,
+              226,
+              336,
+              202,
+              336
+            ],
+            "confidence": "Low",
+            "text": "{"
+          },
+          {
+            "boundingBox": [
+              244,
+              296,
+              294,
+              295,
+              294,
+              336,
+              243,
+              336
+            ],
+            "confidence": "Low",
+            "text": "{{"
+          },
+          {
+            "boundingBox": [
+              309,
+              294,
+              377,
+              293,
+              376,
+              335,
+              308,
+              335
+            ],
+            "text": "FEE"
+          },
+          {
+            "boundingBox": [
+              401,
+              293,
+              493,
+              292,
+              492,
+              334,
+              400,
+              335
+            ],
+            "confidence": "Low",
+            "text": "EDIT"
+          },
+          {
+            "boundingBox": [
+              539,
+              291,
+              582,
+              291,
+              581,
+              334,
+              538,
+              334
+            ],
+            "text": "IA"
+          },
+          {
+            "boundingBox": [
+              584,
+              291,
+              609,
+              291,
+              608,
+              333,
+              584,
+              334
+            ],
+            "confidence": "Low",
+            "text": ":"
+          },
+          {
+            "boundingBox": [
+              601,
+              291,
+              650,
+              291,
+              649,
+              333,
+              601,
+              333
+            ],
+            "confidence": "Low",
+            "text": "LIE"
+          },
+          {
+            "boundingBox": [
+              650,
+              291,
+              674,
+              291,
+              673,
+              333,
+              649,
+              333
+            ],
+            "confidence": "Low",
+            "text": ":"
+          },
+          {
+            "boundingBox": [
+              669,
+              291,
+              693,
+              291,
+              693,
+              333,
+              668,
+              333
+            ],
+            "text": "4"
+          },
+          {
+            "boundingBox": [
+              696,
+              291,
+              720,
+              292,
+              719,
+              333,
+              695,
+              333
+            ],
+            "confidence": "Low",
+            "text": "1"
+          },
+          {
+            "boundingBox": [
+              715,
+              292,
+              744,
+              292,
+              743,
+              332,
+              714,
+              333
+            ],
+            "text": "-"
+          },
+          {
+            "boundingBox": [
+              737,
+              292,
+              821,
+              292,
+              821,
+              332,
+              736,
+              333
+            ],
+            "confidence": "Low",
+            "text": "Till-\""
+          }
+        ],
+        "text": "In { {{ FEE EDIT IA : LIE : 4 1 - Till-\""
+      },
+      {
+        "boundingBox": [
+          115,
+          353,
+          806,
+          345,
+          807,
+          392,
+          116,
+          400
+        ],
+        "words": [
+          {
+            "boundingBox": [
+              108,
+              358,
+              184,
+              356,
+              184,
+              399,
+              108,
+              400
+            ],
+            "confidence": "Low",
+            "text": "WHAT"
+          },
+          {
+            "boundingBox": [
+              200,
+              356,
+              227,
+              355,
+              228,
+              398,
+              201,
+              398
+            ],
+            "confidence": "Low",
+            "text": "{"
+          },
+          {
+            "boundingBox": [
+              244,
+              354,
+              271,
+              354,
+              271,
+              397,
+              244,
+              398
+            ],
+            "confidence": "Low",
+            "text": "{"
+          },
+          {
+            "boundingBox": [
+              271,
+              354,
+              298,
+              353,
+              299,
+              397,
+              271,
+              397
+            ],
+            "confidence": "Low",
+            "text": "}"
+          },
+          {
+            "boundingBox": [
+              309,
+              353,
+              382,
+              351,
+              383,
+              396,
+              310,
+              397
+            ],
+            "text": "FED"
+          },
+          {
+            "boundingBox": [
+              398,
+              351,
+              496,
+              350,
+              497,
+              395,
+              399,
+              396
+            ],
+            "confidence": "Low",
+            "text": "CUP"
+          },
+          {
+            "boundingBox": [
+              534,
+              349,
+              676,
+              349,
+              677,
+              393,
+              535,
+              394
+            ],
+            "confidence": "Low",
+            "text": "LIFEis"
+          },
+          {
+            "boundingBox": [
+              670,
+              349,
+              719,
+              349,
+              720,
+              393,
+              671,
+              393
+            ],
+            "confidence": "Low",
+            "text": "SO"
+          },
+          {
+            "boundingBox": [
+              714,
+              349,
+              744,
+              349,
+              745,
+              393,
+              715,
+              393
+            ],
+            "text": "-"
+          },
+          {
+            "boundingBox": [
+              735,
+              349,
+              811,
+              349,
+              813,
+              392,
+              736,
+              393
+            ],
+            "text": "FRI"
+          }
+        ],
+        "text": "WHAT { { } FED CUP LIFEis SO - FRI"
+      },
+      {
+        "boundingBox": [
+          112,
+          417,
+          564,
+          407,
+          565,
+          449,
+          113,
+          459
+        ],
+        "words": [
+          {
+            "boundingBox": [
+              112,
+              423,
+              227,
+              417,
+              227,
+              456,
+              111,
+              456
+            ],
+            "confidence": "Low",
+            "text": "LANGE"
+          },
+          {
+            "boundingBox": [
+              245,
+              416,
+              267,
+              416,
+              267,
+              455,
+              245,
+              456
+            ],
+            "confidence": "Low",
+            "text": "{"
+          },
+          {
+            "boundingBox": [
+              291,
+              415,
+              355,
+              413,
+              356,
+              454,
+              291,
+              455
+            ],
+            "confidence": "Low",
+            "text": "JSP"
+          },
+          {
+            "boundingBox": [
+              380,
+              412,
+              402,
+              412,
+              403,
+              453,
+              380,
+              454
+            ],
+            "confidence": "Low",
+            "text": "4"
+          },
+          {
+            "boundingBox": [
+              400,
+              412,
+              433,
+              411,
+              434,
+              453,
+              400,
+              453
+            ],
+            "text": "4;"
+          },
+          {
+            "boundingBox": [
+              444,
+              411,
+              559,
+              410,
+              561,
+              450,
+              445,
+              452
+            ],
+            "text": "HEHIT"
+          }
+        ],
+        "text": "LANGE { JSP 4 4; HEHIT"
+      },
+      {
+        "boundingBox": [
+          91,
+          533,
+          362,
+          530,
+          362,
+          572,
+          92,
+          576
+        ],
+        "words": [
+          {
+            "boundingBox": [
+              93,
+              534,
+              209,
+              536,
+              209,
+              575,
+              92,
+              575
+            ],
+            "text": "Higya"
+          },
+          {
+            "boundingBox": [
+              223,
+              536,
+              363,
+              530,
+              363,
+              573,
+              222,
+              575
+            ],
+            "text": "Farkim"
+          }
+        ],
+        "text": "Higya Farkim"
+      },
+      {
+        "boundingBox": [
+          115,
+          589,
+          357,
+          586,
+          358,
+          632,
+          116,
+          635
+        ],
+        "words": [
+          {
+            "boundingBox": [
+              113,
+              590,
+              230,
+              588,
+              231,
+              634,
+              115,
+              636
+            ],
+            "confidence": "Low",
+            "text": "SaidE"
+          },
+          {
+            "boundingBox": [
+              245,
+              588,
+              364,
+              588,
+              364,
+              633,
+              245,
+              634
+            ],
+            "confidence": "Low",
+            "text": "Quinim"
+          }
+        ],
+        "text": "SaidE Quinim"
+      },
+      {
+        "boundingBox": [
+          630,
+          586,
+          767,
+          589,
+          766,
+          631,
+          629,
+          627
+        ],
+        "words": [
+          {
+            "boundingBox": [
+              630,
+              590,
+              672,
+              589,
+              672,
+              629,
+              630,
+              627
+            ],
+            "text": "14"
+          },
+          {
+            "boundingBox": [
+              675,
+              589,
+              700,
+              588,
+              699,
+              630,
+              675,
+              629
+            ],
+            "confidence": "Low",
+            "text": "."
+          },
+          {
+            "boundingBox": [
+              695,
+              588,
+              761,
+              591,
+              761,
+              632,
+              694,
+              630
+            ],
+            "confidence": "Low",
+            "text": "JOIN"
+          }
+        ],
+        "text": "14 . JOIN"
+      },
+      {
+        "boundingBox": [
+          116,
+          713,
+          633,
+          711,
+          634,
+          751,
+          117,
+          752
+        ],
+        "words": [
+          {
+            "boundingBox": [
+              111,
+              713,
+              206,
+              713,
+              206,
+              753,
+              111,
+              753
+            ],
+            "text": "Lari"
+          },
+          {
+            "boundingBox": [
+              228,
+              713,
+              254,
+              713,
+              254,
+              753,
+              227,
+              753
+            ],
+            "text": "&"
+          },
+          {
+            "boundingBox": [
+              270,
+              713,
+              631,
+              713,
+              632,
+              749,
+              270,
+              753
+            ],
+            "text": "UIYOUULI``I```"
+          }
+        ],
+        "text": "Lari & UIYOUULI``I```"
+      },
+      {
+        "boundingBox": [
+          122,
+          771,
+          424,
+          772,
+          423,
+          810,
+          121,
+          809
+        ],
+        "words": [
+          {
+            "boundingBox": [
+              119,
+              771,
+              195,
+              772,
+              196,
+              810,
+              121,
+              809
+            ],
+            "confidence": "Low",
+            "text": "TILL"
+          },
+          {
+            "boundingBox": [
+              207,
+              773,
+              232,
+              773,
+              234,
+              810,
+              209,
+              810
+            ],
+            "confidence": "Low",
+            "text": ";"
+          },
+          {
+            "boundingBox": [
+              245,
+              773,
+              433,
+              775,
+              433,
+              806,
+              246,
+              810
+            ],
+            "confidence": "Low",
+            "text": "ELKINILI"
+          }
+        ],
+        "text": "TILL ; ELKINILI"
+      },
+      {
+        "boundingBox": [
+          118,
+          828,
+          521,
+          828,
+          521,
+          869,
+          119,
+          870
+        ],
+        "words": [
+          {
+            "boundingBox": [
+              111,
+              829,
+              197,
+              831,
+              197,
+              870,
+              111,
+              870
+            ],
+            "text": "Mill"
+          },
+          {
+            "boundingBox": [
+              205,
+              831,
+              232,
+              831,
+              232,
+              870,
+              205,
+              870
+            ],
+            "text": ":"
+          },
+          {
+            "boundingBox": [
+              248,
+              831,
+              432,
+              830,
+              431,
+              870,
+              248,
+              870
+            ],
+            "confidence": "Low",
+            "text": "DUJULLIE"
+          },
+          {
+            "boundingBox": [
+              421,
+              831,
+              534,
+              828,
+              534,
+              870,
+              421,
+              870
+            ],
+            "confidence": "Low",
+            "text": "\"i``"
+          }
+        ],
+        "text": "Mill : DUJULLIE \"i``"
+      },
+      {
+        "boundingBox": [
+          180,
+          1008,
+          617,
+          1010,
+          616,
+          1053,
+          179,
+          1052
+        ],
+        "words": [
+          {
+            "boundingBox": [
+              179,
+              1010,
+              276,
+              1012,
+              275,
+              1052,
+              178,
+              1052
+            ],
+            "text": "HIHG"
+          },
+          {
+            "boundingBox": [
+              290,
+              1012,
+              362,
+              1013,
+              361,
+              1053,
+              289,
+              1053
+            ],
+            "confidence": "Low",
+            "text": "HUH"
+          },
+          {
+            "boundingBox": [
+              359,
+              1013,
+              387,
+              1013,
+              386,
+              1053,
+              358,
+              1053
+            ],
+            "confidence": "Low",
+            "text": "&"
+          },
+          {
+            "boundingBox": [
+              381,
+              1013,
+              495,
+              1013,
+              495,
+              1053,
+              381,
+              1053
+            ],
+            "confidence": "Low",
+            "text": "LINUHH"
+          },
+          {
+            "boundingBox": [
+              514,
+              1012,
+              611,
+              1010,
+              611,
+              1053,
+              514,
+              1053
+            ],
+            "confidence": "Low",
+            "text": "HNLIA"
+          }
+        ],
+        "text": "HIHG HUH & LINUHH HNLIA"
+      },
+      {
+        "boundingBox": [
+          247,
+          1071,
+          548,
+          1071,
+          548,
+          1115,
+          248,
+          1116
+        ],
+        "words": [
+          {
+            "boundingBox": [
+              246,
+              1074,
+              411,
+              1073,
+              410,
+              1114,
+              245,
+              1114
+            ],
+            "text": "CELATHI"
+          },
+          {
+            "boundingBox": [
+              426,
+              1073,
+              511,
+              1072,
+              511,
+              1116,
+              426,
+              1114
+            ],
+            "confidence": "Low",
+            "text": "JAL_"
+          },
+          {
+            "boundingBox": [
+              493,
+              1072,
+              543,
+              1071,
+              542,
+              1117,
+              492,
+              1116
+            ],
+            "confidence": "Low",
+            "text": "HIN"
+          }
+        ],
+        "text": "CELATHI JAL_ HIN"
+      }
+    ],
+    "height": 1146
+  }],
+  "status": "Succeeded"
+}

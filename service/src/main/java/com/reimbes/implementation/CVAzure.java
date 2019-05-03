@@ -136,7 +136,7 @@ public class CVAzure implements OcrService {
     }
 
     public String getReadeableResult(JSONObject ocrResult) {
-        
+
         return "";
     }
 }
