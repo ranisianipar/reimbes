@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    private ReimsUserRepository reimsUserRepository;
+    private ReimsUserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -20,21 +20,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public ReimsUser create(ReimsUser user) throws Exception{
         // do validation
-        if (reimsUserRepository.findByUsername(user.getUsername()) != null)
+        if (userRepository.findByUsername(user.getUsername()) != null)
             throw new Exception("Username should be unique");
 
         if (user.getPassword() == null) throw new Exception("Password can't be null");
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return reimsUserRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
     public ReimsUser getUserByUsername(String username) {
-        return reimsUserRepository.findByUsername(username);
+        return userRepository.findByUsername(username);
     }
 
     @Override
     public ReimsUser get(long id) {
-        return reimsUserRepository.getOne(id);
+        return userRepository.getOne(id);
+    }
+
+    @Override
+    public void deleteUser(long id) {
+//        ReimsUser user = userRepository.findOne(id);
+        userRepository.delete(id);
     }
 }

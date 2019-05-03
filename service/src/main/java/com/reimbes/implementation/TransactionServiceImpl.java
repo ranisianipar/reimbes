@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -33,9 +34,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     private TransactionRepository transactionRepository;
-
-    @Autowired
-    private CVAzure ocrService;
 
     @Autowired
     private UserServiceImpl userService;
@@ -96,15 +94,14 @@ public class TransactionServiceImpl implements TransactionService {
         }
         String folderName = userId +"\\";
         String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ folderName);
-//
+
         if (!Files.exists(Paths.get(path)))
             Files.createDirectory(Paths.get(path));
 
         String filename = UUID.randomUUID()+".jpg";
         path = path + filename;
 
-        //This will decode the String which is encoded by using Base64 class
-//        byte[] data = Base64.decodeBase64(imageValue);
+
         byte[] data = imageValue.getBytes();
         InputStream inputStream = new ByteArrayInputStream(data);
 
@@ -128,6 +125,14 @@ public class TransactionServiceImpl implements TransactionService {
         return null;
     }
 
+    @Override
+    public void deletePhoto(String imagePath) {
+        File file = new File(StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+imagePath));
+        if(file.delete()){
+            System.out.println("Image "+imagePath+" has been removed");
+        } else System.out.println("File /Users/pankaj/file.txt doesn't exist");
+    }
+
     private void validate(Transaction transaction) throws ReimsException{
         // validate the value and value type
         // date dicek harus ada isinya, dan sesuai ketentuan Date
@@ -144,8 +149,7 @@ public class TransactionServiceImpl implements TransactionService {
             errorMessages.add("null category");
 
         // validate image path
-        // kalo transaction.getImagePath() == null raise error ga? [belom dihandle]
-        if (!Files.exists(Paths.get(UrlConstants.IMAGE_FOLDER_PATH+transaction.getImagePath())))
+        if (transaction.getImagePath()== null || !Files.exists(Paths.get(UrlConstants.IMAGE_FOLDER_PATH+transaction.getImagePath())))
             errorMessages.add("invalid image path");
 
         if (errorMessages.isEmpty())
