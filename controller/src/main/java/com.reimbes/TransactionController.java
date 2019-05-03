@@ -2,6 +2,7 @@ package com.reimbes;
 
 
 import com.reimbes.constant.UrlConstants;
+import com.reimbes.implementation.CVAzure;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.response.BaseResponse;
 import com.reimbes.response.TransactionResponse;
@@ -10,6 +11,7 @@ import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,6 +22,9 @@ public class TransactionController {
 
     @Autowired
     private TransactionServiceImpl transactionService;
+
+    @Autowired
+    private CVAzure ocrService;
 
     @GetMapping
     public String getAllTransaction(HttpServletRequest req) {
@@ -37,8 +42,9 @@ public class TransactionController {
     }
 
     @GetMapping(UrlConstants.OCR)
-    public TransactionResponse getOcrResult(@RequestParam String imagePath) {
-        return null;
+    public boolean getOcrResult(@RequestParam String imagePath) {
+        ocrService.readImage(imagePath);
+        return true;
     }
 
     @PostMapping
@@ -50,7 +56,7 @@ public class TransactionController {
     }
 
     @PostMapping(UrlConstants.UPLOAD)
-    public BaseResponse uploadImage(HttpServletRequest request, @RequestParam("image") String imageValue) throws Exception {
+    public BaseResponse uploadImage(@RequestParam("image") MultipartFile imageValue, HttpServletRequest request) throws Exception {
         BaseResponse br = new BaseResponse();
         br.setValue(transactionService.upload(request, imageValue));
         return br;
