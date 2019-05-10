@@ -28,13 +28,19 @@
 {
     "code": 200,
     "status": "OK",
-    "data": [{
-        "id": 500000026,
-        "username": "hafiztesting@mailinator.com"
+    "totalRecords": 2,
+    "paging": {
+        "size":5,
+        "page":0
+    }
+    "data": [
+        {
+            "id": 500000026,
+            "username": "hafiztesting@mailinator.com"
         },
         {
-        "id": 500000027,
-        "username": "testinggg@mailinator.com"
+            "id": 500000027,
+            "username": "testinggg@mailinator.com"
         }
     ]
 }

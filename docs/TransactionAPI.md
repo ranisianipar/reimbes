@@ -40,8 +40,8 @@ only for authenticated User
     "code": 200,
     "status": "OK",
     "totalRecords":3,
-    "pagination":{
-        "totalPage":10,
+    "paging":{
+        "size":10,
         "page":1
     },
     "data": [
