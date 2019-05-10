@@ -22,12 +22,12 @@ public class AdminController {
     public BaseResponse<UserResponse> addUser(@RequestBody ReimsUser user) throws Exception{
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setValue(getMapper().map(adminService.createUser(user), UserResponse.class));
+            br.setData(getMapper().map(adminService.createUser(user), UserResponse.class));
         } catch (ReimsException r) {
-            br.setErrorMessage(r.getMessage());
+            br.setErrors(r.getMessage());
             br.setSuccess(false);
             br.setCode(r.getCode());
-            br.setErrorCode(r.getHttpStatus());
+            br.setStatus(r.getHttpStatus());
         }
         return br;
     }

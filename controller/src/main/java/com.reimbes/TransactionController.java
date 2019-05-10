@@ -4,6 +4,7 @@ package com.reimbes;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.implementation.CVAzure;
 import com.reimbes.implementation.TransactionServiceImpl;
+import com.reimbes.request.BulkDeleteRequest;
 import com.reimbes.response.BaseResponse;
 import com.reimbes.response.TransactionResponse;
 import ma.glasnost.orika.MapperFacade;
@@ -47,18 +48,18 @@ public class TransactionController {
         return true;
     }
 
-    @PostMapping
+    @PutMapping
     public BaseResponse<TransactionResponse> createTransaction(HttpServletRequest request, @RequestBody Transaction newTransaction) throws Exception{
         BaseResponse br = new BaseResponse();
         TransactionResponse tr = getMapper().map(transactionService.create(request, newTransaction), TransactionResponse.class);
-        br.setValue(tr);
+        br.setData(tr);
         return br;
     }
 
-    @PostMapping(UrlConstants.UPLOAD)
+    @PostMapping
     public BaseResponse uploadImage(@RequestParam("image") MultipartFile imageValue, HttpServletRequest request) throws Exception {
         BaseResponse br = new BaseResponse();
-        br.setValue(transactionService.upload(request, imageValue));
+        br.setData(transactionService.upload(request, imageValue));
         return br;
     }
 
@@ -68,7 +69,7 @@ public class TransactionController {
     }
 
     @DeleteMapping
-    public String deleteMany() {
+    public String deleteMany(@RequestBody BulkDeleteRequest<Transaction> req) {
         return "delete many transaction";
     }
 
