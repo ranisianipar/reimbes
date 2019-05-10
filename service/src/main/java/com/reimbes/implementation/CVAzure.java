@@ -88,7 +88,7 @@ public class CVAzure implements OcrService {
             // This URI is where you can get the results of the first REST API method.
             String operationLocation = null;
 
-            // The 'Operation-Location' response header value contains the URI for
+            // The 'Operation-Location' response header data contains the URI for
             // the second REST API method.
             Header[] responseHeaders = response.getAllHeaders();
             for (Header header : responseHeaders) {

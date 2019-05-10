@@ -9,12 +9,12 @@ import org.springframework.http.HttpStatus;
 public class BaseResponse<T> {
     private int code;
 
-    private HttpStatus errorCode;
-    private String errorMessage;
+    private HttpStatus status;
+    private String errors;
     Pageable paging;
     long totalRecords;
     long totalPages;
-    T value;
+    T data;
     boolean success;
 
     public BaseResponse() {

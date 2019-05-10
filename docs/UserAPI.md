@@ -13,7 +13,7 @@
 - HTTP Method : `GET`
 - Pagination : 
     - support pagination by URL Path, add this on URL: `page=P&size=S&sortBy=date`
-    - Default Value :
+    - Default data :
         - Page : `0`
         - Size : `5`
         - SortBy : `date`
@@ -28,7 +28,7 @@
 {
     "code": 200,
     "status": "OK",
-    "value": [{
+    "data": [{
         "id": 500000026,
         "username": "hafiztesting@mailinator.com"
         },
@@ -39,7 +39,6 @@
     ]
 }
 ```
-<!-- BELOM TAU -->
 
 - Response Body (Failure) : -
 
@@ -57,7 +56,11 @@
 {
     "code": 200,
     "status": "OK",
-    "value": {
+    "pagination":{
+        "totalPage":10,
+        "page":1
+    },
+    "data": {
         "id": 500000026,
         "username": "hafiztesting@mailinator.com"
     }
@@ -70,8 +73,8 @@
 {
     "code": 404,
     "status": "NOT_FOUND",
-    "errorMessage": {
-        "User not Found"
+    "errors": {
+        NOT_FOUND
     }
 }
 ```
@@ -97,7 +100,7 @@
 {
     "code": 200,
     "status": "OK",
-    "value": {
+    "data": {
         "id": 1,
         "username": "eko1@pyeongyang.com"
     }
@@ -110,9 +113,9 @@
 {
     "code": 400,
     "status": "BAD_REQUEST",
-    "errorMessage": {
-        "password": "Password can't be blank",
-        "username": "Invalid Username"
+    "errors": {
+        "password": NOT_NULL,
+        "username": NOT_UNIQUE
     }
 }
 ```
@@ -138,7 +141,7 @@
 {
     "code": 200,
     "status": "OK",
-    "value": {
+    "data": {
         "id": 1,
         "username": "eko1@pyeongyang.com"
     }
@@ -151,9 +154,9 @@
 {
     "code": 400,
     "status": "BAD_REQUEST",
-    "errorMessage": {
-        "password": "Password can't be blank",
-        "username": "Invalid Username"
+    "errors": {
+        "password": NOT_NULL,
+        "username": INVALID_VALUE
     }
 }
 ```
@@ -193,7 +196,7 @@
 {
     "code": 400,
     "status": "BAD_REQUEST",
-    "errorMessage": "Password and Username don't match"
+    "errors": NOT_MATCH
 }
 ```
 

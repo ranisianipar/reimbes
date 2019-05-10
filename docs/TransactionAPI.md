@@ -2,24 +2,14 @@
 only for authenticated User
 
 # List of API
-- [Get All transactions](#get-all-transactions)
-- [Get transaction by ID](#get-transaction-by-id)
-- [Get image](#get-image)
+- [Get All Transactions](#get-all-transactions)
+- [Get Transaction by ID](#get-transaction-by-id)
+- [Get Image](#get-image)
 - [OCR](#ocr)
 - [Create Transaction](#create-transaction)
 - [Upload Image](#upload-image)
-- [Delete all transactions](#delete-all-transactions)
-- [Delete transaction by ID](#delete-transaction-by-id)
-
-| METHOD | URL | NOTES
-| ------ | ------ | ------ |
-| GET | [/api/transactions][PlTransaction] | get all transactions |
-| GET | [/api/transactions/{id}][PlTransactionId] | get transaction by ID |
-| GET | [/api/transactions/_show-image][PlTransactionReport] | show image in byte |
-| GET | [/api/transactions/_ocr-this][PlTransactionReport] | request for OCR Service |
-| POST | [/api/transactions][PlTransaction] | create a transaction |
-| DELETE | [/api/transactions][PlTransaction] | delete all transation |
-| DELETE | [/api/transactions/{id}][PlTransactionId] | delete a transaction |
+- [Delete Many Transactions](#delete-many-transactions)
+- [Delete Transaction by ID](#delete-transactions-by-id)
 
 ## Get all transactions
 
@@ -27,13 +17,13 @@ only for authenticated User
 - HTTP Method : `GET`
 - Filter : 
     - Support filtering by URL Path, add this in URL: `month=mm&year=yyyy&category=ALL`
-    - Default Value:
+    - Default data:
         - Month : `{today.month}`
         - Year : `{today.year}`
         - Category : `ALL`
 - Pagination : 
     - support pagination by URL Path, add this on URL: `page=P&size=S&sortBy=date`
-    - Default Value :
+    - Default data :
         - Page : `0`
         - Size : `5`
         - SortBy : `date`
@@ -50,13 +40,16 @@ only for authenticated User
     "code": 200,
     "status": "OK",
     "totalRecords":3,
-    "totalPages":2,
-    "value": [
+    "pagination":{
+        "totalPage":10,
+        "page":1
+    },
+    "data": [
         {
             "id": 500000026,
             "type": "PARKING",
             "date":"",
-            "imagePath":"user1/transaction1.jpg",
+            "image":"user1/transaction1.jpg",
             "price":9000,
             "title":"1st Day Work"
         },
@@ -87,7 +80,7 @@ only for authenticated User
 {
     "code": 200,
     "status": "OK",
-    "value": {
+    "data": {
         "id": 500000027,
         "category": "FUEL",
         "date":"01:12:2007 03:06:10z",
@@ -104,8 +97,8 @@ only for authenticated User
 {
     "code": 404,
     "status": "NOT_FOUND",
-    "errorMessage": {
-        "Transaction not Found"
+    "errors": {
+        NOT_FOUND
     }
 }
 ```
@@ -120,13 +113,23 @@ only for authenticated User
 
 ```json
 {
-    "imagePath":"1/1040142LHGWLljagbow.jpg"
+    "imagePath":"1/1040142LHGWLljagbow.jpg",
+    
 }
 ```
 - Response body(Success):
 *retrieve image in bytes*
-- Response body(Failure):
 
+- Response body(Failure):
+```json
+{
+    "code": 404,
+    "status": "NOT_FOUND",
+    "errors": {
+        NOT_FOUND
+    }
+}
+```
 
 ## OCR
 - Endpoint : `api/_ocr-this`
@@ -148,7 +151,7 @@ only for authenticated User
 {
     "code": 200,
     "status": "OK",
-    "value": {
+    "data": {
         "id": 500000026,
         "type": "PARKING",
         "date":"01:12:2007 03:06:10z",
@@ -160,7 +163,7 @@ only for authenticated User
 *Note*: the Response body quality depends on the OCR Service response
 ## Create Transaction
 - Endpoint : `api/transactions`
-- HTTP Method : `POST`
+- HTTP Method : `PUT`
 - Request Header : 
     - Accept : `application/json`
     - Content-Type : `application/json`
@@ -182,7 +185,7 @@ only for authenticated User
 {
     "code": 200,
     "status": "OK",
-    "value": {
+    "data": {
         "id": 500000026,
         "category": "PARKING",
         "date":"01:12:2007 03:06:10z",
@@ -198,28 +201,28 @@ only for authenticated User
 {
     "code": 400,
     "status": "BAD_REQUEST",
-    "errorMessage": {
-        "price": ["CAN'T BE NULL", "INVALID VALUE"],
-        "type":"CAN'T BE NULL",
-        "date":"CAN'T BE NULL",
-        "title":"CAN'T BE NULL"
+    "errors": {
+        "price": [NOT_NULL, INVALID_data],
+        "type":NOT_NULL,
+        "date":NOT_NULL,
+        "title":NOT_NULL
     }
 }
 ```
 
 ## Upload image
 
-- Endpoint : `/api/transactions/_upload`
+- Endpoint : `/api/transactions`
 - HTTP Method : `POST`
 - Request Header : 
     - Accept : `application/json`
 - Request Body :
 ``` json
 {
-    "imageValue":"[][]",
+    "imagedata":"[][]",
 }
 ```
-*Note*: ImageValue will be contain the image bytes
+*Note*: Imagedata will be contain the image bytes
 - Response Body (Success) :
 
 ```json
@@ -229,12 +232,18 @@ only for authenticated User
 }
 ```
 
-## Delete all transactions
+## Delete many transactions
 
 - Endpoint : `/api/transactions`
 - HTTP Method : `DELETE`
 - Request Header : 
     - Accept : `application/json`
+- Request Body:
+```json
+{
+    "ids": [1,2,3,4,5]
+}
+```
 - Response Body (Success) :
 
 ```json
@@ -244,7 +253,7 @@ only for authenticated User
 }
 ```
 
-## Delete transaction by ID
+## Delete transactions by id
 
 - Endpoint : `/api/transactions/{id}`
 - HTTP Method : `DELETE`
@@ -258,17 +267,3 @@ only for authenticated User
     "status": "OK"
 }
 ```
-
-### Additional
-
- - Is there any method not mentioned?
-
-   [mygithub]: <https://github.com/ranisianipar>
-   [PlUser]: <https://localhost:8080/api/users>
-   [PlUserId]: <https://localhost:8080/api/users/1>
-   [PlLogin]: <https://localhost:8080/api/login>
-   [PlLogout]: <https://localhost:8080/api/logout>
-   
-   [PlTransaction]: <https://localhost:8080/transactions>
-   [PlTransactionId]: <https://localhost:8080/transactions/1>
-   [PlTransactionReport]: <https://localhost:8080/transactions/monthly-report>

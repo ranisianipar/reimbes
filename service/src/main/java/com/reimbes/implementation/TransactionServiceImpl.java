@@ -134,7 +134,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private void validate(Transaction transaction) throws ReimsException{
-        // validate the value and value type
+        // validate the data and data type
         // date dicek harus ada isinya, dan sesuai ketentuan Date
 
         List<String> errorMessages = new ArrayList();
