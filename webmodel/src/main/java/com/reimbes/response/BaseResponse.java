@@ -13,7 +13,6 @@ public class BaseResponse<T> {
     private String errors;
     Pageable paging;
     long totalRecords;
-    long totalPages;
     T data;
     boolean success;
 
