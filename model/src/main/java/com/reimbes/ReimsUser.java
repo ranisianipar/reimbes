@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Data
@@ -22,9 +23,16 @@ public class ReimsUser {
     @Column(nullable = false)
     private Role role;
 
+    private Date created_at;
+
+    private Date updated_at;
 
     public enum Role {
         ADMIN,
         USER
+    }
+
+    public ReimsUser() {
+        this.created_at = new Date();
     }
 }
