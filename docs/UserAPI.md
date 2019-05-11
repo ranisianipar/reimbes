@@ -36,12 +36,14 @@
     "data": [
         {
             "id": 500000026,
-            "username": "hafiztesting@mailinator.com",
+            "username": "hafiztesting",
+            "role": "ADMIN",
             "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
         },
         {
             "id": 500000027,
-            "username": "testinggg@mailinator.com",
+            "username": "testinggg",
+            "role": "USER",
             "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
         }
     ]
@@ -70,7 +72,8 @@
     },
     "data": {
         "id": 500000026,
-        "username": "hafiztesting@mailinator.com",
+        "username": "hafiztesting",
+        "role": "ADMIN",
         "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
     }
 
@@ -99,7 +102,8 @@
 ```json
 {
 	"username" : "eko1@pyeongyang.com",
-	"password" : "blibli12345"
+	"password" : "blibli12345",
+	"role": "ADMIN"
 }
 ```
 
@@ -112,6 +116,7 @@
     "data": {
         "id": 1,
         "username": "eko1@pyeongyang.com",
+        "role": "ADMIN",
         "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ",
         "updated_at":"NULL"
     }
@@ -126,7 +131,8 @@
     "status": "BAD_REQUEST",
     "errors": {
         "password": NOT_NULL,
-        "username": NOT_UNIQUE
+        "username": NOT_UNIQUE,
+        "role": INVALID_VALUE
     }
 }
 ```
@@ -142,7 +148,8 @@
 ```json
 {
 	"username" : "eko1@pyeongyang.com",
-	"password" : "blibli12345"
+	"password" : "blibli12345",
+	"role": "USER"
 }
 ```
 
@@ -155,6 +162,7 @@
     "data": {
         "id": 1,
         "username": "eko1@pyeongyang.com",
+        "role": "USER",
         "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ",
         "updated_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
     }
