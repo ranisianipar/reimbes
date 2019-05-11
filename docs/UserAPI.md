@@ -16,7 +16,7 @@
     - Default data :
         - Page : `0`
         - Size : `5`
-        - SortBy : `date`
+        - SortBy : `creation_at_`
 - Request Header : 
     - Accept : `application/json`
     - Content-Type : `application/json`
@@ -36,11 +36,13 @@
     "data": [
         {
             "id": 500000026,
-            "username": "hafiztesting@mailinator.com"
+            "username": "hafiztesting@mailinator.com",
+            "create_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
         },
         {
             "id": 500000027,
-            "username": "testinggg@mailinator.com"
+            "username": "testinggg@mailinator.com",
+            "create_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
         }
     ]
 }
@@ -68,7 +70,8 @@
     },
     "data": {
         "id": 500000026,
-        "username": "hafiztesting@mailinator.com"
+        "username": "hafiztesting@mailinator.com",
+        "create_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
     }
 
 }
@@ -108,7 +111,9 @@
     "status": "OK",
     "data": {
         "id": 1,
-        "username": "eko1@pyeongyang.com"
+        "username": "eko1@pyeongyang.com",
+        "create_at":"YYYY-MM-DDTHH:mm:ss.sssZ",
+        "update_at":"NULL"
     }
 }
 ```
@@ -149,7 +154,9 @@
     "status": "OK",
     "data": {
         "id": 1,
-        "username": "eko1@pyeongyang.com"
+        "username": "eko1@pyeongyang.com",
+        "create_at":"YYYY-MM-DDTHH:mm:ss.sssZ",
+        "update_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
     }
 }
 ```

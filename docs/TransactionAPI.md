@@ -48,19 +48,21 @@ only for authenticated User
         {
             "id": 500000026,
             "type": "PARKING",
-            "date":"",
+            "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
             "image":"user1/transaction1.jpg",
             "price":9000,
-            "title":"1st Day Work"
+            "title":"1st Day Work",
+            "create_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
         },
         {
             "id": 500000027,
             "type": "FUEL",
-            "date":"",
+            "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
             "imagePath":"user1/transaction2.jpg",
             "price":90000,
             "amount":23.5,
-            "title":"Blibli Future Program"
+            "title":"Blibli Future Program",
+            "create_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
         }
     ]
 }
@@ -83,11 +85,12 @@ only for authenticated User
     "data": {
         "id": 500000027,
         "category": "FUEL",
-        "date":"01:12:2007 03:06:10z",
+        "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
         "imagePath":"user1/transaction2.jpg",
         "price":90000,
         "amount":23.5,
-        "title":"Blibli Future Program"
+        "title":"Blibli Future Program",
+        "create_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
     }
 }
 ```
@@ -154,9 +157,9 @@ only for authenticated User
     "data": {
         "id": 500000026,
         "type": "PARKING",
-        "date":"01:12:2007 03:06:10z",
+        "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
         "price":0,
-        "title":null   
+        "title":null
     }
 }
 ```
@@ -173,7 +176,7 @@ only for authenticated User
 {
     "id": 500000026,
     "category": "PARKING",
-    "date":"",
+    "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
     "price":9000,
     "title":"1st Day Work"   
 }
@@ -188,9 +191,10 @@ only for authenticated User
     "data": {
         "id": 500000026,
         "category": "PARKING",
-        "date":"01:12:2007 03:06:10z",
+        "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
         "price":9000,
-        "title":"1st Day Work"   
+        "title":"1st Day Work",
+        "create_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
     }
 }
 ```
