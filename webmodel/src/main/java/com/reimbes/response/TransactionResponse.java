@@ -1,19 +1,16 @@
 package com.reimbes.response;
 
 import com.reimbes.Transaction;
-import com.reimbes.request.TransactionRequest;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class TransactionResponse<T extends TransactionRequest> {
+public class TransactionResponse<T> {
     private long id;
-    private String imagePath;
-    private String user; // contains the username
+    private String image;
 
-    private Date createdDate;
-    private Date updatedDate;
+    private Date created_at;
 
     // OCR results
     private Date date;
