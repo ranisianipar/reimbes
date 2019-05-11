@@ -11,10 +11,10 @@ public class BaseResponse<T> {
 
     private HttpStatus status;
     private String errors;
-    Pageable paging;
-    long totalRecords;
-    T data;
-    boolean success;
+    private Pageable paging;
+    private long totalRecords;
+    private T data;
+    private boolean success;
 
     public BaseResponse() {
         this.code = ResponseCode.OK;

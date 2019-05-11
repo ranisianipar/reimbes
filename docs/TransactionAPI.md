@@ -22,11 +22,11 @@ only for authenticated User
         - Year : `{today.year}`
         - Category : `ALL`
 - Pagination : 
-    - support pagination by URL Path, add this on URL: `page=P&size=S&sortBy=date`
+    - support pagination by URL Path, add this on URL: `page=P&size=S&sortBy=created_at`
     - Default data :
         - Page : `0`
         - Size : `5`
-        - SortBy : `date`
+        - SortBy : `created_at`
 
 - Request Header : 
     - Accept : `application/json`
@@ -52,7 +52,7 @@ only for authenticated User
             "image":"user1/transaction1.jpg",
             "price":9000,
             "title":"1st Day Work",
-            "create_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
+            "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
         },
         {
             "id": 500000027,
@@ -62,7 +62,7 @@ only for authenticated User
             "price":90000,
             "amount":23.5,
             "title":"Blibli Future Program",
-            "create_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
+            "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
         }
     ]
 }
@@ -90,7 +90,7 @@ only for authenticated User
         "price":90000,
         "amount":23.5,
         "title":"Blibli Future Program",
-        "create_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
+        "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
     }
 }
 ```
@@ -194,7 +194,7 @@ only for authenticated User
         "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
         "price":9000,
         "title":"1st Day Work",
-        "create_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
+        "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
     }
 }
 ```
