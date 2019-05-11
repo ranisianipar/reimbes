@@ -10,7 +10,6 @@ import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -149,7 +148,7 @@ public class TransactionServiceImpl implements TransactionService {
             errorMessages.add("null category");
 
         // validate image path
-        if (transaction.getImagePath()== null || !Files.exists(Paths.get(UrlConstants.IMAGE_FOLDER_PATH+transaction.getImagePath())))
+        if (transaction.getImage()== null || !Files.exists(Paths.get(UrlConstants.IMAGE_FOLDER_PATH+transaction.getImage())))
             errorMessages.add("invalid image path");
 
         if (errorMessages.isEmpty())
