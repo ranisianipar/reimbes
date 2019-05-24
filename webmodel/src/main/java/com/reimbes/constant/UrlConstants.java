@@ -23,7 +23,7 @@ public class UrlConstants {
     public static final String ID_PARAM = "/{id:.+}";
 
     // URI
-    public static final String URI_IMAGE_BASE =
-            BASE_URL+TRANSACTION_PREFIX+ UrlConstants.SHOW_IMAGE_PREFIX+"/";
+    public static final String IMAGE_URL_PREFIX =
+            BASE_URL+TRANSACTION_PREFIX+SHOW_IMAGE_PREFIX+"/";
 
 }

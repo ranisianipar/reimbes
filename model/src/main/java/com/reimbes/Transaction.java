@@ -11,6 +11,7 @@ public abstract class Transaction {
     private Date created_at;
     private long amount;
     private String image;
+    private String url;
 
     private ReimsUser user;
 

@@ -2,6 +2,7 @@ package com.reimbes;
 
 
 import com.reimbes.constant.UrlConstants;
+import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.CVAzure;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.request.BulkDeleteRequest;
@@ -33,8 +34,15 @@ public class TransactionController {
     }
 
     @GetMapping(UrlConstants.ID_PARAM)
-    public String getTransaction(@PathVariable String id, HttpServletRequest req) {
-        return "Get transaction by ID: "+id+"[SOON]";
+    public BaseResponse getTransaction(@PathVariable long id, HttpServletRequest req) {
+        BaseResponse<Transaction> br = new BaseResponse<>();
+        try {
+            br.setData(transactionService.get(req, id));
+        }   catch (ReimsException r) {
+            br.errorResponse(r);
+        }
+
+        return br;
     }
 
     @GetMapping(UrlConstants.SHOW_IMAGE_PREFIX)
@@ -56,10 +64,12 @@ public class TransactionController {
         return br;
     }
 
+    // handle kalo file yg diupload bukan webp
     @PostMapping
     public BaseResponse uploadImage(@RequestParam("image") MultipartFile imageValue, HttpServletRequest request) throws Exception {
         BaseResponse br = new BaseResponse();
-        br.setData(transactionService.upload(request, imageValue));
+        String imagePath = transactionService.upload(request, imageValue);
+        br.setData(UrlConstants.IMAGE_URL_PREFIX+imagePath);
         return br;
     }
 
