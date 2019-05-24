@@ -1,6 +1,7 @@
 package com.reimbes.response;
 
 import com.reimbes.constant.ResponseCode;
+import com.reimbes.exception.ReimsException;
 import lombok.Data;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,4 +22,10 @@ public class BaseResponse<T> {
         this.success = true;
     }
 
+    public void errorResponse(ReimsException r) {
+        this.code = r.getCode();
+        this.status = r.getHttpStatus();
+        this.errors = r.getMessage();
+        this.success = false;
+    }
 }
