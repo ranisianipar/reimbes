@@ -4,14 +4,19 @@ package com.reimbes;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.CVAzure;
+import com.reimbes.implementation.TesseractService;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.request.BulkDeleteRequest;
 import com.reimbes.response.BaseResponse;
+import com.reimbes.response.Paging;
 import com.reimbes.response.TransactionResponse;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,16 +31,33 @@ public class TransactionController {
     private TransactionServiceImpl transactionService;
 
     @Autowired
-    private CVAzure ocrService;
+    private TesseractService ocrService;
 
     @GetMapping
-    public String getAllTransaction(HttpServletRequest req) {
+    public String getAllTransaction(
+            @RequestParam(value = "pageNumber", defaultValue = "0") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "created_at") String sortBy,
+            @RequestParam(value = "month", required = false) int month,
+            @RequestParam(value = "year", required = false) int year,
+            @RequestParam (value = "search", required = false) String search,
+            HttpServletRequest req) {
+
+        Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
+        Paging paging = getPagingMapper().map(pageRequest, Paging.class);
+        BaseResponse br = new BaseResponse();
+
+        // data nya itu semua transaction
+        br.setData("");
+        br.setPaging(paging);
+
         return "SOON";
     }
 
     @GetMapping(UrlConstants.ID_PARAM)
     public BaseResponse getTransaction(@PathVariable long id, HttpServletRequest req) {
         BaseResponse<Transaction> br = new BaseResponse<>();
+
         try {
             br.setData(transactionService.get(req, id));
         }   catch (ReimsException r) {
@@ -77,6 +99,13 @@ public class TransactionController {
     private MapperFacade getMapper() {
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
         mapperFactory.classMap(Transaction.class, TransactionResponse.class)
+                .byDefault().register();
+        return mapperFactory.getMapperFacade();
+    }
+
+    private MapperFacade getPagingMapper() {
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+        mapperFactory.classMap(Pageable.class, Paging.class)
                 .byDefault().register();
         return mapperFactory.getMapperFacade();
     }

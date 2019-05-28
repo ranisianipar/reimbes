@@ -10,6 +10,8 @@ import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+
 @CrossOrigin(origins = UrlConstants.BASE_URL)
 @RestController
 @RequestMapping(UrlConstants.API_PREFIX+UrlConstants.ADMIN_PREFIX)
@@ -30,6 +32,16 @@ public class AdminController {
             br.setStatus(r.getHttpStatus());
         }
         return br;
+    }
+
+    @GetMapping(UrlConstants.USER_PREFIX)
+    public BaseResponse<ArrayList> getAllUsers(
+            @RequestParam(value = "pageNumber", defaultValue = "0") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "updated_at") String sortBy,
+            @RequestParam (value = "search", required = false) String search) {
+
+        return null;
     }
 
     private MapperFacade getMapper() {

@@ -11,15 +11,22 @@
 
 - Endpoint : `/api/users`
 - HTTP Method : `GET`
-- Pagination : 
-    - support pagination by URL Path, add this on URL: `page=P&size=S&sortBy=date`
+- Filter :
+    - Support filtering by URL Path, add this on URL :
+        `search=NAMAORANG`
     - Default data :
-        - Page : `0`
-        - Size : `5`
-        - SortBy : `created_at`
-- Request Header : 
+       - search : ``
+- Pagination : 
+    - support pagination by URL Path, add this on URL: `page=P&size=S&sortBy=updated_at`
+    - Default data :
+        - pageNumber : `0`
+        - pageSize : `5`
+        - SortBy : `updated_at`
+
+- Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    
 - Request Body : -
 
 - Response Body (Success) :
@@ -29,8 +36,8 @@
     "code": 200,
     "status": "OK",
     "paging":{
-            "size":10,
-            "number":1,
+            "pageSize":10,
+            "pageNumber":1,
             "totalRecords":100,
             "totalPages":10
      },
