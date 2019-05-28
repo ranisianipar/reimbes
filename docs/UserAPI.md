@@ -39,13 +39,13 @@
             "id": 500000026,
             "username": "hafiztesting",
             "role": "ADMIN",
-            "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
+            "created_at":1559058600
         },
         {
             "id": 500000027,
             "username": "testinggg",
             "role": "USER",
-            "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
+            "created_at":1559058600
         }
     ]
 }
@@ -75,7 +75,7 @@
         "id": 500000026,
         "username": "hafiztesting",
         "role": "ADMIN",
-        "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
+        "created_at":1559058600
     }
 
 }
@@ -118,8 +118,8 @@
         "id": 1,
         "username": "eko1@pyeongyang.com",
         "role": "ADMIN",
-        "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ",
-        "updated_at":"NULL"
+        "created_at":1559058600,
+        "updated_at":0
     }
 }
 ```
@@ -164,8 +164,8 @@
         "id": 1,
         "username": "eko1@pyeongyang.com",
         "role": "USER",
-        "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ",
-        "updated_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
+        "created_at":1559058600,
+        "updated_at":1559058655"
     }
 }
 ```

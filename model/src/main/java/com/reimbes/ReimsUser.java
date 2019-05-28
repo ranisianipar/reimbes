@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
 import java.util.Date;
 
 @Entity
@@ -23,9 +24,9 @@ public class ReimsUser {
     @Column(nullable = false)
     private Role role;
 
-    private Date created_at;
+    private long created_at;
 
-    private Date updated_at;
+    private long updated_at;
 
     public enum Role {
         ADMIN,
@@ -33,6 +34,6 @@ public class ReimsUser {
     }
 
     public ReimsUser() {
-        this.created_at = new Date();
+        this.created_at = Instant.now().getEpochSecond();
     }
 }

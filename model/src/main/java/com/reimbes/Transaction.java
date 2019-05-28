@@ -8,7 +8,7 @@ import java.util.Date;
 public abstract class Transaction {
 
     // standard crud attributes
-    private Date created_at;
+    private long created_at;
     private long amount;
     private String image;
     private String url;
