@@ -28,11 +28,12 @@
 {
     "code": 200,
     "status": "OK",
-    "totalRecords": 2,
-    "paging": {
-        "size":5,
-        "page":0
-    }
+    "paging":{
+            "size":10,
+            "number":1,
+            "totalRecords":100,
+            "totalPages":10
+     },
     "data": [
         {
             "id": 500000026,

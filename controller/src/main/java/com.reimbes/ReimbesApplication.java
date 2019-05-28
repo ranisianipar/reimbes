@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ReimbesApplication {
 
 	public static void main(String[] args) {
-		nu.pattern.OpenCV.loadShared();
 		SpringApplication.run(ReimbesApplication.class, args);
 	}
 

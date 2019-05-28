@@ -12,8 +12,7 @@ public class BaseResponse<T> {
 
     private HttpStatus status;
     private String errors;
-    private Pageable paging;
-    private long totalRecords;
+    private Paging paging;
     private T data;
     private boolean success;
 

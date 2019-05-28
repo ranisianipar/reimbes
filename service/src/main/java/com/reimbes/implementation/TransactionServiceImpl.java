@@ -40,6 +40,9 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private AuthServiceImpl authService;
 
+    @Autowired
+    private TesseractService ocrService;
+
     @Override
     public Transaction create(HttpServletRequest request, Transaction transaction) throws ReimsException{
         HashMap userDetails = authService.getCurrentUserDetails(request);
@@ -91,8 +94,8 @@ public class TransactionServiceImpl implements TransactionService {
         } catch (NullPointerException e) {
             throw new Exception("In memory user");
         }
-        String folderName = userId +"\\";
-        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ folderName);
+        String foldername = userId +"\\";
+        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ foldername);
 
         if (!Files.exists(Paths.get(path)))
             Files.createDirectory(Paths.get(path));
@@ -104,13 +107,14 @@ public class TransactionServiceImpl implements TransactionService {
         byte[] data = imageValue.getBytes();
         InputStream inputStream = new ByteArrayInputStream(data);
 
+        // upload photo
         try {
             Files.copy(inputStream, Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return folderName+filename;
+        
+        return ocrService.readImage(foldername+filename);
     }
 
     @Override
