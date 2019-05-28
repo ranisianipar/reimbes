@@ -18,12 +18,7 @@ public class UrlConstants {
     public static final String ADD_USER = "/_add_user";
 
     // others
-    public static final String OCR = "/_ocr-this";
     public static final String SHOW_IMAGE_PREFIX = "/_show-image";
     public static final String ID_PARAM = "/{id:.+}";
-
-    // URI
-    public static final String IMAGE_URL_PREFIX =
-            BASE_URL+TRANSACTION_PREFIX+SHOW_IMAGE_PREFIX+"/";
 
 }
