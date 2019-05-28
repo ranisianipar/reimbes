@@ -45,17 +45,6 @@ public class TransactionController {
         return br;
     }
 
-    @GetMapping(UrlConstants.SHOW_IMAGE_PREFIX)
-    public byte[] getPhoto(@RequestParam String imagePath, HttpServletRequest req) {
-        return transactionService.getPhoto(imagePath);
-    }
-
-    @GetMapping(UrlConstants.OCR)
-    public boolean getOcrResult(@RequestParam String imagePath) {
-        ocrService.readImage(imagePath);
-        return true;
-    }
-
     @PutMapping
     public BaseResponse<TransactionResponse> createTransaction(HttpServletRequest request, @RequestBody Transaction newTransaction) throws Exception{
         BaseResponse br = new BaseResponse();
@@ -68,8 +57,10 @@ public class TransactionController {
     @PostMapping
     public BaseResponse uploadImage(@RequestParam("image") MultipartFile imageValue, HttpServletRequest request) throws Exception {
         BaseResponse br = new BaseResponse();
-        String imagePath = transactionService.upload(request, imageValue);
-        br.setData(UrlConstants.IMAGE_URL_PREFIX+imagePath);
+        String ocrResult = transactionService.upload(request, imageValue);
+
+        br.setErrors("ga ada! Ini cuma buat ngecek keluarannya output");
+        br.setData(ocrResult);
         return br;
     }
 

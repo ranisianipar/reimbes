@@ -39,10 +39,11 @@ only for authenticated User
 {
     "code": 200,
     "status": "OK",
-    "totalRecords":3,
     "paging":{
         "size":10,
-        "page":1
+        "number":1,
+        "totalRecords":100,
+        "totalPages":10
     },
     "data": [
         {
