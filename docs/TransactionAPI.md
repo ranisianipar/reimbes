@@ -16,11 +16,12 @@ only for authenticated User
 - Endpoint : `/api/transactions`
 - HTTP Method : `GET`
 - Filter : 
-    - Support filtering by URL Path, add this in URL: `month=mm&year=yyyy&category=ALL`
+    - Support filtering by URL Path, add this in URL: `month=mm&year=yyyy&category=FUEL`
     - Default data:
         - Month : `{today.month}`
         - Year : `{today.year}`
-        - Category : `ALL`
+        - Category : `FUEL`
+        - Search : ``
 - Pagination : 
     - support pagination by URL Path, add this on URL: `page=P&size=S&sortBy=created_at`
     - Default data :
@@ -40,8 +41,8 @@ only for authenticated User
     "code": 200,
     "status": "OK",
     "paging":{
-        "size":10,
-        "number":1,
+        "pageSize":10,
+        "pageNumber":1,
         "totalRecords":100,
         "totalPages":10
     },
