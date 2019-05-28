@@ -9,7 +9,7 @@
 
 ## Get all users
 
-- Endpoint : `/api/users`
+- Endpoint : `/api/admin/users`
 - HTTP Method : `GET`
 - Filter :
     - Support filtering by URL Path, add this on URL :
@@ -26,7 +26,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
-    
+
 - Request Body : -
 
 - Response Body (Success) :
@@ -61,7 +61,7 @@
 - Response Body (Failure) : -
 
 ## Get user by id
-- Endpoint : `/api/users/{id}`
+- Endpoint : `/api/admin/users/{id}`
 - HTTP Method : `GET`
 - Request Header : 
     - Accept : `application/json`
@@ -100,7 +100,7 @@
 ```
 
 ## Create user
-- Endpoint : `api/users`
+- Endpoint : `api/admin/users`
 - HTTP Method : `POST`
 - Request Header : 
     - Accept : `application/json`
@@ -146,7 +146,7 @@
 ```
 
 ## Update user
-- Endpoint : `api/users/{id}`
+- Endpoint : `api/admin/users/{id}`
 - HTTP Method : `POST`
 - Request Header : 
     - Accept : `application/json`
@@ -246,7 +246,7 @@
 
 ## Delete all users
 
-- Endpoint : `/api/users`
+- Endpoint : `/api/admin/users`
 - HTTP Method : `DELETE`
 - Request Header : 
     - Accept : `application/json`
@@ -261,7 +261,7 @@
 
 ## Delete user by ID
 
-- Endpoint : `/api/users/{id}`
+- Endpoint : `/api/admin/users/{id}`
 - HTTP Method : `DELETE`
 - Request Header : 
     - Accept : `application/json`
