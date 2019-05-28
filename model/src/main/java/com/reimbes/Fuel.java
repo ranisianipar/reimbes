@@ -6,7 +6,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.Instant;
 
 @Data
 @Entity
@@ -25,6 +25,6 @@ public class Fuel extends Transaction {
     private ReimsUser user;
 
     public Fuel() {
-        this.setCreated_at(new Date());
+        this.setCreated_at(Instant.now().getEpochSecond());
     }
 }

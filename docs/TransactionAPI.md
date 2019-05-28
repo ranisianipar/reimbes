@@ -53,7 +53,7 @@ only for authenticated User
             "image":"user1/transaction1.jpg",
             "price":9000,
             "title":"1st Day Work",
-            "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
+            "created_at":1559058600
         },
         {
             "id": 500000027,
@@ -63,7 +63,7 @@ only for authenticated User
             "price":90000,
             "amount":23.5,
             "title":"Blibli Future Program",
-            "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
+            "created_at":1559058600
         }
     ]
 }
@@ -91,7 +91,7 @@ only for authenticated User
         "price":90000,
         "amount":23.5,
         "title":"Blibli Future Program",
-        "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
+        "created_at":1559058600
     }
 }
 ```
@@ -195,7 +195,7 @@ only for authenticated User
         "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
         "price":9000,
         "title":"1st Day Work",
-        "created_at":"YYYY-MM-DDTHH:mm:ss.sssZ"
+        "created_at":1559058600
     }
 }
 ```

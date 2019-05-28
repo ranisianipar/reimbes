@@ -6,6 +6,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.Date;
 
 @Data
@@ -24,6 +25,6 @@ public class Parking extends Transaction{
     private ReimsUser user;
 
     public Parking() {
-        this.setCreated_at(new Date());
+        this.setCreated_at(Instant.now().getEpochSecond());
     }
 }
