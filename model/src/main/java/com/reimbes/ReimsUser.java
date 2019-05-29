@@ -4,8 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
-import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Data
@@ -13,7 +12,8 @@ public class ReimsUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    @Column(name = "user_id", nullable = false)
+    private long id;
 
     @NotNull
     private String username;
@@ -21,19 +21,18 @@ public class ReimsUser {
     @NotNull
     private String password;
 
-    @Column(nullable = false)
+    @NotNull
     private Role role;
 
-    private long created_at;
+    @OneToMany(mappedBy = "user")
+    private Set<Transaction> transactions;
+    @Column(updatable = false, nullable = false)
+    private long createdAt;
 
-    private long updated_at;
+    private Long updatedAt;
 
     public enum Role {
         ADMIN,
         USER
-    }
-
-    public ReimsUser() {
-        this.created_at = Instant.now().getEpochSecond();
     }
 }

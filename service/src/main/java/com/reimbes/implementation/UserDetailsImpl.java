@@ -1,5 +1,6 @@
 package com.reimbes.implementation;
 
+import com.reimbes.ReimsUser;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,13 +11,11 @@ import java.util.Collection;
 public class UserDetailsImpl implements UserDetails {
 
 
-    private String username;
-    private String password;
+    private ReimsUser user;
     private Collection authorities;
 
-    public UserDetailsImpl(String username, String password, Collection<GrantedAuthority> list){
-        this.username = username;
-        this.password = password;
+    public UserDetailsImpl(ReimsUser user, Collection<GrantedAuthority> list){
+        this.user = user;
         authorities = list;
     }
 
@@ -27,16 +26,16 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getPassword() {
-        return password;
+        return this.user.getPassword();
     }
 
-    public String getUserId() {
-        return username;
+    public long getUserId() {
+        return this.user.getId();
     }
 
     @Override
     public String getUsername() {
-        return username;
+        return this.user.getUsername();
     }
 
     @Override
