@@ -7,6 +7,7 @@ import com.reimbes.implementation.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,7 +26,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
-    RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -35,12 +36,19 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(restAuthenticationEntryPoint)
                 .and()
                 .authorizeRequests()
-                .antMatchers(UrlConstants.LOGIN_URL).permitAll()
-                .antMatchers(UrlConstants.ADMIN_PREFIX, UrlConstants.ADMIN_PREFIX+"/**").hasAuthority("ADMIN")
-                .antMatchers(UrlConstants.USER_PREFIX, UrlConstants.USER_PREFIX+"/**"
-                    ,UrlConstants.TRANSACTION_PREFIX, UrlConstants.TRANSACTION_PREFIX+"/**").hasAuthority("USER")
+                .antMatchers(UrlConstants.LOGIN_URL
+                            ,UrlConstants.LOGOUT_URL)
+                    .permitAll()
+                .antMatchers(UrlConstants.ADMIN_PREFIX
+                        ,UrlConstants.ADMIN_PREFIX+"/**")
+                    .hasAuthority("ADMIN")
+                .antMatchers(UrlConstants.USER_PREFIX
+                        ,UrlConstants.USER_PREFIX+"/**"
+                        ,UrlConstants.TRANSACTION_PREFIX, UrlConstants.TRANSACTION_PREFIX+"/**")
+                    .hasAuthority("USER")
                 .anyRequest().authenticated()
                 .and()
+                .authenticationProvider(daoAuthenticationProvider())
                 .addFilter(new JWTAuthenticationFilter(authenticationManager()))
                 .addFilter(new JWTAuthorizationFilter(authenticationManager()))
 //                // this disables session creation on Spring Security
@@ -49,12 +57,17 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder())
-        .and()
-        .inMemoryAuthentication()
-            .withUser("admin").password("admin123").authorities("ADMIN")
-                .and()
-                .withUser("USER").password("USER123").authorities("USER");
+
+        auth.authenticationProvider(daoAuthenticationProvider());
+    }
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider authProvider
+                = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
     }
 
     @Bean

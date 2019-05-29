@@ -3,7 +3,6 @@ package com.reimbes;
 
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
-import com.reimbes.implementation.CVAzure;
 import com.reimbes.implementation.TesseractService;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.request.BulkDeleteRequest;

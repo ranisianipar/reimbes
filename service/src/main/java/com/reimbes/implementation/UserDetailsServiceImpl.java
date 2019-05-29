@@ -32,7 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(reimsUser.getRole().toString()));
 
-        return new UserDetailsImpl(reimsUser.getUsername(), reimsUser.getPassword(), authorities);
+        return new UserDetailsImpl(reimsUser, authorities);
 
     }
 }

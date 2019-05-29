@@ -27,7 +27,7 @@ import java.util.HashMap;
 
 import static com.reimbes.constant.SecurityConstants.*;
 
-
+@Service
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     @Autowired

@@ -26,6 +26,11 @@ public class AuthServiceImpl implements AuthService {
     private ActiveTokenRepository activeTokenRepository;
 
     @Override
+    public void registerToken(String activeToken) {
+        activeTokenRepository.save(new ActiveToken(activeToken));
+    }
+
+    @Override
     public void logout(HttpServletRequest req) {
         String token = req.getHeader(HEADER_STRING);
         activeTokenRepository.delete(new ActiveToken(token));

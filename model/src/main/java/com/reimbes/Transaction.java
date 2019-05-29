@@ -2,22 +2,30 @@ package com.reimbes;
 
 import lombok.Data;
 
+import javax.persistence.*;
 import java.util.Date;
 
 @Data
+@Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Transaction {
 
-    // standard crud attributes
-    private long created_at;
-    private long amount;
-    private String image;
-    private String url;
+    @Id
+    @GeneratedValue(strategy = GenerationType.TABLE)
+    @Column(name = "transaction_id")
+    private long id;
 
+    private long amount;
+    private Category category;
+    private Date date;
+    private String image;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private ReimsUser user;
 
-    private Date date;
-
-    private Category category;
+    // standard crud attributes
+    private long createdAt;
 
     public enum Category {
         FUEL,

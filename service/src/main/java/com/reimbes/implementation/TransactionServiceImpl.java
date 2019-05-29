@@ -87,7 +87,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public String upload(HttpServletRequest request, MultipartFile imageValue) throws Exception {
         HashMap userDetails = authService.getCurrentUserDetails(request);
-        String userId;
+        long userId;
 
         try {
             userId = userService.getUserByUsername((String) userDetails.get("username")).getId();
