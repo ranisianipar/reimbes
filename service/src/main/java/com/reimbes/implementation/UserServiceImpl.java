@@ -4,7 +4,6 @@ import com.reimbes.ReimsUser;
 import com.reimbes.ReimsUserRepository;
 import com.reimbes.UserService;
 import com.reimbes.constant.ResponseCode;
-import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

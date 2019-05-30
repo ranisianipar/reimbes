@@ -89,11 +89,8 @@ public class TransactionServiceImpl implements TransactionService {
         HashMap userDetails = authService.getCurrentUserDetails(request);
         long userId;
 
-        try {
-            userId = userService.getUserByUsername((String) userDetails.get("username")).getId();
-        } catch (NullPointerException e) {
-            throw new Exception("In memory user");
-        }
+        userId = userService.getUserByUsername((String) userDetails.get("username")).getId();
+
         String foldername = userId +"\\";
         String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ foldername);
 

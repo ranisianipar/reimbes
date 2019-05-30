@@ -21,8 +21,9 @@ public class UserController {
         return "Get monthly report";
     }
 
-    @GetMapping("/test")
-    public String test() {
+    @GetMapping("/isLogin")
+    public String isLogin() {
+
         return "USER TEST";
     }
 

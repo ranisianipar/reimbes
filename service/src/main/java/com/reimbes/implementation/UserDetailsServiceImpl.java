@@ -20,7 +20,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private ReimsUserRepository reimsUserRepository;
 
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         ReimsUser reimsUser = reimsUserRepository.findByUsername(username);
