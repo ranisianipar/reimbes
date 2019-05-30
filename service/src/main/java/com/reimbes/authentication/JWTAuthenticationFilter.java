@@ -2,7 +2,6 @@ package com.reimbes.authentication;
 
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.reimbes.AuthService;
 import com.reimbes.ReimsUser;
 import com.reimbes.implementation.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +45,6 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         try {
             ReimsUser creds = new ObjectMapper()
                     .readValue(req.getInputStream(), ReimsUser.class);
-
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
                             creds.getUsername(),
@@ -74,7 +72,6 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String token = JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .withClaim("role", role)
                 .sign(HMAC512(SECRET.getBytes()));
         res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);

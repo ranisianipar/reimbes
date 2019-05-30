@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ActiveTokenRepository  extends JpaRepository<ActiveToken, String> {
     boolean existsByToken(String token);
+    ActiveToken findByToken(String token);
 }

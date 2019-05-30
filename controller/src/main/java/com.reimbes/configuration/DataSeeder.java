@@ -17,7 +17,6 @@ public class DataSeeder {
     @EventListener
     public void seed(ContextRefreshedEvent event) throws ReimsException {
         ReimsUser user = userService.getUserByUsername("ADMIN");
-        System.out.println("            GUE DIPANGGGIL WOYYYY");
         if (user == null) {
             user = new ReimsUser();
             user.setRole(ReimsUser.Role.ADMIN);

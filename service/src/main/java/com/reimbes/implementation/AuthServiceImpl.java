@@ -3,16 +3,25 @@ package com.reimbes.implementation;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reimbes.ActiveToken;
 import com.reimbes.ActiveTokenRepository;
 import com.reimbes.AuthService;
+import com.reimbes.ReimsUser;
+import com.reimbes.constant.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,8 +35,22 @@ public class AuthServiceImpl implements AuthService {
     private ActiveTokenRepository activeTokenRepository;
 
     @Override
-    public void registerToken(String activeToken) {
-        activeTokenRepository.save(new ActiveToken(activeToken));
+    public boolean isLogin(String token) {
+        ActiveToken activeToken = activeTokenRepository.findByToken(token);
+        if (activeToken != null && activeToken.getExpiredTime() > Instant.now().getEpochSecond()) return true;
+
+        // token expired
+        return false;
+    }
+
+    @Override
+    public void registerToken(String token) {
+        ActiveToken activeToken = activeTokenRepository.findByToken(token);
+        if (activeToken == null)
+            activeToken = new ActiveToken(token);
+        // update the time of token
+        activeToken.setExpiredTime(Instant.now().getEpochSecond() + SecurityConstants.TOKEN_PERIOD);
+        activeTokenRepository.save(activeToken);
     }
 
     @Override
@@ -59,6 +82,23 @@ public class AuthServiceImpl implements AuthService {
             }
         }
         return null;
+    }
+
+    public Authentication attemptAuthentication(HttpServletRequest req,
+                                                HttpServletResponse res) throws AuthenticationException {
+        try {
+            ReimsUser creds = new ObjectMapper()
+                    .readValue(req.getInputStream(), ReimsUser.class);
+            return null;
+//            return getAuthenticationManager().authenticate(
+//                    new UsernamePasswordAuthenticationToken(
+//                            creds.getUsername(),
+//                            creds.getPassword(),
+//                            new ArrayList<>())
+//            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

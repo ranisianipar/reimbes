@@ -17,6 +17,8 @@ public class ActiveToken {
 
     private String token;
 
+    private long expiredTime;
+
     public ActiveToken(String token) {
         this.token = token;
     }

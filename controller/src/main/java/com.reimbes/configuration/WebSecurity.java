@@ -1,7 +1,6 @@
 package com.reimbes.configuration;
 
 import com.reimbes.authentication.JWTAuthenticationFilter;
-import com.reimbes.authentication.JWTAuthorizationFilter;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.implementation.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,14 +49,12 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .and()
                 .authenticationProvider(daoAuthenticationProvider())
                 .addFilter(new JWTAuthenticationFilter(authenticationManager()))
-                .addFilter(new JWTAuthorizationFilter(authenticationManager()))
-//                // this disables session creation on Spring Security
+                // this disables session creation on Spring Security
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-
         auth.authenticationProvider(daoAuthenticationProvider());
     }
 
