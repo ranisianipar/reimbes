@@ -1,6 +1,5 @@
 package com.reimbes.configuration;
 
-import com.reimbes.authentication.JWTAuthenticationFilter;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.implementation.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,13 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
-    private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private RESTAuthenticationEntryPoint restAuthenticationEntryPoint;
+
+    @Autowired
+    private RESTAuthenticationFailureHandler restAuthenticationFailureHandler;
+
+    @Autowired
+    private RESTAuthenticationSuccessHandler restAuthenticationSuccessHandler;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -34,21 +39,25 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .exceptionHandling()
                 .authenticationEntryPoint(restAuthenticationEntryPoint)
                 .and()
+                .formLogin().successHandler(restAuthenticationSuccessHandler)
+                .and()
+                .formLogin().failureHandler(restAuthenticationFailureHandler)
+                .and()
                 .authorizeRequests()
-                .antMatchers(UrlConstants.LOGIN_URL
-                            ,UrlConstants.LOGOUT_URL)
+                .antMatchers(UrlConstants.LOGIN_URL,
+                        UrlConstants.LOGOUT_URL)
                     .permitAll()
-                .antMatchers(UrlConstants.ADMIN_PREFIX
-                        ,UrlConstants.ADMIN_PREFIX+"/**")
+                .antMatchers(UrlConstants.ADMIN_PREFIX,
+                        UrlConstants.ADMIN_PREFIX+"/**")
                     .hasAuthority("ADMIN")
-                .antMatchers(UrlConstants.USER_PREFIX
-                        ,UrlConstants.USER_PREFIX+"/**"
-                        ,UrlConstants.TRANSACTION_PREFIX, UrlConstants.TRANSACTION_PREFIX+"/**")
+                .antMatchers(UrlConstants.USER_PREFIX,
+                        UrlConstants.USER_PREFIX+"/**",
+                        UrlConstants.TRANSACTION_PREFIX, UrlConstants.TRANSACTION_PREFIX+"/**")
                     .hasAuthority("USER")
                 .anyRequest().authenticated()
                 .and()
                 .authenticationProvider(daoAuthenticationProvider())
-                .addFilter(new JWTAuthenticationFilter(authenticationManager()))
+//                .addFilter(new JWTAuthenticationFilter(authenticationManager()))
                 // this disables session creation on Spring Security
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }

@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public final class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public final class RESTAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
 
     @Override
