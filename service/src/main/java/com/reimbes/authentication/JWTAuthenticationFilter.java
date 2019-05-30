@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reimbes.ReimsUser;
 import com.reimbes.implementation.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.FilterChain;
@@ -23,12 +25,11 @@ import java.util.*;
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.reimbes.constant.SecurityConstants.*;
 
-@Service
+@Component
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     @Autowired
     private AuthServiceImpl authService;
-
 
     public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
         super.setAuthenticationManager(authenticationManager);

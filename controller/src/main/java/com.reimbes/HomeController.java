@@ -22,7 +22,7 @@ public class HomeController {
 
     @PostMapping(UrlConstants.LOGIN_URL)
     public BaseResponse login(HttpServletRequest req) {
-        return null;
+        return new BaseResponse();
     }
 
     @GetMapping(UrlConstants.LOGOUT_URL)
