@@ -51,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(HttpServletRequest req) {
         String token = req.getHeader(HEADER_STRING);
-        activeTokenRepository.delete(new ActiveToken(token));
+        activeTokenRepository.deleteByToken(token);
     }
 
     @Override
