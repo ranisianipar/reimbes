@@ -38,8 +38,10 @@ public class LoggerInterceptor extends HandlerInterceptorAdapter {
                 + "]" + request.getRequestURI() + getParameters(request));
         System.out.println("------------------------------- PRE HANDLE");
 
+
         String token = request.getHeader(HEADER_STRING);
-        if (token != null && authService.isLogin(token)) {
+        log.info("TOKEN: "+token+" AUTH SERVICE: "+authService);
+        if (token != null && authService != null) {
             // parse the token.
             DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
                     .build()
@@ -65,6 +67,7 @@ public class LoggerInterceptor extends HandlerInterceptorAdapter {
                 return true;
             }
         }
+
         log.warn("USER HAVEN'T LOGGED IN YET");
         return false;
     }

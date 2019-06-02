@@ -1,11 +1,13 @@
 package com.reimbes.configuration;
 
 import com.reimbes.authentication.JWTAuthenticationFilter;
+import com.reimbes.authentication.JWTAuthorizationFilter;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.implementation.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -33,6 +35,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     @Autowired
     private RESTAuthenticationSuccessHandler restAuthenticationSuccessHandler;
 
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -45,41 +48,58 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .formLogin().failureHandler(restAuthenticationFailureHandler)
                 .and()
                 .authorizeRequests()
-                .antMatchers(UrlConstants.LOGIN_URL,
-                        UrlConstants.LOGOUT_URL)
-                    .permitAll()
-                .antMatchers(UrlConstants.ADMIN_PREFIX,
-                        UrlConstants.ADMIN_PREFIX+"/**")
-                    .hasAuthority("ADMIN")
-                .antMatchers(UrlConstants.USER_PREFIX,
+                .antMatchers(
+                        UrlConstants.LOGIN_URL,
+                        UrlConstants.LOGOUT_URL,
+                        "/v2/api-docs"
+                ).permitAll()
+                .antMatchers(
+                        UrlConstants.ADMIN_PREFIX,
+                        UrlConstants.ADMIN_PREFIX+"/**"
+                ).hasAuthority("ADMIN")
+                .antMatchers(
+                        UrlConstants.USER_PREFIX,
                         UrlConstants.USER_PREFIX+"/**",
-                        UrlConstants.TRANSACTION_PREFIX, UrlConstants.TRANSACTION_PREFIX+"/**")
-                    .hasAuthority("USER")
+                        UrlConstants.TRANSACTION_PREFIX,
+                        UrlConstants.TRANSACTION_PREFIX+"/**"
+                ).hasAuthority("USER")
                 .anyRequest().authenticated()
                 .and()
-                .authenticationProvider(daoAuthenticationProvider())
-                .addFilter(new JWTAuthenticationFilter(authenticationManager()))
+                .addFilter(jwtAuthenticationFilter(authenticationManager()))
+                .addFilter(jwtAuthorizationFilter(authenticationManager()))
                 // this disables session creation on Spring Security
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(daoAuthenticationProvider());
-    }
-
-    @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider() {
-        DaoAuthenticationProvider authProvider
-                = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public JWTAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+        JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter(authenticationManager);
+        jwtAuthenticationFilter.setFilterProcessesUrl(UrlConstants.API_PREFIX+UrlConstants.LOGIN_URL);
+
+        return jwtAuthenticationFilter;
+    }
+
+    @Bean
+    public JWTAuthorizationFilter jwtAuthorizationFilter(AuthenticationManager authenticationManager) {
+        JWTAuthorizationFilter jwtAuthorizationFilter = new JWTAuthorizationFilter(authenticationManager);
+
+        return jwtAuthorizationFilter;
     }
 
 }

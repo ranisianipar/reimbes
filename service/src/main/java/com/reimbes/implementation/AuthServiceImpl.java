@@ -6,7 +6,10 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.reimbes.ActiveToken;
 import com.reimbes.ActiveTokenRepository;
 import com.reimbes.AuthService;
+import com.reimbes.authentication.JWTAuthenticationFilter;
 import com.reimbes.constant.SecurityConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,13 +28,19 @@ import static com.reimbes.constant.SecurityConstants.*;
 @Service
 public class AuthServiceImpl implements AuthService {
 
+    private static Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
+
     @Autowired
     private ActiveTokenRepository activeTokenRepository;
 
 
     @Override
     public boolean isLogin(String token) {
+        log.info("Check the token is in the Active Token Repo or not");
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
+        log.info("TOKEN Object: "+activeToken);
+
+        log.info("wanted TOKEN: "+token);
         if (activeToken != null && activeToken.getExpiredTime() > Instant.now().getEpochSecond()) return true;
 
         // token expired
@@ -40,6 +49,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void registerToken(String token) {
+        log.info("Registering new token...");
+
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
         if (activeToken == null)
             activeToken = new ActiveToken(token);
@@ -50,6 +61,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout(HttpServletRequest req) {
+        log.info("User is logging out.");
         String token = req.getHeader(HEADER_STRING);
         activeTokenRepository.deleteByToken(token);
     }

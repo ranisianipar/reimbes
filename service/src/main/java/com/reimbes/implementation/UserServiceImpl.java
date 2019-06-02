@@ -5,6 +5,8 @@ import com.reimbes.ReimsUserRepository;
 import com.reimbes.UserService;
 import com.reimbes.constant.ResponseCode;
 import com.reimbes.exception.ReimsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
     private ReimsUserRepository userRepository;
