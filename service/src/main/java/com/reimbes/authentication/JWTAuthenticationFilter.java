@@ -4,8 +4,9 @@ import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reimbes.ReimsUser;
 import com.reimbes.implementation.AuthServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,7 +14,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -28,13 +28,22 @@ import static com.reimbes.constant.SecurityConstants.*;
 @Component
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
+    private static Logger log = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
+
     @Autowired
     private AuthServiceImpl authService;
+
 
     public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
         super.setAuthenticationManager(authenticationManager);
     }
 
+
+    @Override
+    @Autowired
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+        super.setAuthenticationManager(authenticationManager);
+    }
 
     /*
     * where we parse the user's credentials and issue them to the AuthenticationManager
@@ -43,9 +52,12 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req,
                                                 HttpServletResponse res) throws AuthenticationException {
+        log.info("Attempting authentication");
         try {
             ReimsUser creds = new ObjectMapper()
                     .readValue(req.getInputStream(), ReimsUser.class);
+
+            log.info("USERNAME: "+creds.getUsername()+" PASS: "+creds.getPassword());
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
                             creds.getUsername(),
@@ -71,11 +83,11 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Collection authorities = user.getAuthorities();
         String role = authorities.iterator().next().toString();
 
-        String token = JWT.create()
+        String token = TOKEN_PREFIX + JWT.create()
                 .withSubject(user.getUsername())
                 .withClaim("role", role)
                 .sign(HMAC512(SECRET.getBytes()));
-        res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
+        res.addHeader(HEADER_STRING,token);
 
         authService.registerToken(token);
     }
