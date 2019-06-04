@@ -63,7 +63,8 @@ public class AuthServiceImpl implements AuthService {
     public void logout(HttpServletRequest req) {
         log.info("User is logging out.");
         String token = req.getHeader(HEADER_STRING);
-        activeTokenRepository.deleteByToken(token);
+        ActiveToken activeToken = activeTokenRepository.findByToken(token);
+        activeTokenRepository.delete(activeToken);
     }
 
     @Override
