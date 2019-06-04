@@ -1,8 +1,9 @@
-package com.reimbes.authentication;
+package com.reimbes.authentication.filter;
 
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reimbes.ReimsUser;
+import com.reimbes.constant.SecurityConstants;
 import com.reimbes.implementation.AuthServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
@@ -57,7 +59,6 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             ReimsUser creds = new ObjectMapper()
                     .readValue(req.getInputStream(), ReimsUser.class);
 
-            log.info("USERNAME: "+creds.getUsername()+" PASS: "+creds.getPassword());
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
                             creds.getUsername(),
@@ -81,12 +82,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         UserDetails user = (UserDetails) auth.getPrincipal();
         Collection authorities = user.getAuthorities();
-        String role = authorities.iterator().next().toString();
-
-        String token = TOKEN_PREFIX + JWT.create()
-                .withSubject(user.getUsername())
-                .withClaim("role", role)
-                .sign(HMAC512(SECRET.getBytes()));
+        String token = authService.generateToken(user,authorities);
         res.addHeader(HEADER_STRING,token);
 
         authService.registerToken(token);

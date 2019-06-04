@@ -1,10 +1,8 @@
-package com.reimbes.authentication;
+package com.reimbes.authentication.filter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.reimbes.ReimsUser;
 import com.reimbes.implementation.AuthServiceImpl;
-import com.reimbes.implementation.UserDetailsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +42,16 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
             chain.doFilter(req, res);
             return;
         }
+        /*
+        * -----SOON------
+        *
+        * decoding token -> userDetails (user) & authorities (role)
+        * regenerate token with updated expired time
+        * */
 
-        log.info("Pass the filter internal");
+        log.info("Token valid. Now, do filter internal.");
+
+
         UsernamePasswordAuthenticationToken authentication = getAuthentication(req);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -65,7 +71,6 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
 
             if (user != null) {
-                log.info("Decoding result, User: "+user);
                 return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
             }
             return null;

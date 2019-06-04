@@ -6,13 +6,13 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.reimbes.ActiveToken;
 import com.reimbes.ActiveTokenRepository;
 import com.reimbes.AuthService;
-import com.reimbes.authentication.JWTAuthenticationFilter;
 import com.reimbes.constant.SecurityConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.reimbes.constant.SecurityConstants.*;
 
 @Service
@@ -38,9 +39,7 @@ public class AuthServiceImpl implements AuthService {
     public boolean isLogin(String token) {
         log.info("Check the token is in the Active Token Repo or not");
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
-        log.info("TOKEN Object: "+activeToken);
 
-        log.info("wanted TOKEN: "+token);
         if (activeToken != null && activeToken.getExpiredTime() > Instant.now().getEpochSecond()) return true;
 
         // token expired
@@ -55,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
         if (activeToken == null)
             activeToken = new ActiveToken(token);
         // update the time of token
-        activeToken.setExpiredTime(Instant.now().getEpochSecond() + SecurityConstants.TOKEN_PERIOD);
+        activeToken.setExpiredTime(getUpdatedTime());
         activeTokenRepository.save(activeToken);
     }
 
@@ -91,5 +90,24 @@ public class AuthServiceImpl implements AuthService {
         }
         return null;
     }
+
+    @Override
+    public String generateToken(UserDetails user, Collection authorities) {
+        String role = authorities.iterator().next().toString();
+
+        String token = TOKEN_PREFIX + JWT.create()
+                .withSubject(user.getUsername())
+                .withClaim("expire",getUpdatedTime())
+                .withClaim("role", role)
+                .sign(HMAC512(SECRET.getBytes()));
+        return token;
+    }
+
+
+
+    private long getUpdatedTime() {
+        return Instant.now().getEpochSecond() + SecurityConstants.TOKEN_PERIOD;
+    }
+
 
 }
