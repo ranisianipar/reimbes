@@ -1,14 +1,14 @@
 package com.reimbes.configuration;
 
-import com.reimbes.authentication.JWTAuthenticationFilter;
-import com.reimbes.authentication.JWTAuthorizationFilter;
+import com.reimbes.authentication.*;
+import com.reimbes.authentication.filter.JWTAuthenticationFilter;
+import com.reimbes.authentication.filter.JWTAuthorizationFilter;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.implementation.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -51,18 +51,19 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers(
                         UrlConstants.LOGIN_URL,
                         UrlConstants.LOGOUT_URL,
+                        UrlConstants.ISLOGIN_URL,
                         "/v2/api-docs"
                 ).permitAll()
                 .antMatchers(
                         UrlConstants.ADMIN_PREFIX,
                         UrlConstants.ADMIN_PREFIX+"/**"
-                ).hasAuthority("ADMIN")
+                    ).hasAuthority("ADMIN")
                 .antMatchers(
                         UrlConstants.USER_PREFIX,
                         UrlConstants.USER_PREFIX+"/**",
                         UrlConstants.TRANSACTION_PREFIX,
                         UrlConstants.TRANSACTION_PREFIX+"/**"
-                ).hasAuthority("USER")
+                    ).hasAuthority("USER")
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(jwtAuthenticationFilter(authenticationManager()))

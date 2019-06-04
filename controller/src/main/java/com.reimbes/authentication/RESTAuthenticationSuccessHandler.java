@@ -1,4 +1,4 @@
-package com.reimbes.configuration;
+package com.reimbes.authentication;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;

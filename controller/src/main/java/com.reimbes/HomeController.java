@@ -1,5 +1,6 @@
 package com.reimbes;
 
+import com.reimbes.constant.SecurityConstants;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.response.BaseResponse;
@@ -31,8 +32,14 @@ public class HomeController {
         return new BaseResponse();
     }
 
-    @GetMapping("test")
-    public String test() {
-        return "ALL TEST";
+    @GetMapping(UrlConstants.ISLOGIN_URL)
+    public BaseResponse isLogin(HttpServletRequest req) {
+        String token = req.getHeader(SecurityConstants.HEADER_STRING);
+        BaseResponse br = new BaseResponse();
+
+        br.setData("logged in");
+        if (!authService.isLogin(token))
+            br.setData("haven't logged in yet");
+        return br;
     }
 }
