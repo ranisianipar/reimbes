@@ -85,6 +85,15 @@ public class TransactionController {
         return br;
     }
 
+    @PutMapping("/_encode-image")
+    public BaseResponse encodeImage(@RequestParam("image") MultipartFile imageValue, HttpServletRequest request) throws Exception {
+        BaseResponse br = new BaseResponse();
+        String encodedUrl = transactionService.encodeImage(imageValue);
+
+        br.setData(encodedUrl);
+        return br;
+    }
+
     @DeleteMapping(UrlConstants.ID_PARAM)
     public String deleteById(@PathVariable String id, HttpServletRequest req) {
         return "delete by ID: "+id;
