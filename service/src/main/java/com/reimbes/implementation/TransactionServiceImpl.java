@@ -11,15 +11,16 @@ import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -84,6 +85,10 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findOne(id);
     }
 
+    public List<Transaction> getAll(HttpServletRequest request, Pageable pageable) {
+        return null;
+    }
+
     @Override
     public String upload(HttpServletRequest request, MultipartFile imageValue) throws Exception {
         HashMap userDetails = authService.getCurrentUserDetails(request);
@@ -123,6 +128,24 @@ public class TransactionServiceImpl implements TransactionService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    // will be deleted
+    public String encodeImage(MultipartFile imageValue) throws IOException {
+        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ "webp");
+        if (!Files.exists(Paths.get("")))
+            Files.createDirectory(Paths.get(path));
+
+        String filename = imageValue.getName()+".webp";
+        path = path + filename;
+
+        byte[] data = imageValue.getBytes();
+        InputStream inputStream = new ByteArrayInputStream(data);
+
+        BufferedImage renderedImage = ImageIO.read(inputStream);
+        ImageIO.write(renderedImage, "webp", new File(path));
+        return path;
+
     }
 
     @Override
