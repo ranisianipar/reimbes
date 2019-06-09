@@ -19,6 +19,7 @@ public class BaseResponse<T> {
     public BaseResponse() {
         this.code = ResponseCode.OK;
         this.success = true;
+        this.status = HttpStatus.OK;
     }
 
     public void errorResponse(ReimsException r) {

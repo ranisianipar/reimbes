@@ -20,16 +20,13 @@ public class AdminController {
     @Autowired
     AdminService adminService;
 
-    @PostMapping(UrlConstants.ADD_USER)
-    public BaseResponse<UserResponse> addUser(@RequestBody ReimsUser user) throws Exception{
+    @PostMapping(UrlConstants.USER_PREFIX)
+    public BaseResponse<UserResponse> createUser(@RequestBody ReimsUser user) throws Exception{
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
             br.setData(getMapper().map(adminService.createUser(user), UserResponse.class));
         } catch (ReimsException r) {
-            br.setErrors(r.getMessage());
-            br.setSuccess(false);
-            br.setCode(r.getCode());
-            br.setStatus(r.getHttpStatus());
+            br.errorResponse(r);
         }
         return br;
     }

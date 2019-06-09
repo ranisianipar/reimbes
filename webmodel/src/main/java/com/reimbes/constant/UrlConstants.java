@@ -16,7 +16,6 @@ public class UrlConstants {
 
     //admin
     public static final String MONTHLY_REPORT = "/monthly-report";
-    public static final String ADD_USER = "/_add_user";
 
     // others
     public static final String SHOW_IMAGE_PREFIX = "/_show-image";

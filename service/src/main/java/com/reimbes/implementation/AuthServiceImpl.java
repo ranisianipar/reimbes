@@ -94,6 +94,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String generateToken(UserDetails user, Collection authorities) {
         String role = authorities.iterator().next().toString();
+        log.info("Generate new token. Username: "+user.getUsername()+" Role: "+role);
 
         String token = TOKEN_PREFIX + JWT.create()
                 .withSubject(user.getUsername())
