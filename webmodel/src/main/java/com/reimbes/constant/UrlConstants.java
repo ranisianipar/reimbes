@@ -6,7 +6,7 @@ public class UrlConstants {
     public static final String LOGIN_URL = "/login";
     public static final String LOGOUT_URL = "/logout";
     public static final String ISLOGIN_URL = "/isLogin";
-    public static final String IMAGE_FOLDER_PATH = "D:\\reimes-img\\";
+    public static final String IMAGE_FOLDER_PATH = "C:\\Users\\Z\\Documents\\future\\reimbes\\reims-img\\";
 
     //prefix
     public static final String ADMIN_PREFIX = "/admin";

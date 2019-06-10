@@ -37,8 +37,8 @@ public class TransactionController {
             @RequestParam(value = "pageNumber", defaultValue = "0") int page,
             @RequestParam(value = "pageSize", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "created_at") String sortBy,
-            @RequestParam(value = "month", required = false) int month,
-            @RequestParam(value = "year", required = false) int year,
+            @RequestParam(value = "month", defaultValue = "0") int month,
+            @RequestParam(value = "year", defaultValue = "0") int year,
             @RequestParam (value = "search", required = false) String search,
             HttpServletRequest req) {
 

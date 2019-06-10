@@ -10,6 +10,8 @@ import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,8 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -31,6 +35,8 @@ import java.util.UUID;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
+
+    private static Logger log = LoggerFactory.getLogger(TransactionServiceImpl.class);
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -132,18 +138,41 @@ public class TransactionServiceImpl implements TransactionService {
 
     // will be deleted
     public String encodeImage(MultipartFile imageValue) throws IOException {
-        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ "webp");
-        if (!Files.exists(Paths.get("")))
+        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ "webp/");
+
+        if (!Files.exists(Paths.get(path)))
             Files.createDirectory(Paths.get(path));
 
-        String filename = imageValue.getName()+".webp";
+        String filename = imageValue.getOriginalFilename().replaceAll(".jpg","")+".webp";
+        log.info("Filename: "+filename);
+
         path = path + filename;
 
-        byte[] data = imageValue.getBytes();
-        InputStream inputStream = new ByteArrayInputStream(data);
+        RenderedImage renderedImage = ImageIO.read(imageValue.getInputStream());
+        try {
+            log.info("Check the buffered image: "+renderedImage.getData());
 
-        BufferedImage renderedImage = ImageIO.read(inputStream);
-        ImageIO.write(renderedImage, "webp", new File(path));
+            String readers = "";
+            for (String i: ImageIO.getReaderFormatNames()) {
+                readers = readers+i;
+            }
+            log.info("Readers: "+readers);
+            boolean status = ImageIO.write(renderedImage, "WBMP", new File(path));
+
+            // upload photo
+            try {
+                log.info("Test path: "+path);
+                Files.copy(imageValue.getInputStream(), Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+            log.info("Status: "+status);
+        } catch ( IOException e) {
+            e.printStackTrace();
+        }
+
         return path;
 
     }
