@@ -16,9 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 public class HomeController {
 
     @Autowired
-    private UserDetailsService userService;
-
-    @Autowired
     private AuthServiceImpl authService;
 
     @PostMapping(UrlConstants.LOGIN_URL)
