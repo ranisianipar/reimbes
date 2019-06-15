@@ -1,9 +1,6 @@
 package com.reimbes.implementation;
 
-import com.reimbes.ReimsUser;
-import com.reimbes.Transaction;
-import com.reimbes.TransactionRepository;
-import com.reimbes.TransactionService;
+import com.reimbes.*;
 
 import com.reimbes.constant.ResponseCode;
 import com.reimbes.constant.UrlConstants;
@@ -70,8 +67,15 @@ public class TransactionServiceImpl implements TransactionService {
         HashMap userDetails = authService.getCurrentUserDetails(request);
         ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
         Transaction transaction = transactionRepository.findOne(id);
-        if (transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
-        transactionRepository.delete(id);
+        if (transaction == null || transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
+        transactionRepository.delete(transaction);
+    }
+
+    public void deleteByUser(ReimsUser user) {
+        List<Fuel> transaction = transactionRepository.findByUser(user);
+        if (transaction == null)
+            return;
+        transactionRepository.delete(transaction);
     }
 
     @Override
@@ -86,9 +90,9 @@ public class TransactionServiceImpl implements TransactionService {
         HashMap userDetails = authService.getCurrentUserDetails(request);
         ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
         Transaction transaction = transactionRepository.findOne(id);
-        if (transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
+        if (transaction == null || transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
 
-        return transactionRepository.findOne(id);
+        return transaction;
     }
 
     public List<Transaction> getAll(HttpServletRequest request, Pageable pageable) {
@@ -201,7 +205,8 @@ public class TransactionServiceImpl implements TransactionService {
             errorMessages.add("null category");
 
         // validate image path
-        if (transaction.getImage()== null || !Files.exists(Paths.get(UrlConstants.IMAGE_FOLDER_PATH+transaction.getImage())))
+        if (transaction.getImage()== null || !Files.exists(Paths.get(
+                UrlConstants.IMAGE_FOLDER_PATH + transaction.getImage())))
             errorMessages.add("invalid image path");
 
         if (errorMessages.isEmpty())
