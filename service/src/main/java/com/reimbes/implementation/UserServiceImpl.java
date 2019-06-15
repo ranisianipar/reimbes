@@ -63,7 +63,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ReimsUser get(long id) {
+    public ReimsUser get(long id) throws ReimsException {
+        ReimsUser user = userRepository.getOne(id);
+        if (user == null)
+            throw new NotFoundException("User with ID "+id);
         return userRepository.getOne(id);
     }
 
