@@ -48,7 +48,7 @@ public class TransactionServiceImpl implements TransactionService {
     private TesseractService ocrService;
 
     @Override
-    public Transaction create(HttpServletRequest request, Transaction transaction) throws ReimsException{
+    public Transaction create(HttpServletRequest request, Transaction transaction) throws ReimsException {
         HashMap userDetails = authService.getCurrentUserDetails(request);
         ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
 

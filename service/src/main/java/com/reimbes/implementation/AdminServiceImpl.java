@@ -3,6 +3,7 @@ package com.reimbes.implementation;
 import com.reimbes.AdminService;
 import com.reimbes.ReimsUser;
 import com.reimbes.UserService;
+import com.reimbes.exception.ReimsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public ReimsUser getUser(long id) {
+    public ReimsUser getUser(long id) throws ReimsException {
         return userService.get(id);
     }
 

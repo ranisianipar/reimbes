@@ -10,6 +10,8 @@ import com.reimbes.constant.SecurityConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.sleuth.Span;
+import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,8 +34,21 @@ public class AuthServiceImpl implements AuthService {
     private static Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     @Autowired
+    private Tracer tracer;
+
+    @Autowired
     private ActiveTokenRepository activeTokenRepository;
 
+    private void setTracerValue(String key, String value) {
+        Span span = tracer.getCurrentSpan();
+        span.tag(key, value);
+        tracer.addTag(key, value);
+    }
+
+    public String getTracerValue(String key) {
+        Span span = tracer.getCurrentSpan();
+        return span.tags().get(key);
+    }
 
     @Override
     public boolean isLogin(String token) {
@@ -101,6 +116,8 @@ public class AuthServiceImpl implements AuthService {
                 .withClaim("expire",getUpdatedTime())
                 .withClaim("role", role)
                 .sign(HMAC512(SECRET.getBytes()));
+
+        setTracerValue("username",user.getUsername());
         return token;
     }
 
