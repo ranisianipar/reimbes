@@ -18,11 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
-import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -36,7 +34,7 @@ public class TransactionServiceImpl implements TransactionService {
     private static Logger log = LoggerFactory.getLogger(TransactionServiceImpl.class);
 
     @Autowired
-    private TransactionRepository transactionRepository;
+    private FuelRepository fuelRepository;
 
     @Autowired
     private UserServiceImpl userService;
@@ -51,45 +49,39 @@ public class TransactionServiceImpl implements TransactionService {
     public Transaction create(HttpServletRequest request, Transaction transaction) throws ReimsException {
         HashMap userDetails = authService.getCurrentUserDetails(request);
         ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
-
-        if (user == null) {
-            throw new ReimsException("In-Memory user not allowed"
-                    , HttpStatus.METHOD_NOT_ALLOWED
-                    , ResponseCode.UNAUTHORIZED);
-        }
         transaction.setUser(user);
         validate(transaction);
-        return transactionRepository.save(transaction);
+        return fuelRepository.save((Fuel) transaction);
     }
 
     @Override
     public void delete(HttpServletRequest request, long id) throws ReimsException{
         HashMap userDetails = authService.getCurrentUserDetails(request);
         ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
-        Transaction transaction = transactionRepository.findOne(id);
+        Transaction transaction = fuelRepository.findOne(id);
         if (transaction == null || transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
-        transactionRepository.delete(transaction);
+        fuelRepository.delete((Fuel) transaction);
     }
 
     public void deleteByUser(ReimsUser user) {
-        List<Fuel> transaction = transactionRepository.findByUser(user);
+        List<Fuel> transaction = fuelRepository.findByUser(user, null);
         if (transaction == null)
             return;
-        transactionRepository.delete(transaction);
+        fuelRepository.delete(transaction);
     }
 
     @Override
     public void deleteAll(HttpServletRequest request) {
         HashMap userDetails = authService.getCurrentUserDetails(request);
         ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
-        transactionRepository.deleteByUser(user);
+        fuelRepository.deleteByUser(user);
     }
 
     @Override
     public Transaction get(HttpServletRequest request, long id) throws ReimsException{
         HashMap userDetails = authService.getCurrentUserDetails(request);
         ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
-        Transaction transaction = transactionRepository.findOne(id);
+        Transaction transaction = fuelRepository.findOne(id);
         if (transaction == null || transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
 
         return transaction;
