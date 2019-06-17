@@ -1,9 +1,10 @@
 package com.reimbes;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.reimbes.configuration.FuelSequenceIdGenerator;
 import lombok.Data;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -13,10 +14,22 @@ import java.time.Instant;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Fuel extends Transaction {
 
+    /*
+    * source:
+    * https://thoughts-on-java.org/custom-sequence-based-idgenerator/
+    * */
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "fuel_seq")
+    @GenericGenerator(
+            name = "fuel_seq",
+            strategy = "org.reimbes.configuration.FuelSequenceIdGenerator",
+            parameters = {
+                    @Parameter(name = FuelSequenceIdGenerator.INCREMENT_PARAM, value = "1"),
+                    @Parameter(name = FuelSequenceIdGenerator.VALUE_PREFIX_PARAMETER, value = "FUEL_"),
+                    @Parameter(name = FuelSequenceIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%05d") })
     @Column(name = "fuel_id")
-    private long id;
+    private String id;
 //
 //    // user one to many transaction
 //    @ManyToOne(fetch = FetchType.EAGER, optional = false)
