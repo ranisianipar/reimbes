@@ -22,5 +22,6 @@ public class ActiveToken {
     public ActiveToken(String token) {
         this.token = token;
     }
+    public ActiveToken(){}
 
 }

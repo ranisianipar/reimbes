@@ -55,7 +55,9 @@ public class AuthServiceImpl implements AuthService {
         log.info("Check the token is in the Active Token Repo or not");
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
 
-        if (activeToken != null && activeToken.getExpiredTime() > Instant.now().getEpochSecond()) return true;
+        log.info("Tracer value: "+tracer.getCurrentSpan().tags());
+        if (activeToken != null && activeToken.getExpiredTime() > Instant.now().getEpochSecond())
+            return true;
 
         // token expired
         return false;
@@ -117,6 +119,7 @@ public class AuthServiceImpl implements AuthService {
                 .withClaim("role", role)
                 .sign(HMAC512(SECRET.getBytes()));
 
+        log.info("Tracer has been set.");
         setTracerValue("username",user.getUsername());
         return token;
     }
