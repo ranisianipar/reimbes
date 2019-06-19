@@ -5,6 +5,7 @@ import com.reimbes.ReimsUser;
 import com.reimbes.UserService;
 import com.reimbes.exception.ReimsException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +18,9 @@ public class AdminServiceImpl implements AdminService {
     private UserServiceImpl userService;
 
     @Override
-    public List<ReimsUser> getAllUser(Pageable pageable) {
-        return userService.getAllUsers(pageable);
+    public Page getAllUser(String search, Pageable pageable) {
+
+        return userService.getAllUsers(search, pageable);
     }
 
     @Override

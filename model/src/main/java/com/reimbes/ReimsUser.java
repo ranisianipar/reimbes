@@ -26,9 +26,11 @@ public class ReimsUser {
 
     @OneToMany(mappedBy = "user")
     private Set<Transaction> transactions;
+
     @Column(updatable = false, nullable = false)
     private long createdAt;
 
+    @Column
     private Long updatedAt;
 
     public enum Role {
