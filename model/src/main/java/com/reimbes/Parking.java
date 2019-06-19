@@ -14,7 +14,7 @@ public class Parking extends Transaction{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "parking_id")
     private long id;
-//
+
 //    // user one to many transaction
 //    @ManyToOne(fetch = FetchType.EAGER, optional = false)
 //    @JoinColumn(name = "user_id", updatable = false)
