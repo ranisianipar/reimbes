@@ -9,6 +9,7 @@ import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -71,8 +72,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<ReimsUser> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).getContent();
+    public Page getAllUsers(String username, Pageable pageable) {
+        return userRepository.findByUsernameContaining(username, pageable);
     }
 
     @Override

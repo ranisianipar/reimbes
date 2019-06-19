@@ -2,6 +2,7 @@ package com.reimbes;
 
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.implementation.AdminServiceImpl;
 import com.reimbes.response.BaseResponse;
 import com.reimbes.response.Paging;
 import com.reimbes.response.UserResponse;
@@ -9,12 +10,15 @@ import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @CrossOrigin(origins = UrlConstants.BASE_URL)
 @RestController
@@ -22,7 +26,7 @@ import java.util.ArrayList;
 public class AdminController {
 
     @Autowired
-    AdminService adminService;
+    private AdminServiceImpl adminService;
 
     @PostMapping(UrlConstants.USER_PREFIX)
     public BaseResponse<UserResponse> createUser(@RequestBody ReimsUser user) throws Exception{
@@ -39,16 +43,21 @@ public class AdminController {
     public BaseResponse<ArrayList> getAllUsers(
             @RequestParam(value = "pageNumber", defaultValue = "0") int page,
             @RequestParam(value = "pageSize", defaultValue = "10") int size,
-            @RequestParam(value = "sortBy", defaultValue = "updated_at") String sortBy,
-            @RequestParam (value = "search", required = false) String search) {
+            @RequestParam(value = "sortBy", defaultValue = "updatedAt") String sortBy,
+            @RequestParam (value = "search", defaultValue = "") String search) {
 
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
         Paging paging = getPagingMapper().map(pageRequest, Paging.class);
         BaseResponse br = new BaseResponse();
 
-        br.setData(adminService.getAllUser(pageRequest));
+        Page users = adminService.getAllUser(search, pageRequest);
 
+        br.setData(getAllUserResponses(users.getContent()));
+
+        paging.setTotalPages(users.getTotalPages());
+        paging.setTotalRecords(users.getContent().size());
         br.setPaging(paging);
+
         return br;
     }
 
@@ -87,5 +96,14 @@ public class AdminController {
         mapperFactory.classMap(Pageable.class, Paging.class)
                 .byDefault().register();
         return mapperFactory.getMapperFacade();
+    }
+
+    private List<UserResponse> getAllUserResponses(List<ReimsUser> users) {
+        List<UserResponse> userResponses = new ArrayList<>();
+        Iterator iterator = users.iterator();
+        while (iterator.hasNext()) {
+            userResponses.add(getMapper().map(iterator.next(), UserResponse.class));
+        }
+        return userResponses;
     }
 }

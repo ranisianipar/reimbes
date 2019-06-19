@@ -12,4 +12,6 @@ public interface AuthService {
     void registerToken(String token);
     void logout(HttpServletRequest req);
     HashMap getCurrentUserDetails(HttpServletRequest req);
+    void setCurrentUsername(Object principal);
+    String getCurrentUsername();
 }

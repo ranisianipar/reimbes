@@ -6,6 +6,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.reimbes.ActiveToken;
 import com.reimbes.ActiveTokenRepository;
 import com.reimbes.AuthService;
+import com.reimbes.ReimsUser;
 import com.reimbes.constant.SecurityConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +34,21 @@ public class AuthServiceImpl implements AuthService {
 
     private static Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
 
+    private String currentUsername;
+
     @Autowired
     private Tracer tracer;
 
     @Autowired
     private ActiveTokenRepository activeTokenRepository;
+
+    public void setCurrentUsername(Object principal) {
+        this.currentUsername = principal+"";
+    }
+
+    public String getCurrentUsername() {
+        return this.currentUsername;
+    }
 
     private void setTracerValue(String key, String value) {
         Span span = tracer.getCurrentSpan();
@@ -45,6 +56,7 @@ public class AuthServiceImpl implements AuthService {
         tracer.addTag(key, value);
     }
 
+    // not worked, return ''
     public String getTracerValue(String key) {
         Span span = tracer.getCurrentSpan();
         return span.tags().get(key);
@@ -56,6 +68,8 @@ public class AuthServiceImpl implements AuthService {
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
 
         log.info("Tracer value: "+tracer.getCurrentSpan().tags());
+
+        log.info("Username by private var: "+currentUsername);
         if (activeToken != null && activeToken.getExpiredTime() > Instant.now().getEpochSecond())
             return true;
 
