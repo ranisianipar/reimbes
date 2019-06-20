@@ -54,11 +54,11 @@ public class TransactionController {
     }
 
     @GetMapping(UrlConstants.ID_PARAM)
-    public BaseResponse getTransaction(@PathVariable long id, HttpServletRequest req) {
+    public BaseResponse getTransaction(@PathVariable long id) {
         BaseResponse<Transaction> br = new BaseResponse<>();
 
         try {
-            br.setData(transactionService.get(req, id));
+            br.setData(transactionService.get(id));
         }   catch (ReimsException r) {
             br.errorResponse(r);
         }
@@ -67,9 +67,9 @@ public class TransactionController {
     }
 
     @PutMapping
-    public BaseResponse<TransactionResponse> createTransaction(HttpServletRequest request, @RequestBody Transaction newTransaction) throws Exception{
+    public BaseResponse<TransactionResponse> createTransaction(@RequestBody Transaction newTransaction) throws Exception{
         BaseResponse br = new BaseResponse();
-        TransactionResponse tr = getMapper().map(transactionService.create(request, newTransaction), TransactionResponse.class);
+        TransactionResponse tr = getMapper().map(transactionService.create(newTransaction), TransactionResponse.class);
         br.setData(tr);
         return br;
     }
