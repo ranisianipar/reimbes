@@ -19,11 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
-import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -37,7 +35,7 @@ public class TransactionServiceImpl implements TransactionService {
     private static Logger log = LoggerFactory.getLogger(TransactionServiceImpl.class);
 
     @Autowired
-    private TransactionRepository transactionRepository;
+    private FuelRepository fuelRepository;
 
     @Autowired
     private UserServiceImpl userService;
@@ -47,6 +45,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     private TesseractService ocrService;
+
 
     public byte[] createByImage(String imageValue) {
         // Decode base64 imageValue into bytes in webp format
@@ -67,7 +66,7 @@ public class TransactionServiceImpl implements TransactionService {
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         transaction.setUser(user);
         validate(transaction);
-        return transactionRepository.save(transaction);
+        return fuelRepository.save((Fuel) transaction);
     }
 
     @Override
@@ -80,21 +79,21 @@ public class TransactionServiceImpl implements TransactionService {
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
-        transactionRepository.delete(transaction);
+        fuelRepository.delete((Fuel) transaction);
     }
 
     public void deleteByUser(ReimsUser user) {
-        List<Fuel> transaction = transactionRepository.findByUser(user);
+        List<Fuel> transaction = fuelRepository.findByUser(user, null);
         if (transaction == null)
             return;
-        transactionRepository.delete(transaction);
+        fuelRepository.delete(transaction);
     }
 
     @Override
     public void deleteAll(HttpServletRequest request) {
         HashMap userDetails = authService.getCurrentUserDetails(request);
         ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
-        transactionRepository.deleteByUser(user);
+        fuelRepository.deleteByUser(user);
     }
 
     @Override

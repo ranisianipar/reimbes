@@ -15,7 +15,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 public class WebConfig extends WebMvcConfigurerAdapter {
     private static Logger log = LoggerFactory.getLogger(WebConfig.class);
 
-    // Instead using @Autowired (will make LoggerInterceptor null)
     @Bean
     public LoggerInterceptor loggerInterceptor() {
         return new LoggerInterceptor();
