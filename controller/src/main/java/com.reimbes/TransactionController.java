@@ -75,14 +75,20 @@ public class TransactionController {
     }
 
     // handle kalo file yg diupload bukan webp
-    @PostMapping
-    public BaseResponse uploadImage(@RequestParam("image") MultipartFile imageValue, HttpServletRequest request) throws Exception {
-        BaseResponse br = new BaseResponse();
-        String ocrResult = transactionService.upload(request, imageValue);
+//    @PostMapping
+//    public BaseResponse uploadImage(@RequestParam("image") MultipartFile imageValue, HttpServletRequest request) throws Exception {
+//        BaseResponse br = new BaseResponse();
+//        String ocrResult = transactionService.upload(request, imageValue);
+//
+//        br.setErrors("ga ada! Ini cuma buat ngecek keluarannya output");
+//        br.setData(ocrResult);
+//        return br;
+//    }
 
-        br.setErrors("ga ada! Ini cuma buat ngecek keluarannya output");
-        br.setData(ocrResult);
-        return br;
+    @PostMapping
+    public BaseResponse createTransaction(@RequestParam("image") String image) {
+
+        return null;
     }
 
     @PutMapping("/_encode-image")

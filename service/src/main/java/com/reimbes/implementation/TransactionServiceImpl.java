@@ -1,5 +1,6 @@
 package com.reimbes.implementation;
 
+import com.lowagie.text.pdf.codec.Base64;
 import com.reimbes.*;
 
 import com.reimbes.constant.ResponseCode;
@@ -47,25 +48,36 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private TesseractService ocrService;
 
-    @Override
-    public Transaction create(HttpServletRequest request, Transaction transaction) throws ReimsException {
-        HashMap userDetails = authService.getCurrentUserDetails(request);
-        ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
+    public byte[] createByImage(String imageValue) {
+        // Decode base64 imageValue into bytes in webp format
+        byte[] imageBytes = Base64.decode(imageValue);
 
-        if (user == null) {
-            throw new ReimsException("In-Memory user not allowed"
-                    , HttpStatus.METHOD_NOT_ALLOWED
-                    , ResponseCode.UNAUTHORIZED);
-        }
+        // decode imageBytes to jpeg/png/bmp
+
+        // write image into server
+
+        // mapping ocr value to Transaction value
+
+        // return [category-table]Repository.save(them)
+        return imageBytes;
+    }
+
+    @Override
+    public Transaction create(Transaction transaction) throws ReimsException {
+        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         transaction.setUser(user);
         validate(transaction);
         return transactionRepository.save(transaction);
     }
 
     @Override
-    public void delete(HttpServletRequest request, long id) throws ReimsException{
-        HashMap userDetails = authService.getCurrentUserDetails(request);
-        ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
+    public Transaction update(Transaction transaction, long id) {
+        return null;
+    }
+
+    @Override
+    public void delete(long id) throws ReimsException{
+        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
         transactionRepository.delete(transaction);
@@ -86,20 +98,19 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction get(HttpServletRequest request, long id) throws ReimsException{
-        HashMap userDetails = authService.getCurrentUserDetails(request);
-        ReimsUser user = userService.getUserByUsername((String) userDetails.get("username"));
+    public Transaction get(long id) throws ReimsException{
+        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
 
         return transaction;
     }
 
-    public List<Transaction> getAll(HttpServletRequest request, Pageable pageable) {
+    @Override
+    public List<Transaction> getAll(Pageable pageable) {
         return null;
     }
 
-    @Override
     public String upload(HttpServletRequest request, MultipartFile imageValue) throws Exception {
         HashMap userDetails = authService.getCurrentUserDetails(request);
         long userId;

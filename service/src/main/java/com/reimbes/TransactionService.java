@@ -8,12 +8,14 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface TransactionService {
-    Transaction create(HttpServletRequest req, Transaction transaction) throws ReimsException;
-    void delete(HttpServletRequest req, long id) throws ReimsException;
+    Transaction create(Transaction transaction) throws ReimsException;
+
+    // tagu return type sama parameter
+    Transaction update(Transaction transaction, long id);
+    void delete(long id) throws ReimsException;
     void deleteAll(HttpServletRequest req) throws ReimsException;
-    Transaction get(HttpServletRequest req, long id) throws ReimsException;
-    List<Transaction> getAll(HttpServletRequest request, Pageable pageable);
-    String upload(HttpServletRequest req, MultipartFile image) throws Exception;
+    Transaction get(long id) throws ReimsException;
+    List<Transaction> getAll(Pageable pageable);
     byte[] getPhoto(String imagePath); // is it ok to dont check the user?
     void deletePhoto(String imagePath);
 
