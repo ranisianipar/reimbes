@@ -6,6 +6,7 @@ import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.TesseractService;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.request.BulkDeleteRequest;
+import com.reimbes.request.UploadImageByteRequest;
 import com.reimbes.response.BaseResponse;
 import com.reimbes.response.Paging;
 import com.reimbes.response.TransactionResponse;
@@ -39,8 +40,8 @@ public class TransactionController {
             @RequestParam(value = "sortBy", defaultValue = "created_at") String sortBy,
             @RequestParam(value = "month", defaultValue = "0") int month,
             @RequestParam(value = "year", defaultValue = "0") int year,
-            @RequestParam (value = "search", required = false) String search,
-            HttpServletRequest req) {
+            @RequestParam (value = "search", required = false) String search
+    ) {
 
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
         Paging paging = getPagingMapper().map(pageRequest, Paging.class);
@@ -85,10 +86,13 @@ public class TransactionController {
 //        return br;
 //    }
 
+    // masih upload gambar buat OCR
     @PostMapping
-    public BaseResponse createTransaction(@RequestParam("image") String image) {
+    public BaseResponse createTransaction(@RequestBody UploadImageByteRequest request) {
+        BaseResponse br = new BaseResponse();
 
-        return null;
+        br.setData(transactionService.createByImage(request.getImage()));
+        return br;
     }
 
     @PutMapping("/_encode-image")
