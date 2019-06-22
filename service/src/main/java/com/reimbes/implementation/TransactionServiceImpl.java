@@ -52,6 +52,8 @@ public class TransactionServiceImpl implements TransactionService {
         // Decode base64 imageValue into bytes in webp format
         byte[] imageBytes = Base64.decode(imageValue);
 
+        ocrService.predictImageContent(imageBytes);
+
         // decode imageBytes to jpeg/png/bmp
 
         // write image into server
