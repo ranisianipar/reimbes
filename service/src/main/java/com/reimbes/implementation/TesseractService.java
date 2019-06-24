@@ -1,9 +1,11 @@
 package com.reimbes.implementation;
 
 import com.reimbes.OcrService;
+import com.reimbes.Parking;
 import com.reimbes.Transaction;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
+import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.slf4j.Logger;
@@ -17,15 +19,18 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
+
+import static com.reimbes.constant.UrlConstants.TESSERACT_TRAINNED_DATA_PATH;
 
 @Service
 public class TesseractService implements OcrService {
     private static Logger log = LoggerFactory.getLogger(TesseractService.class);
 
-    private final Tesseract instance = new Tesseract();
+    private final ITesseract instance = new Tesseract();
 
-    public Tesseract getInstance() {
-        instance.setLanguage("en");
+    public ITesseract getInstance() {
+        instance.setDatapath(TESSERACT_TRAINNED_DATA_PATH);
         return instance;
     }
 
@@ -45,13 +50,26 @@ public class TesseractService implements OcrService {
     }
 
     public Transaction predictImageContent(byte[] image) {
+        log.info("Predicting image content...");
+
         String ocrResult = "";
         try {
-            ocrResult = getInstance().doOCR(createImageFromBytes(image));
+            ocrResult = getInstance().doOCR(createImageFromBytes(image)).toLowerCase();
         } catch (TesseractException e) {
             log.error(e.getMessage());
         }
         log.info(ocrResult);
+
+        Transaction transaction = new Parking();
+        // iterate
+        for (String w: ocrResult.split("\n")) {
+
+        }
+
+        return transaction;
+    }
+
+    private Date getDate(String word) {
 
         return null;
     }

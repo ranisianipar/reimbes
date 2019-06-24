@@ -3,7 +3,6 @@ package com.reimbes.implementation;
 import com.lowagie.text.pdf.codec.Base64;
 import com.reimbes.*;
 
-import com.reimbes.constant.ResponseCode;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
@@ -12,18 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -50,9 +44,30 @@ public class TransactionServiceImpl implements TransactionService {
 
     public byte[] createByImage(String imageValue) {
         // Decode base64 imageValue into bytes in webp format
-        byte[] imageBytes = Base64.decode(imageValue);
+        log.info("Image Value: "+imageValue);
+        try
+        {
+            //This will decode the String which is encoded by using Base64 class
+            byte[] imageByte = Base64.decode(imageValue);
+            long userId = userService.getUserByUsername(authService.getCurrentUsername()).getId();
 
-        ocrService.predictImageContent(imageBytes);
+            String foldername = userId +"\\";
+            String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ foldername);
+
+            if (!Files.exists(Paths.get(path)))
+                Files.createDirectory(Paths.get(path));
+
+            String filename = UUID.randomUUID()+".jpg";
+            path = path + filename;
+
+            new FileOutputStream(path).write(imageByte);
+
+            ocrService.predictImageContent(imageByte);
+
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
+
 
         // decode imageBytes to jpeg/png/bmp
 
@@ -61,7 +76,7 @@ public class TransactionServiceImpl implements TransactionService {
         // mapping ocr value to Transaction value
 
         // return [category-table]Repository.save(them)
-        return imageBytes;
+        return Base64.decode(imageValue);
     }
 
     @Override
@@ -114,10 +129,9 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     public String upload(HttpServletRequest request, MultipartFile imageValue) throws Exception {
-        HashMap userDetails = authService.getCurrentUserDetails(request);
         long userId;
 
-        userId = userService.getUserByUsername((String) userDetails.get("username")).getId();
+        userId = userService.getUserByUsername(authService.getCurrentUsername()).getId();
 
         String foldername = userId +"\\";
         String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ foldername);
@@ -155,42 +169,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     // will be deleted
     public String encodeImage(MultipartFile imageValue) throws IOException {
-        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ "webp/");
-
-        if (!Files.exists(Paths.get(path)))
-            Files.createDirectory(Paths.get(path));
-
-        String filename = imageValue.getOriginalFilename().replaceAll(".jpg","")+".webp";
-        log.info("Filename: "+filename);
-
-        path = path + filename;
-
-        RenderedImage renderedImage = ImageIO.read(imageValue.getInputStream());
-        try {
-            log.info("Check the buffered image: "+renderedImage.getData());
-
-            String readers = "";
-            for (String i: ImageIO.getReaderFormatNames()) {
-                readers = readers+i;
-            }
-            log.info("Readers: "+readers);
-            boolean status = ImageIO.write(renderedImage, "WBMP", new File(path));
-
-            // upload photo
-            try {
-                log.info("Test path: "+path);
-                Files.copy(imageValue.getInputStream(), Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        log.info("Bytes: "+imageValue.getBytes());
+        String encoded = Base64.encodeBytes(imageValue.getBytes());
 
 
-            log.info("Status: "+status);
-        } catch ( IOException e) {
-            e.printStackTrace();
-        }
-
-        return path;
+        return encoded;
 
     }
 

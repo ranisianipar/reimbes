@@ -13,6 +13,8 @@ import com.reimbes.response.TransactionResponse;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping(UrlConstants.API_PREFIX+UrlConstants.TRANSACTION_PREFIX)
 public class TransactionController {
+
+    private static Logger log = LoggerFactory.getLogger(TransactionController.class);
 
     @Autowired
     private TransactionServiceImpl transactionService;
@@ -96,12 +100,8 @@ public class TransactionController {
     }
 
     @PutMapping("/_encode-image")
-    public BaseResponse encodeImage(@RequestParam("image") MultipartFile imageValue, HttpServletRequest request) throws Exception {
-        BaseResponse br = new BaseResponse();
-        String encodedUrl = transactionService.encodeImage(imageValue);
-
-        br.setData(encodedUrl);
-        return br;
+    public String encodeImage(@RequestParam("image") MultipartFile imageValue) throws Exception {
+        return transactionService.encodeImage(imageValue);
     }
 
     @DeleteMapping(UrlConstants.ID_PARAM)
