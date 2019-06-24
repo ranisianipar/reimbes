@@ -20,6 +20,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,32 +43,24 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private TesseractService ocrService;
 
-    public byte[] createByImage(String imageValue) {
+    public Transaction createByImage(String imageValue) {
         // Decode base64 imageValue into bytes in webp format
         log.info("Image Value: "+imageValue);
-        try
-        {
+
+        // sementara
+        Transaction transaction = new Parking();
+
+        try {
             //This will decode the String which is encoded by using Base64 class
             byte[] imageByte = Base64.decode(imageValue);
-            long userId = userService.getUserByUsername(authService.getCurrentUsername()).getId();
 
-            String foldername = userId +"\\";
-            String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ foldername);
-
-            if (!Files.exists(Paths.get(path)))
-                Files.createDirectory(Paths.get(path));
-
-            String filename = UUID.randomUUID()+".jpg";
-            path = path + filename;
-
-            new FileOutputStream(path).write(imageByte);
-
-            ocrService.predictImageContent(imageByte);
+            upload(imageByte);
+            transaction = ocrService.predictImageContent(imageByte);
+            transaction.setUser(userService.getUserByUsername(authService.getCurrentUsername()));
 
         } catch(Exception e) {
             System.out.println(e.getMessage());
         }
-
 
         // decode imageBytes to jpeg/png/bmp
 
@@ -76,7 +69,7 @@ public class TransactionServiceImpl implements TransactionService {
         // mapping ocr value to Transaction value
 
         // return [category-table]Repository.save(them)
-        return Base64.decode(imageValue);
+        return transactionRepository.save(transaction);
     }
 
     @Override
@@ -128,7 +121,7 @@ public class TransactionServiceImpl implements TransactionService {
         return null;
     }
 
-    public String upload(HttpServletRequest request, MultipartFile imageValue) throws Exception {
+    public String upload(byte[] data) throws Exception {
         long userId;
 
         userId = userService.getUserByUsername(authService.getCurrentUsername()).getId();
@@ -142,18 +135,16 @@ public class TransactionServiceImpl implements TransactionService {
         String filename = UUID.randomUUID()+".jpg";
         path = path + filename;
 
-
-        byte[] data = imageValue.getBytes();
         InputStream inputStream = new ByteArrayInputStream(data);
 
         // upload photo
         try {
-            Files.copy(inputStream, Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
+            Files.write(Paths.get(path), data, StandardOpenOption.CREATE);
         } catch (Exception e) {
             e.printStackTrace();
         }
         
-        return ocrService.readImage(foldername+filename);
+        return foldername+filename;
     }
 
     @Override
@@ -183,6 +174,11 @@ public class TransactionServiceImpl implements TransactionService {
         if(file.delete()){
             System.out.println("Image "+imagePath+" has been removed");
         } else System.out.println("File /Users/pankaj/file.txt doesn't exist");
+    }
+
+    private String uploadPhoto() {
+
+        return null;
     }
 
     private void validate(Transaction transaction) throws ReimsException{
