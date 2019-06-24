@@ -62,9 +62,18 @@ public class TesseractService implements OcrService {
 
         Transaction transaction = new Parking();
         // iterate
+        int i = 0;
         for (String w: ocrResult.split("\n")) {
-
+            i++;
+            log.info(i+". "+w);
         }
+
+        // dummy transaction
+        transaction.setAmount(15000);
+        //2019/2/27 1:00:00 PM GMT
+        transaction.setDate(new Date(1551272400));
+        
+
 
         return transaction;
     }
