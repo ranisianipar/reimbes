@@ -49,14 +49,15 @@ public class TesseractService implements OcrService {
         return ocrResult;
     }
 
-    public Transaction predictImageContent(byte[] image) {
+    public Transaction predictImageContent(byte[] image) throws ReimsException{
         log.info("Predicting image content...");
 
         String ocrResult = "";
         try {
             ocrResult = getInstance().doOCR(createImageFromBytes(image)).toLowerCase();
-        } catch (TesseractException e) {
-            log.error(e.getMessage());
+        } catch (TesseractException t) {
+            throw new ReimsException(t.getMessage(), HttpStatus.BAD_REQUEST, 500);
+
         }
         log.info(ocrResult);
 
@@ -72,7 +73,7 @@ public class TesseractService implements OcrService {
         transaction.setAmount(15000);
         //2019/2/27 1:00:00 PM GMT
         transaction.setDate(new Date(1551272400));
-        
+        transaction.setCategory(Transaction.Category.PARKING);
 
 
         return transaction;
