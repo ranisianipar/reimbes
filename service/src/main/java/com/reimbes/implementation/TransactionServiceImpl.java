@@ -5,6 +5,7 @@ import com.reimbes.*;
 
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
+import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private TesseractService ocrService;
 
-    public Transaction createByImage(String imageValue) {
+    public Transaction createByImage(String imageValue) throws ReimsException{
         // Decode base64 imageValue into bytes in webp format
         log.info("Image Value: "+imageValue);
 
@@ -56,10 +57,12 @@ public class TransactionServiceImpl implements TransactionService {
 
             upload(imageByte);
             transaction = ocrService.predictImageContent(imageByte);
-            transaction.setUser(userService.getUserByUsername(authService.getCurrentUsername()));
+            ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
+            transaction.setUser(user);
+            log.info("USER:"+user.toString());
 
         } catch(Exception e) {
-            System.out.println(e.getMessage());
+            throw new FormatTypeError(e.getMessage());
         }
 
         // decode imageBytes to jpeg/png/bmp
