@@ -59,7 +59,6 @@ public class TransactionServiceImpl implements TransactionService {
             transaction = ocrService.predictImageContent(imageByte);
             ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
             transaction.setUser(user);
-            log.info("USER:"+user.toString());
 
         } catch(Exception e) {
             throw new FormatTypeError(e.getMessage());
