@@ -95,7 +95,12 @@ public class TransactionController {
     public BaseResponse createTransaction(@RequestBody UploadImageByteRequest request) {
         BaseResponse br = new BaseResponse();
 
-        br.setData(transactionService.createByImage(request.getImage()));
+        try {
+            br.setData(transactionService.createByImage(request.getImage()));
+        }   catch (ReimsException r) {
+            br.errorResponse(r);
+        }
+
         return br;
     }
 
