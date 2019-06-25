@@ -6,5 +6,5 @@ public class SecurityConstants {
     public static final String HEADER_STRING = "Authorization";
 
     // in seconds (1 hour)
-    public static final long TOKEN_PERIOD = 3600;
+    public static final long TOKEN_PERIOD = 3600 * 24 * 7; // 7 days
 }
