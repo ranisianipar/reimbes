@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class UserResponse {
-    public String username;
-    public ReimsUser.Role role;
+    private long id;
+    private String username;
+    private ReimsUser.Role role;
 }

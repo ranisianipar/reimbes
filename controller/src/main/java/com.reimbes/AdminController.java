@@ -47,12 +47,13 @@ public class AdminController {
             @RequestParam (value = "search", defaultValue = "") String search) {
 
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
-        Paging paging = getPagingMapper().map(pageRequest, Paging.class);
         BaseResponse br = new BaseResponse();
 
         Page users = adminService.getAllUser(search, pageRequest);
 
         br.setData(getAllUserResponses(users.getContent()));
+
+        Paging paging = getPaging(pageRequest);
 
         paging.setTotalPages(users.getTotalPages());
         paging.setTotalRecords(users.getContent().size());
@@ -105,5 +106,11 @@ public class AdminController {
             userResponses.add(getMapper().map(iterator.next(), UserResponse.class));
         }
         return userResponses;
+    }
+
+    private Paging getPaging(Pageable pageRequest) {
+        Paging paging = getPagingMapper().map(pageRequest, Paging.class);
+        paging.setPageNumber(pageRequest.getPageNumber()+1);
+        return paging;
     }
 }
