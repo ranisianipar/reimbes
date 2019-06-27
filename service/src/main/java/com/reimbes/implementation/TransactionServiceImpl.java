@@ -1,6 +1,7 @@
 package com.reimbes.implementation;
 
-import com.lowagie.text.pdf.codec.Base64;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import com.reimbes.*;
 
 import com.reimbes.constant.UrlConstants;
@@ -17,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -50,12 +52,22 @@ public class TransactionServiceImpl implements TransactionService {
 
         // sementara
         Transaction transaction = new Parking();
+        String[] extractedByte = imageValue.split(",");
+
+//        String extension = "";
+//
+//        // get the extension
+//        if (extension.contains("jpg")) extension = "jpg";
+//        else if (extension.contains("png")) extension = "png";
+//        else if (extension.contains("jpeg")) extension = "jpeg";
 
         try {
             //This will decode the String which is encoded by using Base64 class
-            byte[] imageByte = Base64.decode(imageValue);
-
+            byte[] imageByte = Base64.getDecoder().decode((extractedByte[1].getBytes(StandardCharsets.UTF_8)));
+//            byte[] imageByte = DatatypeConverter.parseBase64Binary(extractedByte[1]);
+            log.info("IMAGE BYTE succeed");
             upload(imageByte);
+            log.info("Image byte length: "+imageByte.length);
             transaction = ocrService.predictImageContent(imageByte);
             ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
             transaction.setUser(user);
@@ -163,7 +175,7 @@ public class TransactionServiceImpl implements TransactionService {
     // will be deleted
     public String encodeImage(MultipartFile imageValue) throws IOException {
         log.info("Bytes: "+imageValue.getBytes());
-        String encoded = Base64.encodeBytes(imageValue.getBytes());
+        String encoded = Base64.getEncoder().encodeToString(imageValue.getBytes());
 
 
         return encoded;
