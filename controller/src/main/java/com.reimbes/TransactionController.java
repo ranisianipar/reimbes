@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
-@CrossOrigin(origins = UrlConstants.BASE_URL)
+@CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
 @RequestMapping(UrlConstants.API_PREFIX+UrlConstants.TRANSACTION_PREFIX)
 public class TransactionController {
