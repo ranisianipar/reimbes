@@ -10,9 +10,9 @@ Reims is a reimbursement management system web-based application, which is mobil
 Not like postgreSQL, H2 provide an API to implements the super and subclasses in RDBM by
 using @Inheritance, for further info check this out: [Complete Guide: Inheritance strategies with JPA and Hibernate][1]
 
-> Why **H2** and not **PostgreSQL**?
-H2 support RDBM by OOP concept.<nr> Personally, i think H2 have stronger connection with Java than PostgreSQL.<br>
-To compare them in more specific topic, visit this link. [Comparison H2 vs PostgreSQL][2]
+Why **H2** and not **PostgreSQL**? <br>
+> H2 support RDBM by OOP concept.<nr> Personally, i think H2 have stronger connection with Java than PostgreSQL.<br>
+> To compare them in more specific topic, visit this link. [Comparison H2 vs PostgreSQL][2]
 
 ### Issues and Learning Source
 - [Infinite Recursion because of Bidirectional relation on Database][3]
