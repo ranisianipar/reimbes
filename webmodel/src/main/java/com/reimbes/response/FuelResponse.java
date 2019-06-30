@@ -5,8 +5,6 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class FuelResponse {
+public class FuelResponse extends TransactionResponse {
     private int liters;
-    private Date date;
-
 }

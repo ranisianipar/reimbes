@@ -5,8 +5,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -29,7 +27,7 @@ public class ReimsUser {
 
     @OneToMany(mappedBy = "user")
     @JsonBackReference
-    private List<Transaction> transactions = new ArrayList();
+    private Set<Transaction> transactions;
 
     @Column(updatable = false, nullable = false)
     private long createdAt;

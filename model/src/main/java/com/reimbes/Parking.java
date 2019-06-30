@@ -15,12 +15,6 @@ public class Parking extends Transaction{
     @Column(name = "parking_id")
     private long id;
 
-//    // user one to many transaction
-//    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-//    @JoinColumn(name = "user_id", updatable = false)
-//    @OnDelete(action = OnDeleteAction.CASCADE)
-//    private ReimsUser user;
-
     private int hours;
 
     public Parking() {
