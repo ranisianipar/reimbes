@@ -15,7 +15,7 @@ H2 support RDBM by OOP concept.<nr> Personally, i think H2 have stronger connect
 To compare them in more specific topic, visit this link. [Comparison H2 vs PostgreSQL][2]
 
 ### Issues and Learning Source
-> [Infinite Recursion because of Bidirectional relation on Database][3]
+- [Infinite Recursion because of Bidirectional relation on Database][3]
 
 [raniGithub]: https://github.com/ranisianipar
 
