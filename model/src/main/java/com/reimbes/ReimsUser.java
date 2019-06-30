@@ -1,9 +1,12 @@
 package com.reimbes;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -25,7 +28,8 @@ public class ReimsUser {
     private Role role;
 
     @OneToMany(mappedBy = "user")
-    private Set<Transaction> transactions;
+    @JsonBackReference
+    private List<Transaction> transactions = new ArrayList();
 
     @Column(updatable = false, nullable = false)
     private long createdAt;

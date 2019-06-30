@@ -1,5 +1,6 @@
 package com.reimbes;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -20,8 +21,9 @@ public abstract class Transaction {
     private Date date;
     private String image;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @JoinColumn(name = "user_transaction", nullable = false)
     private ReimsUser user;
 
     // standard crud attributes
