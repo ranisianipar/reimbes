@@ -1,7 +1,8 @@
 package com.reimbes.implementation;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import java.util.*;
+
 import com.reimbes.*;
 
 import com.reimbes.constant.UrlConstants;
@@ -18,16 +19,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -47,32 +42,36 @@ public class TransactionServiceImpl implements TransactionService {
     private TesseractService ocrService;
 
     public Transaction createByImage(String imageValue) throws ReimsException{
-        // Decode base64 imageValue into bytes in webp format
-        log.info("Image Value: "+imageValue);
+
+        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
+
+        String[] extractedByte = imageValue.split(",");
+        String extension = extractedByte[0];
+        String imagePath;
+
+        // get the extension
+        if (extension.contains("jpg")) extension = "jpg";
+        else if (extension.contains("png")) extension = "png";
+        else if (extension.contains("jpeg")) extension = "jpeg";
+        else extension = null;
 
         // sementara
-        Transaction transaction = new Parking();
-        String[] extractedByte = imageValue.split(",");
-
-//        String extension = "";
-//
-//        // get the extension
-//        if (extension.contains("jpg")) extension = "jpg";
-//        else if (extension.contains("png")) extension = "png";
-//        else if (extension.contains("jpeg")) extension = "jpeg";
-
+        Transaction transaction;
         try {
-            //This will decode the String which is encoded by using Base64 class
-            byte[] imageByte = Base64.getDecoder().decode((extractedByte[1].getBytes(StandardCharsets.UTF_8)));
-//            byte[] imageByte = DatatypeConverter.parseBase64Binary(extractedByte[1]);
-            log.info("IMAGE BYTE succeed");
-            upload(imageByte);
-            log.info("Image byte length: "+imageByte.length);
-            transaction = ocrService.predictImageContent(imageByte);
-            ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
-            transaction.setUser(user);
+            byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
+                    .getBytes(StandardCharsets.UTF_8)));
 
-        } catch(Exception e) {
+            log.info("Uploading the image...");
+            imagePath = upload(imageByte, extension);
+
+            log.info("Predicting image content... ");
+            transaction = ocrService.predictImageContent(imageByte);
+
+            log.info("Mapping the OCR result.");
+            transaction.setUser(user);
+            transaction.setImage(imagePath);
+
+        } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
         }
 
@@ -82,7 +81,6 @@ public class TransactionServiceImpl implements TransactionService {
 
         // mapping ocr value to Transaction value
 
-        // return [category-table]Repository.save(them)
         return transactionRepository.save(transaction);
     }
 
@@ -131,11 +129,12 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<Transaction> getAll(Pageable pageable) {
+    public List<Transaction> getAll(Pageable pageable, Date startDate, Date endDate, String searchTitle) {
+
         return null;
     }
 
-    public String upload(byte[] data) throws Exception {
+    public String upload(byte[] data, String extension) throws Exception {
         long userId;
 
         userId = userService.getUserByUsername(authService.getCurrentUsername()).getId();
@@ -146,7 +145,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (!Files.exists(Paths.get(path)))
             Files.createDirectory(Paths.get(path));
 
-        String filename = UUID.randomUUID()+".jpg";
+        String filename = UUID.randomUUID()+extension;
         path = path + filename;
 
         InputStream inputStream = new ByteArrayInputStream(data);
