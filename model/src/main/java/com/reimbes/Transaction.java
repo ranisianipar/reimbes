@@ -23,7 +23,7 @@ public abstract class Transaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonManagedReference
-    @JoinColumn(name = "user_transaction", nullable = false)
+    @JoinColumn(name = "user", nullable = false)
     private ReimsUser user;
 
     // standard crud attributes

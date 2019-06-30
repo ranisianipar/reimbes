@@ -41,7 +41,7 @@ public class AdminController {
 
     @GetMapping(UrlConstants.USER_PREFIX)
     public BaseResponse<ArrayList> getAllUsers(
-            @RequestParam(value = "pageNumber", defaultValue = "0") int page,
+            @RequestParam(value = "pageNumber", defaultValue = "1") int page,
             @RequestParam(value = "pageSize", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "updatedAt") String sortBy,
             @RequestParam (value = "search", defaultValue = "") String search) {
@@ -53,7 +53,7 @@ public class AdminController {
 
         br.setData(getAllUserResponses(users.getContent()));
 
-        Paging paging = getPaging(pageRequest);
+        Paging paging = getPagingMapper().map(pageRequest, Paging.class);
 
         paging.setTotalPages(users.getTotalPages());
         paging.setTotalRecords(users.getContent().size());
@@ -84,7 +84,6 @@ public class AdminController {
         return br;
     }
 
-
     private MapperFacade getMapper() {
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
         mapperFactory.classMap(ReimsUser.class, UserResponse.class)
@@ -106,11 +105,5 @@ public class AdminController {
             userResponses.add(getMapper().map(iterator.next(), UserResponse.class));
         }
         return userResponses;
-    }
-
-    private Paging getPaging(Pageable pageRequest) {
-        Paging paging = getPagingMapper().map(pageRequest, Paging.class);
-        paging.setPageNumber(pageRequest.getPageNumber()+1);
-        return paging;
     }
 }

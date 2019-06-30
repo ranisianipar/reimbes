@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class ParkingResponse {
-    private Date inTime;
+public class ParkingResponse extends TransactionResponse{
+    private long hours;
 }

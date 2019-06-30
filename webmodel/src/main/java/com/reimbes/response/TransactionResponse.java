@@ -3,13 +3,21 @@ package com.reimbes.response;
 import com.reimbes.Transaction;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
-public class TransactionResponse<T extends Transaction> {
+public class TransactionResponse {
     private long id;
 
     private Transaction.Category category;
 
-    private T details;
+    private long user;
+
+    private Date date;
+
+    private long amount;
+
+    private String image;
 
 
 }

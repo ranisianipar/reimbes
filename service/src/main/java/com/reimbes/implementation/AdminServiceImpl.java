@@ -6,6 +6,7 @@ import com.reimbes.UserService;
 import com.reimbes.exception.ReimsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,11 @@ public class AdminServiceImpl implements AdminService {
     private UserServiceImpl userService;
 
     @Override
-    public Page getAllUser(String search, Pageable pageable) {
+    public Page getAllUser(String search, Pageable pageRequest) {
+
+        // tha page number default is 1, but querying things start from 0.
+        Pageable pageable = new PageRequest(pageRequest.getPageNumber()-1,
+                pageRequest.getPageSize(), pageRequest.getSort());
 
         return userService.getAllUsers(search, pageable);
     }
