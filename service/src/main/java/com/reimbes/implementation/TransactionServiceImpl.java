@@ -1,31 +1,29 @@
 package com.reimbes.implementation;
 
-import com.lowagie.text.pdf.codec.Base64;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import com.reimbes.*;
 
-import com.reimbes.constant.ResponseCode;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
+import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,9 +46,35 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private TesseractService ocrService;
 
-    public byte[] createByImage(String imageValue) {
+    public Transaction createByImage(String imageValue) throws ReimsException{
         // Decode base64 imageValue into bytes in webp format
-        byte[] imageBytes = Base64.decode(imageValue);
+        log.info("Image Value: "+imageValue);
+
+        // sementara
+        Transaction transaction = new Parking();
+        String[] extractedByte = imageValue.split(",");
+
+//        String extension = "";
+//
+//        // get the extension
+//        if (extension.contains("jpg")) extension = "jpg";
+//        else if (extension.contains("png")) extension = "png";
+//        else if (extension.contains("jpeg")) extension = "jpeg";
+
+        try {
+            //This will decode the String which is encoded by using Base64 class
+            byte[] imageByte = Base64.getDecoder().decode((extractedByte[1].getBytes(StandardCharsets.UTF_8)));
+//            byte[] imageByte = DatatypeConverter.parseBase64Binary(extractedByte[1]);
+            log.info("IMAGE BYTE succeed");
+            upload(imageByte);
+            log.info("Image byte length: "+imageByte.length);
+            transaction = ocrService.predictImageContent(imageByte);
+            ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
+            transaction.setUser(user);
+
+        } catch(Exception e) {
+            throw new FormatTypeError(e.getMessage());
+        }
 
         // decode imageBytes to jpeg/png/bmp
 
@@ -59,7 +83,7 @@ public class TransactionServiceImpl implements TransactionService {
         // mapping ocr value to Transaction value
 
         // return [category-table]Repository.save(them)
-        return imageBytes;
+        return transactionRepository.save(transaction);
     }
 
     @Override
@@ -111,11 +135,10 @@ public class TransactionServiceImpl implements TransactionService {
         return null;
     }
 
-    public String upload(HttpServletRequest request, MultipartFile imageValue) throws Exception {
-        HashMap userDetails = authService.getCurrentUserDetails(request);
+    public String upload(byte[] data) throws Exception {
         long userId;
 
-        userId = userService.getUserByUsername((String) userDetails.get("username")).getId();
+        userId = userService.getUserByUsername(authService.getCurrentUsername()).getId();
 
         String foldername = userId +"\\";
         String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ foldername);
@@ -126,18 +149,16 @@ public class TransactionServiceImpl implements TransactionService {
         String filename = UUID.randomUUID()+".jpg";
         path = path + filename;
 
-
-        byte[] data = imageValue.getBytes();
         InputStream inputStream = new ByteArrayInputStream(data);
 
         // upload photo
         try {
-            Files.copy(inputStream, Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
+            Files.write(Paths.get(path), data, StandardOpenOption.CREATE);
         } catch (Exception e) {
             e.printStackTrace();
         }
         
-        return ocrService.readImage(foldername+filename);
+        return foldername+filename;
     }
 
     @Override
@@ -153,42 +174,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     // will be deleted
     public String encodeImage(MultipartFile imageValue) throws IOException {
-        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ "webp/");
-
-        if (!Files.exists(Paths.get(path)))
-            Files.createDirectory(Paths.get(path));
-
-        String filename = imageValue.getOriginalFilename().replaceAll(".jpg","")+".webp";
-        log.info("Filename: "+filename);
-
-        path = path + filename;
-
-        RenderedImage renderedImage = ImageIO.read(imageValue.getInputStream());
-        try {
-            log.info("Check the buffered image: "+renderedImage.getData());
-
-            String readers = "";
-            for (String i: ImageIO.getReaderFormatNames()) {
-                readers = readers+i;
-            }
-            log.info("Readers: "+readers);
-            boolean status = ImageIO.write(renderedImage, "WBMP", new File(path));
-
-            // upload photo
-            try {
-                log.info("Test path: "+path);
-                Files.copy(imageValue.getInputStream(), Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        log.info("Bytes: "+imageValue.getBytes());
+        String encoded = Base64.getEncoder().encodeToString(imageValue.getBytes());
 
 
-            log.info("Status: "+status);
-        } catch ( IOException e) {
-            e.printStackTrace();
-        }
-
-        return path;
+        return encoded;
 
     }
 
@@ -198,6 +188,11 @@ public class TransactionServiceImpl implements TransactionService {
         if(file.delete()){
             System.out.println("Image "+imagePath+" has been removed");
         } else System.out.println("File /Users/pankaj/file.txt doesn't exist");
+    }
+
+    private String uploadPhoto() {
+
+        return null;
     }
 
     private void validate(Transaction transaction) throws ReimsException{

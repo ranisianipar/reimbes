@@ -6,12 +6,15 @@ import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.TesseractService;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.request.BulkDeleteRequest;
+import com.reimbes.request.UploadImageByteRequest;
 import com.reimbes.response.BaseResponse;
 import com.reimbes.response.Paging;
 import com.reimbes.response.TransactionResponse;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +24,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
-@CrossOrigin(origins = UrlConstants.BASE_URL)
+@CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
 @RequestMapping(UrlConstants.API_PREFIX+UrlConstants.TRANSACTION_PREFIX)
 public class TransactionController {
+
+    private static Logger log = LoggerFactory.getLogger(TransactionController.class);
 
     @Autowired
     private TransactionServiceImpl transactionService;
@@ -39,8 +44,8 @@ public class TransactionController {
             @RequestParam(value = "sortBy", defaultValue = "created_at") String sortBy,
             @RequestParam(value = "month", defaultValue = "0") int month,
             @RequestParam(value = "year", defaultValue = "0") int year,
-            @RequestParam (value = "search", required = false) String search,
-            HttpServletRequest req) {
+            @RequestParam (value = "search", required = false) String search
+    ) {
 
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
         Paging paging = getPagingMapper().map(pageRequest, Paging.class);
@@ -85,19 +90,23 @@ public class TransactionController {
 //        return br;
 //    }
 
+    // masih upload gambar buat OCR
     @PostMapping
-    public BaseResponse createTransaction(@RequestParam("image") String image) {
+    public BaseResponse createTransaction(@RequestBody UploadImageByteRequest request) {
+        BaseResponse br = new BaseResponse();
 
-        return null;
+        try {
+            br.setData(transactionService.createByImage(request.getImage()));
+        }   catch (ReimsException r) {
+            br.errorResponse(r);
+        }
+
+        return br;
     }
 
     @PutMapping("/_encode-image")
-    public BaseResponse encodeImage(@RequestParam("image") MultipartFile imageValue, HttpServletRequest request) throws Exception {
-        BaseResponse br = new BaseResponse();
-        String encodedUrl = transactionService.encodeImage(imageValue);
-
-        br.setData(encodedUrl);
-        return br;
+    public String encodeImage(@RequestParam("image") MultipartFile imageValue) throws Exception {
+        return transactionService.encodeImage(imageValue);
     }
 
     @DeleteMapping(UrlConstants.ID_PARAM)
