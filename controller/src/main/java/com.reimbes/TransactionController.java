@@ -3,7 +3,6 @@ package com.reimbes;
 
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
-import com.reimbes.implementation.TesseractService;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.request.BulkDeleteRequest;
 import com.reimbes.request.UploadImageByteRequest;
@@ -59,10 +58,10 @@ public class TransactionController {
 
     @GetMapping(UrlConstants.ID_PARAM)
     public BaseResponse getTransaction(@PathVariable long id) {
-        BaseResponse<Transaction> br = new BaseResponse<>();
+        BaseResponse<TransactionResponse> br = new BaseResponse<>();
 
         try {
-            br.setData(transactionService.get(id));
+            br.setData(getTransactionResponse(transactionService.get(id)));
         }   catch (ReimsException r) {
             br.errorResponse(r);
         }
@@ -73,18 +72,16 @@ public class TransactionController {
     @PutMapping
     public BaseResponse<TransactionResponse> createTransaction(@RequestBody Transaction newTransaction) throws Exception{
         BaseResponse br = new BaseResponse();
-        TransactionResponse tr = getMapper().map(transactionService.create(newTransaction), TransactionResponse.class);
-        br.setData(tr);
+        br.setData(getTransactionResponse(transactionService.create(newTransaction)));
         return br;
     }
 
-    // masih upload gambar buat OCR
     @PostMapping
     public BaseResponse createTransaction(@RequestBody UploadImageByteRequest request) {
         BaseResponse br = new BaseResponse();
 
         try {
-            br.setData(transactionService.createByImage(request.getImage()));
+            br.setData(getTransactionResponse(transactionService.createByImage(request.getImage())));
         }   catch (ReimsException r) {
             br.errorResponse(r);
         }
@@ -107,13 +104,6 @@ public class TransactionController {
         return "delete many transaction";
     }
 
-    private MapperFacade getMapper() {
-        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
-        mapperFactory.classMap(Transaction.class, TransactionResponse.class)
-                .byDefault().register();
-        return mapperFactory.getMapperFacade();
-    }
-
     private MapperFacade getPagingMapper() {
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
         mapperFactory.classMap(Pageable.class, Paging.class)
@@ -129,10 +119,39 @@ public class TransactionController {
         while (iterator.hasNext()) {
             transaction = iterator.next();
             if (((Transaction) transaction).getCategory().equals(Transaction.Category.PARKING))
-                transactionResponses.add(getMapper().map(transactions, ParkingResponse.class));
+                transactionResponses.add(getTransactionMapper((Transaction) transaction)
+                        .map(transactions, ParkingResponse.class));
             else
-                transactionResponses.add(getMapper().map(transactions, FuelResponse.class));
+                transactionResponses.add(getTransactionMapper((Transaction) transaction)
+                        .map(transactions, FuelResponse.class));
         }
         return transactionResponses;
     }
+
+    private TransactionResponse getTransactionResponse(Transaction transaction) {
+        TransactionResponse transactionResponse;
+        if (transaction.getCategory().equals(Transaction.Category.PARKING))
+            transactionResponse = getTransactionMapper((Transaction) transaction)
+                    .map(transaction, ParkingResponse.class);
+        else
+            transactionResponse = getTransactionMapper((Transaction) transaction)
+                    .map(transaction, FuelResponse.class);
+        return transactionResponse;
+    }
+
+    private MapperFacade getTransactionMapper(Transaction transaction) {
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+
+        if (transaction.getCategory().equals(Transaction.Category.PARKING)) {
+            mapperFactory.classMap(Parking.class, ParkingResponse.class)
+                    .byDefault().register();
+            mapperFactory.getMapperFacade().map(transaction, ParkingResponse.class);
+        } else {
+            mapperFactory.classMap(Fuel.class, FuelResponse.class)
+                    .byDefault().register();
+        }
+
+        return mapperFactory.getMapperFacade();
+    }
+
 }
