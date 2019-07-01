@@ -12,6 +12,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     public List<Fuel> findByCategory(Fuel.Category category);
     public List<Fuel> findByCategoryAndUser(Fuel.Category category, ReimsUser user);
     public List<Fuel> findByUser(ReimsUser user, Pageable pageable);
-    public List<Fuel> findByUserAndTitleContaining(ReimsUser user, Pageable pageable, Date startDate, Date endDate, String title);
+    public List<Fuel> findByUserAndDateBetweenAndTitleContaining(ReimsUser user, Date startDate, Date endDate, String title);
     public void deleteByUser(ReimsUser user);
 }
