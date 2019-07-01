@@ -18,6 +18,8 @@ public abstract class Transaction {
 
     private long amount;
     private Category category;
+
+    @Temporal(TemporalType.DATE)
     private Date date;
     private String image;
 
@@ -27,6 +29,7 @@ public abstract class Transaction {
     private ReimsUser user;
 
     // standard crud attributes
+
     private long createdAt;
 
     public enum Category {

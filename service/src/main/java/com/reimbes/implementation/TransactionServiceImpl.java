@@ -94,7 +94,14 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction update(Transaction transaction, long id) {
-        return null;
+        Transaction oldTransaction = transactionRepository.findOne(id);
+
+        // set old transaction value
+        oldTransaction.setCategory(transaction.getCategory());
+        oldTransaction.setDate(transaction.getDate());
+        oldTransaction.setAmount(transaction.getAmount());
+
+        return transactionRepository.save(oldTransaction);
     }
 
     @Override
@@ -105,10 +112,18 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.delete(transaction);
     }
 
+    public void deleteMany(List<Long> ids) {
+        List<Transaction> transactions = transactionRepository.findByIds(ids);
+        transactionRepository.delete(transactions);
+    }
+
+
     public void deleteByUser(ReimsUser user) {
-        List<Fuel> transaction = transactionRepository.findByUser(user);
+        List<Transaction> transaction = transactionRepository.findByUser(user);
         if (transaction == null)
             return;
+        // remove the image...
+
         transactionRepository.delete(transaction);
     }
 
@@ -130,8 +145,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<Transaction> getAll(Pageable pageable, Date startDate, Date endDate, String searchTitle) {
+        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
 
-        return null;
+        return transactionRepository.findByUserAndDateBetweenAndTitleContaining(user, startDate, endDate, searchTitle, pageable);
     }
 
     public String upload(byte[] data, String extension) throws Exception {
