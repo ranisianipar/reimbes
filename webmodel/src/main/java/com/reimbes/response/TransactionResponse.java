@@ -11,7 +11,7 @@ public class TransactionResponse {
 
     private Transaction.Category category;
 
-    private long user;
+    private long userId;
 
     private Date date;
 
