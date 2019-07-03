@@ -9,6 +9,8 @@ import com.reimbes.response.UserResponse;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,8 @@ import java.util.List;
 @RestController
 @RequestMapping(UrlConstants.API_PREFIX + UrlConstants.ADMIN_PREFIX)
 public class AdminController {
+
+    private static Logger log = LoggerFactory.getLogger(AdminController.class);
 
     @Autowired
     private AdminServiceImpl adminService;
@@ -41,8 +45,8 @@ public class AdminController {
 
     @GetMapping(UrlConstants.USER_PREFIX)
     public BaseResponse<ArrayList> getAllUsers(
-            @RequestParam(value = "pageNumber", defaultValue = "1") int page,
-            @RequestParam(value = "pageSize", defaultValue = "10") int size,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "updatedAt") String sortBy,
             @RequestParam (value = "search", defaultValue = "") String search) {
 

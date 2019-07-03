@@ -165,8 +165,6 @@ public class TransactionServiceImpl implements TransactionService {
         String filename = UUID.randomUUID()+extension;
         path = path + filename;
 
-        InputStream inputStream = new ByteArrayInputStream(data);
-
         // upload photo
         try {
             Files.write(Paths.get(path), data, StandardOpenOption.CREATE);
