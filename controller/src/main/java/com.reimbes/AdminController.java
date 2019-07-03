@@ -38,7 +38,7 @@ public class AdminController {
         try {
             br.setData(getMapper().map(adminService.createUser(user), UserResponse.class));
         } catch (ReimsException r) {
-            br.errorResponse(r);
+            br.setErrorResponse(r);
         }
         return br;
     }
@@ -53,15 +53,19 @@ public class AdminController {
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
         BaseResponse br = new BaseResponse();
 
-        Page users = adminService.getAllUser(search, pageRequest);
+        try {
+            Page users = adminService.getAllUser(search, pageRequest);
 
-        br.setData(getAllUserResponses(users.getContent()));
+            br.setData(getAllUserResponses(users.getContent()));
 
-        Paging paging = getPagingMapper().map(pageRequest, Paging.class);
+            Paging paging = getPagingMapper().map(pageRequest, Paging.class);
 
-        paging.setTotalPages(users.getTotalPages());
-        paging.setTotalRecords(users.getContent().size());
-        br.setPaging(paging);
+            paging.setTotalPages(users.getTotalPages());
+            paging.setTotalRecords(users.getContent().size());
+            br.setPaging(paging);
+        }   catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
 
         return br;
     }
@@ -72,7 +76,7 @@ public class AdminController {
         try {
             br.setData(getMapper().map(adminService.getUser(id), UserResponse.class));
         } catch (ReimsException r) {
-            br.errorResponse(r);
+            br.setErrorResponse(r);
         }
         return br;
     }
@@ -83,7 +87,7 @@ public class AdminController {
         try {
             br.setData(getMapper().map(adminService.updateUser(id,user), UserResponse.class));
         } catch (ReimsException r) {
-            br.errorResponse(r);
+            br.setErrorResponse(r);
         }
         return br;
     }

@@ -162,7 +162,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (!Files.exists(Paths.get(path)))
             Files.createDirectory(Paths.get(path));
 
-        String filename = UUID.randomUUID()+extension;
+        String filename = UUID.randomUUID()+"."+extension;
         path = path + filename;
 
         // upload photo
