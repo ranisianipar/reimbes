@@ -22,7 +22,7 @@ public class BaseResponse<T> {
         this.status = HttpStatus.OK;
     }
 
-    public void errorResponse(ReimsException r) {
+    public void setErrorResponse(ReimsException r) {
         this.code = r.getCode();
         this.status = r.getHttpStatus();
         this.errors = r.getMessage();

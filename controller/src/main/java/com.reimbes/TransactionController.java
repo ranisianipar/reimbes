@@ -63,7 +63,7 @@ public class TransactionController {
         try {
             br.setData(getTransactionResponse(transactionService.get(id)));
         }   catch (ReimsException r) {
-            br.errorResponse(r);
+            br.setErrorResponse(r);
         }
 
         return br;
@@ -83,7 +83,7 @@ public class TransactionController {
         try {
             br.setData(getTransactionResponse(transactionService.createByImage(request.getImage())));
         }   catch (ReimsException r) {
-            br.errorResponse(r);
+            br.setErrorResponse(r);
         }
 
         return br;

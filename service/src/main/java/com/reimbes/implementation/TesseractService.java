@@ -50,7 +50,6 @@ public class TesseractService implements OcrService {
     }
 
     public Transaction predictImageContent(byte[] image) throws ReimsException{
-        log.info("Predicting image content...");
 
         String ocrResult = "";
         try {
@@ -59,15 +58,15 @@ public class TesseractService implements OcrService {
             throw new ReimsException(t.getMessage(), HttpStatus.BAD_REQUEST, 500);
 
         }
-        log.info(ocrResult);
+        log.info("OCR result: \n"+ocrResult);
 
         Transaction transaction = new Parking();
-        // iterate
-        int i = 0;
-        for (String w: ocrResult.split("\n")) {
-            i++;
-            log.info(i+". "+w);
-        }
+//        // iterate
+//        int i = 0;
+//        for (String w: ocrResult.split("\n")) {
+//            i++;
+//            log.info(i+". "+w);
+//        }
 
         // dummy transaction
         transaction.setAmount(15000);
