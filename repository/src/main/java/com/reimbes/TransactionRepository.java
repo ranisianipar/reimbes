@@ -9,9 +9,9 @@ import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    List<Transaction> findByCategory(Fuel.Category category);
-    List<Transaction> findByCategoryAndUser(Fuel.Category category, ReimsUser user);
-    List<Transaction> findByIds(List<Long> ids);
+    List<Transaction> findByCategory(Transaction.Category category);
+    List<Transaction> findByCategoryAndUser(Transaction.Category category, ReimsUser user);
+    List<Transaction> findByIdIn(List<Long> id);
     List<Transaction> findByUser(ReimsUser user);
     List<Transaction> findByUserAndDateBetweenAndTitleContaining(ReimsUser user, Date startDate, Date endDate, String title, Pageable pageable);
     void deleteByUser(ReimsUser user);

@@ -113,7 +113,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     public void deleteMany(List<Long> ids) {
-        List<Transaction> transactions = transactionRepository.findByIds(ids);
+        List<Transaction> transactions = transactionRepository.findByIdIn(ids);
         transactionRepository.delete(transactions);
     }
 
@@ -148,6 +148,7 @@ public class TransactionServiceImpl implements TransactionService {
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
 
         return transactionRepository.findByUserAndDateBetweenAndTitleContaining(user, startDate, endDate, searchTitle, pageable);
+
     }
 
     public String upload(byte[] data, String extension) throws Exception {
