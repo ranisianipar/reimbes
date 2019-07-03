@@ -31,7 +31,6 @@ public abstract class Transaction {
     private ReimsUser user;
 
     // standard crud attributes
-
     private long createdAt;
 
     public enum Category {

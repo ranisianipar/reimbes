@@ -1,5 +1,6 @@
 package com.reimbes.implementation;
 
+import com.reimbes.Fuel;
 import com.reimbes.OcrService;
 import com.reimbes.Parking;
 import com.reimbes.Transaction;
@@ -71,15 +72,24 @@ public class TesseractService implements OcrService {
         // dummy transaction
         transaction.setAmount(15000);
         //2019/2/27 1:00:00 PM GMT
-        transaction.setDate(new Date(1551272400));
+        transaction.setDate(new Date());
         transaction.setCategory(Transaction.Category.PARKING);
 
 
         return transaction;
     }
 
-    private Date getDate(String word) {
+    private Transaction.Category decideCategory(String ocrResult) {
 
+        // default
+        return Transaction.Category.PARKING;
+    }
+
+    private Parking mappingToParking(String ocrResult) {
+        return null;
+    }
+
+    private Fuel mappingToFuel(String ocrResult) {
         return null;
     }
 

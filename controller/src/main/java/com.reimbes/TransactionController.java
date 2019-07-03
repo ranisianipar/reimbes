@@ -5,6 +5,7 @@ import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.request.BulkDeleteRequest;
+import com.reimbes.request.TransactionRequest;
 import com.reimbes.request.UploadImageByteRequest;
 import com.reimbes.response.*;
 import ma.glasnost.orika.MapperFacade;
@@ -17,10 +18,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,8 +40,8 @@ public class TransactionController {
             @RequestParam(value = "pageNumber", defaultValue = "1") int page,
             @RequestParam(value = "pageSize", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
-            @RequestParam(value = "month", defaultValue = "0") int month,
-            @RequestParam(value = "year", defaultValue = "0") int year,
+            @RequestParam(value = "startDate", required = false) Date startDate,
+            @RequestParam(value = "endDate", required = false) Date endDate,
             @RequestParam (value = "search", required = false) String search
     ) {
 
@@ -70,14 +71,18 @@ public class TransactionController {
     }
 
     @PutMapping
-    public BaseResponse<TransactionResponse> createTransaction(@RequestBody Transaction newTransaction) throws Exception{
+    public BaseResponse<TransactionResponse> updateTransaction(@RequestBody TransactionRequest newTransaction) {
         BaseResponse br = new BaseResponse();
-        br.setData(getTransactionResponse(transactionService.create(newTransaction)));
+        try {
+            br.setData(getTransactionResponse(transactionService.update(newTransaction)));
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
         return br;
     }
 
     @PostMapping
-    public BaseResponse createTransaction(@RequestBody UploadImageByteRequest request) {
+    public BaseResponse createTransactionByImage(@RequestBody UploadImageByteRequest request) {
         BaseResponse br = new BaseResponse();
 
         try {
@@ -87,11 +92,6 @@ public class TransactionController {
         }
 
         return br;
-    }
-
-    @PutMapping("/_encode-image")
-    public String encodeImage(@RequestParam("image") MultipartFile imageValue) throws Exception {
-        return transactionService.encodeImage(imageValue);
     }
 
     @DeleteMapping(UrlConstants.ID_PARAM)
