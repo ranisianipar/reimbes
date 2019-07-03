@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
         oldUser.setPassword(user.getPassword());
         oldUser.setRole(user.getRole());
         oldUser.setUpdatedAt(Instant.now().getEpochSecond());
-        return null;
+        return userRepository.save(oldUser);
     }
 
     @Override
