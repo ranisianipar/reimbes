@@ -16,6 +16,8 @@ public abstract class Transaction {
     @Column(name = "transaction_id")
     private long id;
 
+    private String title;
+
     private long amount;
     private Category category;
 
