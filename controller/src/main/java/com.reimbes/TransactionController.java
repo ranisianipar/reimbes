@@ -36,7 +36,7 @@ public class TransactionController {
     private TransactionServiceImpl transactionService;
 
     @GetMapping
-    public String getAllTransaction(
+    public BaseResponse getAllTransaction(
             @RequestParam(value = "pageNumber", defaultValue = "1") int page,
             @RequestParam(value = "pageSize", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
@@ -51,10 +51,10 @@ public class TransactionController {
 
 
         // data nya itu semua transaction
-        br.setData("");
+        br.setData(transactionService.getAll(pageRequest, startDate, endDate, search));
         br.setPaging(paging);
 
-        return "SOON";
+        return br;
     }
 
     @GetMapping(UrlConstants.ID_PARAM)
@@ -129,12 +129,14 @@ public class TransactionController {
     }
 
     private TransactionResponse getTransactionResponse(Transaction transaction) {
+        if (transaction == null) return null;
         TransactionResponse transactionResponse;
+        log.info("---> " + transaction.toString());
         if (transaction.getCategory().equals(Transaction.Category.PARKING))
-            transactionResponse = getTransactionMapper((Transaction) transaction)
+            transactionResponse = getTransactionMapper(transaction)
                     .map(transaction, ParkingResponse.class);
         else
-            transactionResponse = getTransactionMapper((Transaction) transaction)
+            transactionResponse = getTransactionMapper(transaction)
                     .map(transaction, FuelResponse.class);
         return transactionResponse;
     }
@@ -151,6 +153,7 @@ public class TransactionController {
             mapperFactory.classMap(Fuel.class, FuelResponse.class)
                     .field("user.id", "userId")
                     .byDefault().register();
+            mapperFactory.getMapperFacade().map(transaction, FuelResponse.class);
         }
 
         return mapperFactory.getMapperFacade();

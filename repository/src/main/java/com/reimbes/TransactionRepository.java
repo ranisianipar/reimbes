@@ -13,6 +13,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findByCategoryAndUser(Transaction.Category category, ReimsUser user);
     List<Transaction> findByIdIn(List<Long> id);
     List<Transaction> findByUser(ReimsUser user);
+    List<Transaction> findByUser(ReimsUser user, Pageable pageable);
     List<Transaction> findByUserAndDateBetweenAndTitleContaining(ReimsUser user, Date startDate, Date endDate, String title, Pageable pageable);
     void deleteByUser(ReimsUser user);
 }

@@ -9,11 +9,7 @@ import java.time.Instant;
 @Data
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Parking extends Transaction{
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "parking_id")
-    private long id;
+public class Parking extends Transaction {
 
     private int hours;
 
