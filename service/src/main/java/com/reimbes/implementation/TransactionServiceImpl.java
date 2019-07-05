@@ -1,7 +1,6 @@
 package com.reimbes.implementation;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.*;
 
 import com.reimbes.*;
@@ -17,9 +16,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -29,6 +28,12 @@ import java.nio.file.StandardOpenOption;
 public class TransactionServiceImpl implements TransactionService {
 
     private static Logger log = LoggerFactory.getLogger(TransactionServiceImpl.class);
+
+    @Autowired
+    private ParkingServiceImpl parkingService;
+
+    @Autowired
+    private FuelServiceImpl fuelService;
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -56,7 +61,7 @@ public class TransactionServiceImpl implements TransactionService {
         else if (extension.contains("png")) extension = "png";
         else if (extension.contains("jpeg")) extension = "jpeg";
 
-        Transaction transaction;
+        Parking transaction;
         try {
             byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
                     .getBytes(StandardCharsets.UTF_8)));
@@ -65,86 +70,42 @@ public class TransactionServiceImpl implements TransactionService {
             imagePath = upload(imageByte, extension);
 
             log.info("Predicting image content... ");
-            transaction = ocrService.predictImageContent(imageByte);
+//            transaction = ocrService.predictImageContent(imageByte);
+
+            // DUMMY
+            transaction = new Parking();
+            transaction.setCategory(Transaction.Category.PARKING);
+            transaction.setAmount(17000);
+            transaction.setHours(3);
+
         } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
         }
-
             log.info("Mapping the OCR result.");
             transaction.setUser(user);
             transaction.setImage(imagePath);
-            transaction.setCreatedAt(Instant.now().getEpochSecond());
-
-        return transactionRepository.save(transaction);
+        return transaction;
     }
 
     @Override
     public Transaction update(TransactionRequest transactionRequest) throws ReimsException {
-        Transaction oldTransaction = transactionRepository.findOne(transactionRequest.getId());
+        Transaction transaction;
 
-        ReimsUser user;
-
-        if (oldTransaction == null || !(user = oldTransaction.getUser())
-                .getUsername().equals(authService.getCurrentUsername())) {
-            throw new NotFoundException("Transaction");
-        }
-
-        validate(transactionRequest);
-
-        transactionRequest.setImage(oldTransaction.getImage());
-
-        if (transactionRequest.getCategory().equals(Transaction.Category.PARKING)) {
-            try {
-                ((Parking) oldTransaction).setHours(transactionRequest.getHours());
-            } catch (ClassCastException c) {
-                delete(oldTransaction.getId());
-                oldTransaction = new Parking();
-                ((Parking) oldTransaction).setHours(transactionRequest.getHours());
-            }
-
+        if (transactionRequest.getCategory().equals(Transaction.Category.FUEL)) {
+            transaction = fuelService.create(transactionRequest);
         } else {
-            try {
-                ((Fuel) oldTransaction).setLiters(transactionRequest.getLiters());
-            }   catch (ClassCastException c) {
-                delete(transactionRequest.getId());
-                oldTransaction = new Fuel();
-                ((Fuel) oldTransaction).setLiters(transactionRequest.getLiters());
-            }
+            transaction = parkingService.create(transactionRequest);
         }
 
-        // set old transaction value
-        log.info("USERRRR:  "+user);
-        oldTransaction.setUser(user);
-        log.info("OLD T USERRRR:    "+oldTransaction.getUser());
-//        oldTransaction.setAmount(15000);
-//        oldTransaction.setCategory(transactionRequest.getCategory());
-//        oldTransaction.setDate(transactionRequest.getDate());
-//        oldTransaction.setAmount(transactionRequest.getAmount());
-//        oldTransaction.setTitle(transactionRequest.getTitle());
-        oldTransaction.setCreatedAt(Instant.now().getEpochSecond());
+        transaction.setAmount(transaction.getAmount());
+        transaction.setDate(transaction.getDate());
+        transaction.setImage(transaction.getImage());
+        transaction.setTitle(transaction.getTitle());
+        transaction.setUser(userService.getUserByUsername(authService.getCurrentUsername()));
 
-        return create(transactionRequest);
+        return transactionRepository.save(transaction);
     }
 
-    private Transaction create(TransactionRequest transaction) {
-        Transaction newTransaction;
-        if (transaction.getCategory().equals(Transaction.Category.PARKING))
-            newTransaction = new Parking();
-        else
-            newTransaction = new Fuel();
-
-        newTransaction.setAmount(transaction.getAmount());
-
-        newTransaction.setCategory(transaction.getCategory());
-        newTransaction.setDate(transaction.getDate());
-        newTransaction.setAmount(transaction.getAmount());
-        newTransaction.setTitle(transaction.getTitle());
-
-        newTransaction.setCreatedAt(Instant.now().getEpochSecond());
-        newTransaction.setUser(userService.getUserByUsername(authService.getCurrentUsername()));
-        newTransaction.setId(transaction.getId());
-        return transactionRepository.save(newTransaction);
-    }
 
     @Override
     public void delete(long id) throws ReimsException{
@@ -154,8 +115,11 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.delete(transaction);
     }
 
+    @Transactional
     public void deleteMany(List<Long> ids) {
         List<Transaction> transactions = transactionRepository.findByIdIn(ids);
+
+        // remove the image
         transactionRepository.delete(transactions);
     }
 
@@ -173,17 +137,21 @@ public class TransactionServiceImpl implements TransactionService {
     public Transaction get(long id) throws ReimsException{
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         Transaction transaction = transactionRepository.findOne(id);
-        if (transaction == null || transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
+        if (transaction == null || transaction.getUser() != user)
+            throw new NotFoundException("Transaction with ID "+id);
 
-        return transaction;
+        return transactionRepository.findOne(id);
     }
 
     @Override
     public List<Transaction> getAll(Pageable pageable, Date startDate, Date endDate, String searchTitle) {
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
+//        startDate = new Date();
+//        endDate = new Date();
 
-        return transactionRepository.findByUserAndDateBetweenAndTitleContaining(user, startDate, endDate, searchTitle, pageable);
+//        return transactionRepository.findByUserAndDateBetweenAndTitleContaining(user, startDate, endDate, searchTitle, pageable);
 
+        return transactionRepository.findByUser(userService.getUserByUsername(authService.getCurrentUsername()), pageable);
     }
 
     public String upload(byte[] data, String extension) throws Exception {

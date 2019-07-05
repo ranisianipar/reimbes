@@ -11,11 +11,6 @@ import java.time.Instant;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Fuel extends Transaction {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "fuel_id")
-    private long id;
-
     private long liters;
 
     public Fuel() {
