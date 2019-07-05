@@ -119,18 +119,31 @@ public class TransactionServiceImpl implements TransactionService {
     public void deleteMany(List<Long> ids) {
         List<Transaction> transactions = transactionRepository.findByIdIn(ids);
 
-        // remove the image
+        if (transactions == null)
+            return;
+
+        log.info("Removing the images");
+        Iterator iterator = transactions.iterator();
+        while (iterator.hasNext()) {
+            removeImage(((Transaction) iterator.next()).getImage());
+        }
+
         transactionRepository.delete(transactions);
     }
 
-
+    @Transactional
     public void deleteByUser(ReimsUser user) {
-        List<Transaction> transaction = transactionRepository.findByUser(user);
-        if (transaction == null)
+        List<Transaction> transactions = transactionRepository.findByUser(user);
+        if (transactions == null)
             return;
-        // remove the image...
 
-        transactionRepository.delete(transaction);
+        log.info("Removing the images");
+        Iterator iterator = transactions.iterator();
+        while (iterator.hasNext()) {
+            removeImage(((Transaction) iterator.next()).getImage());
+        }
+
+        transactionRepository.delete(transactions);
     }
 
     @Override
@@ -176,6 +189,16 @@ public class TransactionServiceImpl implements TransactionService {
         }
         
         return foldername+filename;
+    }
+
+    private void removeImage(String imagePath) {
+        imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
+        try {
+            Files.delete(Paths.get(imagePath));
+        }   catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
