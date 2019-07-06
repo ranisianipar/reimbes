@@ -15,13 +15,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.OutputStream;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private static Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    @Autowired
+    private ReportGeneratorServiceImpl reportGeneratorService;
+
+    @Autowired
+    private AuthServiceImpl authService;
 
     @Autowired
     private TransactionServiceImpl transactionService;
@@ -89,5 +97,10 @@ public class UserServiceImpl implements UserService {
         transactionService.deleteByUser(user);
 
         userRepository.delete(user);
+    }
+
+    public OutputStream getReport(Date start, Date end) throws Exception{
+        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()));
+
     }
 }

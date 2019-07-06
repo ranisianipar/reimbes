@@ -14,6 +14,7 @@ import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -49,9 +50,17 @@ public class TransactionController {
         Paging paging = getPagingMapper().map(pageRequest, Paging.class);
         BaseResponse br = new BaseResponse();
 
-
         // data nya itu semua transaction
-        br.setData(transactionService.getAll(pageRequest, startDate, endDate, search));
+        Page transactions;
+        try {
+            transactions = transactionService.getAll(pageRequest, startDate, endDate, search);
+            br.setData(getAllTransactionResponses(transactions.getContent()));
+            paging.setTotalPages(transactions.getTotalPages());
+            paging.setTotalRecords(transactions.getContent().size());
+        }   catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
         br.setPaging(paging);
 
         return br;
@@ -120,10 +129,10 @@ public class TransactionController {
             transaction = iterator.next();
             if (((Transaction) transaction).getCategory().equals(Transaction.Category.PARKING))
                 transactionResponses.add(getTransactionMapper((Transaction) transaction)
-                        .map(transactions, ParkingResponse.class));
+                        .map(transaction, ParkingResponse.class));
             else
                 transactionResponses.add(getTransactionMapper((Transaction) transaction)
-                        .map(transactions, FuelResponse.class));
+                        .map(transaction, FuelResponse.class));
         }
         return transactionResponses;
     }

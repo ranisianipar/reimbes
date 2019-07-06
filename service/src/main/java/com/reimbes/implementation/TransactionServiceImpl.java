@@ -14,6 +14,8 @@ import com.reimbes.request.TransactionRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -157,14 +159,20 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<Transaction> getAll(Pageable pageable, Date startDate, Date endDate, String searchTitle) {
+    public Page<Transaction> getAll(Pageable pageRequest, Date startDate, Date endDate, String searchTitle) throws ReimsException{
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
 //        startDate = new Date();
 //        endDate = new Date();
 
 //        return transactionRepository.findByUserAndDateBetweenAndTitleContaining(user, startDate, endDate, searchTitle, pageable);
+        int index = pageRequest.getPageNumber()-1;
+        if (index < 0) throw new NotFoundException("Page with negative index");
+        Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
+
+        log.info("Last Page request: "+pageable);
 
         return transactionRepository.findByUser(userService.getUserByUsername(authService.getCurrentUsername()), pageable);
+
     }
 
     public String upload(byte[] data, String extension) throws Exception {
