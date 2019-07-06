@@ -5,6 +5,8 @@ import com.reimbes.implementation.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.OutputStream;
+
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
@@ -16,10 +18,23 @@ public class UserController {
 
 
     // .xls
-    @GetMapping(UrlConstants.MONTHLY_REPORT)
-    public String getMonthlyReport() {
-        return "Get monthly report";
+    @GetMapping(UrlConstants.REPORT)
+    public OutputStream getReport() {
+        try {
+            return userService.getReport(null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
+
+    // update profile
+
+    // delete account
+
+    // get personal details
+
+
 
 
 }

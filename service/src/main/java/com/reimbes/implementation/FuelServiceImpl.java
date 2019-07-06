@@ -21,12 +21,6 @@ public class FuelServiceImpl implements FuelService {
     @Autowired
     private FuelRepository fuelRepository;
 
-    @Autowired
-    private AuthServiceImpl authService;
-
-    @Autowired
-    private UserServiceImpl userService;
-
     @Override
     public Fuel get(String id) {
         return null;
@@ -34,7 +28,10 @@ public class FuelServiceImpl implements FuelService {
 
     @Override
     public List<Fuel> getByUser(ReimsUser user, Pageable page) {
-        return null;
+        if (page == null) {
+            return fuelRepository.findByUser(user);
+        }
+        return fuelRepository.findByUser(user, page);
     }
 
     @Override
