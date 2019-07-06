@@ -27,11 +27,9 @@ public class FuelServiceImpl implements FuelService {
     }
 
     @Override
-    public List<Fuel> getByUser(ReimsUser user, Pageable page) {
-        if (page == null) {
-            return fuelRepository.findByUser(user);
-        }
-        return fuelRepository.findByUser(user, page);
+    public List<Fuel> getByUser(ReimsUser user) {
+
+        return fuelRepository.findByUser(user);
     }
 
     @Override

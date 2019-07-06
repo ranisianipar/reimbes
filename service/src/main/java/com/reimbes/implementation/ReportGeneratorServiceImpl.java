@@ -30,7 +30,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         String filename = "workbook.xls";
 
         // perlu ga si page?
-        List<Fuel> fuels = fuelService.getByUser(user,null);
+        List<Fuel> fuels = fuelService.getByUser(user);
         Workbook wb = new HSSFWorkbook();
 
         OutputStream out;
