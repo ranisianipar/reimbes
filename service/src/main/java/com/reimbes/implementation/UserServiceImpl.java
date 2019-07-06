@@ -49,6 +49,8 @@ public class UserServiceImpl implements UserService {
 
         if (user.getPassword() == null)
             throw new ReimsException("Password can't be null", HttpStatus.BAD_REQUEST, ResponseCode.BAD_REQUEST);
+
+        user.setCreatedAt(Instant.now().getEpochSecond());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }

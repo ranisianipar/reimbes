@@ -92,6 +92,14 @@ public class AdminController {
         return br;
     }
 
+    @DeleteMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM)
+    public BaseResponse<UserResponse> deleteUser(@PathVariable long id) {
+        BaseResponse<UserResponse> br = new BaseResponse<>();
+        adminService.deleteUser(id);
+
+        return br;
+    }
+
     private MapperFacade getMapper() {
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
         mapperFactory.classMap(ReimsUser.class, UserResponse.class)
