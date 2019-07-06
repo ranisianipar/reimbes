@@ -140,7 +140,7 @@ public class TransactionController {
     private TransactionResponse getTransactionResponse(Transaction transaction) {
         if (transaction == null) return null;
         TransactionResponse transactionResponse;
-        log.info("---> " + transaction.toString());
+
         if (transaction.getCategory().equals(Transaction.Category.PARKING))
             transactionResponse = getTransactionMapper(transaction)
                     .map(transaction, ParkingResponse.class);
