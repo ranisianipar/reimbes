@@ -1,6 +1,7 @@
 package com.reimbes.implementation;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.*;
 
 import com.reimbes.*;
@@ -91,6 +92,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction update(TransactionRequest transactionRequest) throws ReimsException {
+
+        validate(transactionRequest);
+
         Transaction transaction;
 
         if (transactionRequest.getCategory().equals(Transaction.Category.FUEL)) {
@@ -99,6 +103,7 @@ public class TransactionServiceImpl implements TransactionService {
             transaction = parkingService.create(transactionRequest);
         }
 
+        transaction.setCreatedAt(Instant.now().getEpochSecond());
         transaction.setAmount(transaction.getAmount());
         transaction.setDate(transaction.getDate());
         transaction.setImage(transaction.getImage());
@@ -232,6 +237,8 @@ public class TransactionServiceImpl implements TransactionService {
         // validate the data and data type
         // date dicek harus ada isinya, dan sesuai ketentuan Date
 
+        log.info("Validating transction value...");
+
         List<String> errorMessages = new ArrayList();
 
         if (!(transaction.getCategory() instanceof Transaction.Category))
@@ -248,10 +255,11 @@ public class TransactionServiceImpl implements TransactionService {
 
         // validate image path
         if (transaction.getImage()== null || !Files.exists(Paths.get(
-                UrlConstants.IMAGE_FOLDER_PATH + transaction.getImage())))
+                UrlConstants.IMAGE_FOLDER_PATH + transaction.getImage()))) {
             errorMessages.add("invalid image path");
+        }
 
-        if (errorMessages.isEmpty())
-            throw new DataConstraintException("Data constraint");
+        if (!errorMessages.isEmpty())
+            throw new DataConstraintException(errorMessages.toString());
     }
 }
