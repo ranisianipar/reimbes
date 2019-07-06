@@ -42,13 +42,13 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
 
             // styling header
-            Font headerFont = wb.createFont();
-            headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
-            headerFont.setColor(IndexedColors.LIGHT_GREEN.getIndex());
-            headerFont.setFontName("Arial");
-
-            CellStyle headerCellStyle = wb.createCellStyle();
-            headerCellStyle.setFont(headerFont);
+//            Font headerFont = wb.createFont();
+//            headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+//            headerFont.setColor(IndexedColors.LIGHT_GREEN.getIndex());
+//            headerFont.setFontName("Arial");
+//
+//            CellStyle headerCellStyle = wb.createCellStyle();
+//            headerCellStyle.setFont(headerFont);
 
             // first row --> header
             Row rowFuel = fuel.createRow(0);
@@ -65,12 +65,13 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             cellFuel = rowFuel.createCell(1);
             cellFuel.setCellValue("Title");
 
-//            CellStyle cellStyle = wb.createCellStyle();
-//            cellStyle.setDataFormat(
-//                    createHelper.createDataFormat().getFormat("m/d/yy h:mm"));
+            CellStyle cellStyle = wb.createCellStyle();
+            CreationHelper createHelper = wb.getCreationHelper();
+            cellStyle.setDataFormat(
+                    createHelper.createDataFormat().getFormat("m/d/yy h:mm"));
             cellFuel = rowFuel.createCell(2);
             cellFuel.setCellValue("Date");
-//            cellFfuel.setCellStyle(cellStyle);
+            cellFuel.setCellStyle(cellStyle);
 
 
             cellFuel = rowFuel.createCell(3);
@@ -78,7 +79,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             cellFuel = rowFuel.createCell(4);
             cellFuel.setCellValue("Image");
             cellFuel = rowFuel.createCell(5);
-
             cellFuel.setCellValue("Liters");
 
             int index = 0;
@@ -94,11 +94,9 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                     cellFuel.setCellValue(transaction.getTitle());
 
                     cellFuel = rowFuel.createCell(2);
-                    try {
+                    if (transaction.getDate() != null)
                         cellFuel.setCellValue(transaction.getDate());
-                    }   catch (NullPointerException n) {
-                        cellFuel.setCellValue(new Date());
-                    }
+
                     cellFuel = rowFuel.createCell(3);
                     cellFuel.setCellValue(transaction.getAmount());
                     cellFuel = rowFuel.createCell(4);

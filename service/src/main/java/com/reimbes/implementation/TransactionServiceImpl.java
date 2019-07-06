@@ -93,6 +93,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public Transaction update(TransactionRequest transactionRequest) throws ReimsException {
 
+        // make sure update only happen once!
         validate(transactionRequest);
 
         Transaction transaction;
@@ -104,10 +105,10 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         transaction.setCreatedAt(Instant.now().getEpochSecond());
-        transaction.setAmount(transaction.getAmount());
-        transaction.setDate(transaction.getDate());
-        transaction.setImage(transaction.getImage());
-        transaction.setTitle(transaction.getTitle());
+        transaction.setAmount(transactionRequest.getAmount());
+        transaction.setDate(transactionRequest.getDate());
+        transaction.setImage(transactionRequest.getImage());
+        transaction.setTitle(transactionRequest.getTitle());
         transaction.setUser(userService.getUserByUsername(authService.getCurrentUsername()));
 
         return transactionRepository.save(transaction);
@@ -255,9 +256,13 @@ public class TransactionServiceImpl implements TransactionService {
 
         // validate image path
         if (transaction.getImage()== null || !Files.exists(Paths.get(
-                UrlConstants.IMAGE_FOLDER_PATH + transaction.getImage()))) {
+                UrlConstants.IMAGE_FOLDER_PATH + transaction.getImage())))
             errorMessages.add("invalid image path");
-        }
+
+
+        // make sure the transaction use its own [NEW] image
+        if (transactionRepository.existsByImage(transaction.getImage()))
+            errorMessages.add("image already used in other transaction");
 
         if (!errorMessages.isEmpty())
             throw new DataConstraintException(errorMessages.toString());
