@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-    public OutputStream getReport(Date start, Date end) throws Exception{
+    public byte[] getReport(Date start, Date end) throws Exception{
         return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()));
 
     }

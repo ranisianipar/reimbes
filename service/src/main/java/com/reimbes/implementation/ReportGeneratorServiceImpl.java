@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -23,7 +25,9 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
 
     // belom di filter berdasarkan waktu --> FILTER MONTHLY
-    public OutputStream getReport(ReimsUser user) throws Exception{
+    public byte[] getReport(ReimsUser user) throws Exception{
+
+        String filename = "workbook.xls";
 
         // perlu ga si page?
         List<Fuel> fuels = fuelService.getByUser(user,null);
@@ -31,7 +35,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         OutputStream out;
         try {
-            out = new FileOutputStream("workbook.xls");
+            out = new FileOutputStream(filename);
 
             Sheet fuel = wb.createSheet("Fuel Report");
             Sheet parking = wb.createSheet("Parking Report");
@@ -108,7 +112,8 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
             wb.write(out);
 
-            return out;
+            out.close();
+            return Files.readAllBytes(Paths.get(filename));
 
         }   catch (Exception e) {
             throw e;
