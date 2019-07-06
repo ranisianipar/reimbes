@@ -19,13 +19,13 @@ public class UserController {
 
     // .xls
     @GetMapping(UrlConstants.REPORT)
-    public OutputStream getReport() {
+    public byte[] getReport() {
         try {
             return userService.getReport(null, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return new byte[0];
     }
 
     // update profile
