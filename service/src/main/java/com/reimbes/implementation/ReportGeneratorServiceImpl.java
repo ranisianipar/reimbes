@@ -33,6 +33,9 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         List<Fuel> fuels = fuelService.getByUser(user);
         Workbook wb = new HSSFWorkbook();
 
+        CellStyle cellStyle = wb.createCellStyle();
+        CreationHelper createHelper = wb.getCreationHelper();
+
         OutputStream out;
         try {
             out = new FileOutputStream(filename);
@@ -65,8 +68,8 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             cellFuel = rowFuel.createCell(1);
             cellFuel.setCellValue("Title");
 
-            CellStyle cellStyle = wb.createCellStyle();
-            CreationHelper createHelper = wb.getCreationHelper();
+
+
             cellStyle.setDataFormat(
                     createHelper.createDataFormat().getFormat("m/d/yy h:mm"));
             cellFuel = rowFuel.createCell(2);
@@ -116,6 +119,23 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         }   catch (Exception e) {
             throw e;
         }
+    }
+
+    private Cell createCell(Row row, int index, String value) {
+        Cell cell = row.createCell(index);
+        cell.setCellValue(value);
+
+        return cell;
+    }
+
+    private Cell createDateCell(Workbook wb, Row row, int index, Date date) {
+        CellStyle cellStyle = wb.createCellStyle();
+        cellStyle.setDataFormat(
+                wb.getCreationHelper().createDataFormat().getFormat("m/d/yy h:mm"));
+        Cell cell = row.createCell(index);
+        cell.setCellValue(date);
+        cell.setCellStyle(cellStyle);
+        return cell;
     }
 
 }
