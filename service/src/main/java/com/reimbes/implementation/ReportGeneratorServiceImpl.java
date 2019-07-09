@@ -33,8 +33,11 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         List<Fuel> fuels = fuelService.getByUser(user);
         Workbook wb = new HSSFWorkbook();
 
-        CellStyle cellStyle = wb.createCellStyle();
+        CellStyle cellStyleDate = wb.createCellStyle();
         CreationHelper createHelper = wb.getCreationHelper();
+
+        cellStyleDate.setDataFormat(
+                createHelper.createDataFormat().getFormat("m/d/yy h:mm"));
 
         OutputStream out;
         try {
@@ -63,52 +66,28 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
 
             // fuel
-            Cell cellFuel = rowFuel.createCell(0);
-            cellFuel.setCellValue("Transaction ID");
-            cellFuel = rowFuel.createCell(1);
-            cellFuel.setCellValue("Title");
+            createCell(rowFuel, 0, "ID");
+            createCell(rowFuel, 1, "Title");
+            createCell(rowFuel, 2, "Date");
+            createCell(rowFuel, 3, "Amount");
+            createCell(rowFuel, 4, "Image");
+            createCell(rowFuel, 5, "Liters");
 
-
-
-            cellStyle.setDataFormat(
-                    createHelper.createDataFormat().getFormat("m/d/yy h:mm"));
-            cellFuel = rowFuel.createCell(2);
-            cellFuel.setCellValue("Date");
-            cellFuel.setCellStyle(cellStyle);
-
-
-            cellFuel = rowFuel.createCell(3);
-            cellFuel.setCellValue("Amount");
-            cellFuel = rowFuel.createCell(4);
-            cellFuel.setCellValue("Image");
-            cellFuel = rowFuel.createCell(5);
-            cellFuel.setCellValue("Liters");
-
-            int index = 0;
+            int index = 1;
             while (iterator.hasNext()) {
                 rowFuel = fuel.createRow(index++);
                 transaction = iterator.next();
 
                 if (transaction.getCategory().equals(Transaction.Category.FUEL)) {
 
-                    cellFuel = rowFuel.createCell(0);
-                    cellFuel.setCellValue(transaction.getId());
-                    cellFuel = rowFuel.createCell(1);
-                    cellFuel.setCellValue(transaction.getTitle());
+                    createCell(rowFuel, 0, transaction.getId()+"");
+                    createCell(rowFuel, 1, transaction.getTitle());
+                    createDateCell( cellStyleDate, rowFuel, 2, transaction.getDate());
 
-                    cellFuel = rowFuel.createCell(2);
-                    if (transaction.getDate() != null)
-                        cellFuel.setCellValue(transaction.getDate());
-
-                    cellFuel = rowFuel.createCell(3);
-                    cellFuel.setCellValue(transaction.getAmount());
-                    cellFuel = rowFuel.createCell(4);
-                    cellFuel.setCellValue(transaction.getImage());
-                    cellFuel = rowFuel.createCell(5);
-                    cellFuel.setCellValue(((Fuel) transaction).getLiters());
-
+                    createCell(rowFuel, 3, transaction.getAmount()+"");
+                    createCell(rowFuel, 4, transaction.getImage());
+                    createCell(rowFuel, 5, ((Fuel) transaction).getLiters()+"");
                 }
-
             }
 
             wb.write(out);
@@ -128,13 +107,12 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         return cell;
     }
 
-    private Cell createDateCell(Workbook wb, Row row, int index, Date date) {
-        CellStyle cellStyle = wb.createCellStyle();
-        cellStyle.setDataFormat(
-                wb.getCreationHelper().createDataFormat().getFormat("m/d/yy h:mm"));
+    private Cell createDateCell(CellStyle cellStyle, Row row, int index, Date date) {
+        if (date == null) return null;
         Cell cell = row.createCell(index);
         cell.setCellValue(date);
         cell.setCellStyle(cellStyle);
+
         return cell;
     }
 
