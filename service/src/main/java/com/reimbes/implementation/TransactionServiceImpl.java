@@ -69,6 +69,7 @@ public class TransactionServiceImpl implements TransactionService {
             byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
                     .getBytes(StandardCharsets.UTF_8)));
 
+            log.info("Decoding image byte succeed.");
             log.info("Uploading the image...");
             imagePath = upload(imageByte, extension);
 
