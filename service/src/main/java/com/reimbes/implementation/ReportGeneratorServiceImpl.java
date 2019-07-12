@@ -80,13 +80,13 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
                 if (transaction.getCategory().equals(Transaction.Category.FUEL)) {
 
-                    createCell(rowFuel, 0, transaction.getId()+"");
+                    createCell(rowFuel, 0, transaction.getId());
                     createCell(rowFuel, 1, transaction.getTitle());
                     createDateCell( cellStyleDate, rowFuel, 2, transaction.getDate());
 
-                    createCell(rowFuel, 3, transaction.getAmount()+"");
+                    createCell(rowFuel, 3, transaction.getAmount());
                     createCell(rowFuel, 4, transaction.getImage());
-                    createCell(rowFuel, 5, ((Fuel) transaction).getLiters()+"");
+                    createCell(rowFuel, 5, ((Fuel) transaction).getLiters());
                 }
             }
 
@@ -101,6 +101,13 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     }
 
     private Cell createCell(Row row, int index, String value) {
+        Cell cell = row.createCell(index);
+        cell.setCellValue(value);
+
+        return cell;
+    }
+
+    private Cell createCell(Row row, int index, long value) {
         Cell cell = row.createCell(index);
         cell.setCellValue(value);
 
