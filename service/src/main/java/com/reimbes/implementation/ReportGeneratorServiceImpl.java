@@ -1,11 +1,10 @@
 package com.reimbes.implementation;
 
-import com.reimbes.Fuel;
-import com.reimbes.ReimsUser;
-import com.reimbes.ReportGeneratorService;
-import com.reimbes.Transaction;
+import com.reimbes.*;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +19,13 @@ import java.util.List;
 @Service
 public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
+    private static Logger log = LoggerFactory.getLogger(ReportGeneratorServiceImpl.class);
+
     @Autowired
     private FuelServiceImpl fuelService;
+
+    @Autowired
+    private TransactionServiceImpl transactionService;
 
 
     // belom di filter berdasarkan waktu --> FILTER MONTHLY
@@ -29,15 +33,14 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         String filename = "workbook.xls";
 
-        // perlu ga si page?
-        List<Fuel> fuels = fuelService.getByUser(user);
+        List<Transaction> transactions = transactionService.getByUser(user);
         Workbook wb = new HSSFWorkbook();
 
         CellStyle cellStyleDate = wb.createCellStyle();
         CreationHelper createHelper = wb.getCreationHelper();
 
         cellStyleDate.setDataFormat(
-                createHelper.createDataFormat().getFormat("m/d/yy h:mm"));
+                createHelper.createDataFormat().getFormat("m/d/yy"));
 
         OutputStream out;
         try {
@@ -48,46 +51,62 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
 
             // styling header
-//            Font headerFont = wb.createFont();
-//            headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
-//            headerFont.setColor(IndexedColors.LIGHT_GREEN.getIndex());
-//            headerFont.setFontName("Arial");
-//
-//            CellStyle headerCellStyle = wb.createCellStyle();
-//            headerCellStyle.setFont(headerFont);
+            Font headerFont = wb.createFont();
+            headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            headerFont.setColor(IndexedColors.LIGHT_GREEN.getIndex());
+            headerFont.setFontName("Arial");
+
+            CellStyle headerCellStyle = wb.createCellStyle();
+            headerCellStyle.setFont(headerFont);
 
             // first row --> header
             Row rowFuel = fuel.createRow(0);
             Row rowParking = parking.createRow(0);
 
+            rowFuel.setRowStyle(headerCellStyle);
+            rowParking.setRowStyle(headerCellStyle);
 
-            Iterator<Fuel> iterator = fuels.iterator();
+            Iterator<Transaction> iterator = transactions.iterator();
             Transaction transaction;
 
 
             // fuel
             createCell(rowFuel, 0, "ID");
+            createCell(rowParking, 0, "ID");
             createCell(rowFuel, 1, "Title");
+            createCell(rowParking, 1, "Title");
             createCell(rowFuel, 2, "Date");
+            createCell(rowParking, 2, "Date");
             createCell(rowFuel, 3, "Amount");
+            createCell(rowParking, 3, "Amount");
             createCell(rowFuel, 4, "Image");
-            createCell(rowFuel, 5, "Liters");
+            createCell(rowParking, 4, "Image");
 
-            int index = 1;
+
+            createCell(rowFuel, 5, "Liters");
+            createCell(rowParking, 5, "Hours");
+
+            int indexFuel = 1;
+            int indexParking = 1;
+
+            Row row;
             while (iterator.hasNext()) {
-                rowFuel = fuel.createRow(index++);
                 transaction = iterator.next();
 
                 if (transaction.getCategory().equals(Transaction.Category.FUEL)) {
+                    row = fuel.createRow(indexFuel++);
+                    createCell(row, 5, ((Fuel) transaction).getLiters());
+                } else {
 
-                    createCell(rowFuel, 0, transaction.getId());
-                    createCell(rowFuel, 1, transaction.getTitle());
-                    createDateCell( cellStyleDate, rowFuel, 2, transaction.getDate());
-
-                    createCell(rowFuel, 3, transaction.getAmount());
-                    createCell(rowFuel, 4, transaction.getImage());
-                    createCell(rowFuel, 5, ((Fuel) transaction).getLiters());
+                    row = parking.createRow(indexParking++);
+                    createCell(row, 5, ((Parking) transaction).getHours());
                 }
+
+                createCell(row, 0, transaction.getId());
+                createCell(row, 1, transaction.getTitle());
+                createDateCell( cellStyleDate, row, 2, transaction.getDate());
+                createCell(row, 3, transaction.getAmount());
+                createCell(row, 4, transaction.getImage());
             }
 
             wb.write(out);

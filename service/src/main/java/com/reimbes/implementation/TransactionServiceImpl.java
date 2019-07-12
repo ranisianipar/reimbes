@@ -235,6 +235,10 @@ public class TransactionServiceImpl implements TransactionService {
         } else System.out.println("File "+imagePath+" doesn't exist");
     }
 
+    public List<Transaction> getByUser(ReimsUser user) {
+        return transactionRepository.findByUser(user);
+    }
+
     private void validate(TransactionRequest transaction) throws ReimsException{
         // validate the data and data type
         // date dicek harus ada isinya, dan sesuai ketentuan Date
