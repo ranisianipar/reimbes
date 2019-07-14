@@ -16,6 +16,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findByIdIn(List<Long> id);
     List<Transaction> findByUser(ReimsUser user);
     Page<Transaction> findByUser(ReimsUser user, Pageable pageable);
+    List<Transaction> findByUserAndDateBetween(ReimsUser user, Date start, Date end);
     List<Transaction> findByUserAndDateBetweenAndTitleContaining(ReimsUser user, Date startDate, Date endDate, String title, Pageable pageable);
     void deleteByUser(ReimsUser user);
 }

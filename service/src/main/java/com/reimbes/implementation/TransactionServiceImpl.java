@@ -239,6 +239,13 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findByUser(user);
     }
 
+    public List<Transaction> getByUserAndDate(ReimsUser user, Date start, Date end) {
+        if (start == null) start = new Date();
+        if (end == null) end = new Date();
+
+        return transactionRepository.findByUserAndDateBetween(user, start, end);
+    }
+
     private void validate(TransactionRequest transaction) throws ReimsException{
         // validate the data and data type
         // date dicek harus ada isinya, dan sesuai ketentuan Date

@@ -102,7 +102,8 @@ public class UserServiceImpl implements UserService {
     }
 
     public byte[] getReport(Date start, Date end) throws Exception{
-        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()));
+//        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()));
+        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()), start, end);
 
     }
 }
