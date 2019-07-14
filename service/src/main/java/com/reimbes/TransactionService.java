@@ -13,7 +13,7 @@ public interface TransactionService {
     void delete(long id) throws ReimsException;
     Transaction get(long id) throws ReimsException;
     Page<Transaction> getAll(Pageable pageable, Date startDate, Date endDate, String searchTitle) throws ReimsException;
-    byte[] getPhoto(String imagePath); // is it ok to dont check the user?
+    byte[] getPhoto(String imagePath); // is it ok to dont check the reimsUser?
     void deletePhoto(String imagePath);
 
     // .xls

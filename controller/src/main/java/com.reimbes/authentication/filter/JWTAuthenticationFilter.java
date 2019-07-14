@@ -52,7 +52,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     /*
-    * where we parse the user's credentials and issue them to the AuthenticationManager
+    * where we parse the reimsUser's credentials and issue them to the AuthenticationManager
     *
     * */
     @Override
@@ -75,8 +75,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     /*
-     * where we parse the user's credentials and issue them to the AuthenticationManager which is the method called when
-     * a user successfully logs in. We use this method to generate a JWT for this user
+     * where we parse the reimsUser's credentials and issue them to the AuthenticationManager which is the method called when
+     * a reimsUser successfully logs in. We use this method to generate a JWT for this reimsUser
      * */
     @Override
     protected void successfulAuthentication(HttpServletRequest req,

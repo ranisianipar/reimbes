@@ -111,7 +111,7 @@ public class AuthServiceImpl implements AuthService {
 
             if (user != null) {
                 HashMap<String, Object> userDetails = new HashMap<>();
-                // will be useful if we provide multi-access to user
+                // will be useful if we provide multi-access to reimsUser
                 Collection<GrantedAuthority> roles = new ArrayList();
                 roles.add(new SimpleGrantedAuthority(role));
                 userDetails.put("username", user);

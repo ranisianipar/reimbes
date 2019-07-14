@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ReportGeneratorServiceImpl implements ReportGeneratorService {
@@ -22,18 +23,16 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private static Logger log = LoggerFactory.getLogger(ReportGeneratorServiceImpl.class);
 
     @Autowired
-    private FuelServiceImpl fuelService;
-
-    @Autowired
     private TransactionServiceImpl transactionService;
 
 
     // belom di filter berdasarkan waktu --> FILTER MONTHLY
-    public byte[] getReport(ReimsUser user) throws Exception{
+    public byte[] getReport(ReimsUser user, Date start, Date end) throws Exception{
 
-        String filename = "workbook.xls";
+        String filename = user.getUsername()+"_"+ start +"_"+ end +".xls";
 
         List<Transaction> transactions = transactionService.getByUser(user);
+//        List<Transaction> transactions = transactionService.getWithFilter(reimsUser, start, end);
         Workbook wb = new HSSFWorkbook();
 
         CellStyle cellStyleDate = wb.createCellStyle();

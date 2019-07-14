@@ -5,16 +5,16 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
 import java.util.Set;
 
+@Table(name = "Reims_Users")
 @Entity
 @Data
 public class ReimsUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id", nullable = false)
+    @Column(nullable = false)
     private long id;
 
     @NotNull
@@ -26,7 +26,7 @@ public class ReimsUser {
     @NotNull
     private Role role;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "reimsUser")
     @JsonBackReference
     private Set<Transaction> transactions;
 
