@@ -5,7 +5,6 @@ import com.reimbes.request.TransactionRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +28,7 @@ public class FuelServiceImpl implements FuelService {
     @Override
     public List<Fuel> getByUser(ReimsUser user) {
 
-        return fuelRepository.findByUser(user);
+        return fuelRepository.findByReimsUser(user);
     }
 
     @Override

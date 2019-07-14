@@ -20,6 +20,7 @@ public class DataSeeder {
         if (user == null) {
             user = new ReimsUser();
             user.setRole(ReimsUser.Role.ADMIN);
+            user.setId(1);
             user.setUsername("ADMIN");
             user.setPassword("ADMIN123");
             userService.create(user);

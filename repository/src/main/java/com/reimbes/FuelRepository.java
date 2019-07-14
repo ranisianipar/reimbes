@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface FuelRepository extends JpaRepository<Fuel, Long> {
 
-    List<Fuel> findByUser(ReimsUser user);
-    List<Fuel> findByUser(ReimsUser user, Pageable pageable);
+    List<Fuel> findByReimsUser(ReimsUser user);
+    List<Fuel> findByReimsUser(ReimsUser user, Pageable pageable);
 }

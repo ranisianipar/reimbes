@@ -27,8 +27,8 @@ public abstract class Transaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonManagedReference
-    @JoinColumn(name = "user", nullable = false)
-    private ReimsUser user;
+    @JoinColumn(name = "reimsUser", nullable = false)
+    private ReimsUser reimsUser;
 
     // standard crud attributes
     private long createdAt;
