@@ -190,18 +190,20 @@ public class TransactionServiceImpl implements TransactionService {
         if (index < 0) throw new NotFoundException("Page with negative index");
         Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
 
-        log.info("Last Page request: "+pageable);
+        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
 
 //        if (start == null) start = new Date();
 //        if (end == null) end = new Date();
         if (title == null) title = "";
-        if (category == null) category = Transaction.Category.PARKING;
+        if (category == null) {
+            return transactionRepository.findByUser(user, pageable);
+        }
 
         log.info(String.format("Filtering by: title `%s`", title));
 
         return transactionRepository.findByCategoryAndUser(
                 category,
-                userService.getUserByUsername(authService.getCurrentUsername()),
+                user,
                 pageable
         );
 
