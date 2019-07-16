@@ -47,10 +47,10 @@ public class AdminController {
     public BaseResponse<ArrayList> getAllUsers(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "sortBy", defaultValue = "updatedAt") String sortBy,
+            @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
             @RequestParam (value = "search", defaultValue = "") String search) {
 
-        Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
+        Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.DESC, sortBy));
         BaseResponse br = new BaseResponse();
 
         try {
@@ -89,6 +89,14 @@ public class AdminController {
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
+        return br;
+    }
+
+    @DeleteMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM)
+    public BaseResponse<UserResponse> deleteUser(@PathVariable long id) {
+        BaseResponse<UserResponse> br = new BaseResponse<>();
+        adminService.deleteUser(id);
+
         return br;
     }
 

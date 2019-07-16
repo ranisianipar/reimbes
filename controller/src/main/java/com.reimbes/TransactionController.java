@@ -14,6 +14,7 @@ import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,18 +40,27 @@ public class TransactionController {
             @RequestParam(value = "pageNumber", defaultValue = "1") int page,
             @RequestParam(value = "pageSize", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
-            @RequestParam(value = "startDate", required = false) Date startDate,
-            @RequestParam(value = "endDate", required = false) Date endDate,
-            @RequestParam (value = "search", required = false) String search
+            @RequestParam(value = "start", required = false) String start,
+            @RequestParam(value = "end", required = false) String end,
+            @RequestParam (value = "search", required = false) String search,
+            @RequestParam (value = "category", required = false) Transaction.Category category
     ) {
 
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
         Paging paging = getPagingMapper().map(pageRequest, Paging.class);
         BaseResponse br = new BaseResponse();
 
-
         // data nya itu semua transaction
-        br.setData(transactionService.getAll(pageRequest, startDate, endDate, search));
+        Page transactions;
+        try {
+            transactions = transactionService.getAll(pageRequest, start, end, search, category);
+            br.setData(getAllTransactionResponses(transactions.getContent()));
+            paging.setTotalPages(transactions.getTotalPages());
+            paging.setTotalRecords(transactions.getContent().size());
+        }   catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
         br.setPaging(paging);
 
         return br;
@@ -120,10 +129,10 @@ public class TransactionController {
             transaction = iterator.next();
             if (((Transaction) transaction).getCategory().equals(Transaction.Category.PARKING))
                 transactionResponses.add(getTransactionMapper((Transaction) transaction)
-                        .map(transactions, ParkingResponse.class));
+                        .map(transaction, ParkingResponse.class));
             else
                 transactionResponses.add(getTransactionMapper((Transaction) transaction)
-                        .map(transactions, FuelResponse.class));
+                        .map(transaction, FuelResponse.class));
         }
         return transactionResponses;
     }
@@ -131,7 +140,7 @@ public class TransactionController {
     private TransactionResponse getTransactionResponse(Transaction transaction) {
         if (transaction == null) return null;
         TransactionResponse transactionResponse;
-        log.info("---> " + transaction.toString());
+
         if (transaction.getCategory().equals(Transaction.Category.PARKING))
             transactionResponse = getTransactionMapper(transaction)
                     .map(transaction, ParkingResponse.class);
