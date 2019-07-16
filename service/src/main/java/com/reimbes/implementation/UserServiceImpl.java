@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -56,7 +57,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser update(long id, ReimsUser user) throws Exception {
         ReimsUser oldUser = userRepository.findOne(id);
 
-        if (oldUser == null) throw new NotFoundException("USER with ID "+id);
+        if (oldUser == null) throw new NotFoundException("USER ID "+id);
         validate(user);
 
         oldUser.setUsername(user.getUsername());
@@ -99,9 +100,11 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-    public byte[] getReport(Date start, Date end) throws Exception{
+    public byte[] getReport(String startDate, String endDate) throws Exception{
 //        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()));
-        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()), start, end);
+        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()),
+                new SimpleDateFormat().parse(startDate),
+                new SimpleDateFormat().parse(endDate));
 
     }
 
