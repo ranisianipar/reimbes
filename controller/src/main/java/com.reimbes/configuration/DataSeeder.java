@@ -24,7 +24,6 @@ public class DataSeeder {
             log.info("Seeding data for Super Admin...");
             ReimsUser user = new ReimsUser();
             user.setRole(ReimsUser.Role.ADMIN);
-            user.setId(1); // harusnya ga ada
             user.setUsername("ADMIN");
             user.setPassword("ADMIN123");
             userService.create(user);

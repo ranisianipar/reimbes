@@ -13,9 +13,8 @@ import java.util.Set;
 public class ReimsUser {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false, insertable = false)
-    @NotNull
+    @GeneratedValue(strategy = GenerationType.TABLE)
+    @Column(updatable = false, insertable = false, columnDefinition = "serial")
     private long id;
 
     @NotNull
