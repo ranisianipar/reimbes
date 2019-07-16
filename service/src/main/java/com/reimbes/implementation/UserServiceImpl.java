@@ -101,7 +101,6 @@ public class UserServiceImpl implements UserService {
     }
 
     public byte[] getReport(String startDate, String endDate) throws Exception{
-//        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()));
         return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()),
                 new SimpleDateFormat().parse(startDate),
                 new SimpleDateFormat().parse(endDate));
