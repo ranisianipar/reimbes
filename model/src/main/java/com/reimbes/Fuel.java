@@ -12,8 +12,4 @@ import java.time.Instant;
 public class Fuel extends Transaction {
 
     private long liters;
-
-    public Fuel() {
-        this.setCreatedAt(Instant.now().getEpochSecond());
-    }
 }

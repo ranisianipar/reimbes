@@ -12,8 +12,4 @@ import java.time.Instant;
 public class Parking extends Transaction {
 
     private int hours;
-
-    public Parking() {
-        this.setCreatedAt(Instant.now().getEpochSecond());
-    }
 }
