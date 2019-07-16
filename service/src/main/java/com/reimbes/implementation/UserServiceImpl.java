@@ -52,6 +52,7 @@ public class UserServiceImpl implements UserService {
 
         user.setCreatedAt(Instant.now().getEpochSecond());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         return userRepository.save(user);
     }
 
@@ -105,4 +106,10 @@ public class UserServiceImpl implements UserService {
         return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()), start, end);
 
     }
+
+    public boolean isExist(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+
 }
