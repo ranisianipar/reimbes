@@ -124,8 +124,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         String filename = String.format("%s_%s.xls", user.getUsername(), UUID.randomUUID());
 
-
-//        List<Transaction> transactions = transactionService.getByUser(user);
         List<Transaction> transactions = transactionService.getByUserAndDate(user, start, end);
 
         Workbook wb = new HSSFWorkbook();
