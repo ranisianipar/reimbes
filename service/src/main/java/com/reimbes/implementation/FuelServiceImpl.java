@@ -21,20 +21,15 @@ public class FuelServiceImpl implements FuelService {
     @Autowired
     private FuelRepository fuelRepository;
 
-    @Autowired
-    private AuthServiceImpl authService;
-
-    @Autowired
-    private UserServiceImpl userService;
-
     @Override
     public Fuel get(String id) {
         return null;
     }
 
     @Override
-    public List<Fuel> getByUser(ReimsUser user, Pageable page) {
-        return null;
+    public List<Fuel> getByUser(ReimsUser user) {
+
+        return fuelRepository.findByUser(user);
     }
 
     @Override
