@@ -21,7 +21,7 @@ public class UrlConstants {
     public static final String TRANSACTION_PREFIX = "/transactions";
 
     //admin
-    public static final String MONTHLY_REPORT = "/monthly-report";
+    public static final String REPORT = "/report";
 
     // others
     public static final String ID_PARAM = "/{id:.+}";
