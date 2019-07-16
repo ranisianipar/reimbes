@@ -1,6 +1,7 @@
 package com.reimbes.implementation;
 
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 
@@ -71,7 +72,7 @@ public class TransactionServiceImpl implements TransactionService {
 
             log.info("Decoding image byte succeed.");
             log.info("Uploading the image...");
-            imagePath = upload(imageByte, extension);
+            imagePath = uploadImage(imageByte, extension);
 
             log.info("Predicting image content... ");
 //            transaction = ocrService.predictImageContent(imageByte);
@@ -125,6 +126,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Transactional
+    @Override
     public void deleteMany(List<Long> ids) {
         List<Transaction> transactions = transactionRepository.findByIdIn(ids);
 
@@ -166,23 +168,75 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Page<Transaction> getAll(Pageable pageRequest, Date startDate, Date endDate, String searchTitle) throws ReimsException{
-        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
-//        startDate = new Date();
-//        endDate = new Date();
-
-//        return transactionRepository.findByUserAndDateBetweenAndTitleContaining(user, startDate, endDate, searchTitle, pageable);
+    public Page<Transaction> getAll(Pageable pageRequest, Date start, Date end, String title) throws ReimsException{
         int index = pageRequest.getPageNumber()-1;
         if (index < 0) throw new NotFoundException("Page with negative index");
         Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
 
         log.info("Last Page request: "+pageable);
 
-        return transactionRepository.findByUser(userService.getUserByUsername(authService.getCurrentUsername()), pageable);
+        if (start == null) start = new Date();
+        if (end == null) end = new Date();
+
+        log.info(String.format("Filtering by: date %d 'till %d & title `%s`",start, end, title));
+
+        return transactionRepository.findByUserAndDateBetweenAndTitleContaining(
+                userService.getUserByUsername(authService.getCurrentUsername()),
+                start,
+                end,
+                title,
+                pageable
+        );
 
     }
 
-    public String upload(byte[] data, String extension) throws Exception {
+    public Page<Transaction> getAll(Pageable pageRequest, Date start, Date end, String title, Transaction.Category category) throws ReimsException{
+        int index = pageRequest.getPageNumber()-1;
+        if (index < 0) throw new NotFoundException("Page with negative index");
+        Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
+
+        log.info("Last Page request: "+pageable);
+
+        if (start == null) start = new Date();
+        if (end == null) end = new Date();
+
+        log.info(String.format("Filtering by: date %d 'till %d & title `%s`",start, end, title));
+
+        // DONT FORGET TO UPDATE THE API SPEC
+        if (category == null)
+        return transactionRepository.findByUserAndDateBetweenAndTitleContaining(
+                userService.getUserByUsername(authService.getCurrentUsername()),
+                start,
+                end,
+                title,
+                pageable
+        );
+        else
+            return transactionRepository.findByUserAndDateBetweenAndTitleContainingAndCategory(
+                    userService.getUserByUsername(authService.getCurrentUsername()),
+                    start,
+                    end,
+                    title,
+                    category,
+                    pageable
+            );
+
+    }
+
+    public Page<Transaction> getAll(Pageable pageRequest, String start, String end, String title, Transaction.Category category) throws ReimsException{
+        Date startDate;
+        Date endDate;
+        try {
+            startDate = new SimpleDateFormat("dd/MM/yyyy").parse(start);
+            endDate = new SimpleDateFormat("dd/MM/yyyy").parse(end);
+        }   catch (Exception e) {
+            throw new FormatTypeError(e.getMessage());
+        }
+        return getAll(pageRequest, start, end, title, category);
+    }
+
+    @Override
+    public String uploadImage(byte[] data, String extension) throws Exception {
         long userId;
 
         userId = userService.getUserByUsername(authService.getCurrentUsername()).getId();
@@ -196,7 +250,7 @@ public class TransactionServiceImpl implements TransactionService {
         String filename = UUID.randomUUID()+"."+extension;
         path = path + filename;
 
-        // upload photo
+        // uploadImage photo
         try {
             Files.write(Paths.get(path), data, StandardOpenOption.CREATE);
         } catch (Exception e) {
@@ -217,7 +271,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public byte[] getPhoto(String imagePath) {
+    public byte[] getImage(String imagePath) {
         imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
         try {
             return Files.readAllBytes(Paths.get(imagePath));
@@ -228,17 +282,19 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public void deletePhoto(String imagePath) {
+    public void deleteImage(String imagePath) {
         File file = new File(StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+imagePath));
         if(file.delete()){
             System.out.println("Image "+imagePath+" has been removed");
         } else System.out.println("File "+imagePath+" doesn't exist");
     }
 
+    @Override
     public List<Transaction> getByUser(ReimsUser user) {
         return transactionRepository.findByUser(user);
     }
 
+    @Override
     public List<Transaction> getByUserAndDate(ReimsUser user, Date start, Date end) {
         if (start == null) start = new Date();
         if (end == null) end = new Date();
