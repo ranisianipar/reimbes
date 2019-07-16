@@ -4,6 +4,7 @@ import com.reimbes.ReimsUser;
 import com.reimbes.ReimsUserRepository;
 import com.reimbes.UserService;
 import com.reimbes.constant.ResponseCode;
+import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.OutputStream;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -43,12 +45,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ReimsUser create(ReimsUser user) throws ReimsException{
-        // do validation
-        if (userRepository.findByUsername(user.getUsername()) != null)
-            throw new ReimsException("Username should be unique", HttpStatus.BAD_REQUEST, ResponseCode.BAD_REQUEST);
-
-        if (user.getPassword() == null)
-            throw new ReimsException("Password can't be null", HttpStatus.BAD_REQUEST, ResponseCode.BAD_REQUEST);
+        validate(user);
 
         user.setCreatedAt(Instant.now().getEpochSecond());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -60,6 +57,7 @@ public class UserServiceImpl implements UserService {
         ReimsUser oldUser = userRepository.findOne(id);
 
         if (oldUser == null) throw new NotFoundException("USER with ID "+id);
+        validate(user);
 
         oldUser.setUsername(user.getUsername());
         oldUser.setPassword(user.getPassword());
@@ -105,5 +103,18 @@ public class UserServiceImpl implements UserService {
 //        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()));
         return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()), start, end);
 
+    }
+
+
+    private void validate(ReimsUser user) throws DataConstraintException{
+        List errors = new ArrayList();
+        if (userRepository.existsByUsername(user.getUsername()))
+            errors.add("USERNAME UNIQUENESS");
+
+        if (user.getPassword() == null) errors.add("PASSWORD NULL");
+        else if (user.getUsername().toLowerCase().equals(user.getPassword().toLowerCase()))
+            errors.add("PASSWORD SIMILIARITY WITH USERNAME");
+
+        if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
     }
 }
