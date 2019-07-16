@@ -14,7 +14,8 @@ public class ReimsUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
+    @Column(updatable = false, insertable = false)
+    @NotNull
     private long id;
 
     @NotNull
