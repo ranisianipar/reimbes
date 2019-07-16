@@ -65,7 +65,7 @@ public class TransactionServiceImpl implements TransactionService {
         else if (extension.contains("png")) extension = "png";
         else if (extension.contains("jpeg")) extension = "jpeg";
 
-        Parking transaction;
+        Transaction transaction;
         try {
             byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
                     .getBytes(StandardCharsets.UTF_8)));
@@ -75,13 +75,7 @@ public class TransactionServiceImpl implements TransactionService {
             imagePath = uploadImage(imageByte, extension);
 
             log.info("Predicting image content... ");
-//            transaction = ocrService.predictImageContent(imageByte);
-
-            // DUMMY
-            transaction = new Parking();
-            transaction.setCategory(Transaction.Category.PARKING);
-            transaction.setAmount(17000);
-            transaction.setHours(3);
+            transaction = ocrService.predictImageContent(imageByte);
 
         } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
@@ -190,6 +184,29 @@ public class TransactionServiceImpl implements TransactionService {
 
     }
 
+
+    public Page<Transaction> getAll(Pageable pageRequest, Transaction.Category category, String title) throws ReimsException{
+        int index = pageRequest.getPageNumber()-1;
+        if (index < 0) throw new NotFoundException("Page with negative index");
+        Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
+
+        log.info("Last Page request: "+pageable);
+
+//        if (start == null) start = new Date();
+//        if (end == null) end = new Date();
+        if (title == null) title = "";
+        if (category == null) category = Transaction.Category.PARKING;
+
+        log.info(String.format("Filtering by: title `%s`", title));
+
+        return transactionRepository.findByCategoryAndUser(
+                category,
+                userService.getUserByUsername(authService.getCurrentUsername()),
+                pageable
+        );
+
+    }
+
     public Page<Transaction> getAll(Pageable pageRequest, Date start, Date end, String title, Transaction.Category category) throws ReimsException{
         int index = pageRequest.getPageNumber()-1;
         if (index < 0) throw new NotFoundException("Page with negative index");
@@ -199,6 +216,8 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (start == null) start = new Date();
         if (end == null) end = new Date();
+
+        log.info("START: "+start+" END: "+end);
 
         log.info(String.format("Filtering by: date %d 'till %d & title `%s`",start, end, title));
 
@@ -224,15 +243,18 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     public Page<Transaction> getAll(Pageable pageRequest, String start, String end, String title, Transaction.Category category) throws ReimsException{
+        log.info("START: "+start+" END: "+end);
         Date startDate;
         Date endDate;
         try {
             startDate = new SimpleDateFormat("dd/MM/yyyy").parse(start);
             endDate = new SimpleDateFormat("dd/MM/yyyy").parse(end);
-        }   catch (Exception e) {
-            throw new FormatTypeError(e.getMessage());
+        } catch (Exception e) {
+            startDate = null;
+            endDate = null;
         }
-        return getAll(pageRequest, start, end, title, category);
+
+        return getAll(pageRequest, startDate, endDate, title, category);
     }
 
     @Override
