@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -102,7 +103,11 @@ public class TransactionServiceImpl implements TransactionService {
 
         transaction.setCreatedAt(Instant.now().getEpochSecond());
         transaction.setAmount(transactionRequest.getAmount());
-        transaction.setDate(transactionRequest.getDate());
+        try {
+            transaction.setDate(DatatypeConverter.parseDateTime(transactionRequest.getDate()).getTime());
+        }   catch (Exception e) {
+            transaction.setDate(new Date());
+        }
         transaction.setImage(transactionRequest.getImage());
         transaction.setTitle(transactionRequest.getTitle());
         transaction.setUser(userService.getUserByUsername(authService.getCurrentUsername()));
@@ -161,102 +166,55 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findOne(id);
     }
 
+
     @Override
-    public Page<Transaction> getAll(Pageable pageRequest, Date start, Date end, String title) throws ReimsException{
-        int index = pageRequest.getPageNumber()-1;
-        if (index < 0) throw new NotFoundException("Page with negative index");
-        Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
-
-        log.info("Last Page request: "+pageable);
-
-        if (start == null) start = new Date();
-        if (end == null) end = new Date();
-
-        log.info(String.format("Filtering by: date %d 'till %d & title `%s`",start, end, title));
-
-        return transactionRepository.findByUserAndDateBetweenAndTitleContaining(
-                userService.getUserByUsername(authService.getCurrentUsername()),
-                start,
-                end,
-                title,
-                pageable
-        );
-
-    }
+    public Page<Transaction> getAll(Pageable pageRequest, String startDate, String endDate, String title,
+                                    Transaction.Category category) throws ReimsException{
+        log.info("[Filter Request] START: " + startDate+" END: " + endDate+ " TITLE: " + title + " CATEGORY: " + category);
 
 
-    public Page<Transaction> getAll(Pageable pageRequest, Transaction.Category category, String title) throws ReimsException{
-        int index = pageRequest.getPageNumber()-1;
-        if (index < 0) throw new NotFoundException("Page with negative index");
-        Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
-
-        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
-
-//        if (start == null) start = new Date();
-//        if (end == null) end = new Date();
-        if (title == null) title = "";
-        if (category == null) {
-            return transactionRepository.findByUser(user, pageable);
+        /****************************************HANDLING REQUEST PARAM************************************************/
+        Date start; Date end;
+        try {
+            start = DatatypeConverter.parseDateTime(startDate).getTime();
+            end = DatatypeConverter.parseDateTime(endDate).getTime();
+        } catch (Exception e) {
+            log.warn("Start and End date don't have the correct format.");
+            start = null;
+            end = null;
         }
 
-        log.info(String.format("Filtering by: title `%s`", title));
-
-        return transactionRepository.findByCategoryAndUser(
-                category,
-                user,
-                pageable
-        );
-
-    }
-
-    public Page<Transaction> getAll(Pageable pageRequest, Date start, Date end, String title, Transaction.Category category) throws ReimsException{
-        int index = pageRequest.getPageNumber()-1;
-        if (index < 0) throw new NotFoundException("Page with negative index");
+        int index = pageRequest.getPageNumber() - 1;
+        if (index < 0) index = 0;
         Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
 
-        log.info("Last Page request: "+pageable);
 
-        if (start == null) start = new Date();
-        if (end == null) end = new Date();
+        /****************************************SERVE REQUEST w/ JPA METHOD*******************************************/
+        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
+        if (title == null) title = "";
 
-        log.info("START: "+start+" END: "+end);
-
-        log.info(String.format("Filtering by: date %d 'till %d & title `%s`",start, end, title));
-
-        // DONT FORGET TO UPDATE THE API SPEC
-        if (category == null)
-        return transactionRepository.findByUserAndDateBetweenAndTitleContaining(
-                userService.getUserByUsername(authService.getCurrentUsername()),
-                start,
-                end,
-                title,
-                pageable
-        );
-        else
+        if (start == null | end == null) {
+            if (category != null) return transactionRepository.findByUserAndCategory(user, category, pageable);
+            return transactionRepository.findByUser(user, pageable);
+        } else if (category == null) {
+            log.info("[DATE] start: "+start+" end: "+end);
+            return transactionRepository.findByUserAndDateBetweenAndTitleContaining(
+                    user,
+                    start,
+                    end,
+                    title,
+                    pageable
+            );
+        }   else {
             return transactionRepository.findByUserAndDateBetweenAndTitleContainingAndCategory(
-                    userService.getUserByUsername(authService.getCurrentUsername()),
+                    user,
                     start,
                     end,
                     title,
                     category,
                     pageable
             );
-
-    }
-
-    public Page<Transaction> getAll(Pageable pageRequest, String start, String end, String title, Transaction.Category category) throws ReimsException{
-        log.info("START: "+start+" END: "+end);
-        Date startDate;
-        Date endDate;
-        try {
-            startDate = new SimpleDateFormat("dd/MM/yyyy").parse(start);
-            endDate = new SimpleDateFormat("dd/MM/yyyy").parse(end);
-        } catch (Exception e) {
-            startDate = null;
-            endDate = null;
         }
-
-        return getAll(pageRequest, startDate, endDate, title, category);
     }
 
     @Override
