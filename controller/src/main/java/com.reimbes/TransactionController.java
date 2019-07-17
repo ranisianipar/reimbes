@@ -53,7 +53,8 @@ public class TransactionController {
         // data nya itu semua transaction
         Page transactions;
         try {
-            transactions = transactionService.getAll(pageRequest, category, search);
+//            transactions = transactionService.getAll(pageRequest, category, search);
+            transactions = transactionService.getAll(pageRequest, start, end, search, category);
             br.setData(getAllTransactionResponses(transactions.getContent()));
             paging.setTotalPages(transactions.getTotalPages());
             paging.setTotalRecords(transactions.getContent().size());
