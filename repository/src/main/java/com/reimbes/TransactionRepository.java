@@ -11,12 +11,23 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     boolean existsByImage(String image);
-    List<Transaction> findByCategory(Transaction.Category category);
-    List<Transaction> findByCategoryAndReimsUser(Transaction.Category category, ReimsUser user);
     List<Transaction> findByIdIn(List<Long> id);
     List<Transaction> findByReimsUser(ReimsUser user);
     Page<Transaction> findByReimsUser(ReimsUser user, Pageable pageable);
-    List<Transaction> findByReimsUserAndDateBetweenAndTitleContaining(ReimsUser user, Date startDate, Date endDate, String title, Pageable pageable);
+    Page<Transaction> findByReimsUserAndCategory(ReimsUser user, Transaction.Category category, Pageable pageable);
+    Page<Transaction> findByReimsUserAndCategoryAndTitleContaining(ReimsUser user, Transaction.Category category,
+                                                                   String title, Pageable pageable);
     List<Transaction> findByReimsUserAndDateBetween(ReimsUser user, Date start, Date end);
+    Page<Transaction> findByReimsUserAndDateBetweenAndTitleContaining(ReimsUser user,
+                                                                      Date startDate,
+                                                                      Date endDate,
+                                                                      String title,
+                                                                      Pageable pageable);
+    Page<Transaction> findByReimsUserAndDateBetweenAndTitleContainingAndCategory(ReimsUser user,
+                                                                                 Date startDate,
+                                                                                 Date endDate,
+                                                                                 String title,
+                                                                                 Transaction.Category category,
+                                                                                 Pageable pageable);
     void deleteByReimsUser(ReimsUser user);
 }

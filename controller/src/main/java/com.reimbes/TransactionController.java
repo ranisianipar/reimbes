@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -41,9 +40,10 @@ public class TransactionController {
             @RequestParam(value = "pageNumber", defaultValue = "1") int page,
             @RequestParam(value = "pageSize", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
-            @RequestParam(value = "startDate", required = false) Date startDate,
-            @RequestParam(value = "endDate", required = false) Date endDate,
-            @RequestParam (value = "search", required = false) String search
+            @RequestParam(value = "start", required = false) String start,
+            @RequestParam(value = "end", required = false) String end,
+            @RequestParam (value = "search", required = false) String search,
+            @RequestParam (value = "category", required = false) Transaction.Category category
     ) {
 
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
@@ -53,7 +53,8 @@ public class TransactionController {
         // data nya itu semua transaction
         Page transactions;
         try {
-            transactions = transactionService.getAll(pageRequest, startDate, endDate, search);
+//            transactions = transactionService.getAll(pageRequest, category, search);
+            transactions = transactionService.getAll(pageRequest, start, end, search, category);
             br.setData(getAllTransactionResponses(transactions.getContent()));
             paging.setTotalPages(transactions.getTotalPages());
             paging.setTotalRecords(transactions.getContent().size());

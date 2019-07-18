@@ -26,20 +26,19 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private TransactionServiceImpl transactionService;
 
 
-    // belom di filter berdasarkan waktu --> FILTER MONTHLY
     public byte[] getReport(ReimsUser user, Date start, Date end) throws Exception{
 
-        String filename = user.getUsername()+"_"+ start +"_"+ end +".xls";
+        String filename = String.format("%s_%s.xls", user.getUsername(), UUID.randomUUID());
 
-        List<Transaction> transactions = transactionService.getByUser(user);
-//        List<Transaction> transactions = transactionService.getWithFilter(reimsUser, start, end);
+        List<Transaction> transactions = transactionService.getByUserAndDate(user, start, end);
+
         Workbook wb = new HSSFWorkbook();
 
         CellStyle cellStyleDate = wb.createCellStyle();
         CreationHelper createHelper = wb.getCreationHelper();
 
         cellStyleDate.setDataFormat(
-                createHelper.createDataFormat().getFormat("m/d/yy"));
+                createHelper.createDataFormat().getFormat("d/m/yy h:mm"));
 
         OutputStream out;
         try {

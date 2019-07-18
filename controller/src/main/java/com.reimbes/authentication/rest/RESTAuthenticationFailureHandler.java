@@ -1,4 +1,4 @@
-package com.reimbes.authentication;
+package com.reimbes.authentication.rest;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;

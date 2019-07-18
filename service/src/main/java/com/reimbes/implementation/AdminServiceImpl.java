@@ -2,7 +2,6 @@ package com.reimbes.implementation;
 
 import com.reimbes.AdminService;
 import com.reimbes.ReimsUser;
-import com.reimbes.UserService;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
@@ -11,13 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class AdminServiceImpl implements AdminService {
     private static Logger log = LoggerFactory.getLogger(AdminServiceImpl.class);
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UserServiceImpl userService;
@@ -45,6 +46,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public ReimsUser updateUser(long id, ReimsUser user) throws Exception {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userService.update(id, user);
     }
 

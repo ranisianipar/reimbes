@@ -19,9 +19,12 @@ public class UserController {
 
     // .xls
     @GetMapping(UrlConstants.REPORT)
-    public byte[] getReport() {
+    public byte[] getReport(
+            @RequestParam(value = "start") String start,
+            @RequestParam(value = "end") String end
+    ) {
         try {
-            return userService.getReport(null, null);
+            return userService.getReport(start, end);
         } catch (Exception e) {
             e.printStackTrace();
         }

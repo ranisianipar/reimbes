@@ -3,8 +3,6 @@ package com.reimbes.request;
 import com.reimbes.Transaction;
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
 public class TransactionRequest {
     private long id;
@@ -14,7 +12,7 @@ public class TransactionRequest {
     private long amount;
     private Transaction.Category category;
 
-    private Date date;
+    private String date;
     private String image;
 
     // standard crud attributes
