@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -64,24 +65,18 @@ public class TransactionServiceImpl implements TransactionService {
         else if (extension.contains("png")) extension = "png";
         else if (extension.contains("jpeg")) extension = "jpeg";
 
-        Parking transaction;
+        Transaction transaction;
         try {
             byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
                     .getBytes(StandardCharsets.UTF_8)));
 
             log.info("Decoding image byte succeed.");
             log.info("Uploading the image...");
-            imagePath = upload(imageByte, extension);
+            imagePath = uploadImage(imageByte, extension);
 
             log.info("Predicting image content... ");
-//            transaction = ocrService.predictImageContent(imageByte);
 
-            // DUMMY
-            transaction = new Parking();
-            transaction.setCategory(Transaction.Category.PARKING);
-            transaction.setDate(new Date());
-            transaction.setAmount(0);
-            transaction.setHours(0);
+            transaction = ocrService.predictImageContent(imageByte);
 
         } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
@@ -108,7 +103,11 @@ public class TransactionServiceImpl implements TransactionService {
 
         transaction.setCreatedAt(Instant.now().getEpochSecond());
         transaction.setAmount(transactionRequest.getAmount());
-        transaction.setDate(transactionRequest.getDate());
+        try {
+            transaction.setDate(DatatypeConverter.parseDateTime(transactionRequest.getDate()).getTime());
+        }   catch (Exception e) {
+            transaction.setDate(new Date());
+        }
         transaction.setImage(transactionRequest.getImage());
         transaction.setTitle(transactionRequest.getTitle());
         transaction.setReimsUser(userService.getUserByUsername(authService.getCurrentUsername()));
@@ -126,6 +125,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Transactional
+    @Override
     public void deleteMany(List<Long> ids) {
         List<Transaction> transactions = transactionRepository.findByIdIn(ids);
 
@@ -166,24 +166,58 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findOne(id);
     }
 
-    @Override
-    public Page<Transaction> getAll(Pageable pageRequest, Date startDate, Date endDate, String searchTitle) throws ReimsException{
-        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
-//        startDate = new Date();
-//        endDate = new Date();
 
-//        return transactionRepository.findByUserAndDateBetweenAndTitleContaining(reimsUser, startDate, endDate, searchTitle, pageable);
-        int index = pageRequest.getPageNumber()-1;
-        if (index < 0) throw new NotFoundException("Page with negative index");
+    @Override
+    public Page<Transaction> getAll(Pageable pageRequest, String startDate, String endDate, String title,
+                                    Transaction.Category category) throws ReimsException{
+        log.info("[Filter Request] START: " + startDate+" END: " + endDate+ " TITLE: " + title + " CATEGORY: " + category);
+
+
+        /****************************************HANDLING REQUEST PARAM************************************************/
+        Date start; Date end;
+        try {
+            start = DatatypeConverter.parseDateTime(startDate).getTime();
+            end = DatatypeConverter.parseDateTime(endDate).getTime();
+        } catch (Exception e) {
+            log.warn("Start and End date don't have the correct format.");
+            start = null;
+            end = null;
+        }
+
+        int index = pageRequest.getPageNumber() - 1;
+        if (index < 0) index = 0;
         Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
 
-        log.info("Last Page request: "+pageable);
+        /****************************************SERVE REQUEST w/ JPA METHOD*******************************************/
+        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
+        if (title == null) title = "";
 
-        return transactionRepository.findByReimsUser(userService.getUserByUsername(authService.getCurrentUsername()), pageable);
-
+        if (start == null | end == null) {
+            if (category != null) return transactionRepository.findByReimsUserAndCategory(user, category, pageable);
+            return transactionRepository.findByReimsUser(user, pageable);
+        } else if (category == null) {
+            log.info("[DATE] start: "+start+" end: "+end);
+            return transactionRepository.findByReimsUserAndDateBetweenAndTitleContaining(
+                    user,
+                    start,
+                    end,
+                    title,
+                    pageable
+            );
+        }   else {
+            return transactionRepository.findByReimsUserAndDateBetweenAndTitleContainingAndCategory(
+                    user,
+                    start,
+                    end,
+                    title,
+                    category,
+                    pageable
+            );
+        }
     }
 
-    public String upload(byte[] data, String extension) throws Exception {
+    @Override
+    public String uploadImage(byte[] data, String extension) throws Exception {
         long userId;
 
         userId = userService.getUserByUsername(authService.getCurrentUsername()).getId();
@@ -197,7 +231,7 @@ public class TransactionServiceImpl implements TransactionService {
         String filename = UUID.randomUUID()+"."+extension;
         path = path + filename;
 
-        // upload photo
+        // uploadImage photo
         try {
             Files.write(Paths.get(path), data, StandardOpenOption.CREATE);
         } catch (Exception e) {
@@ -218,7 +252,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public byte[] getPhoto(String imagePath) {
+    public byte[] getImage(String imagePath) {
         imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
         try {
             return Files.readAllBytes(Paths.get(imagePath));
@@ -229,19 +263,27 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public void deletePhoto(String imagePath) {
+    public void deleteImage(String imagePath) {
         File file = new File(StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+imagePath));
         if(file.delete()){
             System.out.println("Image "+imagePath+" has been removed");
         } else System.out.println("File "+imagePath+" doesn't exist");
     }
 
-    // sementara
+
     public List<Transaction> getByUser(ReimsUser user) {
         return transactionRepository.findByReimsUser(user);
     }
 
     public List<Transaction> getWithFilter(ReimsUser user, Date start, Date end) {
+        return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
+    }
+
+    @Override
+    public List<Transaction> getByUserAndDate(ReimsUser user, Date start, Date end) {
+        if (start == null) start = new Date();
+        if (end == null) end = new Date();
+
         return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }
 

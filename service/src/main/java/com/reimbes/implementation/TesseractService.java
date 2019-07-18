@@ -70,6 +70,7 @@ public class TesseractService implements OcrService {
 //        }
 
         // dummy transaction
+        transaction.setTitle("DUMMY");
         transaction.setAmount(15000);
         //2019/2/27 1:00:00 PM GMT
         transaction.setDate(new Date());

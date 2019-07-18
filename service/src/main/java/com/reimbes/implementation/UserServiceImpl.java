@@ -4,6 +4,7 @@ import com.reimbes.ReimsUser;
 import com.reimbes.ReimsUserRepository;
 import com.reimbes.UserService;
 import com.reimbes.constant.ResponseCode;
+import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
@@ -11,12 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -43,12 +45,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ReimsUser create(ReimsUser user) throws ReimsException{
-        // do validation
-        if (userRepository.findByUsername(user.getUsername()) != null)
-            throw new ReimsException("Username should be unique", HttpStatus.BAD_REQUEST, ResponseCode.BAD_REQUEST);
-
-        if (user.getPassword() == null)
-            throw new ReimsException("Password can't be null", HttpStatus.BAD_REQUEST, ResponseCode.BAD_REQUEST);
+        validate(user);
 
         user.setCreatedAt(Instant.now().getEpochSecond());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -60,7 +57,8 @@ public class UserServiceImpl implements UserService {
     public ReimsUser update(long id, ReimsUser user) throws Exception {
         ReimsUser oldUser = userRepository.findOne(id);
 
-        if (oldUser == null) throw new NotFoundException("USER with ID "+id);
+        if (oldUser == null) throw new NotFoundException("USER ID "+id);
+        validate(user);
 
         oldUser.setUsername(user.getUsername());
         oldUser.setPassword(user.getPassword());
@@ -102,6 +100,7 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
+<<<<<<< HEAD
     public byte[] getReport(Date start, Date end) throws Exception{
         return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()), start, end);
 
@@ -109,6 +108,26 @@ public class UserServiceImpl implements UserService {
 
     public boolean isExist(String username) {
         return userRepository.existsByUsername(username);
+=======
+    public byte[] getReport(String startDate, String endDate) throws Exception{
+        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()),
+                new SimpleDateFormat().parse(startDate),
+                new SimpleDateFormat().parse(endDate));
+
+    }
+
+
+    private void validate(ReimsUser user) throws DataConstraintException{
+        List errors = new ArrayList();
+        if (userRepository.existsByUsername(user.getUsername()))
+            errors.add("USERNAME UNIQUENESS");
+
+        if (user.getPassword() == null) errors.add("PASSWORD NULL");
+        else if (user.getUsername().toLowerCase().equals(user.getPassword().toLowerCase()))
+            errors.add("PASSWORD SIMILIARITY WITH USERNAME");
+
+        if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
+>>>>>>> b4987c60c78648f7fd0af908b436ac2a857465d4
     }
 
 

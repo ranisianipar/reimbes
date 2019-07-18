@@ -19,5 +19,7 @@ public class TransactionResponse {
 
     private String image;
 
+    private String title;
+
 
 }
