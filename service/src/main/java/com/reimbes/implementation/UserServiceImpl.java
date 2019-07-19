@@ -3,7 +3,6 @@ package com.reimbes.implementation;
 import com.reimbes.ReimsUser;
 import com.reimbes.ReimsUserRepository;
 import com.reimbes.UserService;
-import com.reimbes.constant.ResponseCode;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -45,7 +43,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ReimsUser create(ReimsUser user) throws ReimsException{
-        validate(user);
+        validate(user, null);
 
         user.setCreatedAt(Instant.now().getEpochSecond());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -58,7 +56,7 @@ public class UserServiceImpl implements UserService {
         ReimsUser oldUser = userRepository.findOne(id);
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
-        validate(user);
+        validate(user, oldUser);
 
         oldUser.setUsername(user.getUsername());
         oldUser.setPassword(user.getPassword());
@@ -100,34 +98,34 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-<<<<<<< HEAD
-    public byte[] getReport(Date start, Date end) throws Exception{
-        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()), start, end);
-
-    }
 
     public boolean isExist(String username) {
         return userRepository.existsByUsername(username);
-=======
-    public byte[] getReport(String startDate, String endDate) throws Exception{
+    }
+
+    public byte[] getReport(String startDate, String endDate) throws Exception {
         return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()),
                 new SimpleDateFormat().parse(startDate),
                 new SimpleDateFormat().parse(endDate));
 
     }
 
-
-    private void validate(ReimsUser user) throws DataConstraintException{
+    /* Old User Data NOT NULL indicate update user activity */
+    private void validate(ReimsUser newUserData, ReimsUser oldUserData) throws DataConstraintException{
         List errors = new ArrayList();
-        if (userRepository.existsByUsername(user.getUsername()))
+
+        if (oldUserData != null) {
+            if (userRepository.findByUsername(newUserData.getUsername()).getId() != oldUserData.getId())
+                errors.add("USERNAME UNIQUENESS");
+        } else if (userRepository.existsByUsername(newUserData.getUsername()))
             errors.add("USERNAME UNIQUENESS");
 
-        if (user.getPassword() == null) errors.add("PASSWORD NULL");
-        else if (user.getUsername().toLowerCase().equals(user.getPassword().toLowerCase()))
+        if (newUserData.getPassword() == null) errors.add("PASSWORD NULL");
+        else if (newUserData.getUsername().toLowerCase().equals(newUserData.getPassword().toLowerCase()))
             errors.add("PASSWORD SIMILIARITY WITH USERNAME");
 
         if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
->>>>>>> b4987c60c78648f7fd0af908b436ac2a857465d4
+
     }
 
 

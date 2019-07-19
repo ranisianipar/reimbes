@@ -11,7 +11,7 @@ public class ActiveToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String id;
+    private long id;
 
     private String token;
 
