@@ -1,4 +1,4 @@
-package com.reimbes.authentication;
+package com.reimbes.authentication.rest;
 
 import com.reimbes.constant.ResponseCode;
 import com.reimbes.constant.UrlConstants;

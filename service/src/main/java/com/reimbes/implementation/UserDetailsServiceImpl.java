@@ -26,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("Just load the user by its username");
+        log.info("Just load the reimsUser by its username");
         ReimsUser reimsUser = reimsUserRepository.findByUsername(username);
 
         if (reimsUser == null ) {

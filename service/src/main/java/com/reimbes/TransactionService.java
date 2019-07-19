@@ -23,6 +23,5 @@ public interface TransactionService {
     List<Transaction> getByUserAndDate(ReimsUser user, Date start, Date end);
     byte[] getImage(String imagePath); // is it ok to dont check the user?
     void deleteImage(String imagePath);
-
     // .xls
 }
