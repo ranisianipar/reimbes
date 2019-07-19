@@ -45,7 +45,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         /*
         * -----SOON------
         *
-        * decoding token -> userDetails (user) & authorities (role)
+        * decoding token -> userDetails (reimsUser) & authorities (role)
         * regenerate token with updated expired time
         * */
 

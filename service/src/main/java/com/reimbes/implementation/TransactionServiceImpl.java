@@ -1,7 +1,6 @@
 package com.reimbes.implementation;
 
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 
@@ -76,13 +75,14 @@ public class TransactionServiceImpl implements TransactionService {
             imagePath = uploadImage(imageByte, extension);
 
             log.info("Predicting image content... ");
+
             transaction = ocrService.predictImageContent(imageByte);
 
         } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
         }
             log.info("Mapping the OCR result.");
-            transaction.setUser(user);
+            transaction.setReimsUser(user);
             transaction.setImage(imagePath);
         return transaction;
     }
@@ -110,7 +110,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
         transaction.setImage(transactionRequest.getImage());
         transaction.setTitle(transactionRequest.getTitle());
-        transaction.setUser(userService.getUserByUsername(authService.getCurrentUsername()));
+        transaction.setReimsUser(userService.getUserByUsername(authService.getCurrentUsername()));
 
         return transactionRepository.save(transaction);
     }
@@ -120,7 +120,7 @@ public class TransactionServiceImpl implements TransactionService {
     public void delete(long id) throws ReimsException{
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         Transaction transaction = transactionRepository.findOne(id);
-        if (transaction == null || transaction.getUser() != user) throw new NotFoundException("Transaction with ID "+id);
+        if (transaction == null || transaction.getReimsUser() != user) throw new NotFoundException("Transaction with ID "+id);
         transactionRepository.delete(transaction);
     }
 
@@ -143,7 +143,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Transactional
     public void deleteByUser(ReimsUser user) {
-        List<Transaction> transactions = transactionRepository.findByUser(user);
+        List<Transaction> transactions = transactionRepository.findByReimsUser(user);
         if (transactions == null)
             return;
 
@@ -160,7 +160,7 @@ public class TransactionServiceImpl implements TransactionService {
     public Transaction get(long id) throws ReimsException{
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         Transaction transaction = transactionRepository.findOne(id);
-        if (transaction == null || transaction.getUser() != user)
+        if (transaction == null || transaction.getReimsUser() != user)
             throw new NotFoundException("Transaction with ID "+id);
 
         return transactionRepository.findOne(id);
@@ -188,17 +188,16 @@ public class TransactionServiceImpl implements TransactionService {
         if (index < 0) index = 0;
         Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
 
-
         /****************************************SERVE REQUEST w/ JPA METHOD*******************************************/
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         if (title == null) title = "";
 
         if (start == null | end == null) {
-            if (category != null) return transactionRepository.findByUserAndCategory(user, category, pageable);
-            return transactionRepository.findByUser(user, pageable);
+            if (category != null) return transactionRepository.findByReimsUserAndCategory(user, category, pageable);
+            return transactionRepository.findByReimsUser(user, pageable);
         } else if (category == null) {
             log.info("[DATE] start: "+start+" end: "+end);
-            return transactionRepository.findByUserAndDateBetweenAndTitleContaining(
+            return transactionRepository.findByReimsUserAndDateBetweenAndTitleContaining(
                     user,
                     start,
                     end,
@@ -206,7 +205,7 @@ public class TransactionServiceImpl implements TransactionService {
                     pageable
             );
         }   else {
-            return transactionRepository.findByUserAndDateBetweenAndTitleContainingAndCategory(
+            return transactionRepository.findByReimsUserAndDateBetweenAndTitleContainingAndCategory(
                     user,
                     start,
                     end,
@@ -271,9 +270,13 @@ public class TransactionServiceImpl implements TransactionService {
         } else System.out.println("File "+imagePath+" doesn't exist");
     }
 
-    @Override
+
     public List<Transaction> getByUser(ReimsUser user) {
-        return transactionRepository.findByUser(user);
+        return transactionRepository.findByReimsUser(user);
+    }
+
+    public List<Transaction> getWithFilter(ReimsUser user, Date start, Date end) {
+        return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }
 
     @Override
@@ -281,7 +284,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (start == null) start = new Date();
         if (end == null) end = new Date();
 
-        return transactionRepository.findByUserAndDateBetween(user, start, end);
+        return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }
 
     private void validate(TransactionRequest transaction) throws ReimsException{

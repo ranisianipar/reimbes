@@ -1,8 +1,10 @@
 package com.reimbes.configuration;
 
-import com.reimbes.authentication.*;
 import com.reimbes.authentication.filter.JWTAuthenticationFilter;
 import com.reimbes.authentication.filter.JWTAuthorizationFilter;
+import com.reimbes.authentication.rest.RESTAuthenticationEntryPoint;
+import com.reimbes.authentication.rest.RESTAuthenticationFailureHandler;
+import com.reimbes.authentication.rest.RESTAuthenticationSuccessHandler;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.implementation.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

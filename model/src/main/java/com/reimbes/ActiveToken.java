@@ -2,18 +2,16 @@ package com.reimbes;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
+@Table(name="Active_Tokens")
 @Data
 @Entity
 public class ActiveToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
 
     private String token;
 

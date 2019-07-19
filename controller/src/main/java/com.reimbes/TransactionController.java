@@ -156,12 +156,12 @@ public class TransactionController {
 
         if (transaction.getCategory().equals(Transaction.Category.PARKING)) {
             mapperFactory.classMap(Parking.class, ParkingResponse.class)
-                    .field("user.id", "userId")
+                    .field("reimsUser.id", "userId")
                     .byDefault().register();
             mapperFactory.getMapperFacade().map(transaction, ParkingResponse.class);
         } else {
             mapperFactory.classMap(Fuel.class, FuelResponse.class)
-                    .field("user.id", "userId")
+                    .field("reimsUser.id", "userId")
                     .byDefault().register();
             mapperFactory.getMapperFacade().map(transaction, FuelResponse.class);
         }
