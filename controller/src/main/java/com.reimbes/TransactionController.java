@@ -50,10 +50,8 @@ public class TransactionController {
         Paging paging = getPagingMapper().map(pageRequest, Paging.class);
         BaseResponse br = new BaseResponse();
 
-        // data nya itu semua transaction
         Page transactions;
         try {
-//            transactions = transactionService.getAll(pageRequest, category, search);
             transactions = transactionService.getAll(pageRequest, start, end, search, category);
             br.setData(getAllTransactionResponses(transactions.getContent()));
             paging.setTotalPages(transactions.getTotalPages());
@@ -105,13 +103,28 @@ public class TransactionController {
     }
 
     @DeleteMapping(UrlConstants.ID_PARAM)
-    public String deleteById(@PathVariable String id, HttpServletRequest req) {
-        return "delete by ID: "+id;
+    public BaseResponse deleteById(@PathVariable Long id) {
+        BaseResponse br = new BaseResponse();
+        try {
+            transactionService.delete(id);
+        }   catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
+        return new BaseResponse();
     }
 
     @DeleteMapping
-    public String deleteMany(@RequestBody BulkDeleteRequest<Transaction> req) {
-        return "delete many transaction";
+    public BaseResponse deleteMany(@RequestBody BulkDeleteRequest<Transaction> req) {
+
+        BaseResponse br = new BaseResponse();
+        try {
+            transactionService.deleteMany(req.getIds());
+        }   catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
+        return br;
     }
 
     private MapperFacade getPagingMapper() {
@@ -157,6 +170,7 @@ public class TransactionController {
         if (transaction.getCategory().equals(Transaction.Category.PARKING)) {
             mapperFactory.classMap(Parking.class, ParkingResponse.class)
                     .field("reimsUser.id", "userId")
+                    .field("type","")
                     .byDefault().register();
             mapperFactory.getMapperFacade().map(transaction, ParkingResponse.class);
         } else {

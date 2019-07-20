@@ -36,10 +36,11 @@ public class FuelServiceImpl implements FuelService {
         fuelRepository.delete(id);
     }
 
-    public Fuel create(TransactionRequest transaction) {
+    public Fuel create(TransactionRequest req) {
         Fuel fuel = new Fuel();
-        fuel.setLiters(transaction.getLiters());
+        fuel.setLiters(req.getLiters());
         fuel.setCategory(Transaction.Category.FUEL);
+        fuel.setType(req.getFuelType());
 
         return fuel;
     }

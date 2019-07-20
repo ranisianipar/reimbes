@@ -126,11 +126,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Transactional
     @Override
-    public void deleteMany(List<Long> ids) {
+    public void deleteMany(List<Long> ids) throws ReimsException{
         List<Transaction> transactions = transactionRepository.findByIdIn(ids);
 
         if (transactions == null)
-            return;
+            throw new NotFoundException("Any objects");
 
         log.info("Removing the images");
         Iterator iterator = transactions.iterator();
