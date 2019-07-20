@@ -69,20 +69,17 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
 
             // fuel
-            createCell(rowFuel, 0, "ID");
-            createCell(rowParking, 0, "ID");
+            createCell(rowFuel, 0, "No.");
+            createCell(rowParking, 0, "No.");
             createCell(rowFuel, 1, "Title");
             createCell(rowParking, 1, "Title");
             createCell(rowFuel, 2, "Date");
             createCell(rowParking, 2, "Date");
             createCell(rowFuel, 3, "Amount");
             createCell(rowParking, 3, "Amount");
-            createCell(rowFuel, 4, "Image");
-            createCell(rowParking, 4, "Image");
 
-
-            createCell(rowFuel, 5, "Liters");
-            createCell(rowParking, 5, "Hours");
+            createCell(rowFuel, 4, "Liters");
+            createCell(rowParking, 4, "Hours");
 
             int indexFuel = 1;
             int indexParking = 1;
@@ -93,18 +90,18 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
                 if (transaction.getCategory().equals(Transaction.Category.FUEL)) {
                     row = fuel.createRow(indexFuel++);
-                    createCell(row, 5, ((Fuel) transaction).getLiters());
+                    createCell(row, 0, indexFuel);
+                    createCell(row, 4, ((Fuel) transaction).getLiters());
                 } else {
-
                     row = parking.createRow(indexParking++);
-                    createCell(row, 5, ((Parking) transaction).getHours());
+                    createCell(row, 0, indexParking);
+                    createCell(row, 4, ((Parking) transaction).getHours());
                 }
 
-                createCell(row, 0, transaction.getId());
+
                 createCell(row, 1, transaction.getTitle());
                 createDateCell( cellStyleDate, row, 2, transaction.getDate());
                 createCell(row, 3, transaction.getAmount());
-                createCell(row, 4, transaction.getImage());
             }
 
             wb.write(out);
