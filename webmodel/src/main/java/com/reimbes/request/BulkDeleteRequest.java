@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class BulkDeleteRequest<T> {
-    private List<String> ids;
+    private List<Long> ids;
 }

@@ -1,5 +1,7 @@
 package com.reimbes.request;
 
+import com.reimbes.Fuel;
+import com.reimbes.Parking;
 import com.reimbes.Transaction;
 import lombok.Data;
 
@@ -20,7 +22,16 @@ public class TransactionRequest {
 
 
     // all uncovered attributes of specific transaction
+
+    /*FUEL*/
     private int liters;
+    private Fuel.Type fuelType;
+
+
+    /*PARKING*/
     private int hours;
+    private Parking.Type parkingType;
+    private String location;
+    private String license;
 
 }

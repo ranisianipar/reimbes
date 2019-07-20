@@ -40,10 +40,13 @@ public class ParkingServiceImpl implements ParkingService {
     }
 
 
-    public Parking create(TransactionRequest transactionRequest) {
+    public Parking create(TransactionRequest request) {
         Parking transaction = new Parking();
         transaction.setCategory(Transaction.Category.PARKING);
-        transaction.setHours(transactionRequest.getHours());
+        transaction.setHours(request.getHours());
+        transaction.setType(request.getParkingType());
+        transaction.setLicense(request.getLicense());
+        transaction.setLocation(request.getLocation());
         return transaction;
     }
 
