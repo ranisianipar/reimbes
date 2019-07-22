@@ -26,7 +26,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private TransactionServiceImpl transactionService;
 
 
-    public byte[] getReport(ReimsUser user, Date start, Date end) throws Exception{
+    public byte[] getReport(ReimsUser user, long start, long end) throws Exception{
 
         String filename = String.format("%s_%s.xls", user.getUsername(), UUID.randomUUID());
 
@@ -38,7 +38,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         CreationHelper createHelper = wb.getCreationHelper();
 
         cellStyleDate.setDataFormat(
-                createHelper.createDataFormat().getFormat("d/m/yy h:mm"));
+                createHelper.createDataFormat().getFormat("yyyy-MM-dd'T'HH:mmXXX"));
 
         OutputStream out;
         try {
@@ -100,7 +100,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
 
                 createCell(row, 1, transaction.getTitle());
-                createDateCell( cellStyleDate, row, 2, transaction.getDate());
+                createDateCell( cellStyleDate, row, 2, new Date(transaction.getDate()));
                 createCell(row, 3, transaction.getAmount());
             }
 

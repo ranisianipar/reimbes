@@ -21,8 +21,8 @@ public abstract class Transaction {
     private long amount;
     private Category category;
 
-    @Temporal(TemporalType.DATE)
-    private Date date;
+    // epoch format
+    private long date;
     private String image;
 
     @ManyToOne(fetch = FetchType.LAZY)
