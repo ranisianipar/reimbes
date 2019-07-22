@@ -104,9 +104,10 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setCreatedAt(Instant.now().getEpochSecond());
         transaction.setAmount(transactionRequest.getAmount());
         try {
-            transaction.setDate(DatatypeConverter.parseDateTime(transactionRequest.getDate()).getTime());
+            //date saved in EPOCH
+            transaction.setDate(DatatypeConverter.parseDateTime(transactionRequest.getDate()).getTimeInMillis());
         }   catch (Exception e) {
-            transaction.setDate(new Date());
+            transaction.setDate(Instant.now().getEpochSecond());
         }
         transaction.setImage(transactionRequest.getImage());
         transaction.setTitle(transactionRequest.getTitle());
@@ -174,10 +175,10 @@ public class TransactionServiceImpl implements TransactionService {
 
 
         /****************************************HANDLING REQUEST PARAM************************************************/
-        Date start; Date end;
+        Long start; Long end;
         try {
-            start = DatatypeConverter.parseDateTime(startDate).getTime();
-            end = DatatypeConverter.parseDateTime(endDate).getTime();
+            start = DatatypeConverter.parseDateTime(startDate).getTimeInMillis();
+            end = DatatypeConverter.parseDateTime(endDate).getTimeInMillis();
         } catch (Exception e) {
             log.warn("Start and End date don't have the correct format.");
             start = null;
@@ -275,14 +276,11 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findByReimsUser(user);
     }
 
-    public List<Transaction> getWithFilter(ReimsUser user, Date start, Date end) {
-        return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
-    }
 
     @Override
-    public List<Transaction> getByUserAndDate(ReimsUser user, Date start, Date end) {
-        if (start == null) start = new Date();
-        if (end == null) end = new Date();
+    public List<Transaction> getByUserAndDate(ReimsUser user, Long start, Long end) {
+        if (start == null) start = Instant.now().getEpochSecond();
+        if (end == null) Instant.now().getEpochSecond();
 
         return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }
@@ -316,6 +314,10 @@ public class TransactionServiceImpl implements TransactionService {
         // make sure the transaction use its own [NEW] image
         if (transactionRepository.existsByImage(transaction.getImage()))
             errorMessages.add("image already used in other transaction");
+
+        if (transaction.getCategory().equals(Transaction.Category.PARKING)) {
+            if (transaction.getParkingType() == null) errorMessages.add("Parking Type cant be null");
+        }
 
         if (!errorMessages.isEmpty())
             throw new DataConstraintException(errorMessages.toString());

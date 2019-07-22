@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.DatatypeConverter;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -105,8 +106,9 @@ public class UserServiceImpl implements UserService {
 
     public byte[] getReport(String startDate, String endDate) throws Exception {
         return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()),
-                new SimpleDateFormat().parse(startDate),
-                new SimpleDateFormat().parse(endDate));
+                DatatypeConverter.parseDateTime(startDate).getTimeInMillis(),
+                DatatypeConverter.parseDateTime(endDate).getTimeInMillis()
+        );
 
     }
 

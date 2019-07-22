@@ -5,7 +5,6 @@ import com.reimbes.request.TransactionRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Date;
 import java.util.List;
 
 public interface TransactionService {
@@ -20,7 +19,7 @@ public interface TransactionService {
                              Transaction.Category category) throws ReimsException;
 
     List<Transaction> getByUser(ReimsUser user);
-    List<Transaction> getByUserAndDate(ReimsUser user, Date start, Date end);
+    List<Transaction> getByUserAndDate(ReimsUser user, Long start, Long end);
     byte[] getImage(String imagePath); // is it ok to dont check the user?
     void deleteImage(String imagePath);
     // .xls

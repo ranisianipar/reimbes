@@ -20,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Date;
 
 import static com.reimbes.constant.UrlConstants.TESSERACT_TRAINNED_DATA_PATH;
@@ -59,22 +60,25 @@ public class TesseractService implements OcrService {
             throw new ReimsException(t.getMessage(), HttpStatus.BAD_REQUEST, 500);
 
         }
-        log.info("OCR result: \n"+ocrResult);
+
 
         Transaction transaction = new Parking();
-//        // iterate
-//        int i = 0;
-//        for (String w: ocrResult.split("\n")) {
-//            i++;
-//            log.info(i+". "+w);
-//        }
+        // iterate
+        int i = 0;
+        String[] ocrArr = ocrResult.split("\n");
+        log.info("OCR result: \n");
+        for (String w: ocrArr) {
+            i++;
+            log.info(i+". "+w);
+        }
 
         // dummy transaction
-        transaction.setTitle("DUMMY");
+        transaction.setTitle(ocrArr[0]);
         transaction.setAmount(15000);
         //2019/2/27 1:00:00 PM GMT
-        transaction.setDate(new Date());
+        transaction.setDate(Instant.now().toEpochMilli());
         transaction.setCategory(Transaction.Category.PARKING);
+        ((Parking) transaction).setType(Parking.Type.CAR);
 
 
         return transaction;

@@ -13,7 +13,7 @@ public class TransactionResponse {
 
     private long userId;
 
-    private Date date;
+    private String date;
 
     private long amount;
 

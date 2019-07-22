@@ -20,8 +20,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,7 +41,7 @@ public class TransactionController {
     @GetMapping
     public BaseResponse getAllTransaction(
             @RequestParam(value = "pageNumber", defaultValue = "1") int page,
-            @RequestParam(value = "pageSize", defaultValue = "10") int size,
+            @RequestParam(value = "pageSize", defaultValue = "5") int size,
             @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
             @RequestParam(value = "start", required = false) String start,
             @RequestParam(value = "end", required = false) String end,
@@ -161,6 +164,8 @@ public class TransactionController {
         else
             transactionResponse = getTransactionMapper(transaction)
                     .map(transaction, FuelResponse.class);
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmXXX");
+        transactionResponse.setDate(df.format(new Date(transaction.getDate())));
         return transactionResponse;
     }
 
@@ -170,7 +175,6 @@ public class TransactionController {
         if (transaction.getCategory().equals(Transaction.Category.PARKING)) {
             mapperFactory.classMap(Parking.class, ParkingResponse.class)
                     .field("reimsUser.id", "userId")
-                    .field("type","")
                     .byDefault().register();
             mapperFactory.getMapperFacade().map(transaction, ParkingResponse.class);
         } else {
