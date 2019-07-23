@@ -84,6 +84,10 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             int indexFuel = 1;
             int indexParking = 1;
 
+            int accumulatedAmountParking = 0;
+            int accumulatedAmountFuel = 0;
+
+
             Row row;
             while (iterator.hasNext()) {
                 transaction = iterator.next();
@@ -92,10 +96,12 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                     row = fuel.createRow(indexFuel++);
                     createCell(row, 0, indexFuel);
                     createCell(row, 4, ((Fuel) transaction).getLiters());
+                    accumulatedAmountFuel += transaction.getAmount();
                 } else {
                     row = parking.createRow(indexParking++);
                     createCell(row, 0, indexParking);
                     createCell(row, 4, ((Parking) transaction).getHours());
+                    accumulatedAmountParking += transaction.getAmount();
                 }
 
 
@@ -104,6 +110,12 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                 createCell(row, 3, transaction.getAmount());
             }
 
+            createCell(fuel.createRow(indexFuel), 0, "TOTAL:");
+            createCell(fuel.createRow(indexFuel), 2, accumulatedAmountFuel);
+
+            createCell(parking.createRow(indexParking), 0, "TOTAL:");
+            createCell(parking.createRow(indexParking), 2, accumulatedAmountParking);
+            
             wb.write(out);
 
             out.close();
