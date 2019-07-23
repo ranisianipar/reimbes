@@ -27,5 +27,6 @@ public class ActiveTokenRepositoryTest {
         ActiveToken wantedToken = activeTokenRepository.findByToken("xxx");
 
         
+
     }
 }
