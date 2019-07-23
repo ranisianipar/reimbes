@@ -14,7 +14,6 @@
 		<module>webmodel</module>
 		<module>repository</module>
 	</modules>
-	<packaging>pom</packaging>
 
     <parent>
 		<groupId>org.springframework.boot</groupId>
