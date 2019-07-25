@@ -21,13 +21,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static com.reimbes.constant.General.DATE_FORMAT;
+import static com.reimbes.constant.General.TIME_ZONE;
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
-@RequestMapping(UrlConstants.API_PREFIX+UrlConstants.TRANSACTION_PREFIX)
+@RequestMapping(UrlConstants.API_PREFIX + UrlConstants.TRANSACTION_PREFIX)
 public class TransactionController {
 
     private static Logger log = LoggerFactory.getLogger(TransactionController.class);
@@ -156,9 +157,8 @@ public class TransactionController {
         else
             transactionResponse = getTransactionMapper(transaction)
                     .map(transaction, FuelResponse.class);
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmXXX");
-        df.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
-        transactionResponse.setDate(df.format(new Date(transaction.getDate())));
+        DATE_FORMAT.setTimeZone(TIME_ZONE);
+        transactionResponse.setDate(DATE_FORMAT.format(new Date(transaction.getDate()*1000)));
         return transactionResponse;
     }
 
