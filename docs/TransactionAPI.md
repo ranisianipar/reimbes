@@ -162,8 +162,8 @@ only for authenticated User
 *PARKING*
 ```json
 {
-	"date": "2019-01-01T00:00+07:00",
-	"category": "PARKING",
+    "date": "2019-01-01T00:00+07:00",
+    "category": "PARKING",
     "userId": 32769,
     "amount": 27000,
     "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
@@ -178,8 +178,8 @@ only for authenticated User
 *FUEL*
 ```json
 {
-	"date": "2019-01-01T00:00+07:00",
-	"category": "FUEL",
+    "date": "2019-01-01T00:00+07:00",
+    "category": "FUEL",
     "userId": 32770,
     "amount": 210000,
     "image": "32770/5e0cb09c-5e45-43a9-af7f-5e6ff9726a70.png",
