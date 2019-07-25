@@ -12,21 +12,18 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     boolean existsByImage(String image);
     List<Transaction> findByIdIn(List<Long> id);
     List<Transaction> findByReimsUser(ReimsUser user);
-    Page<Transaction> findByReimsUser(ReimsUser user, Pageable pageable);
-    Page<Transaction> findByReimsUserAndCategory(ReimsUser user, Transaction.Category category, Pageable pageable);
-    Page<Transaction> findByReimsUserAndCategoryAndTitleContaining(ReimsUser user, Transaction.Category category,
-                                                                   String title, Pageable pageable);
+    Page<Transaction> findByReimsUserAndTitleContaining(ReimsUser user, String title, Pageable pageable);
+    Page<Transaction> findByReimsUserAndTitleContainingAndCategory(ReimsUser user, String title,
+                                                                   Transaction.Category category, Pageable pageable);
     List<Transaction> findByReimsUserAndDateBetween(ReimsUser user, long start, long end);
-    Page<Transaction> findByReimsUserAndDateBetweenAndTitleContaining(ReimsUser user,
-                                                                      long startDate,
-                                                                      long endDate,
-                                                                      String title,
-                                                                      Pageable pageable);
-    Page<Transaction> findByReimsUserAndDateBetweenAndTitleContainingAndCategory(ReimsUser user,
-                                                                                 long startDate,
-                                                                                 long endDate,
+    Page<Transaction> findByReimsUserAndTitleContainingAndDateBetween(ReimsUser user, String title, long start,
+                                                                      long end, Pageable pageable);
+
+    Page<Transaction> findByReimsUserAndTitleContainingAndCategoryAndDateBetween(ReimsUser user,
                                                                                  String title,
                                                                                  Transaction.Category category,
+                                                                                 long startDate,
+                                                                                 long endDate,
                                                                                  Pageable pageable);
     void deleteByReimsUser(ReimsUser user);
 }
