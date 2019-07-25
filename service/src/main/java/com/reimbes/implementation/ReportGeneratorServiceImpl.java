@@ -115,7 +115,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
             createCell(parking.createRow(indexParking), 0, "TOTAL:");
             createCell(parking.createRow(indexParking), 2, accumulatedAmountParking);
-            
+
             wb.write(out);
 
             out.close();

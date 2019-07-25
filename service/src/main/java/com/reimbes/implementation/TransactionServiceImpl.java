@@ -106,6 +106,7 @@ public class TransactionServiceImpl implements TransactionService {
         try {
             //date saved in EPOCH
             transaction.setDate(DatatypeConverter.parseDateTime(transactionRequest.getDate()).getTimeInMillis());
+            log.info("Set date: "+DatatypeConverter.parseDateTime(transactionRequest.getDate()).getTimeInMillis());
         }   catch (Exception e) {
             transaction.setDate(Instant.now().getEpochSecond());
         }
