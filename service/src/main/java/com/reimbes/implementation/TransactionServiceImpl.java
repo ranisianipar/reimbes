@@ -28,6 +28,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
+import static com.reimbes.constant.General.DATE_FORMAT;
+
 @Service
 public class TransactionServiceImpl implements TransactionService {
 
@@ -107,8 +109,8 @@ public class TransactionServiceImpl implements TransactionService {
             //date saved in EPOCH
             log.info("Convert date to epoch format: " + transactionRequest.getDate());
 
-            transaction.setDate(DatatypeConverter.parseDateTime(transactionRequest.getDate()).getTimeInMillis());
-            log.info("Set date: "+DatatypeConverter.parseDateTime(transactionRequest.getDate()).getTimeInMillis());
+            transaction.setDate(DATE_FORMAT.parse(transactionRequest.getDate()).getTime());
+            log.info("Set date: "+DATE_FORMAT.parse(transactionRequest.getDate()).getTime());
         }   catch (Exception e) {
             transaction.setDate(Instant.now().getEpochSecond());
         }
