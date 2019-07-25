@@ -4,28 +4,29 @@ only for authenticated User
 # List of API
 - [Get All Transactions](#get-all-transactions)
 - [Get Transaction by ID](#get-transaction-by-id)
-- [Get Image](#get-image)
-- [OCR](#ocr)
+- [Do OCR / Upload Image](#do-ocr)
 - [Create Transaction](#create-transaction)
-- [Upload Image](#upload-image)
 - [Delete Many Transactions](#delete-many-transactions)
 - [Delete Transaction by ID](#delete-transactions-by-id)
 
-## Get all transactions
+## Get All Transactions
 
 - Endpoint : `/api/transactions`
 - HTTP Method : `GET`
 - Filter : 
-    - Support filtering by URL Path, add this in URL: `month=mm&year=yyyy&category=FUEL`
+    - Support filtering by URL Path, add this in URL: `start=[date_format]&end=[date_format]&category=[category_format]&search=***`
     - Default data:
-        - Month : `{today.month}`
-        - Year : `{today.year}`
-        - Category : `FUEL`
-        - Search : ``
+        - start : `NULL`
+        - end : `NULL`
+        - category : `NULL`
+        - search : ``
+    - Format data / Possible data value:
+        - date : `yyyy-MM-dd'T'HH:mm+07:00`
+        - category : `FUEL`, `PARKING`
 - Pagination : 
     - support pagination by URL Path, add this on URL: `page=P&size=S&sortBy=created_at`
     - Default data :
-        - Page : `0`
+        - Page : `1`
         - Size : `5`
         - SortBy : `created_at`
 
@@ -38,39 +39,35 @@ only for authenticated User
 
 ```json
 {
-    "code": 200,
-    "status": "OK",
-    "paging":{
-        "pageSize":10,
-        "pageNumber":1,
-        "totalRecords":100,
-        "totalPages":10
-    },
-    "data": [
-        {
-            "id": 500000026,
-            "type": "PARKING",
-            "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
-            "image":"user1/transaction1.jpg",
-            "price":9000,
-            "title":"1st Day Work",
-            "created_at":1559058600
-        },
-        {
-            "id": 500000027,
-            "type": "FUEL",
-            "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
-            "imagePath":"user1/transaction2.jpg",
-            "price":90000,
-            "amount":23.5,
-            "title":"Blibli Future Program",
-            "created_at":1559058600
-        }
-    ]
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": {
+    "pageNumber": 3,
+    "pageSize": 5,
+    "totalPages": 3,
+    "totalRecords": 1
+  },
+  "data": [
+    {
+      "id": 262149,
+      "category": "PARKING",
+      "userId": 32769,
+      "date": "2019-01-01T00:00+07:00",
+      "amount": 27000,
+      "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
+      "title": "HR Team nobar",
+      "hours": 6,
+      "type": "CAR",
+      "location": "GI",
+      "license": "B XXXX FF"
+    }
+  ],
+  "success": true
 }
 ```
 
-## Get transaction by id
+## Get Transaction by ID
 - Endpoint : `/api/transactions/{id}`
 - HTTP Method : `GET`
 - Request Header : 
@@ -82,90 +79,78 @@ only for authenticated User
 
 ```json
 {
-    "code": 200,
-    "status": "OK",
-    "data": {
-        "id": 500000027,
-        "category": "FUEL",
-        "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
-        "imagePath":"user1/transaction2.jpg",
-        "price":90000,
-        "amount":23.5,
-        "title":"Blibli Future Program",
-        "created_at":1559058600
-    }
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": null,
+  "data": {
+    "id": 262149,
+    "category": "PARKING",
+    "userId": 32769,
+    "date": "2019-01-01T00:00+07:00",
+    "amount": 27000,
+    "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
+    "title": "HR Team nobar",
+    "hours": 6,
+    "type": "CAR",
+    "location": "GI",
+    "license": "B XXXX FF"
+  },
+  "success": true
 }
 ```
 - Response Body (Failure) :
 
 ```json
 {
-    "code": 404,
-    "status": "NOT_FOUND",
-    "errors": {
-        NOT_FOUND
-    }
+  "code": 404,
+  "status": "NOT_FOUND",
+  "errors": "Not Found => Transaction with ID 249",
+  "paging": null,
+  "data": null,
+  "success": false
 }
 ```
 
-## Get image
-- Endpoint : `api/transactions/_show-image`
+## Do OCR
+*upload image*
+
+- Endpoint : `/api/transactions`
 - HTTP Method : `POST`
 - Request Header : 
     - Accept : `application/json`
-    - Content-Type : `application/json`
-- Request Body : 
-
-```json
+- Request Body :
+``` json
 {
-    "imagePath":"1/1040142LHGWLljagbow.jpg",
-    
+    "image":"[]",
 }
 ```
-- Response body(Success):
-*retrieve image in bytes*
-
-- Response body(Failure):
-```json
-{
-    "code": 404,
-    "status": "NOT_FOUND",
-    "errors": {
-        NOT_FOUND
-    }
-}
-```
-
-## OCR
-- Endpoint : `api/_ocr-this`
-- HTTP Method : `POST`
-- Request Header : 
-    - Accept : `application/json`
-    - Content-Type : `application/json`
-- Request Body : 
-
-```json
-{
-    "imagePath":"1/1040142LHGWLljagbow.jpg"
-}
-```
-
+*Note*: Imagedata will be contain the image bytes
 - Response Body (Success) :
 
 ```json
 {
-    "code": 200,
-    "status": "OK",
-    "data": {
-        "id": 500000026,
-        "type": "PARKING",
-        "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
-        "price":0,
-        "title":null
-    }
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": null,
+  "data": {
+    "id": 0,
+    "category": "PARKING",
+    "userId": 32769,
+    "date": "2019-07-25T13:14+07:00",
+    "amount": 15000,
+    "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
+    "title": "gkiih nirga tharrin",
+    "hours": 0,
+    "type": "CAR",
+    "location": null,
+    "license": null
+  },
+  "success": true
 }
 ```
-*Note*: the Response body quality depends on the OCR Service response
+
 ## Create Transaction
 - Endpoint : `api/transactions`
 - HTTP Method : `PUT`
@@ -174,15 +159,36 @@ only for authenticated User
     - Content-Type : `application/json`
 - Request Body : 
 
+*PARKING*
 ```json
 {
-    "id": 500000026,
-    "category": "PARKING",
-    "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
-    "price":9000,
-    "title":"1st Day Work"   
+	"date": "2019-01-01T00:00+07:00",
+	"category": "PARKING",
+    "userId": 32769,
+    "amount": 27000,
+    "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
+    "title": "HR Team nobar",
+    "hours": 6,
+    "parkingType": "CAR",
+    "location": "GI",
+    "license": "B XXXX FF"
 }
 ```
+
+*FUEL*
+```json
+{
+	"date": "2019-01-01T00:00+07:00",
+	"category": "FUEL",
+    "userId": 32770,
+    "amount": 210000,
+    "image": "32770/5e0cb09c-5e45-43a9-af7f-5e6ff9726a70.png",
+    "title": "Jalan-jalan",
+    "liters": 21,
+    "fuelType": "PREMIUM"
+}
+```
+
 
 - Response Body (Success) :
 
@@ -216,28 +222,6 @@ only for authenticated User
 }
 ```
 
-## Upload image
-
-- Endpoint : `/api/transactions`
-- HTTP Method : `POST`
-- Request Header : 
-    - Accept : `application/json`
-- Request Body :
-``` json
-{
-    "imagedata":"[][]",
-}
-```
-*Note*: Imagedata will be contain the image bytes
-- Response Body (Success) :
-
-```json
-{
-    "code": 200,
-    "status": "OK"
-}
-```
-
 ## Delete many transactions
 
 - Endpoint : `/api/transactions`
@@ -254,8 +238,12 @@ only for authenticated User
 
 ```json
 {
-    "code": 200,
-    "status": "OK"
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": null,
+  "data": null,
+  "success": true
 }
 ```
 
@@ -269,7 +257,13 @@ only for authenticated User
 
 ```json
 {
-    "code": 200,
-    "status": "OK"
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": null,
+  "data": null,
+  "success": true
 }
 ```
+
+
