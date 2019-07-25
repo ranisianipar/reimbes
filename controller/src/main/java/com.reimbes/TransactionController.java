@@ -21,16 +21,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+
+import static com.reimbes.constant.General.DATE_FORMAT;
+import static com.reimbes.constant.General.TIME_ZONE;
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
-@RequestMapping(UrlConstants.API_PREFIX+UrlConstants.TRANSACTION_PREFIX)
+@RequestMapping(UrlConstants.API_PREFIX + UrlConstants.TRANSACTION_PREFIX)
 public class TransactionController {
 
     private static Logger log = LoggerFactory.getLogger(TransactionController.class);
@@ -137,19 +135,14 @@ public class TransactionController {
         return mapperFactory.getMapperFacade();
     }
 
-    private List<? extends TransactionResponse> getAllTransactionResponses(List<? extends Transaction> transactions) {
+    private List<? extends TransactionResponse> getAllTransactionResponses(List<Transaction> transactions) {
         log.info("Mapping object to web response...");
         List<TransactionResponse> transactionResponses = new ArrayList<>();
-        Iterator iterator = transactions.iterator();
-        Object transaction;
+        Iterator<Transaction> iterator = transactions.iterator();
+        Transaction transaction;
         while (iterator.hasNext()) {
             transaction = iterator.next();
-            if (((Transaction) transaction).getCategory().equals(Transaction.Category.PARKING))
-                transactionResponses.add(getTransactionMapper((Transaction) transaction)
-                        .map(transaction, ParkingResponse.class));
-            else
-                transactionResponses.add(getTransactionMapper((Transaction) transaction)
-                        .map(transaction, FuelResponse.class));
+            transactionResponses.add(getTransactionResponse(transaction));
         }
         return transactionResponses;
     }
@@ -164,8 +157,8 @@ public class TransactionController {
         else
             transactionResponse = getTransactionMapper(transaction)
                     .map(transaction, FuelResponse.class);
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmXXX");
-        transactionResponse.setDate(df.format(new Date(transaction.getDate())));
+        DATE_FORMAT.setTimeZone(TIME_ZONE);
+        transactionResponse.setDate(DATE_FORMAT.format(new Date(transaction.getDate())));
         return transactionResponse;
     }
 

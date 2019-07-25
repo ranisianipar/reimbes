@@ -28,6 +28,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
+import static com.reimbes.constant.General.DATE_FORMAT;
+
 @Service
 public class TransactionServiceImpl implements TransactionService {
 
@@ -105,7 +107,10 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setAmount(transactionRequest.getAmount());
         try {
             //date saved in EPOCH
-            transaction.setDate(DatatypeConverter.parseDateTime(transactionRequest.getDate()).getTimeInMillis());
+            log.info("Convert date to epoch format: " + transactionRequest.getDate());
+
+            transaction.setDate(DATE_FORMAT.parse(transactionRequest.getDate()).getTime());
+            log.info("Set date: "+DATE_FORMAT.parse(transactionRequest.getDate()).getTime());
         }   catch (Exception e) {
             transaction.setDate(Instant.now().getEpochSecond());
         }
@@ -194,24 +199,25 @@ public class TransactionServiceImpl implements TransactionService {
         if (title == null) title = "";
 
         if (start == null | end == null) {
-            if (category != null) return transactionRepository.findByReimsUserAndCategory(user, category, pageable);
-            return transactionRepository.findByReimsUser(user, pageable);
+            if (category != null)
+                return transactionRepository.findByReimsUserAndTitleContainingAndCategory(user, title,category, pageable);
+            return transactionRepository.findByReimsUserAndTitleContaining(user, title, pageable);
         } else if (category == null) {
             log.info("[DATE] start: "+start+" end: "+end);
-            return transactionRepository.findByReimsUserAndDateBetweenAndTitleContaining(
+            return transactionRepository.findByReimsUserAndTitleContainingAndDateBetween(
                     user,
+                    title,
                     start,
                     end,
-                    title,
                     pageable
             );
         }   else {
-            return transactionRepository.findByReimsUserAndDateBetweenAndTitleContainingAndCategory(
+            return transactionRepository.findByReimsUserAndTitleContainingAndCategoryAndDateBetween(
                     user,
-                    start,
-                    end,
                     title,
                     category,
+                    start,
+                    end,
                     pageable
             );
         }
