@@ -158,7 +158,7 @@ public class TransactionController {
             transactionResponse = getTransactionMapper(transaction)
                     .map(transaction, FuelResponse.class);
         DATE_FORMAT.setTimeZone(TIME_ZONE);
-        transactionResponse.setDate(DATE_FORMAT.format(new Date(transaction.getDate()*1000)));
+        transactionResponse.setDate(DATE_FORMAT.format(new Date(transaction.getDate())));
         return transactionResponse;
     }
 
