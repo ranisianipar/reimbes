@@ -182,8 +182,8 @@ public class TransactionServiceImpl implements TransactionService {
         /****************************************HANDLING REQUEST PARAM************************************************/
         Long start; Long end;
         try {
-            start = DatatypeConverter.parseDateTime(startDate).getTimeInMillis();
-            end = DatatypeConverter.parseDateTime(endDate).getTimeInMillis();
+            start = DATE_FORMAT.parse(startDate).getTime();
+            end = DATE_FORMAT.parse(endDate).getTime();
         } catch (Exception e) {
             log.warn("Start and End date don't have the correct format.");
             start = null;
