@@ -38,8 +38,8 @@ public class TransactionController {
 
     @GetMapping
     public BaseResponse getAllTransaction(
-            @RequestParam(value = "pageNumber", defaultValue = "1") int page,
-            @RequestParam(value = "pageSize", defaultValue = "5") int size,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size,
             @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
             @RequestParam(value = "start", required = false) String start,
             @RequestParam(value = "end", required = false) String end,
