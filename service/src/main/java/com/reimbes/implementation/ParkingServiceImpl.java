@@ -25,21 +25,6 @@ public class ParkingServiceImpl implements ParkingService {
     private UserServiceImpl userService;
 
     @Override
-    public Parking get(long id) {
-        return parkingRepository.findOne(id);
-    }
-
-    @Override
-    public List<Parking> getByUser(ReimsUser user, Pageable page) {
-        return parkingRepository.findAll(page).getContent();
-    }
-
-    @Override
-    public void delete(long id) {
-        parkingRepository.delete(id);
-    }
-
-
     public Parking create(TransactionRequest request) {
         Parking transaction = new Parking();
         transaction.setCategory(Transaction.Category.PARKING);
