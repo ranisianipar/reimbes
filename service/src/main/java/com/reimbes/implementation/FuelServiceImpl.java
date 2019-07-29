@@ -7,35 +7,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class FuelServiceImpl implements FuelService {
 
     private static Logger log = LoggerFactory.getLogger(FuelServiceImpl.class);
 
     @Autowired
-    private TransactionRepository transactionRepository;
-
-    @Autowired
     private FuelRepository fuelRepository;
 
     @Override
-    public Fuel get(String id) {
-        return null;
-    }
-
-    @Override
-    public List<Fuel> getByUser(ReimsUser user) {
-
-        return fuelRepository.findByReimsUser(user);
-    }
-
-    @Override
-    public void delete(long id) {
-        fuelRepository.delete(id);
-    }
-
     public Fuel create(TransactionRequest req) {
         Fuel fuel = new Fuel();
         fuel.setLiters(req.getLiters());
