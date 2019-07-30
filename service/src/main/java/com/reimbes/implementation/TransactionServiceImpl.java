@@ -110,7 +110,7 @@ public class TransactionServiceImpl implements TransactionService {
             log.info("Convert date to epoch format: " + transactionRequest.getDate());
 
             transaction.setDate(DATE_FORMAT.parse(transactionRequest.getDate()).getTime());
-            log.info("Set date: "+DATE_FORMAT.parse(transactionRequest.getDate()).getTime());
+
         }   catch (Exception e) {
             transaction.setDate(Instant.now().getEpochSecond());
         }
@@ -259,7 +259,8 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public byte[] getImage(String imagePath) {
+    public byte[] getImage(long id, String imageName) {
+        String imagePath = id+"/"+imageName;
         imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
         try {
             return Files.readAllBytes(Paths.get(imagePath));
