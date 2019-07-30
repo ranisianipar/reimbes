@@ -79,9 +79,9 @@ public class TransactionController {
         return br;
     }
 
-    @GetMapping(UrlConstants.IMAGE_PARAM)
-    public byte[] getImage(@PathVariable String image) {
-        return transactionService.getImage(image);
+    @GetMapping(UrlConstants.IMAGE_URI)
+    public byte[] getImage(@PathVariable long id, @PathVariable String image) {
+        return transactionService.getImage(id,image);
     }
 
     @PutMapping
