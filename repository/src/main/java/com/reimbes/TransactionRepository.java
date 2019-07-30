@@ -25,5 +25,4 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
                                                                                  long startDate,
                                                                                  long endDate,
                                                                                  Pageable pageable);
-    void deleteByReimsUser(ReimsUser user);
 }
