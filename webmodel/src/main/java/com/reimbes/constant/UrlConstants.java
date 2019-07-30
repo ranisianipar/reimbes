@@ -25,5 +25,6 @@ public class UrlConstants {
 
     // others
     public static final String ID_PARAM = "/{id:.+}";
+    public static final String IMAGE_PARAM = "/{image:.+}";
 
 }
