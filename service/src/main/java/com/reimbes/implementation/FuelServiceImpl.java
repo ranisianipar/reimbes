@@ -24,4 +24,9 @@ public class FuelServiceImpl implements FuelService {
 
         return fuel;
     }
+
+    @Override
+    public Fuel map(String[] source) {
+        return null;
+    }
 }
