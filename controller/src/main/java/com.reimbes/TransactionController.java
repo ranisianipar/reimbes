@@ -79,6 +79,11 @@ public class TransactionController {
         return br;
     }
 
+    @GetMapping(UrlConstants.IMAGE_PARAM)
+    public byte[] getImage(@PathVariable String image) {
+        return transactionService.getImage(image);
+    }
+
     @PutMapping
     public BaseResponse<TransactionResponse> updateTransaction(@RequestBody TransactionRequest newTransaction) {
         BaseResponse br = new BaseResponse();
