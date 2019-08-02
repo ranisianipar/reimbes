@@ -40,7 +40,7 @@ public class UserController {
     }
 
     // update profile
-    @PostMapping
+    @PutMapping
     public BaseResponse updateUser(@RequestBody ReimsUser user) {
         BaseResponse br = new BaseResponse();
         try {
