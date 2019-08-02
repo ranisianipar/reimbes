@@ -40,11 +40,11 @@ public class UserController {
     }
 
     // update profile
-    @PostMapping(UrlConstants.ID_PARAM)
-    public BaseResponse updateUser(@PathVariable long id, @RequestBody ReimsUser user) {
+    @PostMapping
+    public BaseResponse updateUser(@RequestBody ReimsUser user) {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(getMapper().map(userService.update(id, user), UserResponse.class));
+            br.setData(getMapper().map(userService.update(0, user), UserResponse.class));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
