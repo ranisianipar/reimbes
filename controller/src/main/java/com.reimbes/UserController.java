@@ -53,11 +53,11 @@ public class UserController {
     }
 
     // get personal details
-    @GetMapping(UrlConstants.ID_PARAM)
-    public BaseResponse getUser(@PathVariable long id) {
+    @GetMapping
+    public BaseResponse getUser() {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(getMapper().map(userService.get(id), UserResponse.class));
+            br.setData(getMapper().map(userService.get(0), UserResponse.class));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }

@@ -79,7 +79,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ReimsUser get(long id) throws ReimsException {
-        ReimsUser user = userRepository.getOne(id);
+        ReimsUser user;
+        if (id == 0) return userRepository.findByUsername(authService.getCurrentUsername());
+        else user = userRepository.findOne(id);
         if (user == null)
             throw new NotFoundException("User with ID "+id);
         return userRepository.getOne(id);
