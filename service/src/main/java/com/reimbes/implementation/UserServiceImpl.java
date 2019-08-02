@@ -54,7 +54,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ReimsUser update(long id, ReimsUser user) throws ReimsException {
-        ReimsUser oldUser = userRepository.findOne(id);
+        ReimsUser oldUser;
+
+        if (id == 0) {
+            oldUser = userRepository.findByUsername(authService.getCurrentUsername());
+        } else {
+            oldUser = userRepository.findOne(id);
+        }
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
         validate(user, oldUser);
