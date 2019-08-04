@@ -23,9 +23,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-import static com.reimbes.constant.General.DATE_FORMAT;
-import static com.reimbes.constant.General.TIME_ZONE;
-
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
 @RequestMapping(UrlConstants.API_PREFIX + UrlConstants.TRANSACTION_PREFIX)
@@ -170,8 +167,6 @@ public class TransactionController {
         else
             transactionResponse = getTransactionMapper(transaction)
                     .map(transaction, FuelResponse.class);
-        DATE_FORMAT.setTimeZone(TIME_ZONE);
-        transactionResponse.setDate(DATE_FORMAT.format(new Date(transaction.getDate())));
         return transactionResponse;
     }
 
