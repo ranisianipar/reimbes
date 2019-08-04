@@ -143,13 +143,4 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         return cell;
     }
 
-    private Cell createDateCell(CellStyle cellStyle, Row row, int index, Date date) {
-        if (date == null) return null;
-        Cell cell = row.createCell(index);
-        cell.setCellValue(date);
-        cell.setCellStyle(cellStyle);
-
-        return cell;
-    }
-
 }
