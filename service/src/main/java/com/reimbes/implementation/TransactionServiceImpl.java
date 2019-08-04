@@ -274,10 +274,10 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void deleteImage(String imagePath) {
-        File file = new File(StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+imagePath));
-        if(file.delete()){
-            System.out.println("Image "+imagePath+" has been removed");
-        } else System.out.println("File "+imagePath+" doesn't exist");
+        File file = new File(StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath));
+        if (file.delete())
+            log.info("Image removed successfully.");
+        log.warn("File " + imagePath + " doesn't exist.");
     }
 
 
@@ -287,9 +287,9 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
-    public List<Transaction> getByUserAndDate(ReimsUser user, Long start, Long end) {
-        if (start == null) start = Instant.now().getEpochSecond();
-        if (end == null) Instant.now().getEpochSecond();
+    public List<Transaction> getByUserAndDate(ReimsUser user, long start, long end) {
+        if (start == 0) start = Instant.now().getEpochSecond();
+        if (end == 0) Instant.now().getEpochSecond();
 
         return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }

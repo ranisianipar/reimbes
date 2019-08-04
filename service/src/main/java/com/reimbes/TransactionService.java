@@ -19,7 +19,7 @@ public interface TransactionService {
                              Transaction.Category category) throws ReimsException;
 
     List<Transaction> getByUser(ReimsUser user);
-    List<Transaction> getByUserAndDate(ReimsUser user, Long start, Long end);
+    List<Transaction> getByUserAndDate(ReimsUser user, long start, long end);
     byte[] getImage(long id, String imageName) throws ReimsException; // is it ok to dont check the user?
     void deleteImage(String imagePath);
     // .xls

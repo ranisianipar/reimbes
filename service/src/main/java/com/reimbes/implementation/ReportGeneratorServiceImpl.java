@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -29,9 +30,10 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private TransactionServiceImpl transactionService;
 
 
-    public byte[] getReport(ReimsUser user, long start, long end) throws Exception{
+    @Autowired
+    public byte[] getReport(ReimsUser user, long start, long end) throws Exception {
 
-        String filename = String.format("%s_%s.xls", user.getUsername(), UUID.randomUUID());
+        String filename = String.format("%s_%s_%s.xls", user.getUsername(), start+"", end+"");
 
         List<Transaction> transactions;
 
