@@ -12,11 +12,9 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 import static com.reimbes.constant.General.DATE_FORMAT;
 import static com.reimbes.constant.General.TIME_ZONE;
@@ -100,12 +98,12 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
                 if (transaction.getCategory().equals(Transaction.Category.FUEL)) {
                     row = fuel.createRow(indexFuel++);
-                    createCell(row, 0, indexFuel);
+                    createCell(row, 0, indexFuel-1);
                     createCell(row, 4, ((Fuel) transaction).getLiters());
                     accumulatedAmountFuel += transaction.getAmount();
                 } else {
                     row = parking.createRow(indexParking++);
-                    createCell(row, 0, indexParking);
+                    createCell(row, 0, indexParking-1);
                     createCell(row, 4, ((Parking) transaction).getHours());
                     accumulatedAmountParking += transaction.getAmount();
                 }
