@@ -23,9 +23,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-import static com.reimbes.constant.General.DATE_FORMAT;
-import static com.reimbes.constant.General.TIME_ZONE;
-
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
 @RequestMapping(UrlConstants.API_PREFIX + UrlConstants.TRANSACTION_PREFIX)
@@ -80,9 +77,17 @@ public class TransactionController {
     }
 
     @GetMapping(UrlConstants.IMAGE_URI)
-    public byte[] getImage(@PathVariable long id, @PathVariable String image) {
-        return transactionService.getImage(id,image);
+    public BaseResponse getImage(@PathVariable long id, @PathVariable String image) {
+        BaseResponse br = new BaseResponse();
+        try {
+            br.setData(transactionService.getImage(id,image));
+        }   catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
+        return br;
     }
+    
 
     @PutMapping
     public BaseResponse<TransactionResponse> updateTransaction(@RequestBody TransactionRequest newTransaction) {
@@ -162,8 +167,6 @@ public class TransactionController {
         else
             transactionResponse = getTransactionMapper(transaction)
                     .map(transaction, FuelResponse.class);
-        DATE_FORMAT.setTimeZone(TIME_ZONE);
-        transactionResponse.setDate(DATE_FORMAT.format(new Date(transaction.getDate())));
         return transactionResponse;
     }
 
