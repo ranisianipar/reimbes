@@ -90,7 +90,6 @@ public class ReportGeneratorServiceTest {
     public void whenCreateReportWithRangeOfDate_thenReturnReportOfTheTransactions() throws Exception{
         when(transactionService.getByUserAndDate(user, epochNow, epochNow)).thenReturn(new ArrayList<>(transactions));
 
-
         reportGeneratorService.getReport(user, epochNow, epochNow);
 
         verify(transactionService, times(1)).getByUserAndDate(user, epochNow, epochNow);
@@ -99,6 +98,7 @@ public class ReportGeneratorServiceTest {
 
     @Test
     public void whenCreateReport_thenGenerateAndWriteReport() throws Exception {
+        when(transactionService.getByUserAndDate(user, epochNow, epochNow)).thenReturn(new ArrayList<>(transactions));
         reportGeneratorService.getReport(user, epochNow, epochNow);
 
         verify(Files.readAllBytes(Paths.get(String.format("%s_%s_%s", user.getUsername(), epochNow, epochNow))),
