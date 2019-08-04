@@ -53,8 +53,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ReimsUser update(long id, ReimsUser user) throws Exception {
-        ReimsUser oldUser = userRepository.findOne(id);
+    public ReimsUser update(long id, ReimsUser user) throws ReimsException {
+        ReimsUser oldUser;
+
+        if (id == 0) {
+            oldUser = userRepository.findByUsername(authService.getCurrentUsername());
+        } else {
+            oldUser = userRepository.findOne(id);
+        }
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
         validate(user, oldUser);
@@ -73,7 +79,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ReimsUser get(long id) throws ReimsException {
-        ReimsUser user = userRepository.getOne(id);
+        ReimsUser user;
+        if (id == 0) return userRepository.findByUsername(authService.getCurrentUsername());
+        else user = userRepository.findOne(id);
         if (user == null)
             throw new NotFoundException("User with ID "+id);
         return userRepository.getOne(id);
@@ -104,12 +112,8 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByUsername(username);
     }
 
-    public byte[] getReport(String startDate, String endDate) throws Exception {
-        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()),
-                DatatypeConverter.parseDateTime(startDate).getTimeInMillis(),
-                DatatypeConverter.parseDateTime(endDate).getTimeInMillis()
-        );
-
+    public byte[] getReport(long startDate, long endDate) throws Exception {
+        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()), startDate, endDate);
     }
 
     /* Old User Data NOT NULL indicate update user activity */

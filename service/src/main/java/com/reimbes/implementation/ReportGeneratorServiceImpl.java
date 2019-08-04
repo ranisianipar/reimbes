@@ -17,6 +17,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import static com.reimbes.constant.General.DATE_FORMAT;
+import static com.reimbes.constant.General.TIME_ZONE;
+
 @Service
 public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
@@ -30,15 +33,16 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         String filename = String.format("%s_%s.xls", user.getUsername(), UUID.randomUUID());
 
-        List<Transaction> transactions = transactionService.getByUserAndDate(user, start, end);
+        List<Transaction> transactions;
+
+        if (start == 0 || end == 0)
+            transactions = transactionService.getByUser(user);
+        else
+            transactions = transactionService.getByUserAndDate(user, start, end);
 
         Workbook wb = new HSSFWorkbook();
 
-        CellStyle cellStyleDate = wb.createCellStyle();
-        CreationHelper createHelper = wb.getCreationHelper();
-
-        cellStyleDate.setDataFormat(
-                createHelper.createDataFormat().getFormat("yyyy-MM-dd'T'HH:mmXXX"));
+        DATE_FORMAT.setTimeZone(TIME_ZONE);
 
         OutputStream out;
         try {
@@ -104,9 +108,8 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                     accumulatedAmountParking += transaction.getAmount();
                 }
 
-
                 createCell(row, 1, transaction.getTitle());
-                createDateCell( cellStyleDate, row, 2, new Date(transaction.getDate()));
+                createCell(row, 2, DATE_FORMAT.format(new Date(transaction.getDate())));
                 createCell(row, 3, transaction.getAmount());
             }
 
