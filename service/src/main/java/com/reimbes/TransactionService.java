@@ -20,7 +20,7 @@ public interface TransactionService {
 
     List<Transaction> getByUser(ReimsUser user);
     List<Transaction> getByUserAndDate(ReimsUser user, Long start, Long end);
-    byte[] getImage(long id, String imageName); // is it ok to dont check the user?
+    byte[] getImage(long id, String imageName) throws ReimsException; // is it ok to dont check the user?
     void deleteImage(String imagePath);
     // .xls
 }

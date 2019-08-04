@@ -81,8 +81,13 @@ public class TransactionController {
 
     @GetMapping(UrlConstants.IMAGE_URI)
     public BaseResponse getImage(@PathVariable long id, @PathVariable String image) {
-        BaseResponse br = null;
-        br.setData(transactionService.getImage(id,image));
+        BaseResponse br = new BaseResponse();
+        try {
+            br.setData(transactionService.getImage(id,image));
+        }   catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
         return br;
     }
     
