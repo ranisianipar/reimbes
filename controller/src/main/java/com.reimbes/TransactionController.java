@@ -80,9 +80,12 @@ public class TransactionController {
     }
 
     @GetMapping(UrlConstants.IMAGE_URI)
-    public byte[] getImage(@PathVariable long id, @PathVariable String image) {
-        return transactionService.getImage(id,image);
+    public BaseResponse getImage(@PathVariable long id, @PathVariable String image) {
+        BaseResponse br = null;
+        br.setData(transactionService.getImage(id,image));
+        return br;
     }
+    
 
     @PutMapping
     public BaseResponse<TransactionResponse> updateTransaction(@RequestBody TransactionRequest newTransaction) {
