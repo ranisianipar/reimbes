@@ -263,7 +263,7 @@ public class TransactionServiceImpl implements TransactionService {
         String imagePath = id+"/"+imageName;
         imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
         try {
-            return Files.readAllBytes(Paths.get(imagePath));
+            return Base64.getEncoder().encode(Files.readAllBytes(Paths.get(imagePath)));
         } catch (Exception e) {
             e.printStackTrace();
         }
