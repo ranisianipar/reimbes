@@ -1,3 +1,5 @@
+package com.reimbes;
+
 import com.reimbes.*;
 import com.reimbes.implementation.ReportGeneratorServiceImpl;
 import com.reimbes.implementation.TransactionServiceImpl;
