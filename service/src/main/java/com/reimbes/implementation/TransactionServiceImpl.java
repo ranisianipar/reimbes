@@ -259,14 +259,14 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public byte[] getImage(long id, String imageName) throws ReimsException {
+    public String getImage(long id, String imageName) throws ReimsException {
         if (id != userService.getUserByUsername(authService.getCurrentUsername()).getId())
             throw new NotFoundException("IMAGE");
 
         String imagePath = id+"/"+imageName;
         imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
         try {
-            return Base64.getEncoder().encode(Files.readAllBytes(Paths.get(imagePath)));
+            return new String(Base64.getEncoder().encode(Files.readAllBytes(Paths.get(imagePath))));
         } catch (Exception e) {
             e.printStackTrace();
         }
