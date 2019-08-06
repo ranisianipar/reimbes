@@ -111,7 +111,7 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setDate(DATE_FORMAT.parse(transactionRequest.getDate()).getTime());
 
         }   catch (Exception e) {
-            transaction.setDate(Instant.now().getEpochSecond());
+            transaction.setDate(Instant.now().getEpochSecond()*1000);
         }
         transaction.setImage(transactionRequest.getImage());
         transaction.setTitle(transactionRequest.getTitle());
@@ -258,14 +258,14 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public byte[] getImage(long id, String imageName) throws ReimsException {
+    public String getImage(long id, String imageName) throws ReimsException {
         if (id != userService.getUserByUsername(authService.getCurrentUsername()).getId())
             throw new NotFoundException("IMAGE");
 
         String imagePath = id+"/"+imageName;
         imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
         try {
-            return Base64.getEncoder().encode(Files.readAllBytes(Paths.get(imagePath)));
+            return new String(Base64.getEncoder().encode(Files.readAllBytes(Paths.get(imagePath))));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -287,9 +287,9 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
-    public List<Transaction> getByUserAndDate(ReimsUser user, long start, long end) {
-        if (start == 0) start = Instant.now().getEpochSecond();
-        if (end == 0) Instant.now().getEpochSecond();
+    public List<Transaction> getByUserAndDate(ReimsUser user, Long start, Long end) {
+        if (start == null) start = Instant.now().getEpochSecond()*1000;
+        if (end == null) end = Instant.now().getEpochSecond()*1000;
 
         return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }
