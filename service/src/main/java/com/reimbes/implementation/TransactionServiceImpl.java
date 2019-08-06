@@ -112,7 +112,7 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setDate(DATE_FORMAT.parse(transactionRequest.getDate()).getTime());
 
         }   catch (Exception e) {
-            transaction.setDate(Instant.now().getEpochSecond());
+            transaction.setDate(Instant.now().getEpochSecond()*1000);
         }
         transaction.setImage(transactionRequest.getImage());
         transaction.setTitle(transactionRequest.getTitle());
@@ -289,8 +289,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<Transaction> getByUserAndDate(ReimsUser user, Long start, Long end) {
-        if (start == null) start = Instant.now().getEpochSecond();
-        if (end == null) Instant.now().getEpochSecond();
+        if (start == null) start = Instant.now().getEpochSecond()*1000;
+        if (end == null) end = Instant.now().getEpochSecond()*1000;
 
         return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }
