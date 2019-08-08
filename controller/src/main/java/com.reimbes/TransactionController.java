@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.util.*;
+import java.util.List;
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
@@ -38,8 +39,8 @@ public class TransactionController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size,
             @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
-            @RequestParam(value = "start", required = false) String start,
-            @RequestParam(value = "end", required = false) String end,
+            @RequestParam(value = "start", required = false) long start,
+            @RequestParam(value = "end", required = false) long end,
             @RequestParam (value = "search", required = false) String search,
             @RequestParam (value = "category", required = false) Transaction.Category category
     ) {
@@ -76,17 +77,32 @@ public class TransactionController {
         return br;
     }
 
-    @GetMapping(UrlConstants.IMAGE_URI)
-    public BaseResponse<String> getImage(@PathVariable long id, @PathVariable String image) {
+    @GetMapping(value = UrlConstants.ID_PARAM+UrlConstants.IMAGE_PARAM)
+    public BaseResponse getImage(@PathVariable long id, @PathVariable String image) {
         BaseResponse<String> br = new BaseResponse();
         try {
-            br.setData(transactionService.getImage(id,image));
+            String result = transactionService.getImage(id,image);
+            log.info(result);
+            br.setData(result);
+
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
 
         return br;
     }
+
+    // cadangan kalo ada apa2
+    @GetMapping(value = "image/"+UrlConstants.ID_PARAM+UrlConstants.IMAGE_PARAM)
+    public byte[] getByteImage(@PathVariable long id, @PathVariable String image) {
+        try {
+            return transactionService.getImageInByte(id,image);
+        }   catch (ReimsException r) {
+            return new byte[0];
+        }
+    }
+
+
     
 
     @PutMapping

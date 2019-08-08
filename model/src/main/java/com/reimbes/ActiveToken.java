@@ -21,4 +21,6 @@ public class ActiveToken {
         this.token = token;
     }
 
+    public ActiveToken(){}
+
 }

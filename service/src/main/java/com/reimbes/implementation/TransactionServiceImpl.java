@@ -105,11 +105,7 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setCreatedAt(Instant.now().getEpochSecond());
         transaction.setAmount(transactionRequest.getAmount());
         try {
-            //date saved in EPOCH
-            log.info("Convert date to epoch format: " + transactionRequest.getDate());
-
-            transaction.setDate(DATE_FORMAT.parse(transactionRequest.getDate()).getTime());
-
+            transaction.setDate(transactionRequest.getDate());
         }   catch (Exception e) {
             transaction.setDate(Instant.now().getEpochSecond()*1000);
         }
@@ -173,21 +169,12 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
-    public Page<Transaction> getAll(Pageable pageRequest, String startDate, String endDate, String title,
+    public Page<Transaction> getAll(Pageable pageRequest, long start, long end, String title,
                                     Transaction.Category category) throws ReimsException{
-        log.info("[Filter Request] START: " + startDate+" END: " + endDate+ " TITLE: " + title + " CATEGORY: " + category);
+        log.info("[Filter Request] START: " + start+" END: " + end+ " TITLE: " + title + " CATEGORY: " + category);
 
 
         /****************************************HANDLING REQUEST PARAM************************************************/
-        Long start; Long end;
-        try {
-            start = DATE_FORMAT.parse(startDate).getTime();
-            end = DATE_FORMAT.parse(endDate).getTime();
-        } catch (Exception e) {
-            log.warn("Start and End date don't have the correct format.");
-            start = null;
-            end = null;
-        }
 
         int index = pageRequest.getPageNumber() - 1;
         if (index < 0) index = 0;
@@ -197,7 +184,7 @@ public class TransactionServiceImpl implements TransactionService {
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         if (title == null) title = "";
 
-        if (start == null | end == null) {
+        if (start == 0 | end == 0) {
             if (category != null)
                 return transactionRepository.findByReimsUserAndTitleContainingAndCategory(user, title,category, pageable);
             return transactionRepository.findByReimsUserAndTitleContaining(user, title, pageable);
@@ -263,13 +250,36 @@ public class TransactionServiceImpl implements TransactionService {
             throw new NotFoundException("IMAGE");
 
         String imagePath = id+"/"+imageName;
-        imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
+
+        Transaction tr = transactionRepository.findByImageContaining(imagePath);
+        if (tr != null) imagePath = StringUtils.cleanPath(tr.getImage());
+        byte[] imageByte;
+        String result;
         try {
-            return new String(Base64.getEncoder().encode(Files.readAllBytes(Paths.get(imagePath))));
+            imageByte = Files.readAllBytes(Paths.get(UrlConstants.IMAGE_FOLDER_PATH + imagePath));
+            log.info("Translate to byte done.");
+            result = Base64.getEncoder().encodeToString(imageByte);
+            log.info("Get image in Base64 format.");
+            return result;
+        } catch (Exception e) {
+            throw new NotFoundException("IMAGE");
+        }
+    }
+
+    public byte[] getImageInByte(long id, String imageName) throws ReimsException {
+        if (id != userService.getUserByUsername(authService.getCurrentUsername()).getId())
+            throw new NotFoundException("IMAGE");
+
+        String imagePath = id+"/"+imageName;
+        imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
+        log.info("ID: "+id+" NAME: "+imageName);
+        try {
+            return Files.readAllBytes(Paths.get(imagePath));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return new byte[0];
     }
 
     @Override
@@ -303,29 +313,33 @@ public class TransactionServiceImpl implements TransactionService {
         List<String> errorMessages = new ArrayList();
 
         if (!(transaction.getCategory() instanceof Transaction.Category))
-            errorMessages.add("unknown category");
+            errorMessages.add("UNKNOWN_CATEGORY");
 
-        if (transaction.getDate() == null)
-            errorMessages.add("null date");
+        if (transaction.getDate() == 0)
+            errorMessages.add("NULL_DATE");
 
         if (transaction.getAmount() == 0)
-            errorMessages.add("zero amount");
+            errorMessages.add("ZERO_AMOUNT");
 
         if (transaction.getCategory() == null)
-            errorMessages.add("null category");
+            errorMessages.add("NULL_CATEGORY");
 
         // validate image path
         if (transaction.getImage()== null || !Files.exists(Paths.get(
                 UrlConstants.IMAGE_FOLDER_PATH + transaction.getImage())))
-            errorMessages.add("invalid image path");
+            errorMessages.add("INVALID_IMAGE_PATH");
 
 
         // make sure the transaction use its own [NEW] image
         if (transactionRepository.existsByImage(transaction.getImage()))
-            errorMessages.add("image already used in other transaction");
+            errorMessages.add("FORBIDDEN_DUPLICATE_IMAGE");
 
         if (transaction.getCategory().equals(Transaction.Category.PARKING)) {
-            if (transaction.getParkingType() == null) errorMessages.add("Parking Type cant be null");
+            if (transaction.getParkingType() == null) errorMessages.add("NULL_PARKING_TYPE");
+        }
+
+        if (transaction.getCategory().equals(Transaction.Category.FUEL)) {
+            if (transaction.getHours() == 0) errorMessages.add("ZERO_FUEL_HOURS");
         }
 
         if (!errorMessages.isEmpty())
