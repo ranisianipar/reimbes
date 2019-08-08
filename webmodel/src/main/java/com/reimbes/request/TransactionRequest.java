@@ -14,7 +14,7 @@ public class TransactionRequest {
     private long amount;
     private Transaction.Category category;
 
-    private String date;
+    private long date;
     private String image;
 
     // standard crud attributes

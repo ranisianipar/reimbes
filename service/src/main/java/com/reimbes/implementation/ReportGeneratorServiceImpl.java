@@ -27,8 +27,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     @Autowired
     private TransactionServiceImpl transactionService;
 
-
-    @Autowired
+    @Override
     public byte[] getReport(ReimsUser user, long start, long end) throws Exception {
 
         String filename = String.format("%s_%s_%s.xls", user.getUsername(), start+"", end+"");
