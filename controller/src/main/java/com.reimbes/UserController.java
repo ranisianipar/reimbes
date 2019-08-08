@@ -27,16 +27,16 @@ public class UserController {
 
     // .xls
     @GetMapping(UrlConstants.REPORT)
-    public byte[] getReport(
+    public BaseResponse getReport(
             @RequestParam(value = "start") long start,
             @RequestParam(value = "end") long end
     ) {
         try {
-            return userService.getReport(start, end);
+            userService.getReport(start, end);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new byte[0];
+        return new BaseResponse();
     }
 
     // update profile
