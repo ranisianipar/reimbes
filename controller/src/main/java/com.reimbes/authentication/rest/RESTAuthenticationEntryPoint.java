@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public final class RESTAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class RESTAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
 
     @Override
