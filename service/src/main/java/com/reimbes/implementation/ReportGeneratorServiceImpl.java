@@ -115,12 +115,12 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         indexFuel++;
         row = fuel.createRow(indexFuel);
         createCell(row, 0, "TOTAL:");
-        createCell(row, 2, accumulatedAmountFuel);
+        createCell(row, 3, accumulatedAmountFuel);
 
         indexParking++;
         row = parking.createRow(indexParking);
         createCell(row, 0, "TOTAL:");
-        createCell(row, 2, accumulatedAmountParking);
+        createCell(row, 3, accumulatedAmountParking);
 
         wb.write(out);
 

@@ -6,7 +6,7 @@ import java.util.TimeZone;
 
 public class General {
 
-    public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmXXX");
+    public static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm");
     public static final TimeZone TIME_ZONE = TimeZone.getTimeZone("GMT+7");
 
 }
