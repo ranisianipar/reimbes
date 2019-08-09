@@ -171,10 +171,8 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
-    public Page<Transaction> getAll(Pageable pageRequest, long start, long end, String title,
+    public Page<Transaction> getAll(Pageable pageRequest, String startDate, String endDate, String title,
                                     Transaction.Category category) {
-        log.info("[Filter Request] START: " + start+" END: " + end+ " TITLE: " + title + " CATEGORY: " + category);
-
 
         /****************************************HANDLING REQUEST PARAM************************************************/
 
@@ -186,17 +184,16 @@ public class TransactionServiceImpl implements TransactionService {
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         if (title == null) title = "";
 
-        if (start == 0 | end == 0) {
+        if (startDate == null | endDate == null) {
             if (category != null)
                 return transactionRepository.findByReimsUserAndTitleContainingAndCategory(user, title,category, pageable);
             return transactionRepository.findByReimsUserAndTitleContaining(user, title, pageable);
         } else if (category == null) {
-            log.info("[DATE] start: "+start+" end: "+end);
             return transactionRepository.findByReimsUserAndTitleContainingAndDateBetween(
                     user,
                     title,
-                    start,
-                    end,
+                    Long.parseLong(startDate),
+                    Long.parseLong(endDate),
                     pageable
             );
         }   else {
@@ -204,8 +201,8 @@ public class TransactionServiceImpl implements TransactionService {
                     user,
                     title,
                     category,
-                    start,
-                    end,
+                    Long.parseLong(startDate),
+                    Long.parseLong(endDate),
                     pageable
             );
         }
