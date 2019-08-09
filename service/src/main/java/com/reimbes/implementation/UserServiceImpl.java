@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public ReimsUser create(ReimsUser user) throws ReimsException{
+    public ReimsUser create(ReimsUser user) throws ReimsException {
         validate(user, null);
 
         user.setCreatedAt(Instant.now().getEpochSecond());
