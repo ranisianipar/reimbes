@@ -172,7 +172,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Page<Transaction> getAll(Pageable pageRequest, long start, long end, String title,
-                                    Transaction.Category category) throws ReimsException{
+                                    Transaction.Category category) {
         log.info("[Filter Request] START: " + start+" END: " + end+ " TITLE: " + title + " CATEGORY: " + category);
 
 
@@ -283,15 +283,6 @@ public class TransactionServiceImpl implements TransactionService {
         }
         return new byte[0];
     }
-
-    @Override
-    public void deleteImage(String imagePath) {
-        File file = new File(StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath));
-        if (file.delete())
-            log.info("Image removed successfully.");
-        log.warn("File " + imagePath + " doesn't exist.");
-    }
-
 
     public List<Transaction> getByUser(ReimsUser user) {
         return transactionRepository.findByReimsUser(user);
