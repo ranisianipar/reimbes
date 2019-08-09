@@ -229,7 +229,7 @@ public class UserServiceTest {
 
     @Test
     public void returnAllUsers() {
-        Pageable pageable =new PageRequest(0, 5, new Sort(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = new PageRequest(1, 5, new Sort(Sort.Direction.DESC, "createdAt"));
         List users = new ArrayList();
         users.add(user);
         Page page = new PageImpl(users);
