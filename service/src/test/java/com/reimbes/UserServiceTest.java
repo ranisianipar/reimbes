@@ -15,7 +15,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,8 +131,41 @@ public class UserServiceTest {
 
         when(userRepository.findOne(newUser.getId())).thenReturn(newUser);
 
+
         newUser.setUsername(null);
         newUser.setPassword(null);
+
+
+        assertThrows(ReimsException.class, () -> {
+            userService.update(newUser.getId(), newUser);
+        });
+    }
+
+    @Test
+    public void extepctedErrorThrown_whenUserInputInsecurePassAndDuplicateUsername() throws ReimsException{
+        when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
+        when(userRepository.save(user)).thenReturn(userWithEncodedPass);
+
+        ReimsUser newUser = userService.create(user);
+
+        ReimsUser user2 = new ReimsUser();
+        user2.setUsername("REIMBES");
+        user2.setPassword("xxxxx");
+        user2.setRole(ReimsUser.Role.USER);
+
+        ReimsUser user2WithEncodedPass = new ReimsUser();
+        user2.setUsername("REIMBES");
+        user2.setPassword("xxxxx123");
+        user2.setRole(ReimsUser.Role.USER);
+
+        when(passwordEncoder.encode(user.getPassword())).thenReturn(user2WithEncodedPass.getPassword());
+        when(userRepository.save(user2)).thenReturn(user2WithEncodedPass);
+
+        when(userRepository.findOne(newUser.getId())).thenReturn(userWithEncodedPass);
+        when(userRepository.findByUsername(user2.getUsername())).thenReturn(user2WithEncodedPass);
+
+        newUser.setUsername("REIMBES");
+        newUser.setPassword("REIMBES");
 
 
         assertThrows(ReimsException.class, () -> {
