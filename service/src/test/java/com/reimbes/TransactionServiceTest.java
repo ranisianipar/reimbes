@@ -147,5 +147,24 @@ public class TransactionServiceTest {
     }
 
 
+    @Test
+    public void returnTransactionsOfAUser() {
+        when(transactionRepository.findByReimsUser(user)).thenReturn(transactions);
+        assertEquals(transactions, transactionService.getByUser(user));
+    }
+
+    @Test
+    public void returnUserTransactionsFilteredByZeroDate() {
+        when(transactionRepository.findByReimsUser(user)).thenReturn(transactions);
+        assertEquals(transactions, transactionService.getByUserAndDate(user, 0, 0));
+    }
+
+    @Test
+    public void returnUserTransactionsFilteredByDate() {
+        when(transactionRepository.findByReimsUserAndDateBetween(user,1, 2)).thenReturn(transactions);
+        assertEquals(transactions, transactionService.getByUserAndDate(user, 1, 2));
+    }
+
+
 
 }
