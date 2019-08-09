@@ -290,10 +290,8 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
-    public List<Transaction> getByUserAndDate(ReimsUser user, Long start, Long end) {
-        if (start == null) start = Instant.now().getEpochSecond()*1000;
-        if (end == null) end = Instant.now().getEpochSecond()*1000;
-
+    public List<Transaction> getByUserAndDate(ReimsUser user, long start, long end) {
+        if (start == new Long(0) || end == new Long(0)) return transactionRepository.findByReimsUser(user);
         return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }
 

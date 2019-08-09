@@ -19,7 +19,7 @@ public interface TransactionService {
                              Transaction.Category category);
 
     List<Transaction> getByUser(ReimsUser user);
-    List<Transaction> getByUserAndDate(ReimsUser user, Long start, Long end);
+    List<Transaction> getByUserAndDate(ReimsUser user, long start, long end);
     String getImage(long id, String imageName) throws ReimsException; // is it ok to dont check the user?
     // .xls
 }
