@@ -16,11 +16,10 @@ public interface TransactionService {
     void deleteByUser(ReimsUser user);
     Transaction get(long id) throws ReimsException;
     Page<Transaction> getAll(Pageable pageable, long start, long end, String searchTitle,
-                             Transaction.Category category) throws ReimsException;
+                             Transaction.Category category);
 
     List<Transaction> getByUser(ReimsUser user);
     List<Transaction> getByUserAndDate(ReimsUser user, Long start, Long end);
     String getImage(long id, String imageName) throws ReimsException; // is it ok to dont check the user?
-    void deleteImage(String imagePath);
     // .xls
 }
