@@ -107,20 +107,27 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-
     public boolean isExist(String username) {
         return userRepository.existsByUsername(username);
     }
 
-    public byte[] getReport(long startDate, long endDate) throws Exception {
-        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()), startDate, endDate);
+    public byte[] getReport(String startDate, String endDate) throws Exception {
+        Long start;
+        Long end;
+        try {
+            start = Long.parseLong(startDate);
+            end = Long.parseLong(endDate);
+        }   catch (Exception e) {
+            start = null;
+            end = null;
+        }
+        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()),
+                start, end);
     }
 
     /* Old User Data NOT NULL indicate update user activity */
     private void validate(ReimsUser newUserData, ReimsUser oldUserData) throws DataConstraintException{
         List errors = new ArrayList();
-
-        System.out.println("[TEST] old user: "+oldUserData);
 
         // Validate the credential data
         if (newUserData.getUsername() == null || newUserData.getUsername().isEmpty())

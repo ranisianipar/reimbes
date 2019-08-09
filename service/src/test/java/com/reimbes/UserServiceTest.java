@@ -241,11 +241,11 @@ public class UserServiceTest {
     @Test
     public void makingAReport_whenUserAskedForIt() throws Exception {
         byte[] fakeReport = new byte[100];
-        when(reportGeneratorService.getReport(user,0,0)).thenReturn(fakeReport);
+        when(reportGeneratorService.getReport(user,new Long(0),new Long(0))).thenReturn(fakeReport);
         when(authService.getCurrentUsername()).thenReturn(user.getUsername());
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
 
-        assertEquals(userService.getReport(0,0), fakeReport);
+        assertEquals(userService.getReport("0", "0"), fakeReport);
     }
 
 

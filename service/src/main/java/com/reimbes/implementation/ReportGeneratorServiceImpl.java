@@ -28,13 +28,13 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private TransactionServiceImpl transactionService;
 
     @Override
-    public byte[] getReport(ReimsUser user, long start, long end) throws Exception {
+    public byte[] getReport(ReimsUser user, Long start, Long end) throws Exception {
 
         String filename = String.format("%s_%s_%s.xls", user.getUsername(), start+"", end+"");
 
         List<Transaction> transactions;
 
-        if (start == 0 || end == 0)
+        if (start == null || end == null)
             transactions = transactionService.getByUser(user);
         else
             transactions = transactionService.getByUserAndDate(user, start, end);

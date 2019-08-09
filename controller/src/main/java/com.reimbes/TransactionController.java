@@ -38,9 +38,9 @@ public class TransactionController {
     public BaseResponse getAllTransaction(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size,
-            @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
-            @RequestParam(value = "start", defaultValue = "0") long start,
-            @RequestParam(value = "end", defaultValue = "0") long end,
+            @RequestParam(value = "sortBy", defaultValue = "date") String sortBy,
+            @RequestParam(value = "start", required = false) String start,
+            @RequestParam(value = "end", required = false) String end,
             @RequestParam (value = "search", required = false) String search,
             @RequestParam (value = "category", required = false) Transaction.Category category
     ) {
