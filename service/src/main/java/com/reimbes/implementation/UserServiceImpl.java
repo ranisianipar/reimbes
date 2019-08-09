@@ -58,9 +58,11 @@ public class UserServiceImpl implements UserService {
             oldUser = userRepository.findByUsername(authService.getCurrentUsername());
         } else {
             oldUser = userRepository.findOne(id);
+            System.out.println("[TEST] get old user "+ oldUser.toString());
         }
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
+        System.out.println("[TEST] old user again: "+oldUser);
         validate(user, oldUser);
 
         oldUser.setUsername(user.getUsername());
@@ -118,15 +120,23 @@ public class UserServiceImpl implements UserService {
     private void validate(ReimsUser newUserData, ReimsUser oldUserData) throws DataConstraintException{
         List errors = new ArrayList();
 
-        if (oldUserData != null) {
-            if (userRepository.findByUsername(newUserData.getUsername()).getId() != oldUserData.getId())
-                errors.add("USERNAME UNIQUENESS");
-        } else if (userRepository.existsByUsername(newUserData.getUsername()))
-            errors.add("USERNAME UNIQUENESS");
+        System.out.println("[TEST] old user: "+oldUserData);
 
-        if (newUserData.getPassword() == null) errors.add("PASSWORD NULL");
-        else if (newUserData.getUsername().toLowerCase().equals(newUserData.getPassword().toLowerCase()))
-            errors.add("PASSWORD SIMILIARITY WITH USERNAME");
+        // Validate the credential data
+        if (newUserData.getUsername() == null || newUserData.getUsername().isEmpty())
+            errors.add("NULL_USERNAME");
+        if (newUserData.getPassword() == null || newUserData.getPassword().isEmpty())
+            errors.add("NULL_PASSWORD");
+
+        // compare new user data with other user data
+        if (errors.isEmpty()){
+            if (oldUserData != null &&
+                    userRepository.findByUsername(newUserData.getUsername()).getId() != oldUserData.getId())
+                errors.add("UNIQUENESS_USERNAME");
+
+            if (newUserData.getUsername().toLowerCase().equals(newUserData.getPassword().toLowerCase()))
+                errors.add("INSECURE_PASSWORD");
+        }
 
         if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
 
