@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
         else user = userRepository.findOne(id);
         if (user == null)
             throw new NotFoundException("User with ID "+id);
-        return userRepository.getOne(id);
+        return user;
     }
 
     @Override
