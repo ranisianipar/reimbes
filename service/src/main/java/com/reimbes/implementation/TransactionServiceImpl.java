@@ -73,6 +73,8 @@ public class TransactionServiceImpl implements TransactionService {
 
             log.info("Decoding image byte succeed.");
             log.info("Uploading the image...");
+
+            System.out.println("[TEST] BEFORE UPLOAD IMAGE: "+imageByte.toString()+" EXT: "+extension);
             imagePath = uploadImage(imageByte, extension);
 
             log.info("Predicting image content... ");
