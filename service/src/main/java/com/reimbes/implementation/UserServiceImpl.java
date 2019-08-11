@@ -113,12 +113,13 @@ public class UserServiceImpl implements UserService {
     public byte[] getReport(String startDate, String endDate) throws Exception {
         Long start;
         Long end;
-        try {
-            start = Long.parseLong(startDate);
-            end = Long.parseLong(endDate);
-        }   catch (Exception e) {
+
+        if (startDate == null | endDate == null | startDate.isEmpty() | endDate.isEmpty()) {
             start = null;
             end = null;
+        } else {
+            start = Long.parseLong(startDate);
+            end = Long.parseLong(endDate);
         }
         return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()),
                 start, end);
@@ -136,9 +137,11 @@ public class UserServiceImpl implements UserService {
 
         // compare new user data with other user data
         if (errors.isEmpty()){
-            if (oldUserData != null &&
-                    userRepository.findByUsername(newUserData.getUsername()).getId() != oldUserData.getId())
-                errors.add("UNIQUENESS_USERNAME");
+            if (oldUserData != null){
+                ReimsUser user = userRepository.findByUsername(newUserData.getUsername());
+                if (user != null && user.getId() != oldUserData.getId())
+                    errors.add("UNIQUENESS_USERNAME");
+            }
 
             if (newUserData.getUsername().toLowerCase().equals(newUserData.getPassword().toLowerCase()))
                 errors.add("INSECURE_PASSWORD");
