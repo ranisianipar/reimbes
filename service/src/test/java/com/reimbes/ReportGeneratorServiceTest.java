@@ -82,7 +82,7 @@ public class ReportGeneratorServiceTest {
     public void whenCreateReportWithoutRangeOfDate_thenReturnReportOfAllTransactions() throws Exception{
         when(transactionService.getByUser(user)).thenReturn(new ArrayList<>(transactions));
 
-        reportGeneratorService.getReport(user, 0, 0);
+        reportGeneratorService.getReport(user, null, null);
 
         verify(transactionService, times(1)).getByUser(user);
 

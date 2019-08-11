@@ -28,8 +28,8 @@ public class UserController {
     // .xls
     @GetMapping(UrlConstants.REPORT)
     public BaseResponse getReport(
-            @RequestParam(value = "start", defaultValue = "0") long start,
-            @RequestParam(value = "end", defaultValue = "0") long end
+            @RequestParam(value = "start", required = false) String start,
+            @RequestParam(value = "end", required = false) String end
     ) {
         try {
             userService.getReport(start, end);

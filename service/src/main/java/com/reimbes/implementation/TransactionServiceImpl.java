@@ -73,6 +73,8 @@ public class TransactionServiceImpl implements TransactionService {
 
             log.info("Decoding image byte succeed.");
             log.info("Uploading the image...");
+
+            System.out.println("[TEST] BEFORE UPLOAD IMAGE: "+imageByte.toString()+" EXT: "+extension);
             imagePath = uploadImage(imageByte, extension);
 
             log.info("Predicting image content... ");
@@ -169,10 +171,8 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
-    public Page<Transaction> getAll(Pageable pageRequest, long start, long end, String title,
-                                    Transaction.Category category) throws ReimsException{
-        log.info("[Filter Request] START: " + start+" END: " + end+ " TITLE: " + title + " CATEGORY: " + category);
-
+    public Page<Transaction> getAll(Pageable pageRequest, String startDate, String endDate, String title,
+                                    Transaction.Category category) {
 
         /****************************************HANDLING REQUEST PARAM************************************************/
 
@@ -184,17 +184,16 @@ public class TransactionServiceImpl implements TransactionService {
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         if (title == null) title = "";
 
-        if (start == 0 | end == 0) {
+        if (startDate == null | endDate == null) {
             if (category != null)
                 return transactionRepository.findByReimsUserAndTitleContainingAndCategory(user, title,category, pageable);
             return transactionRepository.findByReimsUserAndTitleContaining(user, title, pageable);
         } else if (category == null) {
-            log.info("[DATE] start: "+start+" end: "+end);
             return transactionRepository.findByReimsUserAndTitleContainingAndDateBetween(
                     user,
                     title,
-                    start,
-                    end,
+                    Long.parseLong(startDate),
+                    Long.parseLong(endDate),
                     pageable
             );
         }   else {
@@ -202,8 +201,8 @@ public class TransactionServiceImpl implements TransactionService {
                     user,
                     title,
                     category,
-                    start,
-                    end,
+                    Long.parseLong(startDate),
+                    Long.parseLong(endDate),
                     pageable
             );
         }
@@ -282,25 +281,14 @@ public class TransactionServiceImpl implements TransactionService {
         return new byte[0];
     }
 
-    @Override
-    public void deleteImage(String imagePath) {
-        File file = new File(StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath));
-        if (file.delete())
-            log.info("Image removed successfully.");
-        log.warn("File " + imagePath + " doesn't exist.");
-    }
-
-
     public List<Transaction> getByUser(ReimsUser user) {
         return transactionRepository.findByReimsUser(user);
     }
 
 
     @Override
-    public List<Transaction> getByUserAndDate(ReimsUser user, Long start, Long end) {
-        if (start == null) start = Instant.now().getEpochSecond()*1000;
-        if (end == null) end = Instant.now().getEpochSecond()*1000;
-
+    public List<Transaction> getByUserAndDate(ReimsUser user, long start, long end) {
+        if (start == new Long(0) || end == new Long(0)) return transactionRepository.findByReimsUser(user);
         return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }
 

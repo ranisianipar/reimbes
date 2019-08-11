@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public ReimsUser create(ReimsUser user) throws ReimsException{
+    public ReimsUser create(ReimsUser user) throws ReimsException {
         validate(user, null);
 
         user.setCreatedAt(Instant.now().getEpochSecond());
@@ -58,14 +58,15 @@ public class UserServiceImpl implements UserService {
             oldUser = userRepository.findByUsername(authService.getCurrentUsername());
         } else {
             oldUser = userRepository.findOne(id);
+            oldUser.setRole(user.getRole());
         }
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
+
         validate(user, oldUser);
 
         oldUser.setUsername(user.getUsername());
         oldUser.setPassword(user.getPassword());
-        oldUser.setRole(user.getRole());
         oldUser.setUpdatedAt(Instant.now().getEpochSecond());
         return userRepository.save(oldUser);
     }
@@ -81,8 +82,8 @@ public class UserServiceImpl implements UserService {
         if (id == 0) return userRepository.findByUsername(authService.getCurrentUsername());
         else user = userRepository.findOne(id);
         if (user == null)
-            throw new NotFoundException("User with ID "+id);
-        return userRepository.getOne(id);
+            throw new NotFoundException("USER "+id);
+        return user;
     }
 
     @Override
@@ -105,28 +106,43 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-
     public boolean isExist(String username) {
         return userRepository.existsByUsername(username);
     }
 
-    public byte[] getReport(long startDate, long endDate) throws Exception {
-        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()), startDate, endDate);
+    public byte[] getReport(String startDate, String endDate) throws Exception {
+        Long start;
+        Long end;
+        try {
+            start = Long.parseLong(startDate);
+            end = Long.parseLong(endDate);
+        }   catch (Exception e) {
+            start = null;
+            end = null;
+        }
+        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()),
+                start, end);
     }
 
     /* Old User Data NOT NULL indicate update user activity */
     private void validate(ReimsUser newUserData, ReimsUser oldUserData) throws DataConstraintException{
         List errors = new ArrayList();
 
-        if (oldUserData != null) {
-            if (userRepository.findByUsername(newUserData.getUsername()).getId() != oldUserData.getId())
-                errors.add("USERNAME UNIQUENESS");
-        } else if (userRepository.existsByUsername(newUserData.getUsername()))
-            errors.add("USERNAME UNIQUENESS");
+        // Validate the credential data
+        if (newUserData.getUsername() == null || newUserData.getUsername().isEmpty())
+            errors.add("NULL_USERNAME");
+        if (newUserData.getPassword() == null || newUserData.getPassword().isEmpty())
+            errors.add("NULL_PASSWORD");
 
-        if (newUserData.getPassword() == null) errors.add("PASSWORD NULL");
-        else if (newUserData.getUsername().toLowerCase().equals(newUserData.getPassword().toLowerCase()))
-            errors.add("PASSWORD SIMILIARITY WITH USERNAME");
+        // compare new user data with other user data
+        if (errors.isEmpty()){
+            if (oldUserData != null &&
+                    userRepository.findByUsername(newUserData.getUsername()).getId() != oldUserData.getId())
+                errors.add("UNIQUENESS_USERNAME");
+
+            if (newUserData.getUsername().toLowerCase().equals(newUserData.getPassword().toLowerCase()))
+                errors.add("INSECURE_PASSWORD");
+        }
 
         if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
 
