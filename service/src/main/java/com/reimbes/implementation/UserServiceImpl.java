@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
             oldUser = userRepository.findByUsername(authService.getCurrentUsername());
         } else {
             oldUser = userRepository.findOne(id);
-            System.out.println("[TEST] get old user "+ oldUser.toString());
+            oldUser.setRole(user.getRole());
         }
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
@@ -67,7 +67,6 @@ public class UserServiceImpl implements UserService {
 
         oldUser.setUsername(user.getUsername());
         oldUser.setPassword(user.getPassword());
-        oldUser.setRole(user.getRole());
         oldUser.setUpdatedAt(Instant.now().getEpochSecond());
         return userRepository.save(oldUser);
     }

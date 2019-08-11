@@ -30,14 +30,18 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     @Override
     public byte[] getReport(ReimsUser user, Long start, Long end) throws Exception {
 
-        String filename = String.format("%s_%s_%s.xls", user.getUsername(), start+"", end+"");
+        String filename;
 
         List<Transaction> transactions;
 
-        if (start == null || end == null)
+        if (start == null || end == null){
+            filename = String.format("%s_%s_%s.xls", user.getUsername(), "ALL", "ALL");
             transactions = transactionService.getByUser(user);
-        else
+
+        } else {
             transactions = transactionService.getByUserAndDate(user, start, end);
+            filename = String.format("%s_%s_%s.xls", user.getUsername(), start+"", end+"");
+        }
 
         Workbook wb = new HSSFWorkbook();
 
