@@ -16,7 +16,7 @@ public interface TransactionService {
     void deleteByUser(ReimsUser user);
     Transaction get(long id) throws ReimsException;
     Page<Transaction> getAll(Pageable pageable, String startDate, String endDate, String searchTitle,
-                             Transaction.Category category);
+                             Transaction.Category category) throws ReimsException;
 
     List<Transaction> getByUser(ReimsUser user);
     List<Transaction> getByUserAndDate(ReimsUser user, long start, long end);

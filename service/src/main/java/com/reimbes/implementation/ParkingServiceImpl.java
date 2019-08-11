@@ -13,9 +13,6 @@ public class ParkingServiceImpl implements ParkingService {
     private static Logger log = LoggerFactory.getLogger(ParkingServiceImpl.class);
 
     @Autowired
-    private ParkingRepository parkingRepository;
-
-    @Autowired
     private AuthServiceImpl authService;
 
     @Autowired

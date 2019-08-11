@@ -75,7 +75,7 @@ public class TesseractService implements OcrService {
         // dummy transaction
         transaction.setTitle(ocrArr[0]);
         transaction.setAmount(15000);
-        transaction.setDate(Instant.now().getEpochSecond()*1000);
+        transaction.setDate(Instant.now().toEpochMilli());
         transaction.setCategory(Transaction.Category.PARKING);
         ((Parking) transaction).setType(Parking.Type.CAR);
 
