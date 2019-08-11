@@ -24,7 +24,7 @@ public class AdminServiceImpl implements AdminService {
     private UserServiceImpl userService;
 
     @Override
-    public Page getAllUser(String search, Pageable pageRequest) throws ReimsException{
+    public Page getAllUser(String search, Pageable pageRequest) throws ReimsException {
         log.info("Page request number: "+pageRequest.getPageNumber());
         // tha page number default is 1, but querying things start from 0.
         int index = pageRequest.getPageNumber()-1;
@@ -40,12 +40,12 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public ReimsUser createUser(ReimsUser user) throws Exception{
+    public ReimsUser createUser(ReimsUser user) throws ReimsException {
         return userService.create(user);
     }
 
     @Override
-    public ReimsUser updateUser(long id, ReimsUser user) throws Exception {
+    public ReimsUser updateUser(long id, ReimsUser user) throws ReimsException {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userService.update(id, user);
     }

@@ -28,16 +28,20 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private TransactionServiceImpl transactionService;
 
     @Override
-    public byte[] getReport(ReimsUser user, long start, long end) throws Exception {
+    public byte[] getReport(ReimsUser user, Long start, Long end) throws Exception {
 
-        String filename = String.format("%s_%s_%s.xls", user.getUsername(), start+"", end+"");
+        String filename;
 
         List<Transaction> transactions;
 
-        if (start == 0 || end == 0)
+        if (start == null || end == null){
+            filename = String.format("%s_%s.xls", user.getUsername(), "ALL");
             transactions = transactionService.getByUser(user);
-        else
+
+        } else {
             transactions = transactionService.getByUserAndDate(user, start, end);
+            filename = String.format("%s_%s_%s.xls", user.getUsername(), start+"", end+"");
+        }
 
         Workbook wb = new HSSFWorkbook();
 
