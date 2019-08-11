@@ -74,7 +74,6 @@ public class TransactionServiceImpl implements TransactionService {
             log.info("Decoding image byte succeed.");
             log.info("Uploading the image...");
 
-            System.out.println("[TEST] BEFORE UPLOAD IMAGE: "+imageByte.toString()+" EXT: "+extension);
             imagePath = uploadImage(imageByte, extension);
 
             log.info("Predicting image content... ");
@@ -104,12 +103,12 @@ public class TransactionServiceImpl implements TransactionService {
             transaction = parkingService.create(transactionRequest);
         }
 
-        transaction.setCreatedAt(Instant.now().getEpochSecond());
+        transaction.setCreatedAt(Instant.now().toEpochMilli());
         transaction.setAmount(transactionRequest.getAmount());
         try {
             transaction.setDate(transactionRequest.getDate());
         }   catch (Exception e) {
-            transaction.setDate(Instant.now().getEpochSecond()*1000);
+            transaction.setDate(Instant.now().toEpochMilli());
         }
         transaction.setImage(transactionRequest.getImage());
         transaction.setTitle(transactionRequest.getTitle());
@@ -172,7 +171,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Page<Transaction> getAll(Pageable pageRequest, String startDate, String endDate, String title,
-                                    Transaction.Category category) {
+                                    Transaction.Category category) throws ReimsException{
 
         /****************************************HANDLING REQUEST PARAM************************************************/
 
@@ -188,21 +187,32 @@ public class TransactionServiceImpl implements TransactionService {
             if (category != null)
                 return transactionRepository.findByReimsUserAndTitleContainingAndCategory(user, title,category, pageable);
             return transactionRepository.findByReimsUserAndTitleContaining(user, title, pageable);
-        } else if (category == null) {
+        }
+
+        Long start;
+        Long end;
+        try {
+            start = Long.parseLong(startDate);
+            end = Long.parseLong(endDate);
+        }   catch (Exception e) {
+            throw new FormatTypeError("value of start and end params");
+        }
+
+        if (category == null) {
             return transactionRepository.findByReimsUserAndTitleContainingAndDateBetween(
                     user,
                     title,
-                    Long.parseLong(startDate),
-                    Long.parseLong(endDate),
+                    start,
+                    end,
                     pageable
             );
-        }   else {
+        } else {
             return transactionRepository.findByReimsUserAndTitleContainingAndCategoryAndDateBetween(
                     user,
                     title,
                     category,
-                    Long.parseLong(startDate),
-                    Long.parseLong(endDate),
+                    start,
+                    end,
                     pageable
             );
         }
@@ -309,8 +319,14 @@ public class TransactionServiceImpl implements TransactionService {
         if (transaction.getAmount() == 0)
             errorMessages.add("ZERO_AMOUNT");
 
-        if (transaction.getCategory() == null)
+        if (transaction.getCategory() == null) {
             errorMessages.add("NULL_CATEGORY");
+        } else if (transaction.getCategory().equals(Transaction.Category.PARKING)) {
+            if (transaction.getParkingType() == null) errorMessages.add("NULL_PARKING_TYPE");
+            if (transaction.getHours() == 0) errorMessages.add("ZERO_PARKING_HOURS");
+        } else if (transaction.getCategory().equals(Transaction.Category.FUEL)) {
+            if (transaction.getLiters() == 0) errorMessages.add("ZERO_FUEL_LITERS");
+        }
 
         // validate image path
         if (transaction.getImage()== null || !Files.exists(Paths.get(
@@ -322,13 +338,6 @@ public class TransactionServiceImpl implements TransactionService {
         if (transactionRepository.existsByImage(transaction.getImage()))
             errorMessages.add("FORBIDDEN_DUPLICATE_IMAGE");
 
-        if (transaction.getCategory().equals(Transaction.Category.PARKING)) {
-            if (transaction.getParkingType() == null) errorMessages.add("NULL_PARKING_TYPE");
-        }
-
-        if (transaction.getCategory().equals(Transaction.Category.FUEL)) {
-            if (transaction.getHours() == 0) errorMessages.add("ZERO_FUEL_HOURS");
-        }
 
         if (!errorMessages.isEmpty())
             throw new DataConstraintException(errorMessages.toString());
