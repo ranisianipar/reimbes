@@ -51,12 +51,17 @@ public class TransactionController {
 
         Page transactions;
 
-        transactions = transactionService.getAll(pageRequest, start, end, search, category);
-        br.setData(getAllTransactionResponses(transactions.getContent()));
-        paging.setTotalPages(transactions.getTotalPages());
-        paging.setTotalRecords(transactions.getContent().size());
+        try {
+            transactions = transactionService.getAll(pageRequest, start, end, search, category);
+            br.setData(getAllTransactionResponses(transactions.getContent()));
+            paging.setTotalPages(transactions.getTotalPages());
+            paging.setTotalRecords(transactions.getContent().size());
 
-        br.setPaging(paging);
+            br.setPaging(paging);
+        }   catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
 
         return br;
     }
