@@ -5,6 +5,7 @@ import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.ReportGeneratorServiceImpl;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.implementation.UserServiceImpl;
+import org.apache.http.message.BasicHttpResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.*;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -95,7 +97,7 @@ public class UserServiceTest {
         when(userRepository.findByUsername(newUser.getUsername())).thenReturn(newUser);
         when(userRepository.save(newUser)).thenReturn(newUser);
 
-        newUser = userService.update(newUser.getId(), newUser);
+        newUser = userService.update(newUser.getId(), newUser, new MockHttpServletResponse());
 
         assertNotEquals(newUser.getUsername(), oldUsername);
         assertNotNull(newUser.getUpdatedAt());
@@ -116,7 +118,7 @@ public class UserServiceTest {
         when(userRepository.findByUsername(newUser.getUsername())).thenReturn(newUser);
         when(userRepository.save(newUser)).thenReturn(newUser);
 
-        newUser = userService.update(0, newUser);
+        newUser = userService.update(0, newUser, new MockHttpServletResponse());
 
         assertNotEquals(newUser.getUsername(), oldUsername);
         assertNotNull(newUser.getUpdatedAt());
@@ -138,7 +140,7 @@ public class UserServiceTest {
 
 
         assertThrows(ReimsException.class, () -> {
-            userService.update(newUser.getId(), newUser);
+            userService.update(newUser.getId(), newUser, new MockHttpServletResponse());
         });
     }
 
@@ -170,7 +172,7 @@ public class UserServiceTest {
 
 
         assertThrows(ReimsException.class, () -> {
-            userService.update(newUser.getId(), newUser);
+            userService.update(newUser.getId(), newUser, new MockHttpServletResponse());
         });
     }
 

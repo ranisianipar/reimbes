@@ -3,6 +3,7 @@ package com.reimbes.implementation;
 import com.reimbes.ReimsUser;
 import com.reimbes.ReimsUserRepository;
 import com.reimbes.UserService;
+import com.reimbes.constant.SecurityConstants;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
@@ -12,11 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -51,7 +56,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ReimsUser update(long id, ReimsUser user) throws ReimsException {
+    public ReimsUser update(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
         ReimsUser oldUser;
 
         if (id == 0) {
@@ -68,6 +73,25 @@ public class UserServiceImpl implements UserService {
         oldUser.setUsername(user.getUsername());
         oldUser.setPassword(user.getPassword());
         oldUser.setUpdatedAt(Instant.now().getEpochSecond());
+
+        // method for editing personal data
+        if (response != null) {
+            // update token with latest username
+
+            Collection authorities =  new ArrayList();
+
+            authorities.add(new SimpleGrantedAuthority(oldUser.getRole().toString()));
+
+            // add token
+            String token = authService.generateToken(new UserDetailsImpl(user, authorities), authorities);
+
+            // register token
+            authService.registerToken(token);
+
+            // return response with NEW token
+            response.setHeader(SecurityConstants.HEADER_STRING, token);
+        }
+
         return userRepository.save(oldUser);
     }
 
@@ -114,7 +138,7 @@ public class UserServiceImpl implements UserService {
         Long start;
         Long end;
 
-        if (startDate == null | endDate == null | startDate.isEmpty() | endDate.isEmpty()) {
+        if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
             start = null;
             end = null;
         } else {

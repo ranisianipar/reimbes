@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.*;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -85,7 +86,7 @@ public class AdminServiceTest {
         user2.setRole(ReimsUser.Role.ADMIN);
         user2.setPassword(user.getPassword());
         user2.setUsername(user.getUsername());
-        when(userService.update(user.getId(), user2)).thenReturn(user2);
+        when(userService.update(user.getId(), user2, new MockHttpServletResponse())).thenReturn(user2);
 
         assertEquals(user2, adminService.updateUser(user.getId(), user2));
     }

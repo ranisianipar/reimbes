@@ -47,7 +47,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public ReimsUser updateUser(long id, ReimsUser user) throws ReimsException {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userService.update(id, user);
+        return userService.update(id, user, null);
     }
 
     @Override

@@ -183,7 +183,7 @@ public class TransactionServiceImpl implements TransactionService {
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         if (title == null) title = "";
 
-        if (startDate == null | endDate == null | startDate.isEmpty() | endDate.isEmpty()) {
+        if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
             if (category != null)
                 return transactionRepository.findByReimsUserAndTitleContainingAndCategory(user, title,category, pageable);
             return transactionRepository.findByReimsUserAndTitleContaining(user, title, pageable);
