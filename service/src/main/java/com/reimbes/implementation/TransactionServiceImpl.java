@@ -183,6 +183,12 @@ public class TransactionServiceImpl implements TransactionService {
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         if (title == null) title = "";
 
+        if (startDate == null | endDate == null) {
+            if (category != null)
+                return transactionRepository.findByReimsUserAndTitleContainingAndCategory(user, title,category, pageable);
+            return transactionRepository.findByReimsUserAndTitleContaining(user, title, pageable);
+        }
+
         Long start;
         Long end;
         try {
@@ -192,11 +198,7 @@ public class TransactionServiceImpl implements TransactionService {
             throw new FormatTypeError("value of start and end params");
         }
 
-        if (startDate == null | endDate == null) {
-            if (category != null)
-                return transactionRepository.findByReimsUserAndTitleContainingAndCategory(user, title,category, pageable);
-            return transactionRepository.findByReimsUserAndTitleContaining(user, title, pageable);
-        } else if (category == null) {
+        if (category == null) {
             return transactionRepository.findByReimsUserAndTitleContainingAndDateBetween(
                     user,
                     title,
@@ -204,7 +206,7 @@ public class TransactionServiceImpl implements TransactionService {
                     end,
                     pageable
             );
-        }   else {
+        } else {
             return transactionRepository.findByReimsUserAndTitleContainingAndCategoryAndDateBetween(
                     user,
                     title,
