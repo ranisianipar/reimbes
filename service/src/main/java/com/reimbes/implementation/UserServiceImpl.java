@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
-        System.out.println("[TEST] old user again: "+oldUser);
+
         validate(user, oldUser);
 
         oldUser.setUsername(user.getUsername());
@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
         if (id == 0) return userRepository.findByUsername(authService.getCurrentUsername());
         else user = userRepository.findOne(id);
         if (user == null)
-            throw new NotFoundException("User with ID "+id);
+            throw new NotFoundException("USER "+id);
         return user;
     }
 

@@ -35,7 +35,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         List<Transaction> transactions;
 
         if (start == null || end == null){
-            filename = String.format("%s_%s_%s.xls", user.getUsername(), "ALL", "ALL");
+            filename = String.format("%s_%s.xls", user.getUsername(), "ALL");
             transactions = transactionService.getByUser(user);
 
         } else {
