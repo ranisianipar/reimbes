@@ -6,6 +6,6 @@ import org.springframework.http.HttpStatus;
 public class NotFoundException extends ReimsException {
 
     public NotFoundException(String errorMessage) {
-        super("Not Found => "+errorMessage, HttpStatus.NOT_FOUND, ResponseCode.NOT_FOUND);
+        super("NOT_FOUND => "+errorMessage, HttpStatus.NOT_FOUND, ResponseCode.NOT_FOUND);
     }
 }
