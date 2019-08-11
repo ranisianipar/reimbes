@@ -1,5 +1,6 @@
 package com.reimbes;
 
+import com.reimbes.constant.SecurityConstants;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.UserServiceImpl;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 
 
@@ -41,13 +44,14 @@ public class UserController {
 
     // update profile
     @PutMapping
-    public BaseResponse updateUser(@RequestBody ReimsUser user) {
+    public BaseResponse updateUser(@RequestBody ReimsUser user, HttpServletResponse response) {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(getMapper().map(userService.update(0, user), UserResponse.class));
+            br.setData(getMapper().map(userService.update(0, user, response), UserResponse.class));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
+
 
         return br;
     }
