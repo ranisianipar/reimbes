@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
         validate(user, oldUser);
 
         oldUser.setUsername(user.getUsername());
-        oldUser.setPassword(user.getPassword());
+        oldUser.setPassword(passwordEncoder.encode(user.getPassword()));
         oldUser.setUpdatedAt(Instant.now().getEpochSecond());
 
         // method for editing personal data
