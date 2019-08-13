@@ -1,5 +1,6 @@
 package com.reimbes;
 
+import com.reimbes.constant.SecurityConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.ReportGeneratorServiceImpl;
@@ -14,11 +15,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.*;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
@@ -84,6 +87,10 @@ public class UserServiceTest {
 
     @Test
     public void returnUpdatedUserData_whenAdminUpdateUser() throws ReimsException{
+        String dummyToken = "123xyz";
+        Collection authorities =  new ArrayList();
+        authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
+
         when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
         when(userRepository.save(user)).thenReturn(userWithEncodedPass);
 
@@ -96,6 +103,7 @@ public class UserServiceTest {
 
         when(userRepository.findByUsername(newUser.getUsername())).thenReturn(newUser);
         when(userRepository.save(newUser)).thenReturn(newUser);
+        when(authService.generateToken(new UserDetailsImpl(newUser, authorities), authorities)).thenReturn(dummyToken);
 
         newUser = userService.update(newUser.getId(), newUser, new MockHttpServletResponse());
 
@@ -105,6 +113,11 @@ public class UserServiceTest {
 
     @Test
     public void returnUpdatedUserData_whenUserUpdateTheirOwnData() throws ReimsException {
+        String dummyToken = "123xyz";
+        Collection authorities =  new ArrayList();
+        authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
+
+
         when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
         when(userRepository.save(user)).thenReturn(userWithEncodedPass);
         ReimsUser newUser = userService.create(user);
@@ -118,7 +131,12 @@ public class UserServiceTest {
         when(userRepository.findByUsername(newUser.getUsername())).thenReturn(newUser);
         when(userRepository.save(newUser)).thenReturn(newUser);
 
-        newUser = userService.update(0, newUser, new MockHttpServletResponse());
+        when(authService.generateToken(new UserDetailsImpl(newUser, authorities), authorities)).thenReturn(dummyToken);
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        response.addHeader(SecurityConstants.HEADER_STRING, "");
+
+        newUser = userService.update(0, newUser, response);
 
         assertNotEquals(newUser.getUsername(), oldUsername);
         assertNotNull(newUser.getUpdatedAt());

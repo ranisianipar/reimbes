@@ -1,6 +1,5 @@
-package com.reimbes.implementation;
+package com.reimbes;
 
-import com.reimbes.ReimsUser;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

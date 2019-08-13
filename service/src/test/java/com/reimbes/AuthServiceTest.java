@@ -3,7 +3,6 @@ package com.reimbes;
 import com.auth0.jwt.JWT;
 import com.reimbes.constant.SecurityConstants;
 import com.reimbes.implementation.AuthServiceImpl;
-import com.reimbes.implementation.UserDetailsImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,7 +82,7 @@ public class AuthServiceTest {
 
         String token = authService.generateToken(userDetails, authorities);
         ActiveToken activeToken = new ActiveToken(token);
-        activeToken.setExpiredTime(Instant.now().getEpochSecond() + SecurityConstants.TOKEN_PERIOD);
+        activeToken.setExpiredTime(Instant.now().toEpochMilli() + SecurityConstants.TOKEN_PERIOD);
 
         when(activeTokenRepository.findByToken(token)).thenReturn(activeToken);
         authService.registerToken(token);
@@ -103,7 +102,7 @@ public class AuthServiceTest {
         request.addHeader(HEADER_STRING, token);
 
         ActiveToken activeToken = new ActiveToken(token);
-        activeToken.setExpiredTime(Instant.now().getEpochSecond() + SecurityConstants.TOKEN_PERIOD);
+        activeToken.setExpiredTime(Instant.now().toEpochMilli() + SecurityConstants.TOKEN_PERIOD);
         when(activeTokenRepository.findByToken(token)).thenReturn(activeToken);
         authService.logout(request);
         verify(activeTokenRepository, times(1)).delete(activeToken);
@@ -121,7 +120,7 @@ public class AuthServiceTest {
         request.addHeader(HEADER_STRING, token);
 
         ActiveToken activeToken = new ActiveToken(token);
-        activeToken.setExpiredTime(Instant.now().getEpochSecond() + SecurityConstants.TOKEN_PERIOD);
+        activeToken.setExpiredTime(Instant.now().toEpochMilli() + SecurityConstants.TOKEN_PERIOD);
 
         assertNotNull(authService.getCurrentUserDetails(request));
     }
@@ -148,7 +147,7 @@ public class AuthServiceTest {
         request.addHeader(HEADER_STRING, token);
 
         ActiveToken activeToken = new ActiveToken(token);
-        activeToken.setExpiredTime(Instant.now().getEpochSecond() + SecurityConstants.TOKEN_PERIOD);
+        activeToken.setExpiredTime(Instant.now().toEpochMilli() + SecurityConstants.TOKEN_PERIOD);
 
         assertNull(authService.getCurrentUserDetails(request));
     }

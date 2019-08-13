@@ -4,7 +4,6 @@ import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.gen5.api.BeforeAll;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

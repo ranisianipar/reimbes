@@ -1,12 +1,10 @@
 package com.reimbes.authentication.filter;
 
-import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.reimbes.ReimsUser;
-import com.reimbes.constant.SecurityConstants;
 import com.reimbes.implementation.AuthServiceImpl;
-import com.reimbes.implementation.UserDetailsImpl;
+import com.reimbes.UserDetailsImpl;
 import com.reimbes.response.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +13,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.time.Instant;
 import java.util.*;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;

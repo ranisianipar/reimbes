@@ -1,6 +1,8 @@
-package com.reimbes;
+package com.reimbes.implementation;
 
+import com.reimbes.ReimsUser;
 import com.reimbes.ReimsUserRepository;
+import com.reimbes.UserDetailsImpl;
 import com.reimbes.UserService;
 import com.reimbes.constant.SecurityConstants;
 import com.reimbes.exception.DataConstraintException;
