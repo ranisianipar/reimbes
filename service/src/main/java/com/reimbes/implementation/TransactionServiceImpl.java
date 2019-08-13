@@ -182,8 +182,8 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
             if (category != null)
-                return transactionRepository.findByReimsUserAndTitleContainingIgonoreCaseAndCategory(user, title,category, pageable);
-            return transactionRepository.findByReimsUserAndTitleContainingIgonereCase(user, title, pageable);
+                return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategory(user, title,category, pageable);
+            return transactionRepository.findByReimsUserAndTitleContainingIgnoreCase(user, title, pageable);
         }
 
         Long start;

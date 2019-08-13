@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser create(ReimsUser user) throws ReimsException {
         validate(user, null);
 
-        user.setCreatedAt(Instant.now().getEpochSecond());
+        user.setCreatedAt(Instant.now().toEpochMilli());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return userRepository.save(user);
@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser update(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
         ReimsUser oldUser;
 
-        if (id == 0) {
+        if (id == 1) {
             oldUser = userRepository.findByUsername(authService.getCurrentUsername());
         } else {
             oldUser = userRepository.findOne(id);
@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ReimsUser get(long id) throws ReimsException {
         ReimsUser user;
-        if (id == 0) return userRepository.findByUsername(authService.getCurrentUsername());
+        if (id == 1) return userRepository.findByUsername(authService.getCurrentUsername());
         else user = userRepository.findOne(id);
         if (user == null)
             throw new NotFoundException("USER "+id);
@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page getAllUsers(String username, Pageable pageable) {
-        return userRepository.findByUsernameContainingIgnoreCase(username, pageable);
+        return userRepository.findByIdGreaterThanAndUsernameContainingIgnoreCase(1, username, pageable);
     }
 
     @Override

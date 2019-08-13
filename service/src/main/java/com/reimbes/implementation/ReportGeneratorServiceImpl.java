@@ -146,4 +146,11 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         return cell;
     }
 
+    private Cell createCell(Row row, int index, float value) {
+        Cell cell = row.createCell(index);
+        cell.setCellValue(value);
+
+        return cell;
+    }
+
 }
