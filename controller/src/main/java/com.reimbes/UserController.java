@@ -42,7 +42,7 @@ public class UserController {
     public BaseResponse updateUser(@RequestBody ReimsUser user, HttpServletResponse response) {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(getMapper().map(userService.update(0, user, response), UserResponse.class));
+            br.setData(getMapper().map(userService.update(1, user, response), UserResponse.class));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
