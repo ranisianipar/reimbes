@@ -6,7 +6,7 @@ import com.reimbes.authentication.rest.RESTAuthenticationEntryPoint;
 import com.reimbes.authentication.rest.RESTAuthenticationFailureHandler;
 import com.reimbes.authentication.rest.RESTAuthenticationSuccessHandler;
 import com.reimbes.constant.UrlConstants;
-import com.reimbes.implementation.UserDetailsServiceImpl;
+import com.reimbes.implementation.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    private UserServiceImpl userService;
 
     @Autowired
     private RESTAuthenticationEntryPoint restAuthenticationEntryPoint;
@@ -76,7 +76,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
     }
 
     @Bean

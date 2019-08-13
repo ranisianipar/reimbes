@@ -14,6 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.*;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -247,6 +248,19 @@ public class UserServiceTest {
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
 
         assertEquals(userService.getReport("0", "0"), fakeReport);
+    }
+
+    @Test
+    public void successfullyLoadUserDetailsByUsername() {
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
+        assertNotNull(userService.loadUserByUsername(user.getUsername()));
+    }
+
+    @Test
+    public void throwNotFoundError_whenUnregisteredUsernameTryToLoadUserDetails() {
+        assertThrows(UsernameNotFoundException.class, () -> {
+            userService.loadUserByUsername(user.getUsername());
+        });
     }
 
 
