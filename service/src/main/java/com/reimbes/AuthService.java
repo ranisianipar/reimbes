@@ -9,7 +9,7 @@ import java.util.HashMap;
 public interface AuthService {
     String generateToken(UserDetails user, Collection authorities);
     boolean isLogin(String token);
-    void registerToken(String token);
+    ActiveToken registerToken(String token);
     void logout(HttpServletRequest req);
     HashMap getCurrentUserDetails(HttpServletRequest req);
     void setCurrentUsername(Object principal);

@@ -60,8 +60,8 @@ public class TransactionRepositoryTest {
         parking.setHours(4);
         parking.setAmount(21000);
 
-        entityManager.persistAndFlush((Transaction) fuel);
-        entityManager.persistAndFlush((Transaction) parking);
+        entityManager.persist((Transaction) fuel);
+        entityManager.persist((Transaction) parking);
     }
 
     @Test

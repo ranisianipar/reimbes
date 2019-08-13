@@ -5,7 +5,6 @@ import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.ReportGeneratorServiceImpl;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.implementation.UserServiceImpl;
-import org.apache.http.message.BasicHttpResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
