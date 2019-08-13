@@ -1,6 +1,5 @@
-package com.reimbes.implementation;
+package com.reimbes;
 
-import com.reimbes.ReimsUser;
 import com.reimbes.ReimsUserRepository;
 import com.reimbes.UserService;
 import com.reimbes.constant.SecurityConstants;
@@ -24,7 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @Service
