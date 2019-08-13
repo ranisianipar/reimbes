@@ -51,8 +51,8 @@ public class ReimsUserRepositoryTest {
     @Test
     public void whenAskedForUserBWithSimiliarAlphabet_thenReturnUsers() {
         Pageable pageable = new PageRequest(0, 100, new Sort(Sort.Direction.DESC, "createdAt"));
-        assertEquals(0, userRepository.findByUsernameContaining("11111",pageable).getTotalElements());
-        assertEquals(1, userRepository.findByUsernameContaining(user.getUsername(),pageable).getTotalElements());
+        assertEquals(0, userRepository.findByUsernameContainingIgnoreCase("11111",pageable).getTotalElements());
+        assertEquals(1, userRepository.findByUsernameContainingIgnoreCase(user.getUsername(),pageable).getTotalElements());
     }
 
 

@@ -234,7 +234,7 @@ public class UserServiceTest {
         List users = new ArrayList();
         users.add(user);
         Page page = new PageImpl(users);
-        when(userRepository.findByUsernameContaining(user.getUsername(), pageable)).thenReturn(page);
+        when(userRepository.findByUsernameContainingIgnoreCase(user.getUsername(), pageable)).thenReturn(page);
 
         assertEquals(page, userService.getAllUsers(user.getUsername(), pageable));
     }

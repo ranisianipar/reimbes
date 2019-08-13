@@ -22,12 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-
-import static com.reimbes.constant.General.DATE_FORMAT;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -185,8 +182,8 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
             if (category != null)
-                return transactionRepository.findByReimsUserAndTitleContainingAndCategory(user, title,category, pageable);
-            return transactionRepository.findByReimsUserAndTitleContaining(user, title, pageable);
+                return transactionRepository.findByReimsUserAndTitleContainingIgonoreCaseAndCategory(user, title,category, pageable);
+            return transactionRepository.findByReimsUserAndTitleContainingIgonereCase(user, title, pageable);
         }
 
         Long start;
@@ -199,7 +196,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         if (category == null) {
-            return transactionRepository.findByReimsUserAndTitleContainingAndDateBetween(
+            return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndDateBetween(
                     user,
                     title,
                     start,
@@ -207,7 +204,7 @@ public class TransactionServiceImpl implements TransactionService {
                     pageable
             );
         } else {
-            return transactionRepository.findByReimsUserAndTitleContainingAndCategoryAndDateBetween(
+            return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategoryAndDateBetween(
                     user,
                     title,
                     category,
