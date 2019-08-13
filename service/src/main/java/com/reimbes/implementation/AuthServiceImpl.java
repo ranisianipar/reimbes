@@ -54,9 +54,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("Check the token is in the Active Token Repo or not");
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
 
-
-        log.info("Username by private var: "+currentUsername);
-        if (activeToken != null && activeToken.getExpiredTime() > Instant.now().toEpochMilli())
+        if (activeToken != null && activeToken.getExpiredTime() >= Instant.now().toEpochMilli())
             return true;
 
         // token expired
@@ -125,7 +123,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private long getUpdatedTime() {
-        return Instant.now().getEpochSecond() + SecurityConstants.TOKEN_PERIOD;
+        return Instant.now().toEpochMilli() + SecurityConstants.TOKEN_PERIOD;
     }
 
 
