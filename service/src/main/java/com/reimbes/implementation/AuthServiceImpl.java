@@ -36,8 +36,6 @@ public class AuthServiceImpl implements AuthService {
 
     private String currentUsername;
 
-    @Autowired
-    private Tracer tracer;
 
     @Autowired
     private ActiveTokenRepository activeTokenRepository;
@@ -50,27 +48,15 @@ public class AuthServiceImpl implements AuthService {
         return this.currentUsername;
     }
 
-    private void setTracerValue(String key, String value) {
-        Span span = tracer.getCurrentSpan();
-        span.tag(key, value);
-        tracer.addTag(key, value);
-    }
-
-    // not worked, return ''
-    public String getTracerValue(String key) {
-        Span span = tracer.getCurrentSpan();
-        return span.tags().get(key);
-    }
 
     @Override
     public boolean isLogin(String token) {
         log.info("Check the token is in the Active Token Repo or not");
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
 
-        log.info("Tracer value: "+tracer.getCurrentSpan().tags());
 
         log.info("Username by private var: "+currentUsername);
-        if (activeToken != null && activeToken.getExpiredTime() > Instant.now().getEpochSecond())
+        if (activeToken != null && activeToken.getExpiredTime() > Instant.now().toEpochMilli())
             return true;
 
         // token expired
@@ -78,15 +64,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void registerToken(String token) {
+    public ActiveToken registerToken(String token) {
         log.info("Registering new token...");
 
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
         if (activeToken == null)
             activeToken = new ActiveToken(token);
-        // update the time of token
+
+        log.info("Update token expired time.");
         activeToken.setExpiredTime(getUpdatedTime());
-        activeTokenRepository.save(activeToken);
+        return activeTokenRepository.save(activeToken);
     }
 
     @Override
@@ -133,8 +120,7 @@ public class AuthServiceImpl implements AuthService {
                 .withClaim("role", role)
                 .sign(HMAC512(SECRET.getBytes()));
 
-        log.info("Tracer has been set.");
-        setTracerValue("username",user.getUsername());
+        log.info("Token has been created.");
         return token;
     }
 
