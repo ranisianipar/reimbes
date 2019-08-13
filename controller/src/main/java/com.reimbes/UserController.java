@@ -1,22 +1,17 @@
 package com.reimbes;
 
-import com.reimbes.constant.SecurityConstants;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.UserServiceImpl;
 import com.reimbes.response.BaseResponse;
-import com.reimbes.response.Paging;
 import com.reimbes.response.UserResponse;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.OutputStream;
 
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
@@ -61,7 +56,7 @@ public class UserController {
     public BaseResponse getUser() {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(getMapper().map(userService.get(0), UserResponse.class));
+            br.setData(getMapper().map(userService.get(1), UserResponse.class));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
