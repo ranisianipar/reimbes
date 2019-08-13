@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface ReimsUserRepository extends JpaRepository<ReimsUser, Long> {
     boolean existsByUsername(String username);
     ReimsUser findByUsername(String username);
-    Page<ReimsUser> findByUsernameContaining(String username, Pageable pageable);
+    Page<ReimsUser> findByUsernameContainingIgnoreCase(String username, Pageable pageable);
 }

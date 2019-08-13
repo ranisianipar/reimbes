@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -112,7 +111,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page getAllUsers(String username, Pageable pageable) {
-        return userRepository.findByUsernameContaining(username, pageable);
+        return userRepository.findByUsernameContainingIgnoreCase(username, pageable);
     }
 
     @Override
