@@ -13,7 +13,7 @@ import java.util.Set;
 public class ReimsUser {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, insertable = false, columnDefinition = "serial")
     private long id;
 

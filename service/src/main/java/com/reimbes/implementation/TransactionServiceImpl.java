@@ -182,8 +182,8 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
             if (category != null)
-                return transactionRepository.findByReimsUserAndTitleContainingAndCategory(user, title,category, pageable);
-            return transactionRepository.findByReimsUserAndTitleContaining(user, title, pageable);
+                return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategory(user, title,category, pageable);
+            return transactionRepository.findByReimsUserAndTitleContainingIgnoreCase(user, title, pageable);
         }
 
         Long start;
@@ -196,7 +196,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         if (category == null) {
-            return transactionRepository.findByReimsUserAndTitleContainingAndDateBetween(
+            return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndDateBetween(
                     user,
                     title,
                     start,
@@ -204,7 +204,7 @@ public class TransactionServiceImpl implements TransactionService {
                     pageable
             );
         } else {
-            return transactionRepository.findByReimsUserAndTitleContainingAndCategoryAndDateBetween(
+            return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategoryAndDateBetween(
                     user,
                     title,
                     category,
@@ -270,22 +270,6 @@ public class TransactionServiceImpl implements TransactionService {
         } catch (Exception e) {
             throw new NotFoundException("IMAGE");
         }
-    }
-
-    public byte[] getImageInByte(long id, String imageName) throws ReimsException {
-        if (id != userService.getUserByUsername(authService.getCurrentUsername()).getId())
-            throw new NotFoundException("IMAGE");
-
-        String imagePath = id+"/"+imageName;
-        imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
-        log.info("ID: "+id+" NAME: "+imageName);
-        try {
-            return Files.readAllBytes(Paths.get(imagePath));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new byte[0];
     }
 
     public List<Transaction> getByUser(ReimsUser user) {

@@ -65,7 +65,7 @@ public class UserServiceTest {
         user.setUsername("@min");
         user.setRole(ReimsUser.Role.ADMIN);
         user.setPassword("1234567890");
-        user.setId(1);
+        user.setId(2);
         users.add(user);
 
         userWithEncodedPass = new ReimsUser();
@@ -236,7 +236,7 @@ public class UserServiceTest {
         when(authService.getCurrentUsername()).thenReturn(user.getUsername());
         when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
 
-        assertEquals(user,userService.get(0));
+        assertEquals(user,userService.get(1));
 
     }
 
@@ -253,7 +253,7 @@ public class UserServiceTest {
         List users = new ArrayList();
         users.add(user);
         Page page = new PageImpl(users);
-        when(userRepository.findByUsernameContaining(user.getUsername(), pageable)).thenReturn(page);
+        when(userRepository.findByUsernameContainingIgnoreCase(user.getUsername(), pageable)).thenReturn(page);
 
         assertEquals(page, userService.getAllUsers(user.getUsername(), pageable));
     }

@@ -11,7 +11,7 @@ import javax.persistence.*;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Fuel extends Transaction {
 
-    private long liters;
+    private float liters;
     private Fuel.Type type;
 
     public enum Type {

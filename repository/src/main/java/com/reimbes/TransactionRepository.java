@@ -13,17 +13,17 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findByIdIn(List<Long> id);
     Transaction findByImageContaining(String image);
     List<Transaction> findByReimsUser(ReimsUser user);
-    Page<Transaction> findByReimsUserAndTitleContaining(ReimsUser user, String title, Pageable pageable);
-    Page<Transaction> findByReimsUserAndTitleContainingAndCategory(ReimsUser user, String title,
-                                                                   Transaction.Category category, Pageable pageable);
+    Page<Transaction> findByReimsUserAndTitleContainingIgnoreCase(ReimsUser user, String title, Pageable pageable);
+    Page<Transaction> findByReimsUserAndTitleContainingIgnoreCaseAndCategory(ReimsUser user, String title,
+                                                                             Transaction.Category category, Pageable pageable);
     List<Transaction> findByReimsUserAndDateBetween(ReimsUser user, long start, long end);
-    Page<Transaction> findByReimsUserAndTitleContainingAndDateBetween(ReimsUser user, String title, long start,
-                                                                      long end, Pageable pageable);
+    Page<Transaction> findByReimsUserAndTitleContainingIgnoreCaseAndDateBetween(ReimsUser user, String title, long start,
+                                                                                long end, Pageable pageable);
 
-    Page<Transaction> findByReimsUserAndTitleContainingAndCategoryAndDateBetween(ReimsUser user,
-                                                                                 String title,
-                                                                                 Transaction.Category category,
-                                                                                 long startDate,
-                                                                                 long endDate,
-                                                                                 Pageable pageable);
+    Page<Transaction> findByReimsUserAndTitleContainingIgnoreCaseAndCategoryAndDateBetween(ReimsUser user,
+                                                                                           String title,
+                                                                                           Transaction.Category category,
+                                                                                           long startDate,
+                                                                                           long endDate,
+                                                                                           Pageable pageable);
 }

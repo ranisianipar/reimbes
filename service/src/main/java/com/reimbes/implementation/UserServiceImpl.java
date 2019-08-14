@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser create(ReimsUser user) throws ReimsException {
         validate(user, null);
 
-        user.setCreatedAt(Instant.now().getEpochSecond());
+        user.setCreatedAt(Instant.now().toEpochMilli());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return userRepository.save(user);
@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser update(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
         ReimsUser oldUser;
 
-        if (id == 0) {
+        if (id == 1) {
             oldUser = userRepository.findByUsername(authService.getCurrentUsername());
         } else {
             oldUser = userRepository.findOne(id);
@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ReimsUser get(long id) throws ReimsException {
         ReimsUser user;
-        if (id == 0) return userRepository.findByUsername(authService.getCurrentUsername());
+        if (id == 1) return userRepository.findByUsername(authService.getCurrentUsername());
         else user = userRepository.findOne(id);
         if (user == null)
             throw new NotFoundException("USER "+id);
@@ -115,7 +115,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page getAllUsers(String username, Pageable pageable) {
-        return userRepository.findByUsernameContaining(username, pageable);
+        return userRepository.findByIdGreaterThanAndUsernameContainingIgnoreCase(1, username, pageable);
     }
 
     @Override
@@ -164,11 +164,12 @@ public class UserServiceImpl implements UserService {
 
         // compare new user data with other user data
         if (errors.isEmpty()){
-            if (oldUserData != null){
-                ReimsUser user = userRepository.findByUsername(newUserData.getUsername());
-                if (user != null && user.getId() != oldUserData.getId())
-                    errors.add("UNIQUENESS_USERNAME");
-            }
+            ReimsUser user = userRepository.findByUsername(newUserData.getUsername());
+
+            if (oldUserData != null && user != null && user.getId() != oldUserData.getId())
+                errors.add("UNIQUENESS_USERNAME");
+            else if (user != null)
+                errors.add("UNIQUENESS_USERNAME");
 
             if (newUserData.getUsername().toLowerCase().equals(newUserData.getPassword().toLowerCase()))
                 errors.add("INSECURE_PASSWORD");
