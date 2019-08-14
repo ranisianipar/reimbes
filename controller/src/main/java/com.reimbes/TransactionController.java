@@ -94,19 +94,6 @@ public class TransactionController {
         return br;
     }
 
-    // cadangan kalo ada apa2
-    @GetMapping(value = "image/"+UrlConstants.ID_PARAM+UrlConstants.IMAGE_PARAM)
-    public byte[] getByteImage(@PathVariable long id, @PathVariable String image) {
-        try {
-            return transactionService.getImageInByte(id,image);
-        }   catch (ReimsException r) {
-            return new byte[0];
-        }
-    }
-
-
-    
-
     @PutMapping
     public BaseResponse<TransactionResponse> updateTransaction(@RequestBody TransactionRequest newTransaction) {
         BaseResponse br = new BaseResponse();
