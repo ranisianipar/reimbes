@@ -160,11 +160,12 @@ public class UserServiceImpl implements UserService {
 
         // compare new user data with other user data
         if (errors.isEmpty()){
-            if (oldUserData != null){
-                ReimsUser user = userRepository.findByUsername(newUserData.getUsername());
-                if (user != null && user.getId() != oldUserData.getId())
-                    errors.add("UNIQUENESS_USERNAME");
-            }
+            ReimsUser user = userRepository.findByUsername(newUserData.getUsername());
+
+            if (oldUserData != null && user != null && user.getId() != oldUserData.getId())
+                errors.add("UNIQUENESS_USERNAME");
+            else if (user != null)
+                errors.add("UNIQUENESS_USERNAME");
 
             if (newUserData.getUsername().toLowerCase().equals(newUserData.getPassword().toLowerCase()))
                 errors.add("INSECURE_PASSWORD");
