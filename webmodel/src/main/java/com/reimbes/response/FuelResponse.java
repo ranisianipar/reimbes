@@ -7,6 +7,6 @@ import java.util.Date;
 
 @Data
 public class FuelResponse extends TransactionResponse {
-    private int liters;
+    private float liters;
     private Fuel.Type type;
 }
