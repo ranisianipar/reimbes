@@ -166,9 +166,12 @@ public class UserServiceImpl implements UserService {
         if (errors.isEmpty()){
             ReimsUser user = userRepository.findByUsername(newUserData.getUsername());
 
+            // update
             if (oldUserData != null && user != null && user.getId() != oldUserData.getId())
                 errors.add("UNIQUENESS_USERNAME");
-            else if (user != null)
+
+            // create
+            else if (oldUserData == null && user != null)
                 errors.add("UNIQUENESS_USERNAME");
 
             if (newUserData.getUsername().toLowerCase().equals(newUserData.getPassword().toLowerCase()))

@@ -146,6 +146,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (transactions == null)
             return;
 
+        log.info("[TEST] USER: "+user);
         log.info("Removing the images");
         Iterator iterator = transactions.iterator();
         while (iterator.hasNext()) {

@@ -1,9 +1,13 @@
 package com.reimbes;
 
+import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.*;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.gen5.api.BeforeAll;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -11,12 +15,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.gen5.api.Assertions.assertThrows;
@@ -53,6 +57,24 @@ public class TransactionServiceTest {
     private Fuel fuel = new Fuel();
     private Parking parking = new Parking();
     private List transactions = new ArrayList();
+    public static File testFolder;
+
+    @BeforeClass
+    public static void init() throws  Exception {
+        System.out.println("Do initiation");
+        testFolder = new File(UrlConstants.IMAGE_FOLDER_PATH+"test/");
+        System.out.println("EXIST? " + testFolder.exists());
+        if (!testFolder.exists()) {
+            testFolder.mkdir();
+        }
+
+
+    }
+
+//    @AfterClass
+//    public static void clear() throws Exception{
+//        Files.delete(Paths.get(UrlConstants.IMAGE_FOLDER_PATH+"test/"));
+//    }
 
     @Before
     public void setup() {
@@ -61,7 +83,7 @@ public class TransactionServiceTest {
         user.setRole(ReimsUser.Role.USER);
         user.setId(1);
 
-        fuel.setId(new Long(1));
+        fuel.setId(new Long(2 ));
         fuel.setAmount(61000);
         fuel.setReimsUser(user);
         fuel.setDate(Instant.now().getEpochSecond()*1000);
@@ -69,6 +91,7 @@ public class TransactionServiceTest {
         fuel.setType(Fuel.Type.PERTALITE);
         fuel.setCategory(Transaction.Category.FUEL);
         fuel.setTitle("FUEL TEST");
+        fuel.setImage("test"+"/"+fuel.getId()+"-"+ UUID.randomUUID()+".jpg");
 
         parking.setId(new Long(2));
         parking.setAmount(21000);
@@ -80,6 +103,7 @@ public class TransactionServiceTest {
         parking.setType(Parking.Type.CAR);
         parking.setCategory(Transaction.Category.PARKING);
         parking.setTitle("PARKING TEST");
+        parking.setImage("test/"+parking.getId()+"/"+ UUID.randomUUID()+".jpg");
 
         transactions.add(fuel);
         transactions.add(parking);
@@ -137,12 +161,21 @@ public class TransactionServiceTest {
     }
 
     @Test
-    public void removeTransactionByUserTest() {
+    public void removeNoTransaction_whenUserDoesntHaveAnyTransaction() {
+
+        transactionService.deleteByUser(user);
+
+        verify(transactionRepository, times(0)).delete(transactions);
+    }
+
+    @Test
+    public void removeTransactionsByUser() {
         when(transactionRepository.findByReimsUser(user)).thenReturn(transactions);
 
-//        transactionService.deleteByUser(user);
-//
-//        verify(transactionRepository, times(1)).delete(transactions);
+        transactionService.deleteByUser(user);
+
+        verify(transactionRepository, times(1)).delete(transactions);
+
     }
 
 
