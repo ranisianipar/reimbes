@@ -9,7 +9,6 @@ import javax.persistence.*;
 @Data
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@DiscriminatorColumn(name = "Fuel")
 public class Fuel extends Transaction {
 
     private float liters;
