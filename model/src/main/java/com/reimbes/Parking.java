@@ -10,6 +10,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@DiscriminatorColumn(name = "Parking")
 public class Parking extends Transaction {
 
     private int hours;
