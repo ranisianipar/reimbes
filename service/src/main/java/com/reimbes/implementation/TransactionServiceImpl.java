@@ -120,6 +120,7 @@ public class TransactionServiceImpl implements TransactionService {
         ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getReimsUser() != user) throw new NotFoundException("Transaction with ID "+id);
+        removeImage(transaction.getImage());
         transactionRepository.delete(transaction);
     }
 
@@ -182,8 +183,10 @@ public class TransactionServiceImpl implements TransactionService {
         if (title == null) title = "";
 
         if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
+
             if (category != null)
                 return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategory(user, title,category, pageable);
+
             return transactionRepository.findByReimsUserAndTitleContainingIgnoreCase(user, title, pageable);
         }
 

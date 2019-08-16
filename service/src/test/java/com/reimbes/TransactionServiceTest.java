@@ -13,13 +13,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.domain.*;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -53,8 +56,9 @@ public class TransactionServiceTest {
     private TransactionServiceImpl transactionService;
 
     private ReimsUser user = new ReimsUser();
-
     private Fuel fuel = new Fuel();
+    private Pageable pageRequest = new PageRequest(1, 5, new Sort(Sort.Direction.DESC, "createdAt"));
+    private Pageable pageForQuery = new PageRequest(0, pageRequest.getPageSize(), pageRequest.getSort());
     private Parking parking = new Parking();
     private List transactions = new ArrayList();
     public static File testFolder;
@@ -197,7 +201,102 @@ public class TransactionServiceTest {
         assertEquals(transactions, transactionService.getByUserAndDate(user, 1, 2));
     }
 
-    
+    @Test
+    public void returnAllUserTransactions_whenFilterWithNoCategory() throws ReimsException {
+        Instant.now(Clock.fixed(
+                Instant.parse("2018-08-22T10:00:00Z"),
+                ZoneOffset.UTC));
+
+
+        long timeMock = Instant.now().toEpochMilli();
+
+        Page result = new PageImpl(transactions);
+        when(transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndDateBetween(
+                user,
+                "",
+                timeMock,
+                timeMock,
+                pageForQuery
+        )).thenReturn(result);
+
+        assertEquals(result, transactionService.getAll(pageForQuery,
+                timeMock+"",
+                timeMock+"",
+                null,
+                null));
+    }
+
+    @Test
+    public void returnAllUserTransactions_whenFilterWithUnwanterDateFormat() {
+        assertThrows(ReimsException.class, () ->
+                transactionService.getAll(pageForQuery,
+                "awgaweg",
+                "1110",
+                null,
+                null));
+    }
+
+    @Test
+    public void returnAllUserTransactions_whenFilterWithNullDate() throws ReimsException {
+
+        String title = "";
+
+        Page result = new PageImpl(transactions);
+
+        when(transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategory(user,
+                title, Transaction.Category.PARKING, pageForQuery)).thenReturn(result);
+
+        assertEquals(result, transactionService.getAll(pageForQuery,
+                "",
+                "",
+                null,
+                Transaction.Category.PARKING));
+    }
+
+    @Test
+    public void returnAllUserTransactions_whenFilterWithNullDateAndNullCategory() throws ReimsException {
+
+        String title = "";
+        Page result = new PageImpl(transactions);
+        when(transactionRepository.findByReimsUserAndTitleContainingIgnoreCase(user, title, pageForQuery)).thenReturn(result);
+
+        assertEquals(result, transactionService.getAll(pageForQuery,
+                "",
+                "",
+                null,
+                null));
+    }
+
+    @Test
+    public void returnAllUserTransactions_whenAllFilterParamsNotNull() throws ReimsException {
+
+        Instant.now(Clock.fixed(
+                Instant.parse("2018-08-22T10:00:00Z"),
+                ZoneOffset.UTC));
+
+        long timeMock = Instant.now().toEpochMilli();
+
+        String title = "jajaja";
+
+
+        Page result = new PageImpl(transactions);
+        when(transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategoryAndDateBetween(
+                user,
+                title,
+                Transaction.Category.PARKING,
+                timeMock,
+                timeMock,
+                pageForQuery
+        )).thenReturn(result);
+
+        assertEquals(result, transactionService.getAll(pageRequest,
+                timeMock+"",
+                timeMock+"",
+                title,
+                Transaction.Category.PARKING));
+    }
+
+
 
 
 
