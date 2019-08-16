@@ -17,11 +17,6 @@ public class HomeController {
     @Autowired
     private AuthServiceImpl authService;
 
-    @PostMapping(UrlConstants.LOGIN_URL)
-    public BaseResponse login(HttpServletRequest req) {
-        return new BaseResponse();
-    }
-
     @GetMapping(UrlConstants.LOGOUT_URL)
     public BaseResponse logout(HttpServletRequest req) {
         authService.logout(req);
