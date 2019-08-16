@@ -16,6 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +24,7 @@ import java.util.Collection;
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.reimbes.ReimsUser.Role.USER;
 import static com.reimbes.constant.SecurityConstants.*;
+import static java.time.Instant.ofEpochMilli;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -63,14 +65,11 @@ public class AuthServiceTest {
 
     @Test
     public void registerTokenAfterLogin() {
-        Instant.now(Clock.fixed(
-                Instant.parse("2018-08-22T10:00:00Z"),
-                ZoneOffset.UTC));
-
+        Instant.now(Clock.fixed(ofEpochMilli(0), ZoneId.systemDefault()));
         String token = authService.generateToken(userDetails, authorities);
         ActiveToken activeToken = new ActiveToken(token);
-        activeToken.setExpiredTime(Instant.now().toEpochMilli() + SecurityConstants.TOKEN_PERIOD);
         authService.registerToken(token);
+        activeToken.setExpiredTime(Instant.now().toEpochMilli()+ TOKEN_PERIOD);
         verify(activeTokenRepository, times(1)).save(activeToken);
     }
 

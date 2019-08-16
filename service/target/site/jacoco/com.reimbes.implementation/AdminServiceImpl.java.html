@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">service</a> &gt; <a href="index.source.html" class="el_package">com.reimbes.implementation</a> &gt; <span class="el_source">AdminServiceImpl.java</span></div><h1>AdminServiceImpl.java</h1><pre class="source lang-java linenums">package com.reimbes.implementation;
+
+import com.reimbes.AdminService;
+import com.reimbes.ReimsUser;
+import com.reimbes.exception.NotFoundException;
+import com.reimbes.exception.ReimsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+<span class="fc" id="L17">public class AdminServiceImpl implements AdminService {</span>
+<span class="fc" id="L18">    private static Logger log = LoggerFactory.getLogger(AdminServiceImpl.class);</span>
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserServiceImpl userService;
+
+    @Override
+    public Page getAllUser(String search, Pageable pageRequest) throws ReimsException {
+<span class="fc" id="L28">        log.info(&quot;Page request number: &quot;+pageRequest.getPageNumber());</span>
+        // tha page number default is 1, but querying things start from 0.
+<span class="fc" id="L30">        int index = pageRequest.getPageNumber()-1;</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        if (index &lt; 0) throw new NotFoundException(&quot;Page with negative index&quot;);</span>
+<span class="fc" id="L32">        Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());</span>
+
+<span class="fc" id="L34">        return userService.getAllUsers(search, pageable);</span>
+    }
+
+    @Override
+    public ReimsUser getUser(long id) throws ReimsException {
+<span class="fc" id="L39">        return userService.get(id);</span>
+    }
+
+    @Override
+    public ReimsUser createUser(ReimsUser user) throws ReimsException {
+<span class="fc" id="L44">        return userService.create(user);</span>
+    }
+
+    @Override
+    public ReimsUser updateUser(long id, ReimsUser user) throws ReimsException {
+<span class="fc" id="L49">        user.setPassword(passwordEncoder.encode(user.getPassword()));</span>
+<span class="fc" id="L50">        return userService.update(id, user, null);</span>
+    }
+
+    @Override
+    public void deleteUser(long id) {
+<span class="fc" id="L55">        userService.deleteUser(id);</span>
+<span class="fc" id="L56">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

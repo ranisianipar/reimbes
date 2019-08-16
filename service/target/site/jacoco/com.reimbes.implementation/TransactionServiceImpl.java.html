@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">service</a> &gt; <a href="index.source.html" class="el_package">com.reimbes.implementation</a> &gt; <span class="el_source">TransactionServiceImpl.java</span></div><h1>TransactionServiceImpl.java</h1><pre class="source lang-java linenums">package com.reimbes.implementation;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.*;
+
+import com.reimbes.*;
+
+import com.reimbes.constant.UrlConstants;
+import com.reimbes.exception.DataConstraintException;
+import com.reimbes.exception.FormatTypeError;
+import com.reimbes.exception.NotFoundException;
+import com.reimbes.exception.ReimsException;
+import com.reimbes.request.TransactionRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
+@Service
+<span class="fc" id="L30">public class TransactionServiceImpl implements TransactionService {</span>
+
+<span class="fc" id="L32">    private static Logger log = LoggerFactory.getLogger(TransactionServiceImpl.class);</span>
+
+    @Autowired
+    private ParkingServiceImpl parkingService;
+
+    @Autowired
+    private FuelServiceImpl fuelService;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Autowired
+    private UserServiceImpl userService;
+
+    @Autowired
+    private AuthServiceImpl authService;
+
+    @Autowired
+    private TesseractService ocrService;
+
+    @Override
+    public Transaction createByImage(String imageValue) throws ReimsException {
+
+<span class="nc" id="L55">        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());</span>
+
+<span class="nc" id="L57">        String[] extractedByte = imageValue.split(&quot;,&quot;);</span>
+<span class="nc" id="L58">        String extension = extractedByte[0];</span>
+        String imagePath;
+
+        // get the extension
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (extension.contains(&quot;jpg&quot;)) extension = &quot;jpg&quot;;</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        else if (extension.contains(&quot;png&quot;)) extension = &quot;png&quot;;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        else if (extension.contains(&quot;jpeg&quot;)) extension = &quot;jpeg&quot;;</span>
+
+        Transaction transaction;
+        try {
+<span class="nc" id="L68">            byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]</span>
+<span class="nc" id="L69">                    .getBytes(StandardCharsets.UTF_8)));</span>
+
+<span class="nc" id="L71">            log.info(&quot;Decoding image byte succeed.&quot;);</span>
+<span class="nc" id="L72">            log.info(&quot;Uploading the image...&quot;);</span>
+
+<span class="nc" id="L74">            imagePath = uploadImage(imageByte, extension);</span>
+
+<span class="nc" id="L76">            log.info(&quot;Predicting image content... &quot;);</span>
+
+<span class="nc" id="L78">            transaction = ocrService.predictImageContent(imageByte);</span>
+
+<span class="nc" id="L80">        } catch (Exception e) {</span>
+<span class="nc" id="L81">            throw new FormatTypeError(e.getMessage());</span>
+<span class="nc" id="L82">        }</span>
+<span class="nc" id="L83">            log.info(&quot;Mapping the OCR result.&quot;);</span>
+<span class="nc" id="L84">            transaction.setReimsUser(user);</span>
+<span class="nc" id="L85">            transaction.setImage(imagePath);</span>
+<span class="nc" id="L86">        return transaction;</span>
+    }
+
+    @Override
+    public Transaction update(TransactionRequest transactionRequest) throws ReimsException {
+
+        // make sure update only happen once!
+<span class="nc" id="L93">        validate(transactionRequest);</span>
+
+        Transaction transaction;
+
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (transactionRequest.getCategory().equals(Transaction.Category.FUEL)) {</span>
+<span class="nc" id="L98">            transaction = fuelService.create(transactionRequest);</span>
+        } else {
+<span class="nc" id="L100">            transaction = parkingService.create(transactionRequest);</span>
+        }
+
+<span class="nc" id="L103">        transaction.setCreatedAt(Instant.now().toEpochMilli());</span>
+<span class="nc" id="L104">        transaction.setAmount(transactionRequest.getAmount());</span>
+        try {
+<span class="nc" id="L106">            transaction.setDate(transactionRequest.getDate());</span>
+<span class="nc" id="L107">        }   catch (Exception e) {</span>
+<span class="nc" id="L108">            transaction.setDate(Instant.now().toEpochMilli());</span>
+<span class="nc" id="L109">        }</span>
+<span class="nc" id="L110">        transaction.setImage(transactionRequest.getImage());</span>
+<span class="nc" id="L111">        transaction.setTitle(transactionRequest.getTitle());</span>
+<span class="nc" id="L112">        transaction.setReimsUser(userService.getUserByUsername(authService.getCurrentUsername()));</span>
+
+<span class="nc" id="L114">        return transactionRepository.save(transaction);</span>
+    }
+
+
+    @Override
+    public void delete(long id) throws ReimsException{
+<span class="fc" id="L120">        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());</span>
+<span class="fc" id="L121">        Transaction transaction = transactionRepository.findOne(id);</span>
+<span class="pc bpc" id="L122" title="1 of 4 branches missed.">        if (transaction == null || transaction.getReimsUser() != user) throw new NotFoundException(&quot;Transaction with ID &quot;+id);</span>
+<span class="fc" id="L123">        removeImage(transaction.getImage());</span>
+<span class="fc" id="L124">        transactionRepository.delete(transaction);</span>
+<span class="fc" id="L125">    }</span>
+
+    @Transactional
+    @Override
+    public void deleteMany(List&lt;Long&gt; ids) throws ReimsException{
+<span class="nc" id="L130">        List&lt;Transaction&gt; transactions = transactionRepository.findByIdIn(ids);</span>
+
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (transactions == null)</span>
+<span class="nc" id="L133">            throw new NotFoundException(&quot;Any objects&quot;);</span>
+
+<span class="nc" id="L135">        log.info(&quot;Removing the images&quot;);</span>
+<span class="nc" id="L136">        Iterator iterator = transactions.iterator();</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        while (iterator.hasNext()) {</span>
+<span class="nc" id="L138">            removeImage(((Transaction) iterator.next()).getImage());</span>
+        }
+
+<span class="nc" id="L141">        transactionRepository.delete(transactions);</span>
+<span class="nc" id="L142">    }</span>
+
+    @Transactional
+    public void deleteByUser(ReimsUser user) {
+<span class="fc" id="L146">        List&lt;Transaction&gt; transactions = transactionRepository.findByReimsUser(user);</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        if (transactions == null)</span>
+<span class="nc" id="L148">            return;</span>
+
+<span class="fc" id="L150">        log.info(&quot;[TEST] USER: &quot;+user);</span>
+<span class="fc" id="L151">        log.info(&quot;Removing the images&quot;);</span>
+<span class="fc" id="L152">        Iterator iterator = transactions.iterator();</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        while (iterator.hasNext()) {</span>
+<span class="fc" id="L154">            removeImage(((Transaction) iterator.next()).getImage());</span>
+        }
+
+<span class="fc" id="L157">        transactionRepository.delete(transactions);</span>
+<span class="fc" id="L158">    }</span>
+
+    @Override
+    public Transaction get(long id) throws ReimsException{
+<span class="fc" id="L162">        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());</span>
+<span class="fc" id="L163">        Transaction transaction = transactionRepository.findOne(id);</span>
+<span class="pc bpc" id="L164" title="1 of 4 branches missed.">        if (transaction == null || transaction.getReimsUser() != user)</span>
+<span class="fc" id="L165">            throw new NotFoundException(&quot;Transaction with ID &quot;+id);</span>
+
+<span class="fc" id="L167">        return transactionRepository.findOne(id);</span>
+    }
+
+
+    @Override
+    public Page&lt;Transaction&gt; getAll(Pageable pageRequest, String startDate, String endDate, String title,
+                                    Transaction.Category category) throws ReimsException{
+
+        /****************************************HANDLING REQUEST PARAM************************************************/
+
+<span class="fc" id="L177">        int index = pageRequest.getPageNumber() - 1;</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        if (index &lt; 0) index = 0;</span>
+<span class="fc" id="L179">        Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());</span>
+
+        /****************************************SERVE REQUEST w/ JPA METHOD*******************************************/
+<span class="fc" id="L182">        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">        if (title == null) title = &quot;&quot;;</span>
+
+<span class="pc bpc" id="L185" title="3 of 8 branches missed.">        if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {</span>
+
+<span class="fc bfc" id="L187" title="All 2 branches covered.">            if (category != null)</span>
+<span class="fc" id="L188">                return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategory(user, title,category, pageable);</span>
+
+<span class="fc" id="L190">            return transactionRepository.findByReimsUserAndTitleContainingIgnoreCase(user, title, pageable);</span>
+        }
+
+        Long start;
+        Long end;
+        try {
+<span class="fc" id="L196">            start = Long.parseLong(startDate);</span>
+<span class="fc" id="L197">            end = Long.parseLong(endDate);</span>
+<span class="fc" id="L198">        }   catch (Exception e) {</span>
+<span class="fc" id="L199">            throw new FormatTypeError(&quot;value of start and end params&quot;);</span>
+<span class="fc" id="L200">        }</span>
+
+<span class="fc bfc" id="L202" title="All 2 branches covered.">        if (category == null) {</span>
+<span class="fc" id="L203">            return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndDateBetween(</span>
+                    user,
+                    title,
+<span class="fc" id="L206">                    start,</span>
+<span class="fc" id="L207">                    end,</span>
+                    pageable
+            );
+        } else {
+<span class="fc" id="L211">            return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategoryAndDateBetween(</span>
+                    user,
+                    title,
+                    category,
+<span class="fc" id="L215">                    start,</span>
+<span class="fc" id="L216">                    end,</span>
+                    pageable
+            );
+        }
+    }
+
+    @Override
+    public String uploadImage(byte[] data, String extension) throws Exception {
+        long userId;
+
+<span class="nc" id="L226">        userId = userService.getUserByUsername(authService.getCurrentUsername()).getId();</span>
+
+<span class="nc" id="L228">        String foldername = userId +&quot;/&quot;;</span>
+<span class="nc" id="L229">        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ foldername);</span>
+
+<span class="nc bnc" id="L231" title="All 2 branches missed.">        if (!Files.exists(Paths.get(path)))</span>
+<span class="nc" id="L232">            Files.createDirectory(Paths.get(path));</span>
+
+<span class="nc" id="L234">        String filename = UUID.randomUUID()+&quot;.&quot;+extension;</span>
+<span class="nc" id="L235">        path = path + filename;</span>
+
+        // uploadImage photo
+        try {
+<span class="nc" id="L239">            Files.write(Paths.get(path), data, StandardOpenOption.CREATE);</span>
+<span class="nc" id="L240">        } catch (Exception e) {</span>
+<span class="nc" id="L241">            e.printStackTrace();</span>
+<span class="nc" id="L242">        }</span>
+        
+<span class="nc" id="L244">        return foldername+filename;</span>
+    }
+
+    private void removeImage(String imagePath) {
+<span class="fc" id="L248">        imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);</span>
+        try {
+<span class="nc" id="L250">            Files.delete(Paths.get(imagePath));</span>
+<span class="fc" id="L251">        }   catch (Exception e) {</span>
+<span class="fc" id="L252">            e.printStackTrace();</span>
+<span class="nc" id="L253">        }</span>
+
+<span class="fc" id="L255">    }</span>
+
+    @Override
+    public String getImage(long id, String imageName) throws ReimsException {
+<span class="nc bnc" id="L259" title="All 2 branches missed.">        if (id != userService.getUserByUsername(authService.getCurrentUsername()).getId())</span>
+<span class="nc" id="L260">            throw new NotFoundException(&quot;IMAGE&quot;);</span>
+
+<span class="nc" id="L262">        String imagePath = id+&quot;/&quot;+imageName;</span>
+
+<span class="nc" id="L264">        Transaction tr = transactionRepository.findByImageContaining(imagePath);</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">        if (tr != null) imagePath = StringUtils.cleanPath(tr.getImage());</span>
+        byte[] imageByte;
+        String result;
+        try {
+<span class="nc" id="L269">            imageByte = Files.readAllBytes(Paths.get(UrlConstants.IMAGE_FOLDER_PATH + imagePath));</span>
+<span class="nc" id="L270">            log.info(&quot;Translate to byte done.&quot;);</span>
+<span class="nc" id="L271">            result = Base64.getEncoder().encodeToString(imageByte);</span>
+<span class="nc" id="L272">            log.info(&quot;Get image in Base64 format.&quot;);</span>
+<span class="nc" id="L273">            return result;</span>
+<span class="nc" id="L274">        } catch (Exception e) {</span>
+<span class="nc" id="L275">            throw new NotFoundException(&quot;IMAGE&quot;);</span>
+        }
+    }
+
+    public List&lt;Transaction&gt; getByUser(ReimsUser user) {
+<span class="fc" id="L280">        return transactionRepository.findByReimsUser(user);</span>
+    }
+
+
+    @Override
+    public List&lt;Transaction&gt; getByUserAndDate(ReimsUser user, long start, long end) {
+<span class="pc bpc" id="L286" title="1 of 4 branches missed.">        if (start == new Long(0) || end == new Long(0)) return transactionRepository.findByReimsUser(user);</span>
+<span class="fc" id="L287">        return transactionRepository.findByReimsUserAndDateBetween(user, start, end);</span>
+    }
+
+    private void validate(TransactionRequest transaction) throws ReimsException{
+        // validate the data and data type
+        // date dicek harus ada isinya, dan sesuai ketentuan Date
+
+<span class="nc" id="L294">        log.info(&quot;Validating transction value...&quot;);</span>
+
+<span class="nc" id="L296">        List&lt;String&gt; errorMessages = new ArrayList();</span>
+
+<span class="nc bnc" id="L298" title="All 2 branches missed.">        if (!(transaction.getCategory() instanceof Transaction.Category))</span>
+<span class="nc" id="L299">            errorMessages.add(&quot;UNKNOWN_CATEGORY&quot;);</span>
+
+<span class="nc bnc" id="L301" title="All 2 branches missed.">        if (transaction.getDate() == 0)</span>
+<span class="nc" id="L302">            errorMessages.add(&quot;NULL_DATE&quot;);</span>
+
+<span class="nc bnc" id="L304" title="All 2 branches missed.">        if (transaction.getAmount() == 0)</span>
+<span class="nc" id="L305">            errorMessages.add(&quot;ZERO_AMOUNT&quot;);</span>
+
+<span class="nc bnc" id="L307" title="All 2 branches missed.">        if (transaction.getCategory() == null) {</span>
+<span class="nc" id="L308">            errorMessages.add(&quot;NULL_CATEGORY&quot;);</span>
+<span class="nc bnc" id="L309" title="All 2 branches missed.">        } else if (transaction.getCategory().equals(Transaction.Category.PARKING)) {</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">            if (transaction.getParkingType() == null) errorMessages.add(&quot;NULL_PARKING_TYPE&quot;);</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">            if (transaction.getHours() == 0) errorMessages.add(&quot;ZERO_PARKING_HOURS&quot;);</span>
+<span class="nc bnc" id="L312" title="All 2 branches missed.">        } else if (transaction.getCategory().equals(Transaction.Category.FUEL)) {</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">            if (transaction.getLiters() == 0) errorMessages.add(&quot;ZERO_FUEL_LITERS&quot;);</span>
+        }
+
+        // validate image path
+<span class="nc bnc" id="L317" title="All 4 branches missed.">        if (transaction.getImage()== null || !Files.exists(Paths.get(</span>
+<span class="nc" id="L318">                UrlConstants.IMAGE_FOLDER_PATH + transaction.getImage())))</span>
+<span class="nc" id="L319">            errorMessages.add(&quot;INVALID_IMAGE_PATH&quot;);</span>
+
+
+        // make sure the transaction use its own [NEW] image
+<span class="nc bnc" id="L323" title="All 2 branches missed.">        if (transactionRepository.existsByImage(transaction.getImage()))</span>
+<span class="nc" id="L324">            errorMessages.add(&quot;FORBIDDEN_DUPLICATE_IMAGE&quot;);</span>
+
+
+<span class="nc bnc" id="L327" title="All 2 branches missed.">        if (!errorMessages.isEmpty())</span>
+<span class="nc" id="L328">            throw new DataConstraintException(errorMessages.toString());</span>
+<span class="nc" id="L329">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

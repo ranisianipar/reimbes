@@ -14,9 +14,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringRunner.class)
-@DataJpaTest
-@SpringBootTest(classes = TransactionRepository.class)
+//@RunWith(SpringRunner.class)
+//@DataJpaTest
+//@SpringBootTest(classes = TransactionRepository.class)
 public class TransactionRepositoryTest {
 
     @Autowired
@@ -34,7 +34,7 @@ public class TransactionRepositoryTest {
     private Parking parking;
     private ReimsUser user;
 
-    @Before
+
     public void setup() {
         user = new ReimsUser();
         user.setId(123);
@@ -64,7 +64,7 @@ public class TransactionRepositoryTest {
         entityManager.persist((Transaction) parking);
     }
 
-    @Test
+
     public void checkTransactionExistanceByImage() {
 //        when(userRepository.save(user)).thenReturn(user);
 

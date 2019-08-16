@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">service</a> &gt; <a href="index.source.html" class="el_package">com.reimbes.implementation</a> &gt; <span class="el_source">UserServiceImpl.java</span></div><h1>UserServiceImpl.java</h1><pre class="source lang-java linenums">package com.reimbes.implementation;
+
+import com.reimbes.ReimsUser;
+import com.reimbes.ReimsUserRepository;
+import com.reimbes.UserDetailsImpl;
+import com.reimbes.UserService;
+import com.reimbes.constant.SecurityConstants;
+import com.reimbes.exception.DataConstraintException;
+import com.reimbes.exception.NotFoundException;
+import com.reimbes.exception.ReimsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletResponse;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+@Service
+<span class="fc" id="L31">public class UserServiceImpl implements UserService {</span>
+
+<span class="fc" id="L33">    private static Logger log = LoggerFactory.getLogger(UserServiceImpl.class);</span>
+
+    @Autowired
+    private ReportGeneratorServiceImpl reportGeneratorService;
+
+    @Autowired
+    private AuthServiceImpl authService;
+
+    @Autowired
+    private TransactionServiceImpl transactionService;
+
+    @Autowired
+    private ReimsUserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
+    @Override
+    public ReimsUser create(ReimsUser user) throws ReimsException {
+<span class="fc" id="L53">        validate(user, null);</span>
+
+<span class="fc" id="L55">        user.setCreatedAt(Instant.now().toEpochMilli());</span>
+<span class="fc" id="L56">        user.setPassword(passwordEncoder.encode(user.getPassword()));</span>
+
+<span class="fc" id="L58">        return userRepository.save(user);</span>
+    }
+
+    @Override
+    public ReimsUser update(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
+        ReimsUser oldUser;
+
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (id == 1) {</span>
+<span class="fc" id="L66">            oldUser = userRepository.findByUsername(authService.getCurrentUsername());</span>
+        } else {
+<span class="fc" id="L68">            oldUser = userRepository.findOne(id);</span>
+<span class="fc" id="L69">            oldUser.setRole(user.getRole());</span>
+        }
+
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (oldUser == null) throw new NotFoundException(&quot;USER ID &quot;+id);</span>
+
+<span class="fc" id="L74">        validate(user, oldUser);</span>
+
+<span class="fc" id="L76">        oldUser.setUsername(user.getUsername());</span>
+<span class="fc" id="L77">        oldUser.setPassword(passwordEncoder.encode(user.getPassword()));</span>
+<span class="fc" id="L78">        oldUser.setUpdatedAt(Instant.now().getEpochSecond());</span>
+
+        // method for editing personal data
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (response != null) {</span>
+            // update token with latest username
+
+<span class="fc" id="L84">            Collection authorities =  new ArrayList();</span>
+
+<span class="fc" id="L86">            authorities.add(new SimpleGrantedAuthority(oldUser.getRole().toString()));</span>
+
+            // add token
+<span class="fc" id="L89">            String token = authService.generateToken(new UserDetailsImpl(user, authorities), authorities);</span>
+
+            // register token
+<span class="fc" id="L92">            authService.registerToken(token);</span>
+
+            // return response with NEW token
+<span class="fc" id="L95">            response.setHeader(SecurityConstants.HEADER_STRING, token);</span>
+        }
+
+<span class="fc" id="L98">        return userRepository.save(oldUser);</span>
+    }
+
+    @Override
+    public ReimsUser getUserByUsername(String username) {
+<span class="fc" id="L103">        return userRepository.findByUsername(username);</span>
+    }
+
+    @Override
+    public ReimsUser get(long id) throws ReimsException {
+        ReimsUser user;
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (id == 1) return userRepository.findByUsername(authService.getCurrentUsername());</span>
+<span class="fc" id="L110">        else user = userRepository.findOne(id);</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (user == null)</span>
+<span class="fc" id="L112">            throw new NotFoundException(&quot;USER &quot;+id);</span>
+<span class="fc" id="L113">        return user;</span>
+    }
+
+    @Override
+    public Page getAllUsers(String username, Pageable pageable) {
+<span class="fc" id="L118">        return userRepository.findByIdGreaterThanAndUsernameContainingIgnoreCase(1, username, pageable);</span>
+    }
+
+    @Override
+    public void deleteUser(long id) {
+<span class="fc" id="L123">        ReimsUser user = userRepository.findOne(id);</span>
+
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (user == null) {</span>
+<span class="fc" id="L126">            log.info(&quot;User with ID: &quot;+id+&quot; not found.&quot;);</span>
+<span class="fc" id="L127">            return;</span>
+        }
+
+        // manually delete the transaction
+<span class="fc" id="L131">        transactionService.deleteByUser(user);</span>
+
+<span class="fc" id="L133">        userRepository.delete(user);</span>
+<span class="fc" id="L134">    }</span>
+
+    public boolean isExist(String username) {
+<span class="fc" id="L137">        return userRepository.existsByUsername(username);</span>
+    }
+
+    public byte[] getReport(String startDate, String endDate) throws Exception {
+        Long start;
+        Long end;
+
+<span class="pc bpc" id="L144" title="4 of 8 branches missed.">        if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {</span>
+<span class="nc" id="L145">            start = null;</span>
+<span class="nc" id="L146">            end = null;</span>
+        } else {
+<span class="fc" id="L148">            start = Long.parseLong(startDate);</span>
+<span class="fc" id="L149">            end = Long.parseLong(endDate);</span>
+        }
+<span class="fc" id="L151">        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()),</span>
+                start, end);
+    }
+
+    /* Old User Data NOT NULL indicate update user activity */
+    private void validate(ReimsUser newUserData, ReimsUser oldUserData) throws DataConstraintException{
+<span class="fc" id="L157">        List errors = new ArrayList();</span>
+
+        // Validate the credential data
+<span class="pc bpc" id="L160" title="1 of 4 branches missed.">        if (newUserData.getUsername() == null || newUserData.getUsername().isEmpty())</span>
+<span class="fc" id="L161">            errors.add(&quot;NULL_USERNAME&quot;);</span>
+<span class="pc bpc" id="L162" title="1 of 4 branches missed.">        if (newUserData.getPassword() == null || newUserData.getPassword().isEmpty())</span>
+<span class="fc" id="L163">            errors.add(&quot;NULL_PASSWORD&quot;);</span>
+
+        // compare new user data with other user data
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (errors.isEmpty()){</span>
+<span class="fc" id="L167">            ReimsUser user = userRepository.findByUsername(newUserData.getUsername());</span>
+
+            // update
+<span class="pc bpc" id="L170" title="1 of 6 branches missed.">            if (oldUserData != null &amp;&amp; user != null &amp;&amp; user.getId() != oldUserData.getId())</span>
+<span class="fc" id="L171">                errors.add(&quot;UNIQUENESS_USERNAME&quot;);</span>
+
+            // create
+<span class="pc bpc" id="L174" title="1 of 4 branches missed.">            else if (oldUserData == null &amp;&amp; user != null)</span>
+<span class="nc" id="L175">                errors.add(&quot;UNIQUENESS_USERNAME&quot;);</span>
+
+<span class="fc bfc" id="L177" title="All 2 branches covered.">            if (newUserData.getUsername().toLowerCase().equals(newUserData.getPassword().toLowerCase()))</span>
+<span class="fc" id="L178">                errors.add(&quot;INSECURE_PASSWORD&quot;);</span>
+        }
+
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());</span>
+
+<span class="fc" id="L183">    }</span>
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+<span class="fc" id="L187">        log.info(&quot;Just load the reimsUser by its username&quot;);</span>
+<span class="fc" id="L188">        ReimsUser reimsUser = userRepository.findByUsername(username);</span>
+
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        if (reimsUser == null ) {</span>
+<span class="fc" id="L191">            log.info(&quot;User not found, username: &quot;+username);</span>
+<span class="fc" id="L192">            throw new UsernameNotFoundException(username);</span>
+        }
+
+<span class="fc" id="L195">        log.info(&quot;USER: &quot;+reimsUser.getUsername());</span>
+
+        // will be useful, if users have multi authorities
+<span class="fc" id="L198">        Collection&lt;GrantedAuthority&gt; authorities = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L199">        authorities.add(new SimpleGrantedAuthority(reimsUser.getRole().toString()));</span>
+
+
+<span class="fc" id="L202">        return new UserDetailsImpl(reimsUser, authorities);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

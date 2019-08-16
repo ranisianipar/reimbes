@@ -1,0 +1,12 @@
+-------------------------------------------------------------------------------
+Test set: com.reimbes.AdminControllerTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 8.972 sec <<< FAILURE! - in com.reimbes.AdminControllerTest
+givenListOfUsers_whenGetAllUsers(com.reimbes.AdminControllerTest)  Time elapsed: 0.376 sec  <<< FAILURE!
+java.lang.AssertionError: No value at JSON path "data", exception: json can not be null or empty
+	at org.springframework.test.util.JsonPathExpectationsHelper.evaluateJsonPath(JsonPathExpectationsHelper.java:245)
+	at org.springframework.test.util.JsonPathExpectationsHelper.assertValue(JsonPathExpectationsHelper.java:73)
+	at org.springframework.test.web.servlet.result.JsonPathResultMatchers$1.match(JsonPathResultMatchers.java:86)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:171)
+	at com.reimbes.AdminControllerTest.givenListOfUsers_whenGetAllUsers(AdminControllerTest.java:63)
+

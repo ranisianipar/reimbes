@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.reimbes.HomeControllerTest" time="0.024" tests="2" errors="0" skipped="0" failures="1">
+  <properties>
+    <property name="idea.version" value="2018.3.5"/>
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
+    <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_201\jre\bin"/>
+    <property name="java.vm.version" value="25.201-b09"/>
+    <property name="java.vm.vendor" value="Oracle Corporation"/>
+    <property name="maven.multiModuleProjectDirectory" value="C:\Users\Z\Documents\future\reimbes"/>
+    <property name="java.vendor.url" value="http://java.oracle.com/"/>
+    <property name="path.separator" value=";"/>
+    <property name="guice.disable.misplaced.annotation.check" value="true"/>
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
+    <property name="file.encoding.pkg" value="sun.io"/>
+    <property name="user.script" value=""/>
+    <property name="user.country" value="ID"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="sun.os.patch.level" value=""/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="user.dir" value="C:\Users\Z\Documents\future\reimbes"/>
+    <property name="java.runtime.version" value="1.8.0_201-b09"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"/>
+    <property name="java.endorsed.dirs" value="C:\Program Files\Java\jdk1.8.0_201\jre\lib\endorsed"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.io.tmpdir" value="C:\Users\Z\AppData\Local\Temp\"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="user.variant" value=""/>
+    <property name="os.name" value="Windows 10"/>
+    <property name="classworlds.conf" value="C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2018.3.5\plugins\maven\lib\maven3\bin\m2.conf"/>
+    <property name="sun.jnu.encoding" value="Cp1252"/>
+    <property name="java.library.path" value="C:\Program Files\Java\jdk1.8.0_201\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Gradle\gradle-5.4.1\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Microsoft VS Code\bin;C:\Program Files\Java\jdk1.8.0_201\bin;C:\Program Files\nodejs\;C:\Program Files\MicroStrategy\Desktop\DataServices\180_192\64-bit\bin\server;C:\Program Files\apache-maven-3.6.0\bin;C:\Program Files\Java\jdk1.8.0_201\jre\bin;C:\Users\Z\Anaconda3\Library\bin\graphviz;C:\Program Files\PuTTY\;C:\HashiCorp\Vagrant\bin;C:\Program Files\PostgreSQL\pgsql\bin;C:\Users\Z\Anaconda3;C:\Users\Z\Anaconda3\Library\mingw-w64\bin;C:\Users\Z\Anaconda3\Library\usr\bin;C:\Users\Z\Anaconda3\Library\bin;C:\Users\Z\Anaconda3\Scripts;C:\Users\Z\AppData\Local\Microsoft\WindowsApps;C:\Users\Z\AppData\Roaming\npm;."/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.class.version" value="52.0"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="os.version" value="10.0"/>
+    <property name="user.home" value="C:\Users\Z"/>
+    <property name="user.timezone" value="Asia/Bangkok"/>
+    <property name="java.awt.printerjob" value="sun.awt.windows.WPrinterJob"/>
+    <property name="java.specification.version" value="1.8"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="user.name" value="Z"/>
+    <property name="java.class.path" value="C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2018.3.5\plugins\maven\lib\maven3\boot\plexus-classworlds-2.5.2.jar"/>
+    <property name="java.vm.specification.version" value="1.8"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.home" value="C:\Program Files\Java\jdk1.8.0_201\jre"/>
+    <property name="sun.java.command" value="org.codehaus.classworlds.Launcher -Didea.version=2018.3.5 test"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="user.language" value="en"/>
+    <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="java.version" value="1.8.0_201"/>
+    <property name="java.ext.dirs" value="C:\Program Files\Java\jdk1.8.0_201\jre\lib\ext;C:\Windows\Sun\Java\lib\ext"/>
+    <property name="sun.boot.class.path" value="C:\Program Files\Java\jdk1.8.0_201\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_201\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_201\jre\classes"/>
+    <property name="java.vendor" value="Oracle Corporation"/>
+    <property name="maven.home" value="C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2018.3.5\plugins\maven\lib\maven3"/>
+    <property name="file.separator" value="\"/>
+    <property name="java.vendor.url.bug" value="http://bugreport.sun.com/bugreport/"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="sun.desktop" value="windows"/>
+    <property name="sun.cpu.isalist" value="amd64"/>
+  </properties>
+  <testcase name="requestWithTokenWillHaveOkStatus" classname="com.reimbes.HomeControllerTest" time="0.016">
+    <failure message="Status expected:&lt;200&gt; but was:&lt;401&gt;" type="java.lang.AssertionError"><![CDATA[java.lang.AssertionError: Status expected:<200> but was:<401>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:54)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:81)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers$10.match(StatusResultMatchers.java:664)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:171)
+	at com.reimbes.HomeControllerTest.requestWithTokenWillHaveOkStatus(HomeControllerTest.java:41)
+]]></failure>
+    <system-out><![CDATA[2019-08-17 02:52:39.219  INFO [-,,,] 5976 --- [           main] .b.t.a.w.s.WebMvcTestContextBootstrapper : Neither @ContextConfiguration nor @ContextHierarchy found for test class [com.reimbes.HomeControllerTest], using SpringBootContextLoader
+2019-08-17 02:52:39.221  INFO [-,,,] 5976 --- [           main] o.s.t.c.support.AbstractContextLoader    : Could not detect default resource locations for test class [com.reimbes.HomeControllerTest]: no resource found for suffixes {-context.xml, Context.groovy}.
+2019-08-17 02:52:39.221  INFO [-,,,] 5976 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.reimbes.HomeControllerTest]: HomeControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2019-08-17 02:52:39.240  INFO [-,,,] 5976 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.reimbes.ReimbesApplication for test class com.reimbes.HomeControllerTest
+2019-08-17 02:52:39.244  INFO [-,,,] 5976 --- [           main] .b.t.a.w.s.WebMvcTestContextBootstrapper : Loaded default TestExecutionListener class names from location [META-INF/spring.factories]: [org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener, org.springframework.test.context.web.ServletTestExecutionListener, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener, org.springframework.test.context.support.DependencyInjectionTestExecutionListener, org.springframework.test.context.support.DirtiesContextTestExecutionListener, org.springframework.test.context.transaction.TransactionalTestExecutionListener, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener]
+2019-08-17 02:52:39.246  INFO [-,,,] 5976 --- [           main] .b.t.a.w.s.WebMvcTestContextBootstrapper : Using TestExecutionListeners: [org.springframework.test.context.web.ServletTestExecutionListener@11617c6c, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener@10f52047, org.springframework.boot.test.autoconfigure.SpringBootDependencyInjectionTestExecutionListener@194f5558, org.springframework.test.context.support.DirtiesContextTestExecutionListener@32a826f, org.springframework.test.context.transaction.TransactionalTestExecutionListener@19321c7a, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener@20fce003, org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener@437a84d1, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener@14145f2b, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener@1dcc501f, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener@5a77475d, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener@4d3c0cce, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener@7be7ff45]
+2019-08-17 02:52:40.745  INFO [bootstrap,,,] 5976 --- [           main] s.c.a.AnnotationConfigApplicationContext : Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@513b730: startup date [Sat Aug 17 02:52:40 ICT 2019]; root of context hierarchy
+2019-08-17 02:52:40.814  INFO [bootstrap,,,] 5976 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'configurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$182fd60e] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::        (v1.5.2.RELEASE)
+
+2019-08-17 02:52:42.291  INFO [-,,,] 5976 --- [           main] com.reimbes.HomeControllerTest           : No active profile set, falling back to default profiles: default
+2019-08-17 02:52:42.297  INFO [-,,,] 5976 --- [           main] o.s.w.c.s.GenericWebApplicationContext   : Refreshing org.springframework.web.context.support.GenericWebApplicationContext@3e2c2452: startup date [Sat Aug 17 02:52:42 ICT 2019]; parent: org.springframework.context.annotation.AnnotationConfigApplicationContext@513b730
+2019-08-17 02:52:42.925  INFO [-,,,] 5976 --- [           main] b.a.s.AuthenticationManagerConfiguration : 
+
+Using default security password: 2b10a8cd-2139-49b9-bc5d-061c855751a6
+
+2019-08-17 02:52:42.982  INFO [-,,,] 5976 --- [           main] com.reimbes.configuration.WebConfig      : Interceptor just added
+2019-08-17 02:52:43.013  INFO [-,,,] 5976 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/api/logout],methods=[GET]}" onto public com.reimbes.response.BaseResponse com.reimbes.HomeController.logout(javax.servlet.http.HttpServletRequest)
+2019-08-17 02:52:43.016  INFO [-,,,] 5976 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/api/isLogin],methods=[GET]}" onto public com.reimbes.response.BaseResponse com.reimbes.HomeController.isLogin(javax.servlet.http.HttpServletRequest)
+2019-08-17 02:52:43.018  INFO [-,,,] 5976 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+2019-08-17 02:52:43.019  INFO [-,,,] 5976 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+2019-08-17 02:52:43.058  INFO [-,,,] 5976 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/swagger-ui.html] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2019-08-17 02:52:43.058  INFO [-,,,] 5976 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2019-08-17 02:52:43.114  INFO [-,,,] 5976 --- [           main] s.w.s.m.m.a.RequestMappingHandlerAdapter : Looking for @ControllerAdvice: org.springframework.web.context.support.GenericWebApplicationContext@3e2c2452: startup date [Sat Aug 17 02:52:42 ICT 2019]; parent: org.springframework.context.annotation.AnnotationConfigApplicationContext@513b730
+2019-08-17 02:52:43.404  INFO [-,,,] 5976 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Creating filter chain: OrRequestMatcher [requestMatchers=[Ant [pattern='/css/**'], Ant [pattern='/js/**'], Ant [pattern='/images/**'], Ant [pattern='/webjars/**'], Ant [pattern='/**/favicon.ico'], Ant [pattern='/error']]], []
+2019-08-17 02:52:43.510  INFO [-,,,] 5976 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Creating filter chain: OrRequestMatcher [requestMatchers=[Ant [pattern='/**']]], [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@706b5d5e, org.springframework.security.web.context.SecurityContextPersistenceFilter@2d1e3187, org.springframework.security.web.header.HeaderWriterFilter@2f1661e6, org.springframework.security.web.authentication.logout.LogoutFilter@6b03325d, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@4ba5c0f0, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@75c27157, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@69473758, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@43a7400a, org.springframework.security.web.session.SessionManagementFilter@7629902, org.springframework.security.web.access.ExceptionTranslationFilter@320d4122, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@76fee3de]
+2019-08-17 02:52:43.526  INFO [-,,,] 5976 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring FrameworkServlet ''
+2019-08-17 02:52:43.526  INFO [-,,,] 5976 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : FrameworkServlet '': initialization started
+2019-08-17 02:52:43.538  INFO [-,,,] 5976 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : FrameworkServlet '': initialization completed in 12 ms
+2019-08-17 02:52:43.591  INFO [-,,,] 5976 --- [           main] com.reimbes.HomeControllerTest           : Started HomeControllerTest in 4.334 seconds (JVM running for 15.295)
+
+MockHttpServletRequest:
+      HTTP Method = GET
+      Request URI = /isLogin
+       Parameters = {}
+          Headers = {Authorization=[Bearer HAHAHAH]}
+
+Handler:
+             Type = null
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 401
+    Error message = Full authentication is required to access this resource
+          Headers = {X-Content-Type-Options=[nosniff], X-XSS-Protection=[1; mode=block], Cache-Control=[no-cache, no-store, max-age=0, must-revalidate], Pragma=[no-cache], Expires=[0], X-Frame-Options=[DENY], Strict-Transport-Security=[max-age=31536000 ; includeSubDomains], WWW-Authenticate=[Basic realm="Spring"]}
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+]]></system-out>
+  </testcase>
+  <testcase name="requestWithoutTokenWillHaveUnauthorizedStatus" classname="com.reimbes.HomeControllerTest" time="0.008"/>
+</testsuite>

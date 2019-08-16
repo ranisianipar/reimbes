@@ -136,7 +136,7 @@ public class UserServiceTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         response.addHeader(SecurityConstants.HEADER_STRING, "");
 
-        newUser = userService.update(0, newUser, response);
+        newUser = userService.update(1, newUser, response);
 
         assertNotEquals(newUser.getUsername(), oldUsername);
         assertNotNull(newUser.getUpdatedAt());
@@ -253,7 +253,7 @@ public class UserServiceTest {
         List users = new ArrayList();
         users.add(user);
         Page page = new PageImpl(users);
-        when(userRepository.findByUsernameContainingIgnoreCase(user.getUsername(), pageable)).thenReturn(page);
+        when(userRepository.findByIdGreaterThanAndUsernameContainingIgnoreCase(1, user.getUsername(), pageable)).thenReturn(page);
 
         assertEquals(page, userService.getAllUsers(user.getUsername(), pageable));
     }
