@@ -7,9 +7,12 @@ import com.reimbes.authentication.rest.RESTAuthenticationFailureHandler;
 import com.reimbes.authentication.rest.RESTAuthenticationSuccessHandler;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.implementation.UserDetailsServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -23,10 +26,15 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
+import static com.reimbes.constant.UrlConstants.CROSS_ORIGIN_URL;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurity extends WebSecurityConfigurerAdapter {
+
+    private static Logger log = LoggerFactory.getLogger(WebSecurity.class);
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
@@ -81,9 +89,22 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    protected CorsConfigurationSource corsConfigurationSource() {
+        log.info("Set CORS configuration...");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
+        CorsConfiguration cors = new CorsConfiguration();
+        cors.addAllowedHeader(HEADER_STRING);
+        cors.addExposedHeader(HEADER_STRING);
+        cors.addAllowedMethod(HttpMethod.POST);
+        cors.addAllowedMethod(HttpMethod.GET);
+        cors.addAllowedMethod(HttpMethod.PUT);
+        cors.addAllowedMethod(HttpMethod.DELETE);
+        cors.addAllowedOrigin(CROSS_ORIGIN_URL);
+        source.registerCorsConfiguration("/**", cors.applyPermitDefaultValues());
+
+        log.info("CORS: ");
+        log.info(cors.checkOrigin(CROSS_ORIGIN_URL));
+        log.info(cors.getAllowedMethods().toString());
         return source;
     }
 

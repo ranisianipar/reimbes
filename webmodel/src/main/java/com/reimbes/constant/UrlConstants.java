@@ -4,7 +4,7 @@ import java.nio.file.Paths;
 
 public class UrlConstants {
 
-    public static final String CROSS_ORIGIN_URL = "http://localhost:5000/api";
+    public static final String CROSS_ORIGIN_URL = "http://localhost:5000";
     public static final String LOGIN_URL = "/login";
     public static final String LOGOUT_URL = "/logout";
     public static final String ISLOGIN_URL = "/isLogin";

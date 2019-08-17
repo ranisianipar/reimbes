@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
+import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
+
 @Component
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -82,24 +84,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Collection authorities = user.getAuthorities();
         String token = authService.generateToken(user,authorities);
 
-//      Modify Login Response
-        LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setUsername(user.getUsername());
-        loginResponse.setId(user.getUserId());
-        loginResponse.setAuthorization(token);
-
-
-        if (authorities.iterator().next().toString().equals("USER"))
-            loginResponse.setRole(ReimsUser.Role.USER);
-        else loginResponse.setRole(ReimsUser.Role.ADMIN);
-
-        String userJsonString = new Gson().toJson(loginResponse);
-
-        PrintWriter out = res.getWriter();
-        res.setContentType("application/json");
-        res.setCharacterEncoding("UTF-8");
-        out.print(userJsonString);
-        out.flush();
+        res.setHeader(HEADER_STRING, token);
 
         authService.registerToken(token);
     }
