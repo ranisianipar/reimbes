@@ -2,6 +2,7 @@ package com.reimbes.implementation;
 
 import com.reimbes.ReimsUser;
 import com.reimbes.ReimsUserRepository;
+import com.reimbes.UserDetailsImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,7 +2,6 @@ package com.reimbes;
 
 import com.reimbes.constant.SecurityConstants;
 import com.reimbes.implementation.AuthServiceImpl;
-import com.reimbes.implementation.UserDetailsImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

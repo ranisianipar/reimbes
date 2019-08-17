@@ -1,23 +1,28 @@
 package com.reimbes.implementation;
 
+import com.google.gson.Gson;
 import com.reimbes.ReimsUser;
 import com.reimbes.ReimsUserRepository;
+import com.reimbes.UserDetailsImpl;
 import com.reimbes.UserService;
-import com.reimbes.constant.SecurityConstants;
+import com.reimbes.constant.ResponseCode;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.response.LoginResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -87,8 +92,29 @@ public class UserServiceImpl implements UserService {
             // register token
             authService.registerToken(token);
 
-            // return response with NEW token
-            response.setHeader(SecurityConstants.HEADER_STRING, token);
+            // Modify Login Response
+            LoginResponse loginResponse = new LoginResponse();
+
+            // new username
+            loginResponse.setUsername(user.getUsername());
+            loginResponse.setId(oldUser.getId());
+            loginResponse.setAuthorization(token);
+            loginResponse.setRole(oldUser.getRole());
+
+            String userJsonString = new Gson().toJson(loginResponse);
+
+            try {
+                // return response with NEW token
+                PrintWriter out = response.getWriter();
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                out.print(userJsonString);
+                out.flush();
+            } catch (Exception e) {
+                throw new ReimsException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, ResponseCode.INTERNAL_SERVER_ERROR);
+            }
+
+            
         }
 
         return userRepository.save(oldUser);
