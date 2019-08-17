@@ -7,6 +7,7 @@ import com.reimbes.ReimsUser;
 import com.reimbes.constant.SecurityConstants;
 import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.UserDetailsImpl;
+import com.reimbes.response.LoginResponse;
 import com.reimbes.response.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,30 +83,30 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest req,
                                             HttpServletResponse res,
                                             FilterChain chain,
-                                            Authentication auth) throws IOException, ServletException{
+                                            Authentication auth) throws IOException {
 
         UserDetailsImpl user = (UserDetailsImpl) auth.getPrincipal();
         Collection authorities = user.getAuthorities();
         String token = authService.generateToken(user,authorities);
 
 //      Modify Login Response
-        res.addHeader(HEADER_STRING,token);
-
-        UserResponse userResponse = new UserResponse();
-        userResponse.setUsername(user.getUsername());
-        userResponse.setId(user.getUserId());
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setUsername(user.getUsername());
+        loginResponse.setId(user.getUserId());
+        loginResponse.setAuthorization(token);
 
 
         if (authorities.iterator().next().toString().equals("USER"))
-            userResponse.setRole(ReimsUser.Role.USER);
-        else userResponse.setRole(ReimsUser.Role.ADMIN);
+            loginResponse.setRole(ReimsUser.Role.USER);
+        else loginResponse.setRole(ReimsUser.Role.ADMIN);
 
-        String userJsonString = new Gson().toJson(userResponse);
+        String userJsonString = new Gson().toJson(loginResponse);
         PrintWriter out = res.getWriter();
         res.setContentType("application/json");
         res.setCharacterEncoding("UTF-8");
         out.print(userJsonString);
         out.flush();
+
 
         authService.registerToken(token);
     }
