@@ -56,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
 
 
         log.info("Active Token: "+activeToken);
-        if (activeToken != null && activeToken.getExpiredTime() >= Instant.now().toEpochMilli())
+        if (activeToken != null && activeToken.getExpiredTime() >= Instant.now().getEpochSecond())
             return true;
 
         // token expired

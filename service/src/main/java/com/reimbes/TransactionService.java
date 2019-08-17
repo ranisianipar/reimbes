@@ -12,7 +12,6 @@ public interface TransactionService {
     String uploadImage(byte[] image, String extension) throws Exception;
     Transaction update(TransactionRequest transaction) throws ReimsException;
     void delete(long id) throws ReimsException;
-    void deleteMany(List<Long> ids) throws ReimsException;
     void deleteByUser(ReimsUser user);
     Transaction get(long id) throws ReimsException;
     Page<Transaction> getAll(Pageable pageable, String startDate, String endDate, String searchTitle,

@@ -11,6 +11,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.time.Instant;
+
 import static com.reimbes.Transaction.Category.FUEL;
 import static org.junit.Assert.assertEquals;
 
@@ -28,6 +30,18 @@ public class FuelServiceTest {
     public void setup() {
         request.setFuelType(Fuel.Type.SOLAR);
         request.setLiters(new Float(10.9));
+
+
+        request.setId(1);
+
+        request.setTitle("24awh");
+
+        request.setAmount(12);
+        request.setCategory(FUEL);
+
+        request.setDate(new Long(21314));
+        request.setImage("1/a.jpg");
+        request.setCreatedAt(Instant.now().getEpochSecond());
     }
 
     @Test

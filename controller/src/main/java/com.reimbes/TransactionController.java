@@ -4,7 +4,6 @@ package com.reimbes;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.TransactionServiceImpl;
-import com.reimbes.request.BulkDeleteRequest;
 import com.reimbes.request.TransactionRequest;
 import com.reimbes.request.UploadImageByteRequest;
 import com.reimbes.response.*;
@@ -128,19 +127,6 @@ public class TransactionController {
         }
 
         return new BaseResponse();
-    }
-
-    @DeleteMapping
-    public BaseResponse deleteMany(@RequestBody BulkDeleteRequest<Transaction> req) {
-
-        BaseResponse br = new BaseResponse();
-        try {
-            transactionService.deleteMany(req.getIds());
-        }   catch (ReimsException r) {
-            br.setErrorResponse(r);
-        }
-
-        return br;
     }
 
     private MapperFacade getPagingMapper() {

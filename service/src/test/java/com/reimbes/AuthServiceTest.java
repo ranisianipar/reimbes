@@ -1,5 +1,6 @@
 package com.reimbes;
 
+import com.auth0.jwt.JWT;
 import com.reimbes.constant.SecurityConstants;
 import com.reimbes.implementation.AuthServiceImpl;
 import org.junit.Before;
@@ -19,11 +20,10 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.reimbes.ReimsUser.Role.USER;
-import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
-import static com.reimbes.constant.SecurityConstants.TOKEN_PREFIX;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static com.reimbes.constant.SecurityConstants.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -106,6 +106,52 @@ public class AuthServiceTest {
         when(activeTokenRepository.findByToken(token)).thenReturn(activeToken);
         authService.logout(request);
         verify(activeTokenRepository, times(1)).delete(activeToken);
+    }
+
+    @Test
+    public void currentUsernameTest() {
+        assertNull(authService.getCurrentUsername());
+        authService.setCurrentUsername("hahaha");
+        assertFalse(authService.getCurrentUsername().isEmpty());
+    }
+
+    @Test
+    public void isLoginReturnFalse_whenRequestDoesntHaveValidToken() {
+        assertFalse(authService.isLogin("hahah"));
+    }
+
+    @Test
+    public void isLoginReturnTrue_whenRequestHasValidToken() {
+        String dummyToken = "hahahaha";
+        ActiveToken token = new ActiveToken();
+        token.setToken(dummyToken);
+        token.setExpiredTime(Instant.now().getEpochSecond()+TOKEN_PERIOD);
+        when(activeTokenRepository.findByToken(dummyToken)).thenReturn(token);
+        assertTrue(authService.isLogin(dummyToken));
+    }
+
+    @Test
+    public void returnUserDetails_whenGetCurrentUserDetailMethodCalled() {
+        Instant.now(Clock.fixed(
+                Instant.parse("2018-08-22T10:00:00Z"),
+                ZoneOffset.UTC));
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        String token = TOKEN_PREFIX + JWT.create()
+                .withSubject(user.getUsername())
+                .withClaim("expire",Instant.now().getEpochSecond())
+                .withClaim("role", user.getRole().toString())
+                .sign(HMAC512(SECRET.getBytes()));
+
+        request.addHeader(HEADER_STRING, token);
+
+        assertNotNull(authService.getCurrentUserDetails(request));
+    }
+    @Test
+    public void returnNull_whenGetCurrentUserDetailsWithNoToken() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        assertNull(authService.getCurrentUserDetails(request));
     }
 
 }
