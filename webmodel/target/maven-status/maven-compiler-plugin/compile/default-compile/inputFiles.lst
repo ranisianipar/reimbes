@@ -1,4 +1,5 @@
 C:\Users\Z\Documents\future\reimbes\webmodel\src\main\java\com\reimbes\response\BaseResponse.java
+<<<<<<< HEAD
 C:\Users\Z\Documents\future\reimbes\webmodel\src\main\java\com\reimbes\constant\ResponseCode.java
 C:\Users\Z\Documents\future\reimbes\webmodel\src\main\java\com\reimbes\constant\UrlConstants.java
 C:\Users\Z\Documents\future\reimbes\webmodel\src\main\java\com\reimbes\response\FuelResponse.java
@@ -15,3 +16,7 @@ C:\Users\Z\Documents\future\reimbes\webmodel\src\main\java\com\reimbes\exception
 C:\Users\Z\Documents\future\reimbes\webmodel\src\main\java\com\reimbes\response\TransactionResponse.java
 C:\Users\Z\Documents\future\reimbes\webmodel\src\main\java\com\reimbes\constant\General.java
 C:\Users\Z\Documents\future\reimbes\webmodel\src\main\java\com\reimbes\response\UserResponse.java
+=======
+C:\Users\Z\Documents\future\reimbes\webmodel\src\main\java\com\reimbes\Constant.java
+C:\Users\Z\Documents\future\reimbes\webmodel\src\main\java\com\reimbes\request\LoginRequest.java
+>>>>>>> 366e8739cac0b2f7e5f612ccb0f9c08949277064

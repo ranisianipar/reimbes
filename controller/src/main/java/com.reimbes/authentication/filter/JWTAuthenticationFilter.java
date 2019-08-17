@@ -7,7 +7,10 @@ import com.reimbes.ReimsUser;
 import com.reimbes.constant.SecurityConstants;
 import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.UserDetailsImpl;
+<<<<<<< HEAD
 import com.reimbes.response.LoginResponse;
+=======
+>>>>>>> 366e8739cac0b2f7e5f612ccb0f9c08949277064
 import com.reimbes.response.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,13 +86,18 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest req,
                                             HttpServletResponse res,
                                             FilterChain chain,
+<<<<<<< HEAD
                                             Authentication auth) throws IOException {
+=======
+                                            Authentication auth) throws IOException, ServletException{
+>>>>>>> 366e8739cac0b2f7e5f612ccb0f9c08949277064
 
         UserDetailsImpl user = (UserDetailsImpl) auth.getPrincipal();
         Collection authorities = user.getAuthorities();
         String token = authService.generateToken(user,authorities);
 
 //      Modify Login Response
+<<<<<<< HEAD
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setUsername(user.getUsername());
         loginResponse.setId(user.getUserId());
@@ -101,13 +109,30 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         else loginResponse.setRole(ReimsUser.Role.ADMIN);
 
         String userJsonString = new Gson().toJson(loginResponse);
+=======
+        res.addHeader(HEADER_STRING,token);
+
+        UserResponse userResponse = new UserResponse();
+        userResponse.setUsername(user.getUsername());
+        userResponse.setId(user.getUserId());
+
+
+        if (authorities.iterator().next().toString().equals("USER"))
+            userResponse.setRole(ReimsUser.Role.USER);
+        else userResponse.setRole(ReimsUser.Role.ADMIN);
+
+        String userJsonString = new Gson().toJson(userResponse);
+>>>>>>> 366e8739cac0b2f7e5f612ccb0f9c08949277064
         PrintWriter out = res.getWriter();
         res.setContentType("application/json");
         res.setCharacterEncoding("UTF-8");
         out.print(userJsonString);
         out.flush();
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 366e8739cac0b2f7e5f612ccb0f9c08949277064
         authService.registerToken(token);
     }
 }
