@@ -5,6 +5,7 @@ import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.ReportGeneratorServiceImpl;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.implementation.UserServiceImpl;
+import com.reimbes.response.LoginResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,10 +15,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.*;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
@@ -79,6 +82,18 @@ public class UserServiceTest {
         ReimsUser newUser = userService.create(user);
         assertNotNull(newUser);
         assertEquals(userWithEncodedPass.getPassword(), newUser.getPassword());
+    }
+
+    @Test
+    public void returnUserAfterCreateReimsUserWithDuplicateUsername() {
+        when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
+        when(userRepository.save(user)).thenReturn(userWithEncodedPass);
+
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
+
+        assertThrows(ReimsException.class, () -> {
+            userService.create(user);
+        });
     }
 
     @Test
@@ -249,5 +264,28 @@ public class UserServiceTest {
         assertEquals(userService.getReport("0", "0"), fakeReport);
     }
 
+    @Test
+    public void updatePersonalData() throws ReimsException {
+        when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
+        when(userRepository.save(user)).thenReturn(userWithEncodedPass);
+        when(authService.getCurrentUsername()).thenReturn(user.getUsername());
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
+
+        String dummyToken = "123";
+
+        // update token with latest username
+        Collection authorities =  new ArrayList();
+
+        authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
+
+        // add token
+        when(authService.generateToken(new UserDetailsImpl(user, authorities), authorities)).thenReturn(dummyToken);
+
+        LoginResponse loginResponse = userService.updateMyData(user);
+
+        assertEquals(dummyToken, loginResponse.getAuthorization());
+        assertEquals(user.getUsername(), loginResponse.getUsername());
+        assertEquals(user.getRole(), loginResponse.getRole());
+    }
 
 }
