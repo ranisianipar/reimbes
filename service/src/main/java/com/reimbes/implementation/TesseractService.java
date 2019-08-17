@@ -11,6 +11,7 @@ import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -22,12 +23,23 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Random;
 
 import static com.reimbes.constant.UrlConstants.TESSERACT_TRAINNED_DATA_PATH;
+import static com.sun.xml.internal.bind.v2.util.EditDistance.editDistance;
 
 @Service
 public class TesseractService implements OcrService {
     private static Logger log = LoggerFactory.getLogger(TesseractService.class);
+
+    private String fuelKeyWords = "stationspburpvolumelitertotal";
+    private String parkingKeyWords = "inoutlamaparkirrp";
+
+    @Autowired
+    private ParkingServiceImpl parkingService;
+
+    @Autowired
+    private FuelServiceImpl fuelService;
 
     private final ITesseract instance = new Tesseract();
 
@@ -51,50 +63,45 @@ public class TesseractService implements OcrService {
         return ocrResult;
     }
 
-    public Transaction predictImageContent(byte[] image) throws ReimsException{
+    public Transaction predictImageContent(byte[] image) throws ReimsException {
 
         String ocrResult = "";
         try {
-            ocrResult = getInstance().doOCR(createImageFromBytes(image)).toLowerCase();
+            ocrResult = getInstance().doOCR(createImageFromBytes(image));
         } catch (TesseractException t) {
             throw new ReimsException(t.getMessage(), HttpStatus.BAD_REQUEST, 500);
-
         }
 
+        String[] ocrArr = ocrResult.toUpperCase().split("\n");
+        log.info("OCR result splitting!");
 
-        Transaction transaction = new Parking();
-        // iterate
-        int i = 0;
-        String[] ocrArr = ocrResult.split("\n");
-        log.info("OCR result: \n");
-        for (String w: ocrArr) {
-            i++;
-            log.info(i+". "+w);
+        Transaction transaction;
+
+        int parking_score = editDistance(ocrResult, parkingKeyWords);
+        int fuel_score = editDistance(ocrResult, fuelKeyWords);
+
+        log.info("Parking score: "+parking_score+" Fuel score: "+fuel_score);
+
+        if (Math.abs(parking_score - fuel_score) < 3) {
+            log.info("Get a random numbre to enlarge the distance.");
+
+            Random random = new Random();
+            fuel_score = fuel_score + random.nextInt();
+            parking_score = parking_score + random.nextInt();
+            log.info("Parking Score: "+parking_score+" Fuel Score: "+fuel_score);
+        }
+        if (parking_score > fuel_score) {
+            log.info("Mapping to parking!");
+            transaction = parkingService.map(ocrArr);
+        } else {
+            log.info("Mapping to fuel!");
+            transaction = fuelService.map(ocrArr);
         }
 
-        // dummy transaction
         transaction.setTitle(ocrArr[0]);
-        transaction.setAmount(15000);
         transaction.setDate(Instant.now().toEpochMilli());
-        transaction.setCategory(Transaction.Category.PARKING);
-        ((Parking) transaction).setType(Parking.Type.CAR);
-
 
         return transaction;
-    }
-
-    private Transaction.Category decideCategory(String ocrResult) {
-
-        // default
-        return Transaction.Category.PARKING;
-    }
-
-    private Parking mappingToParking(String ocrResult) {
-        return null;
-    }
-
-    private Fuel mappingToFuel(String ocrResult) {
-        return null;
     }
 
     private BufferedImage createImageFromBytes(byte[] imageData) {

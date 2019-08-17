@@ -23,6 +23,17 @@ public class FuelServiceImpl implements FuelService {
 
     @Override
     public Fuel map(String[] source) {
-        return null;
+        Fuel fuel = new Fuel();
+        fuel.setCategory(Transaction.Category.FUEL);
+
+        try {
+            fuel.setAmount(Integer.parseInt(source[13].replaceAll("[^\\d]","")));
+            ((Fuel) fuel).setLiters(Integer.parseInt(source[12].replaceAll("[^\\d]","")));
+
+        }   catch (Exception e) {
+            log.info(e.getMessage());
+        }
+
+        return fuel;
     }
 }
