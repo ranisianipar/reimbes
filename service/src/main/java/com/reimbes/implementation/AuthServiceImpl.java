@@ -128,7 +128,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private long getUpdatedTime() {
-        return Instant.now().toEpochMilli() + SecurityConstants.TOKEN_PERIOD;
+        return Instant.now().getEpochSecond() + SecurityConstants.TOKEN_PERIOD;
     }
 
 
