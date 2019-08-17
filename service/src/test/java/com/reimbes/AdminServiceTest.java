@@ -96,7 +96,7 @@ public class AdminServiceTest {
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
         when(userService.update(user2.getId(), user2)).thenReturn(user2);
 
-        assertEquals(user2, adminService.updateUser(user2.getId(), user2));
+        assertEquals(user2, adminService.updateUser(user2.getId(), user2, null));
     }
 
     @Test
@@ -104,14 +104,15 @@ public class AdminServiceTest {
         when(authService.getCurrentUsername()).thenReturn(user.getUsername());
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
 
-        LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setId(user.getId());
-        loginResponse.setRole(user.getRole());
-        loginResponse.setUsername(user.getUsername());
+        ReimsUser userWithNewData = new ReimsUser();
+        userWithNewData.setId(user.getId());
+        userWithNewData.setRole(user.getRole());
+        userWithNewData.setUsername(user.getUsername());
 
-        when(userService.updateMyData(user)).thenReturn(loginResponse);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        when(userService.updateMyData(user, response)).thenReturn(userWithNewData);
 
-        assertEquals(loginResponse, adminService.updateUser(user.getId(), user));
+        assertEquals(userWithNewData, adminService.updateUser(user.getId(), user, response));
     }
 
     @Test

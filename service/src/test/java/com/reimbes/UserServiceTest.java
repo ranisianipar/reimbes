@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.*;
@@ -281,11 +282,12 @@ public class UserServiceTest {
         // add token
         when(authService.generateToken(new UserDetailsImpl(user, authorities), authorities)).thenReturn(dummyToken);
 
-        LoginResponse loginResponse = userService.updateMyData(user);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        ReimsUser reimsUser = userService.updateMyData(user, response);
 
-        assertEquals(dummyToken, loginResponse.getAuthorization());
-        assertEquals(user.getUsername(), loginResponse.getUsername());
-        assertEquals(user.getRole(), loginResponse.getRole());
+        assertEquals(dummyToken, response.getHeader(HEADER_STRING));
+        assertEquals(user.getUsername(), reimsUser.getUsername());
+        assertEquals(user.getRole(), reimsUser.getRole());
     }
 
 }

@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
+
 @Service
 public class AdminServiceImpl implements AdminService {
     private static Logger log = LoggerFactory.getLogger(AdminServiceImpl.class);
@@ -48,11 +50,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Object updateUser(long id, ReimsUser user) throws ReimsException {
+    public Object updateUser(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
         ReimsUser currentUser = userService.getUserByUsername(authService.getCurrentUsername());
 
         // if admin try to update his data
-        if (currentUser.getId() == id) return userService.updateMyData(user);
+        if (currentUser.getId() == id) return userService.updateMyData(user, response);
 
         return userService.update(id, user);
     }

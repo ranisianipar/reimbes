@@ -39,10 +39,10 @@ public class UserController {
 
     // update profile
     @PutMapping
-    public BaseResponse updateUser(@RequestBody ReimsUser user) {
+    public BaseResponse updateUser(@RequestBody ReimsUser user, HttpServletResponse response) {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(userService.updateMyData(user));
+            br.setData(userService.updateMyData(user, response));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }

@@ -7,6 +7,7 @@ import com.reimbes.ReimsUser;
 import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.UserDetailsImpl;
 import com.reimbes.response.LoginResponse;
+import com.reimbes.response.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +86,21 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String token = authService.generateToken(user,authorities);
 
         res.setHeader(HEADER_STRING, token);
+        UserResponse userResponse = new UserResponse();
+        userResponse.setUsername(user.getUsername());
+        userResponse.setId(user.getUserId());
+
+        if (authorities.iterator().next().toString().equals("USER"))
+            userResponse.setRole(ReimsUser.Role.USER);
+        else userResponse.setRole(ReimsUser.Role.ADMIN);
+
+        String userJsonString = new Gson().toJson(userResponse);
+
+        PrintWriter out = res.getWriter();
+        res.setContentType("application/json");
+        res.setCharacterEncoding("UTF-8");
+        out.print(userJsonString);
+        out.flush();
 
         authService.registerToken(token);
     }

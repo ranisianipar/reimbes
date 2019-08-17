@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -82,10 +83,10 @@ public class AdminController {
     }
 
     @PutMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM)
-    public BaseResponse<UserResponse> updateUser(@PathVariable long id, @RequestBody ReimsUser user) throws Exception{
+    public BaseResponse<UserResponse> updateUser(@PathVariable long id, @RequestBody ReimsUser user, HttpServletResponse response) throws Exception{
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setData(getMapper().map(adminService.updateUser(id,user), UserResponse.class));
+            br.setData(getMapper().map(adminService.updateUser(id,user, response), UserResponse.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }

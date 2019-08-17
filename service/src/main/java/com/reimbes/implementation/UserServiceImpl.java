@@ -1,32 +1,30 @@
 package com.reimbes.implementation;
 
-import com.google.gson.Gson;
 import com.reimbes.ReimsUser;
 import com.reimbes.ReimsUserRepository;
 import com.reimbes.UserDetailsImpl;
 import com.reimbes.UserService;
-import com.reimbes.constant.ResponseCode;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
-import com.reimbes.response.LoginResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import org.springframework.http.HttpStatus;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -70,7 +68,8 @@ public class UserServiceImpl implements UserService {
 
         validate(user, oldUser);
 
-        oldUser.setRole(oldUser.getRole());
+        if (id != 1) oldUser.setRole(user.getRole());
+        
         oldUser.setUsername(user.getUsername());
         oldUser.setPassword(passwordEncoder.encode(user.getPassword()));
         oldUser.setUpdatedAt(Instant.now().toEpochMilli());
@@ -78,10 +77,9 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(oldUser);
     }
 
-    public LoginResponse updateMyData(ReimsUser user) throws ReimsException {
-        ReimsUser userWithNewData;
-
-        userWithNewData = update(1, user);
+    @Override
+    public ReimsUser updateMyData(ReimsUser user, HttpServletResponse response) throws ReimsException {
+        ReimsUser userWithNewData = update(1, user);
 
         // update token with latest username
         Collection authorities =  new ArrayList();
@@ -94,16 +92,11 @@ public class UserServiceImpl implements UserService {
         // register token
         authService.registerToken(token);
 
+        response.setHeader(HEADER_STRING, token);
+
         // Modify Login Response
-        LoginResponse loginResponse = new LoginResponse();
 
-        // new username
-        loginResponse.setUsername(user.getUsername());
-        loginResponse.setId(userWithNewData.getId());
-        loginResponse.setAuthorization(token);
-        loginResponse.setRole(userWithNewData.getRole());
-
-        return loginResponse;
+        return userWithNewData;
 
     }
 
@@ -135,17 +128,18 @@ public class UserServiceImpl implements UserService {
             log.info("User with ID: "+id+" not found.");
             return;
         }
-
         // manually delete the transaction
         transactionService.deleteByUser(user);
 
         userRepository.delete(user);
     }
 
+    @Override
     public boolean isExist(String username) {
         return userRepository.existsByUsername(username);
     }
 
+    @Override
     public byte[] getReport(String startDate, String endDate) throws Exception {
         Long start;
         Long end;
