@@ -60,64 +60,51 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ReimsUser update(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
+    public ReimsUser update(long id, ReimsUser user) throws ReimsException {
         ReimsUser oldUser;
 
-        if (id == 1) {
-            oldUser = userRepository.findByUsername(authService.getCurrentUsername());
-        } else {
-            oldUser = userRepository.findOne(id);
-            oldUser.setRole(user.getRole());
-        }
+        if (id == 1) oldUser = userRepository.findByUsername(authService.getCurrentUsername());
+        else oldUser = userRepository.findOne(id);
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
 
         validate(user, oldUser);
 
+        oldUser.setRole(oldUser.getRole());
         oldUser.setUsername(user.getUsername());
         oldUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        oldUser.setUpdatedAt(Instant.now().getEpochSecond());
-
-        // method for editing personal data
-        if (response != null) {
-            // update token with latest username
-
-            Collection authorities =  new ArrayList();
-
-            authorities.add(new SimpleGrantedAuthority(oldUser.getRole().toString()));
-
-            // add token
-            String token = authService.generateToken(new UserDetailsImpl(user, authorities), authorities);
-
-            // register token
-            authService.registerToken(token);
-
-            // Modify Login Response
-            LoginResponse loginResponse = new LoginResponse();
-
-            // new username
-            loginResponse.setUsername(user.getUsername());
-            loginResponse.setId(oldUser.getId());
-            loginResponse.setAuthorization(token);
-            loginResponse.setRole(oldUser.getRole());
-
-            String userJsonString = new Gson().toJson(loginResponse);
-
-            try {
-                // return response with NEW token
-                PrintWriter out = response.getWriter();
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                out.print(userJsonString);
-                out.flush();
-            } catch (Exception e) {
-                throw new ReimsException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, ResponseCode.INTERNAL_SERVER_ERROR);
-            }
-
-            
-        }
+        oldUser.setUpdatedAt(Instant.now().toEpochMilli());
 
         return userRepository.save(oldUser);
+    }
+
+    public LoginResponse updateMyData(ReimsUser user) throws ReimsException {
+        ReimsUser userWithNewData;
+
+        userWithNewData = update(1, user);
+
+        // update token with latest username
+        Collection authorities =  new ArrayList();
+
+        authorities.add(new SimpleGrantedAuthority(userWithNewData.getRole().toString()));
+
+        // add token
+        String token = authService.generateToken(new UserDetailsImpl(user, authorities), authorities);
+
+        // register token
+        authService.registerToken(token);
+
+        // Modify Login Response
+        LoginResponse loginResponse = new LoginResponse();
+
+        // new username
+        loginResponse.setUsername(user.getUsername());
+        loginResponse.setId(userWithNewData.getId());
+        loginResponse.setAuthorization(token);
+        loginResponse.setRole(userWithNewData.getRole());
+
+        return loginResponse;
+
     }
 
     @Override

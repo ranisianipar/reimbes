@@ -21,6 +21,9 @@ public class AdminServiceImpl implements AdminService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private AuthServiceImpl authService;
+
+    @Autowired
     private UserServiceImpl userService;
 
     @Override
@@ -45,9 +48,13 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public ReimsUser updateUser(long id, ReimsUser user) throws ReimsException {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userService.update(id, user, null);
+    public Object updateUser(long id, ReimsUser user) throws ReimsException {
+        ReimsUser currentUser = userService.getUserByUsername(authService.getCurrentUsername());
+
+        // if admin try to update his data
+        if (currentUser.getId() == id) return userService.updateMyData(user);
+
+        return userService.update(id, user);
     }
 
     @Override

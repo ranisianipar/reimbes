@@ -61,7 +61,7 @@ public class UserServiceTest {
         user.setUsername("@min");
         user.setRole(ReimsUser.Role.ADMIN);
         user.setPassword("1234567890");
-        user.setId(1);
+        user.setId(2);
         users.add(user);
 
         userWithEncodedPass = new ReimsUser();
@@ -96,7 +96,7 @@ public class UserServiceTest {
         when(userRepository.findByUsername(newUser.getUsername())).thenReturn(newUser);
         when(userRepository.save(newUser)).thenReturn(newUser);
 
-        newUser = userService.update(newUser.getId(), newUser, new MockHttpServletResponse());
+        newUser = userService.update(newUser.getId(), newUser);
 
         assertNotEquals(newUser.getUsername(), oldUsername);
         assertNotNull(newUser.getUpdatedAt());
@@ -117,7 +117,7 @@ public class UserServiceTest {
         when(userRepository.findByUsername(newUser.getUsername())).thenReturn(newUser);
         when(userRepository.save(newUser)).thenReturn(newUser);
 
-        newUser = userService.update(0, newUser, new MockHttpServletResponse());
+        newUser = userService.update(1, newUser);
 
         assertNotEquals(newUser.getUsername(), oldUsername);
         assertNotNull(newUser.getUpdatedAt());
@@ -139,7 +139,7 @@ public class UserServiceTest {
 
 
         assertThrows(ReimsException.class, () -> {
-            userService.update(newUser.getId(), newUser, new MockHttpServletResponse());
+            userService.update(newUser.getId(), newUser);
         });
     }
 
@@ -171,7 +171,7 @@ public class UserServiceTest {
 
 
         assertThrows(ReimsException.class, () -> {
-            userService.update(newUser.getId(), newUser, new MockHttpServletResponse());
+            userService.update(newUser.getId(), newUser);
         });
     }
 
@@ -217,7 +217,7 @@ public class UserServiceTest {
         when(authService.getCurrentUsername()).thenReturn(user.getUsername());
         when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
 
-        assertEquals(user,userService.get(0));
+        assertEquals(user,userService.get(1));
 
     }
 
@@ -234,7 +234,7 @@ public class UserServiceTest {
         List users = new ArrayList();
         users.add(user);
         Page page = new PageImpl(users);
-        when(userRepository.findByUsernameContainingIgnoreCase(user.getUsername(), pageable)).thenReturn(page);
+        when(userRepository.findByIdGreaterThanAndUsernameContainingIgnoreCase(1, user.getUsername(), pageable)).thenReturn(page);
 
         assertEquals(page, userService.getAllUsers(user.getUsername(), pageable));
     }

@@ -77,7 +77,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             FilterChain chain,
                                             Authentication auth) throws IOException {
 
-
+        log.info("Authentication succeed!");
         UserDetailsImpl user = (UserDetailsImpl) auth.getPrincipal();
         Collection authorities = user.getAuthorities();
         String token = authService.generateToken(user,authorities);

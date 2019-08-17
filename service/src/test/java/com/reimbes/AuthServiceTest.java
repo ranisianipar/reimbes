@@ -69,8 +69,8 @@ public class AuthServiceTest {
 
         String token = authService.generateToken(userDetails, authorities);
         ActiveToken activeToken = new ActiveToken(token);
-        activeToken.setExpiredTime(Instant.now().getEpochSecond() + SecurityConstants.TOKEN_PERIOD);
         authService.registerToken(token);
+        activeToken.setExpiredTime(Instant.now().toEpochMilli() + SecurityConstants.TOKEN_PERIOD);
         verify(activeTokenRepository, times(1)).save(activeToken);
     }
 

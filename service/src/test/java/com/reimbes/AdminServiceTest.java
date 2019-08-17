@@ -2,7 +2,9 @@ package com.reimbes;
 
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.AdminServiceImpl;
+import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.UserServiceImpl;
+import com.reimbes.response.LoginResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,12 +33,16 @@ public class AdminServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
+    private AuthServiceImpl authService;
+
+    @Mock
     private UserServiceImpl userService;
 
     @InjectMocks
     private AdminServiceImpl adminService;
 
     private ReimsUser user = new ReimsUser();
+    private ReimsUser user2 = new ReimsUser();
     private Pageable pageRequest = new PageRequest(1, 5, new Sort(Sort.Direction.DESC, "createdAt"));
     private Pageable pageForQuery = new PageRequest(0, pageRequest.getPageSize(), pageRequest.getSort());
     @Before
@@ -45,6 +51,11 @@ public class AdminServiceTest {
         user.setPassword("HEHE");
         user.setRole(ReimsUser.Role.USER);
         user.setId(1);
+
+        user2.setId(user.getId()+1);
+        user2.setUsername(user.getUsername()+"123");
+        user2.setPassword(user.getPassword()+"123");
+        user2.setRole(ReimsUser.Role.USER);
     }
 
     @Test
@@ -81,14 +92,26 @@ public class AdminServiceTest {
 
     @Test
     public void returnUpdatedUser_whenAdminUpdateUser() throws ReimsException {
-        ReimsUser user2 = new ReimsUser();
-        user2.setId(user.getId());
-        user2.setRole(ReimsUser.Role.ADMIN);
-        user2.setPassword(user.getPassword());
-        user2.setUsername(user.getUsername());
-        when(userService.update(user.getId(), user2, new MockHttpServletResponse())).thenReturn(user2);
+        when(authService.getCurrentUsername()).thenReturn(user.getUsername());
+        when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
+        when(userService.update(user2.getId(), user2)).thenReturn(user2);
 
-        assertEquals(user2, adminService.updateUser(user.getId(), user2));
+        assertEquals(user2, adminService.updateUser(user2.getId(), user2));
+    }
+
+    @Test
+    public void returnUpdatedUser_whenAdminUpdateHimself() throws ReimsException {
+        when(authService.getCurrentUsername()).thenReturn(user.getUsername());
+        when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
+
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setId(user.getId());
+        loginResponse.setRole(user.getRole());
+        loginResponse.setUsername(user.getUsername());
+
+        when(userService.updateMyData(user)).thenReturn(loginResponse);
+
+        assertEquals(loginResponse, adminService.updateUser(user.getId(), user));
     }
 
     @Test
