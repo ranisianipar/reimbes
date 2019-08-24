@@ -1,4 +1,4 @@
-/target/
+x/target/
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
@@ -23,3 +23,7 @@
 /nbdist/
 /.nb-gradle/
 /build/
+
+### Reims ###
+reims-img/*
+!reims-img/.gitkeep

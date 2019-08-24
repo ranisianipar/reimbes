@@ -1,0 +1,9 @@
+com\reimbes\ReimsUser$Role.class
+com\reimbes\ActiveToken.class
+com\reimbes\Transaction$Category.class
+com\reimbes\Fuel$Type.class
+com\reimbes\Fuel.class
+com\reimbes\Transaction.class
+com\reimbes\Parking$Type.class
+com\reimbes\Parking.class
+com\reimbes\ReimsUser.class
