@@ -4,6 +4,7 @@ import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.AdminServiceImpl;
 import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.UserServiceImpl;
+import com.reimbes.implementation.Utils;
 import com.reimbes.response.LoginResponse;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +29,9 @@ import static org.mockito.Mockito.*;
 @ContextConfiguration
 @ComponentScan(basePackageClasses = AdminServiceImpl.class)
 public class AdminServiceTest {
+
+    @Mock
+    private Utils utils;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -92,7 +96,7 @@ public class AdminServiceTest {
 
     @Test
     public void returnUpdatedUser_whenAdminUpdateUser() throws ReimsException {
-        when(authService.getCurrentUsername()).thenReturn(user.getUsername());
+        when(utils.getUsername()).thenReturn(user.getUsername());
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
         when(userService.update(user2.getId(), user2)).thenReturn(user2);
 
@@ -101,7 +105,7 @@ public class AdminServiceTest {
 
     @Test
     public void returnUpdatedUser_whenAdminUpdateHimself() throws ReimsException {
-        when(authService.getCurrentUsername()).thenReturn(user.getUsername());
+        when(utils.getUsername()).thenReturn(user.getUsername());
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
 
         ReimsUser userWithNewData = new ReimsUser();

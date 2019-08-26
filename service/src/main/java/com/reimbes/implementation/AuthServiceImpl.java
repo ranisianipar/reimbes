@@ -34,20 +34,8 @@ public class AuthServiceImpl implements AuthService {
 
     private static Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
 
-    private String currentUsername;
-
-
     @Autowired
     private ActiveTokenRepository activeTokenRepository;
-
-    public void setCurrentUsername(Object principal) {
-        this.currentUsername = principal+"";
-    }
-
-    public String getCurrentUsername() {
-        return this.currentUsername;
-    }
-
 
     @Override
     public boolean isLogin(String token) {

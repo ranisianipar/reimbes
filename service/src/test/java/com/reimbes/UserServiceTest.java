@@ -1,10 +1,7 @@
 package com.reimbes;
 
 import com.reimbes.exception.ReimsException;
-import com.reimbes.implementation.AuthServiceImpl;
-import com.reimbes.implementation.ReportGeneratorServiceImpl;
-import com.reimbes.implementation.TransactionServiceImpl;
-import com.reimbes.implementation.UserServiceImpl;
+import com.reimbes.implementation.*;
 import com.reimbes.response.LoginResponse;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +34,9 @@ public class UserServiceTest {
 
     @Mock
     private ReportGeneratorServiceImpl reportGeneratorService;
+
+    @Mock
+    private Utils utils;
 
     @Mock
     private AuthServiceImpl authService;
@@ -124,7 +124,7 @@ public class UserServiceTest {
         when(userRepository.save(user)).thenReturn(userWithEncodedPass);
         ReimsUser newUser = userService.create(user);
 
-        when(authService.getCurrentUsername()).thenReturn(newUser.getUsername());
+        when(utils.getUsername()).thenReturn(newUser.getUsername());
         when(userRepository.findByUsername(newUser.getUsername())).thenReturn(newUser);
 
         String oldUsername = newUser.getUsername();
@@ -230,7 +230,7 @@ public class UserServiceTest {
 
     @Test
     public void returnCurrentUserData() throws ReimsException{
-        when(authService.getCurrentUsername()).thenReturn(user.getUsername());
+        when(utils.getUsername()).thenReturn(user.getUsername());
         when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
 
         assertEquals(user,userService.get(1));
@@ -259,7 +259,7 @@ public class UserServiceTest {
     public void makingAReport_whenUserAskedForIt() throws Exception {
         byte[] fakeReport = new byte[100];
         when(reportGeneratorService.getReport(user,new Long(0),new Long(0))).thenReturn(fakeReport);
-        when(authService.getCurrentUsername()).thenReturn(user.getUsername());
+        when(utils.getUsername()).thenReturn(user.getUsername());
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
 
         assertEquals(userService.getReport("0", "0"), fakeReport);
@@ -269,7 +269,7 @@ public class UserServiceTest {
     public void updatePersonalData() throws ReimsException {
         when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
         when(userRepository.save(user)).thenReturn(userWithEncodedPass);
-        when(authService.getCurrentUsername()).thenReturn(user.getUsername());
+        when(utils.getUsername()).thenReturn(user.getUsername());
         when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
 
         String dummyToken = "123";

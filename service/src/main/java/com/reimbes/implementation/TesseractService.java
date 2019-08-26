@@ -1,8 +1,7 @@
 package com.reimbes.implementation;
 
-import com.reimbes.Fuel;
+
 import com.reimbes.OcrService;
-import com.reimbes.Parking;
 import com.reimbes.Transaction;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
@@ -48,7 +47,7 @@ public class TesseractService implements OcrService {
         return instance;
     }
 
-    public String readImage(String imagePath) throws IOException,ReimsException {
+    public String readImage(String imagePath) throws IOException, ReimsException {
         // absolute path
         imagePath = UrlConstants.IMAGE_FOLDER_PATH+imagePath;
 
