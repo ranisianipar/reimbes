@@ -19,12 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -126,7 +121,6 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.delete(transaction);
     }
 
-    @Transactional
     public void deleteByUser(ReimsUser user) {
         List<Transaction> transactions = transactionRepository.findByReimsUser(user);
         if (transactions == null)
@@ -135,7 +129,7 @@ public class TransactionServiceImpl implements TransactionService {
         log.info("Removing the images");
         Iterator iterator = transactions.iterator();
         while (iterator.hasNext()) {
-            removeImage(((Transaction) iterator.next()).getImage());
+            utils.removeImage(((Transaction) iterator.next()).getImage());
         }
 
         transactionRepository.delete(transactions);
@@ -208,32 +202,24 @@ public class TransactionServiceImpl implements TransactionService {
         userId = userService.getUserByUsername(utils.getUsername()).getId();
 
         String foldername = userId +"/";
-        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ foldername);
 
-        if (!Files.exists(Paths.get(path)))
-            Files.createDirectory(Paths.get(path));
+        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ foldername);
+        log.info("[After] clean path: "+ path);
+
+        if (!utils.isFileExists(path))
+            utils.createDirectory(path);
 
         String filename = UUID.randomUUID()+"."+extension;
         path = path + filename;
 
         // uploadImage photo
         try {
-            Files.write(Paths.get(path), data, StandardOpenOption.CREATE);
+            utils.createFile(path, data);
         } catch (Exception e) {
             e.printStackTrace();
         }
         
         return foldername+filename;
-    }
-
-    private void removeImage(String imagePath) {
-        imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
-        try {
-            Files.delete(Paths.get(imagePath));
-        }   catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     @Override
@@ -248,8 +234,9 @@ public class TransactionServiceImpl implements TransactionService {
         byte[] imageByte;
         String result;
         try {
-            imageByte = Files.readAllBytes(Paths.get(UrlConstants.IMAGE_FOLDER_PATH + imagePath));
+            imageByte = utils.getImageByImagePath(imagePath);
             log.info("Translate to byte done.");
+
             result = Base64.getEncoder().encodeToString(imageByte);
             log.info("Get image in Base64 format.");
             return result;
@@ -296,8 +283,8 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // validate image path
-        if (transaction.getImage()== null || !Files.exists(Paths.get(
-                UrlConstants.IMAGE_FOLDER_PATH + transaction.getImage())))
+        if (transaction.getImage()== null || !utils.isFileExists(
+                UrlConstants.IMAGE_FOLDER_PATH + transaction.getImage()))
             errorMessages.add("INVALID_IMAGE_PATH");
 
 

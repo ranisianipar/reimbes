@@ -1,7 +1,14 @@
 package com.reimbes.implementation;
 
+import com.reimbes.constant.UrlConstants;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /*
 * Author: Rani Lasma Uli
@@ -21,5 +28,35 @@ public class Utils {
             e.printStackTrace();
         }
         return "";
+
+    }
+
+    public void removeImage(String imagePath) {
+        imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
+        try {
+            Files.delete(Paths.get(imagePath));
+        }   catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public byte[] getImageByImagePath(String imagePath) throws IOException {
+        return Files.readAllBytes(Paths.get(UrlConstants.IMAGE_FOLDER_PATH + imagePath));
+    }
+
+    public boolean isFileExists(String filepath) {
+        return Files.exists(Paths.get(filepath));
+    }
+
+    public void createFile(String cleanedPath, byte[] data) throws IOException {
+        Files.write(Paths.get(cleanedPath), data, StandardOpenOption.CREATE);
+    }
+
+    public void createDirectory(String cleanedPath) throws IOException {
+        Files.createDirectory(Paths.get(cleanedPath));
+    }
+
+    public byte[] getFile(String filename) throws IOException {
+        return Files.readAllBytes(Paths.get(filename));
     }
 }
