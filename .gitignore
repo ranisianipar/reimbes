@@ -1,4 +1,4 @@
-x/target/
+/target/
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
@@ -27,3 +27,7 @@ x/target/
 ### Reims ###
 reims-img/*
 !reims-img/.gitkeep
+
+### Traning ###
+training/image/*
+training/image/.gitkeep
