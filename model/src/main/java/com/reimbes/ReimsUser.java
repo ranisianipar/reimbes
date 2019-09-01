@@ -30,6 +30,10 @@ public class ReimsUser {
     @JsonBackReference
     private Set<Transaction> transactions;
 
+    @OneToMany(mappedBy = "reimsUser")
+    @JsonBackReference
+    private Set<Medical> medicals;
+
     @Column(updatable = false, nullable = false)
     private long createdAt;
 

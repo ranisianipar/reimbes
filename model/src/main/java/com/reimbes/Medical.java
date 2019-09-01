@@ -1,6 +1,7 @@
 package com.reimbes;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -23,6 +24,11 @@ public class Medical {
     private ClaimReceipent claimFor;
 
     private String attachement;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @JoinColumn(name = "reimsUser", nullable = false)
+    private ReimsUser reimsUser;
 
 
     public enum ClaimReceipent {
