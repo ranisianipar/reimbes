@@ -27,6 +27,9 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     @Autowired
     private TransactionServiceImpl transactionService;
 
+    @Autowired
+    private Utils utils;
+
     @Override
     public byte[] getReport(ReimsUser user, Long start, Long end) throws Exception {
 
@@ -129,7 +132,8 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         wb.write(out);
 
         out.close();
-        return Files.readAllBytes(Paths.get(filename));
+
+        return utils.getFile(filename);
     }
 
     private Cell createCell(Row row, int index, String value) {

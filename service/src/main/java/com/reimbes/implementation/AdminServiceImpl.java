@@ -23,6 +23,9 @@ public class AdminServiceImpl implements AdminService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private Utils utils;
+
+    @Autowired
     private AuthServiceImpl authService;
 
     @Autowired
@@ -30,6 +33,8 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Page getAllUser(String search, Pageable pageRequest) throws ReimsException {
+        log.info("Get all user by: "+utils.getUsername());
+
         log.info("Page request number: "+pageRequest.getPageNumber());
         // tha page number default is 1, but querying things start from 0.
         int index = pageRequest.getPageNumber()-1;
@@ -51,7 +56,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Object updateUser(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
-        ReimsUser currentUser = userService.getUserByUsername(authService.getCurrentUsername());
+        ReimsUser currentUser = userService.getUserByUsername(utils.getUsername());
 
         // if admin try to update his data
         if (currentUser.getId() == id) return userService.updateMyData(user, response);

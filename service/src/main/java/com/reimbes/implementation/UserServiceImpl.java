@@ -38,6 +38,9 @@ public class UserServiceImpl implements UserService {
     private AuthServiceImpl authService;
 
     @Autowired
+    private Utils utils;
+
+    @Autowired
     private TransactionServiceImpl transactionService;
 
     @Autowired
@@ -61,7 +64,8 @@ public class UserServiceImpl implements UserService {
     public ReimsUser update(long id, ReimsUser user) throws ReimsException {
         ReimsUser oldUser;
 
-        if (id == 1) oldUser = userRepository.findByUsername(authService.getCurrentUsername());
+
+        if (id == 1) oldUser = userRepository.findByUsername(utils.getUsername());
         else oldUser = userRepository.findOne(id);
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
@@ -108,7 +112,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public ReimsUser get(long id) throws ReimsException {
         ReimsUser user;
-        if (id == 1) return userRepository.findByUsername(authService.getCurrentUsername());
+
+        if (id == 1) return userRepository.findByUsername(utils.getUsername());
         else user = userRepository.findOne(id);
         if (user == null)
             throw new NotFoundException("USER "+id);
@@ -144,6 +149,8 @@ public class UserServiceImpl implements UserService {
         Long start;
         Long end;
 
+
+
         if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
             start = null;
             end = null;
@@ -151,7 +158,7 @@ public class UserServiceImpl implements UserService {
             start = Long.parseLong(startDate);
             end = Long.parseLong(endDate);
         }
-        return reportGeneratorService.getReport(getUserByUsername(authService.getCurrentUsername()),
+        return reportGeneratorService.getReport(getUserByUsername(utils.getUsername()),
                 start, end);
     }
 

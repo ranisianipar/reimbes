@@ -108,12 +108,6 @@ public class AuthServiceTest {
         verify(activeTokenRepository, times(1)).delete(activeToken);
     }
 
-    @Test
-    public void currentUsernameTest() {
-        assertNull(authService.getCurrentUsername());
-        authService.setCurrentUsername("hahaha");
-        assertFalse(authService.getCurrentUsername().isEmpty());
-    }
 
     @Test
     public void isLoginReturnFalse_whenRequestDoesntHaveValidToken() {

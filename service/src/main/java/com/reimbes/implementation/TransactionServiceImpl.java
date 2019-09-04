@@ -19,12 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -49,10 +44,13 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private TesseractService ocrService;
 
+    @Autowired
+    private Utils utils;
+
     @Override
     public Transaction createByImage(String imageValue) throws ReimsException {
 
-        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
+        ReimsUser user = userService.getUserByUsername(utils.getUsername());
 
         String[] extractedByte = imageValue.split(",");
         String extension = extractedByte[0];
@@ -109,7 +107,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
         transaction.setImage(transactionRequest.getImage());
         transaction.setTitle(transactionRequest.getTitle());
-        transaction.setReimsUser(userService.getUserByUsername(authService.getCurrentUsername()));
+        transaction.setReimsUser(userService.getUserByUsername(utils.getUsername()));
 
         return transactionRepository.save(transaction);
     }
@@ -117,13 +115,12 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void delete(long id) throws ReimsException{
-        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
+        ReimsUser user = userService.getUserByUsername(utils.getUsername());
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getReimsUser() != user) throw new NotFoundException("Transaction with ID "+id);
         transactionRepository.delete(transaction);
     }
 
-    @Transactional
     public void deleteByUser(ReimsUser user) {
         List<Transaction> transactions = transactionRepository.findByReimsUser(user);
         if (transactions == null)
@@ -132,7 +129,7 @@ public class TransactionServiceImpl implements TransactionService {
         log.info("Removing the images");
         Iterator iterator = transactions.iterator();
         while (iterator.hasNext()) {
-            removeImage(((Transaction) iterator.next()).getImage());
+            utils.removeImage(((Transaction) iterator.next()).getImage());
         }
 
         transactionRepository.delete(transactions);
@@ -140,7 +137,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction get(long id) throws ReimsException{
-        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
+        ReimsUser user = userService.getUserByUsername(utils.getUsername());
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getReimsUser() != user)
             throw new NotFoundException("Transaction with ID "+id);
@@ -160,7 +157,7 @@ public class TransactionServiceImpl implements TransactionService {
         Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
 
         /****************************************SERVE REQUEST w/ JPA METHOD*******************************************/
-        ReimsUser user = userService.getUserByUsername(authService.getCurrentUsername());
+        ReimsUser user = userService.getUserByUsername(utils.getUsername());
         if (title == null) title = "";
 
         if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
@@ -202,20 +199,22 @@ public class TransactionServiceImpl implements TransactionService {
     public String uploadImage(byte[] data, String extension) throws Exception {
         long userId;
 
-        userId = userService.getUserByUsername(authService.getCurrentUsername()).getId();
+        userId = userService.getUserByUsername(utils.getUsername()).getId();
 
         String foldername = userId +"/";
-        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ foldername);
 
-        if (!Files.exists(Paths.get(path)))
-            Files.createDirectory(Paths.get(path));
+        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ foldername);
+        log.info("[After] clean path: "+ path);
+
+        if (!utils.isFileExists(path))
+            utils.createDirectory(path);
 
         String filename = UUID.randomUUID()+"."+extension;
         path = path + filename;
 
         // uploadImage photo
         try {
-            Files.write(Paths.get(path), data, StandardOpenOption.CREATE);
+            utils.createFile(path, data);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -223,19 +222,9 @@ public class TransactionServiceImpl implements TransactionService {
         return foldername+filename;
     }
 
-    private void removeImage(String imagePath) {
-        imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
-        try {
-            Files.delete(Paths.get(imagePath));
-        }   catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
     @Override
     public String getImage(long id, String imageName) throws ReimsException {
-        if (id != userService.getUserByUsername(authService.getCurrentUsername()).getId())
+        if (id != userService.getUserByUsername(utils.getUsername()).getId())
             throw new NotFoundException("IMAGE");
 
         String imagePath = id+"/"+imageName;
@@ -245,8 +234,9 @@ public class TransactionServiceImpl implements TransactionService {
         byte[] imageByte;
         String result;
         try {
-            imageByte = Files.readAllBytes(Paths.get(UrlConstants.IMAGE_FOLDER_PATH + imagePath));
+            imageByte = utils.getImageByImagePath(imagePath);
             log.info("Translate to byte done.");
+
             result = Base64.getEncoder().encodeToString(imageByte);
             log.info("Get image in Base64 format.");
             return result;
@@ -293,8 +283,8 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // validate image path
-        if (transaction.getImage()== null || !Files.exists(Paths.get(
-                UrlConstants.IMAGE_FOLDER_PATH + transaction.getImage())))
+        if (transaction.getImage()== null || !utils.isFileExists(
+                UrlConstants.IMAGE_FOLDER_PATH + transaction.getImage()))
             errorMessages.add("INVALID_IMAGE_PATH");
 
 

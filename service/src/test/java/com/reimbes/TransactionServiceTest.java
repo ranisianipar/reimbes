@@ -44,6 +44,9 @@ public class TransactionServiceTest {
     private AuthServiceImpl authService;
 
     @Mock
+    private Utils utils;
+
+    @Mock
     private TesseractService ocrService;
 
     @InjectMocks
@@ -87,7 +90,7 @@ public class TransactionServiceTest {
 
         user.setTransactions(new HashSet(transactions));
 
-        when(userService.getUserByUsername(authService.getCurrentUsername())).thenReturn(user);
+        when(userService.getUserByUsername(utils.getUsername())).thenReturn(user);
 
     }
 
