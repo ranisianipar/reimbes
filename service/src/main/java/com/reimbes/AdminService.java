@@ -13,5 +13,5 @@ public interface AdminService {
 
     //  ReimsUser / Login User
     Object updateUser(long id, ReimsUser user, HttpServletResponse response) throws ReimsException;
-    void deleteUser(long id);
+    void deleteUser(long id) throws ReimsException;
 }

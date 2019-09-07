@@ -26,6 +26,9 @@ public class ReimsUser {
     @NotNull
     private Role role;
 
+    @Column
+    private Gender gender;
+
     @OneToMany(mappedBy = "reimsUser")
     @JsonBackReference
     private Set<Transaction> transactions;
@@ -39,5 +42,10 @@ public class ReimsUser {
     public enum Role {
         ADMIN,
         USER
+    }
+
+    public enum Gender {
+        MALE,
+        FEMALE
     }
 }
