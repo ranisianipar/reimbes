@@ -37,6 +37,12 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private ActiveTokenRepository activeTokenRepository;
 
+    @Autowired
+    private UserServiceImpl userService;
+
+    @Autowired
+    private Utils utils;
+
     @Override
     public boolean isLogin(String token) {
         log.info("Check the token is in the Active Token Repo or not");
@@ -113,6 +119,10 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("Token has been created.");
         return token;
+    }
+
+    public ReimsUser getCurrentUser() {
+        return userService.getUserByUsername(utils.getUsername());
     }
 
     private long getUpdatedTime() {
