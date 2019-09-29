@@ -1,9 +1,6 @@
 package com.reimbes.implementation;
 
-import com.reimbes.ReimsUser;
-import com.reimbes.ReimsUserRepository;
-import com.reimbes.UserDetailsImpl;
-import com.reimbes.UserService;
+import com.reimbes.*;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
@@ -33,6 +30,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private ReportGeneratorServiceImpl reportGeneratorService;
+
+    @Autowired
+    private FamilyMemberRepository familyMemberRepository;
 
     @Autowired
     private AuthServiceImpl authService;
@@ -160,6 +160,16 @@ public class UserServiceImpl implements UserService {
         }
         return reportGeneratorService.getReport(getUserByUsername(utils.getUsername()),
                 start, end);
+    }
+
+    // accessed by Admin
+    public FamilyMember addFamilyMember(Long userId, FamilyMember member) {
+        FamilyMember familyMember = new FamilyMember();
+        familyMember.setEmployee(userRepository.findOne(userId));
+        familyMember.setDateOfBirth(member.getDateOfBirth());
+        familyMember.setName(member.getName());
+        familyMember.setRelationship(member.getRelationship());
+        return familyMemberRepository.save(familyMember);
     }
 
     /* Old User Data NOT NULL indicate update user activity */

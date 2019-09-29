@@ -1,6 +1,7 @@
 package com.reimbes.implementation;
 
 import com.reimbes.AdminService;
+import com.reimbes.FamilyMember;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.ResponseCode;
 import com.reimbes.exception.DataConstraintException;
@@ -77,6 +78,10 @@ public class AdminServiceImpl implements AdminService {
         ReimsUser currentUser = userService.getUserByUsername(utils.getUsername());
         if (currentUser.getId() == id) throw new ReimsException("SELF_DELETION", HttpStatus.METHOD_NOT_ALLOWED, 405);
         userService.deleteUser(id);
+    }
+
+    public FamilyMember addMember(long userId, FamilyMember member) {
+        return userService.addFamilyMember(userId, member);
     }
 
     private void validate(ReimsUser newUser) throws ReimsException {

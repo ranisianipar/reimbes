@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.reimbes.constant.UrlConstants.FAMILY_MEMBER_PREFIX;
+
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
 @RequestMapping(UrlConstants.API_PREFIX + UrlConstants.ADMIN_PREFIX)
@@ -98,6 +100,13 @@ public class AdminController {
         BaseResponse<UserResponse> br = new BaseResponse<>();
         adminService.deleteUser(id);
 
+        return br;
+    }
+
+    @PostMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM + FAMILY_MEMBER_PREFIX)
+    public BaseResponse addFamilyMember(@PathVariable long id, @RequestBody FamilyMember familyMember) {
+        BaseResponse br = new BaseResponse();
+        br.setData(adminService.addMember(id, familyMember));
         return br;
     }
 
