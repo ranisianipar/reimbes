@@ -4,7 +4,6 @@ import com.reimbes.AdminService;
 import com.reimbes.FamilyMember;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.ResponseCode;
-import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
@@ -77,11 +76,15 @@ public class AdminServiceImpl implements AdminService {
     public void deleteUser(long id) throws ReimsException{
         ReimsUser currentUser = userService.getUserByUsername(utils.getUsername());
         if (currentUser.getId() == id) throw new ReimsException("SELF_DELETION", HttpStatus.METHOD_NOT_ALLOWED, 405);
-        userService.deleteUser(id);
+        userService.delete(id);
     }
 
-    public FamilyMember addMember(long userId, FamilyMember member) {
+    public FamilyMember addMember(long userId, FamilyMember member) throws ReimsException {
         return userService.addFamilyMember(userId, member);
+    }
+
+    public List<FamilyMember> getAllMember(long userId) {
+        return null;
     }
 
     private void validate(ReimsUser newUser) throws ReimsException {

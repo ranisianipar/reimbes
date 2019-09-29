@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.reimbes.constant.General.SPECIAL_ID;
 import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 
 @Service
@@ -30,9 +31,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private ReportGeneratorServiceImpl reportGeneratorService;
-
-    @Autowired
-    private FamilyMemberRepository familyMemberRepository;
 
     @Autowired
     private AuthServiceImpl authService;
@@ -48,6 +46,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private FamilyMemberServiceImpl familyMemberService;
 
 
     @Override
@@ -65,14 +66,14 @@ public class UserServiceImpl implements UserService {
         ReimsUser oldUser;
 
 
-        if (id == 1) oldUser = userRepository.findByUsername(utils.getUsername());
+        if (id == SPECIAL_ID) oldUser = userRepository.findByUsername(utils.getUsername());
         else oldUser = userRepository.findOne(id);
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
 
         validate(user, oldUser);
 
-        if (id != 1) oldUser.setRole(user.getRole());
+        if (id != SPECIAL_ID) oldUser.setRole(user.getRole());
         
         oldUser.setUsername(user.getUsername());
         oldUser.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -83,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ReimsUser updateMyData(ReimsUser user, HttpServletResponse response) throws ReimsException {
-        ReimsUser userWithNewData = update(1, user);
+        ReimsUser userWithNewData = update(SPECIAL_ID, user);
 
         // update token with latest username
         Collection authorities =  new ArrayList();
@@ -113,7 +114,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser get(long id) throws ReimsException {
         ReimsUser user;
 
-        if (id == 1) return userRepository.findByUsername(utils.getUsername());
+        if (id == SPECIAL_ID) return userRepository.findByUsername(utils.getUsername());
         else user = userRepository.findOne(id);
         if (user == null)
             throw new NotFoundException("USER "+id);
@@ -122,11 +123,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page getAllUsers(String username, Pageable pageable) {
-        return userRepository.findByIdGreaterThanAndUsernameContainingIgnoreCase(1, username, pageable);
+        return userRepository.findByIdGreaterThanAndUsernameContainingIgnoreCase(SPECIAL_ID, username, pageable);
     }
 
     @Override
-    public void deleteUser(long id) {
+    public void delete(long id) {
         ReimsUser user = userRepository.findOne(id);
 
         if (user == null) {
@@ -163,14 +164,22 @@ public class UserServiceImpl implements UserService {
     }
 
     // accessed by Admin
-    public FamilyMember addFamilyMember(Long userId, FamilyMember member) {
-        FamilyMember familyMember = new FamilyMember();
-        familyMember.setEmployee(userRepository.findOne(userId));
-        familyMember.setDateOfBirth(member.getDateOfBirth());
-        familyMember.setName(member.getName());
-        familyMember.setRelationship(member.getRelationship());
-        return familyMemberRepository.save(familyMember);
+    public FamilyMember addFamilyMember(long id, FamilyMember member) throws ReimsException {
+        return familyMemberService.create(userRepository.findOne(id), member);
     }
+
+    public List<FamilyMember> getAllFamilyMember(Long id, Pageable pageable) {
+        return familyMemberService.getAll(userRepository.findOne(id), pageable);
+    }
+
+    // accessed by Admin and User
+    public FamilyMember getFamilyMember(Long userId, Long memberId) throws ReimsException {
+        if (userId == null)
+            return familyMemberService.get(userRepository.findByUsername(utils.getUsername()), memberId);
+
+        return familyMemberService.get(userRepository.findOne(userId), memberId);
+    }
+
 
     /* Old User Data NOT NULL indicate update user activity */
     private void validate(ReimsUser newUserData, ReimsUser oldUserData) throws DataConstraintException{

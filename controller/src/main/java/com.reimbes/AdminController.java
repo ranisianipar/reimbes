@@ -103,13 +103,6 @@ public class AdminController {
         return br;
     }
 
-    @PostMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM + FAMILY_MEMBER_PREFIX)
-    public BaseResponse addFamilyMember(@PathVariable long id, @RequestBody FamilyMember familyMember) {
-        BaseResponse br = new BaseResponse();
-        br.setData(adminService.addMember(id, familyMember));
-        return br;
-    }
-
     private MapperFacade getMapper() {
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
         mapperFactory.classMap(ReimsUser.class, UserResponse.class)

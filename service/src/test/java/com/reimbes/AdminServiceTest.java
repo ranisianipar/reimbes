@@ -5,7 +5,6 @@ import com.reimbes.implementation.AdminServiceImpl;
 import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.UserServiceImpl;
 import com.reimbes.implementation.Utils;
-import com.reimbes.response.LoginResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -122,7 +121,7 @@ public class AdminServiceTest {
     @Test
     public void doUserDeletion_whenAdminDeleteUserById() throws ReimsException {
         adminService.deleteUser(user.getId());
-        verify(userService, times(1)).deleteUser(user.getId());
+        verify(userService, times(1)).delete(user.getId());
     }
 
 
