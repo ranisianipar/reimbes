@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.Set;
 
 @Table(name = "Reims_Users")
@@ -29,9 +30,17 @@ public class ReimsUser {
     @Column
     private Gender gender;
 
+    @Column
+    private Date dateOfBirth;
+
     @OneToMany(mappedBy = "reimsUser")
     @JsonBackReference
     private Set<Transaction> transactions;
+
+
+    @OneToMany(mappedBy = "employee")
+    @JsonBackReference
+    private Set<FamilyMember> familyMembers;
 
     @Column(updatable = false, nullable = false)
     private long createdAt;

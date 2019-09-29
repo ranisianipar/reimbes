@@ -94,7 +94,7 @@ public class AdminController {
     }
 
     @DeleteMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM)
-    public BaseResponse<UserResponse> deleteUser(@PathVariable long id) {
+    public BaseResponse<UserResponse> deleteUser(@PathVariable long id) throws ReimsException {
         BaseResponse<UserResponse> br = new BaseResponse<>();
         adminService.deleteUser(id);
 

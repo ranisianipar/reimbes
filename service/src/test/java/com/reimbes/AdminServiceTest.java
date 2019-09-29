@@ -120,7 +120,7 @@ public class AdminServiceTest {
     }
 
     @Test
-    public void doUserDeletion_whenAdminDeleteUserById() {
+    public void doUserDeletion_whenAdminDeleteUserById() throws ReimsException {
         adminService.deleteUser(user.getId());
         verify(userService, times(1)).deleteUser(user.getId());
     }
