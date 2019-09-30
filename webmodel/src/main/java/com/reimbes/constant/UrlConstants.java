@@ -18,6 +18,7 @@ public class UrlConstants {
     public static final String ADMIN_PREFIX = "/admin";
     public static final String API_PREFIX = "/api";
     public static final String MEDICAL_PREFIX = "/medicals";
+    public static final String FAMILY_MEMBER_PREFIX = "/family-member";
     public static final String USER_PREFIX = "/users";
     public static final String TRANSACTION_PREFIX = "/transactions";
 

@@ -5,7 +5,6 @@ import com.reimbes.authentication.filter.JWTAuthorizationFilter;
 import com.reimbes.authentication.rest.RESTAuthenticationEntryPoint;
 import com.reimbes.authentication.rest.RESTAuthenticationFailureHandler;
 import com.reimbes.authentication.rest.RESTAuthenticationSuccessHandler;
-import com.reimbes.constant.UrlConstants;
 import com.reimbes.implementation.UserDetailsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
-import static com.reimbes.constant.UrlConstants.CROSS_ORIGIN_URL;
+import static com.reimbes.constant.UrlConstants.*;
 
 @Configuration
 @EnableWebSecurity
@@ -64,20 +63,21 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers(
-                        UrlConstants.LOGIN_URL,
-                        UrlConstants.LOGOUT_URL,
-                        UrlConstants.ISLOGIN_URL,
+                        LOGIN_URL,
+                        LOGOUT_URL,
+                        ISLOGIN_URL,
                         "/v2/api-docs"
                 ).permitAll()
                 .antMatchers(
-                        UrlConstants.ADMIN_PREFIX,
-                        UrlConstants.ADMIN_PREFIX+"/**"
+                        ADMIN_PREFIX,
+                        ADMIN_PREFIX+"/**",
+                        FAMILY_MEMBER_PREFIX
                     ).hasAuthority("ADMIN")
                 .antMatchers(
-                        UrlConstants.USER_PREFIX,
-                        UrlConstants.USER_PREFIX+"/**",
-                        UrlConstants.TRANSACTION_PREFIX,
-                        UrlConstants.TRANSACTION_PREFIX+"/**"
+                        USER_PREFIX,
+                        USER_PREFIX+"/**",
+                        TRANSACTION_PREFIX,
+                        TRANSACTION_PREFIX+"/**"
                     ).hasAuthority("USER")
                 .anyRequest().authenticated()
                 .and()
@@ -126,7 +126,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     @Bean
     public JWTAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter(authenticationManager);
-        jwtAuthenticationFilter.setFilterProcessesUrl(UrlConstants.API_PREFIX+UrlConstants.LOGIN_URL);
+        jwtAuthenticationFilter.setFilterProcessesUrl(API_PREFIX + LOGIN_URL);
 
         return jwtAuthenticationFilter;
     }
