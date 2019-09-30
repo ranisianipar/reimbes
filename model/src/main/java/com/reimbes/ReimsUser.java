@@ -37,6 +37,10 @@ public class ReimsUser {
     @JsonBackReference
     private Set<Transaction> transactions;
 
+    @OneToMany(mappedBy = "reimsUser")
+    @JsonBackReference
+    private Set<Medical> medicals;
+
 
     @OneToMany(mappedBy = "employee")
     @JsonBackReference
