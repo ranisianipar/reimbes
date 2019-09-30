@@ -51,8 +51,8 @@ public class MedicalServiceImpl implements MedicalService {
 
         validate(newMedical);
         old.setAmount(newMedical.getAmount());
-        old.setBirthDate(newMedical.getBirthDate());
-        old.setClaimFor(newMedical.getClaimFor());
+        old.setDateOfBirth(newMedical.getDateOfBirth());
+        old.setPatient(newMedical.getPatient());
         old.setDate(newMedical.getDate());
 
         if (file != null) old.setAttachement(uploadFile(file));
@@ -111,7 +111,7 @@ public class MedicalServiceImpl implements MedicalService {
         ArrayList<String> errors = new ArrayList();
 
         if (report.getAmount() <= 0) errors.add("PROHIBITED_AMOUNT");
-        if (report.getClaimFor() == null) errors.add("NULL_ATTRIBUTE_CLAIM_FOR");
+        if (report.getPatient() == null) errors.add("NULL_ATTRIBUTE_CLAIM_FOR");
 
         if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
     }

@@ -20,8 +20,9 @@ public class Medical {
     private long amount;
     private long date;
 
-    private long birthDate; // for age calculation
-    private ClaimReceipent claimFor;
+    private long dateOfBirth; // for age calculation
+    // ????
+    private ClaimReceipent patient;
 
     private String attachement;
 
