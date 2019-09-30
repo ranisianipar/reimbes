@@ -54,7 +54,7 @@ only for authenticated User
       "amount": 27000,
       "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
       "title": "Demam",
-      "claimedFor": {
+      "patient": {
 		"id":92769,
 		"name":"Andre Forbes"
 		"relationship":`CHILDREN`,
@@ -93,7 +93,7 @@ only for authenticated User
       "amount": 27000,
       "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
       "title": "Demam",
-      "claimedFor": {
+      "patient": {
 		"id":92769,
 		"name":"Andre Forbes"
 		"relationship":`CHILDREN`,
@@ -129,8 +129,8 @@ only for authenticated User
     "amount": 27000,
     "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
     "title": "Demam",
-    // this attribute will be null when User claimed for himself
-    "claimedFor": {
+    // this attribute will be null when User claim for himself
+    "patient": {
 		"id":92769,
 		"name":"Andre Forbes"
 		"relationship":`CHILDREN`,
@@ -153,7 +153,8 @@ only for authenticated User
         "created_at":1559058600,
         "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
         "title": "Demam",
-        "claimedFor": {
+        // this attribute will be null when User claim for himself
+        "patient": {
     		"id":92769,
     		"name":"Andre Forbes"
     		"relationship":`CHILDREN`,
@@ -195,3 +196,4 @@ only for authenticated User
 }
 ```
 - Response Body (Failure) : -
+
