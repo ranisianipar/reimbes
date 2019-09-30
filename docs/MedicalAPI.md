@@ -54,11 +54,12 @@ only for authenticated User
       "amount": 27000,
       "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
       "title": "Demam",
-      "receipent": {
-	      "id": 262149
-	      "relation": null
-		}
-    }
+      "claimedFor": {
+		"id":92769,
+		"name":"Andre Forbes"
+		"relationship":`CHILDREN`,
+		"dateOfBirth":"1993-01-01"
+	}
   ],
   "success": true
 }
@@ -92,10 +93,12 @@ only for authenticated User
       "amount": 27000,
       "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
       "title": "Demam",
-      "receipent": {
-	      "id": 262149
-	      "relation": null
-		}
+      "claimedFor": {
+		"id":92769,
+		"name":"Andre Forbes"
+		"relationship":`CHILDREN`,
+		"dateOfBirth":"1993-01-01"
+	    }
     }
   
 ```
@@ -126,9 +129,12 @@ only for authenticated User
     "amount": 27000,
     "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
     "title": "Demam",
-    "receipent": {
-		"id":32769,
-		"relation":null
+    // this attribute will be null when User claimed for himself
+    "claimedFor": {
+		"id":92769,
+		"name":"Andre Forbes"
+		"relationship":`CHILDREN`,
+		"dateOfBirth":"1993-01-01"
 	}
 }
 ```
@@ -146,11 +152,13 @@ only for authenticated User
         "title":"Demam",
         "created_at":1559058600,
         "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
-    "title": "Demam",
-    "receipent": {
-			"id":32769,
-			"relation":null
-		}
+        "title": "Demam",
+        "claimedFor": {
+    		"id":92769,
+    		"name":"Andre Forbes"
+    		"relationship":`CHILDREN`,
+    		"dateOfBirth":"1993-01-01"
+    	}
     }
 }
 ```
@@ -187,4 +195,3 @@ only for authenticated User
 }
 ```
 - Response Body (Failure) : -
-
