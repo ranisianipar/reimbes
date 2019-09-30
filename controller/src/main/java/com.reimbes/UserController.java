@@ -88,7 +88,12 @@ public class UserController {
     public BaseResponse getFamilyMember(@PathVariable Long id) {
         BaseResponse br = new BaseResponse();
 
-        br.setData(userService.getFamilyMember(null, id));
+        try {
+            br.setData(userService.getFamilyMember(null, id));
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
         return br;
     }
 

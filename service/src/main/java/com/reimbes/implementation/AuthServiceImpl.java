@@ -55,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
 
         // token expired
 
-        log.info("Unauthenticated user try to request!");
+        log.info("Unauthenticated medicalUser try to request!");
         log.info("[DEBUG]:"+Instant.now().toEpochMilli());
         return false;
     }

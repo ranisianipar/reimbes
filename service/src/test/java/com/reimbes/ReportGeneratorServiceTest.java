@@ -100,10 +100,10 @@ public class ReportGeneratorServiceTest {
 
     @Test
     public void whenCreateReport_thenGenerateAndWriteReport() throws Exception {
-//        when(transactionService.getByUserAndDate(user, epochNow, epochNow)).thenReturn(new ArrayList<>(transactions));
-//        reportGeneratorService.getReport(user, epochNow, epochNow);
+//        when(transactionService.getByUserAndDate(medicalUser, epochNow, epochNow)).thenReturn(new ArrayList<>(transactions));
+//        reportGeneratorService.getReport(medicalUser, epochNow, epochNow);
 //
-//        verify(Files.readAllBytes(Paths.get(String.format("%s_%s_%s", user.getUsername(), epochNow, epochNow))),
+//        verify(Files.readAllBytes(Paths.get(String.format("%s_%s_%s", medicalUser.getUsername(), epochNow, epochNow))),
 //                times(1));
     }
 }

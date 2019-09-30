@@ -181,7 +181,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    /* Old User Data NOT NULL indicate update user activity */
+    /* Old User Data NOT NULL indicate update medicalUser activity */
     private void validate(ReimsUser newUserData, ReimsUser oldUserData) throws DataConstraintException{
         List errors = new ArrayList();
 
@@ -191,7 +191,7 @@ public class UserServiceImpl implements UserService {
         if (newUserData.getPassword() == null || newUserData.getPassword().isEmpty())
             errors.add("NULL_PASSWORD");
 
-        // compare new user data with other user data
+        // compare new medicalUser data with other medicalUser data
         if (errors.isEmpty()){
             ReimsUser user = userRepository.findByUsername(newUserData.getUsername());
 

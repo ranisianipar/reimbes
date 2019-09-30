@@ -25,7 +25,7 @@ public class FamilyMemberServiceImpl {
             throw new DataConstraintException("GENDER_CONSTRAINT");
 
         FamilyMember familyMember = new FamilyMember();
-        familyMember.setEmployee(user);
+        familyMember.setFamilyMemberOf(user);
         familyMember.setDateOfBirth(member.getDateOfBirth());
         familyMember.setName(member.getName());
         familyMember.setRelationship(member.getRelationship());
@@ -34,7 +34,7 @@ public class FamilyMemberServiceImpl {
 
     public FamilyMember get(ReimsUser user, Long familyMemberId) throws ReimsException {
         FamilyMember familyMember = familyMemberRepository.findOne(familyMemberId);
-        if (familyMember != null && familyMember.getEmployee().getId() != user.getId())
+        if (familyMember != null && familyMember.getFamilyMemberOf().getId() != user.getId())
             throw new NotFoundException("FAMILY_MEMBER");
 
         return familyMember;
@@ -45,7 +45,7 @@ public class FamilyMemberServiceImpl {
         if (user.getGender() != ReimsUser.Gender.MALE)
             new ArrayList<>();
 
-        return familyMemberRepository.findByEmployee(user, pageable);
+        return familyMemberRepository.findByFamilyMemberOf(user, pageable);
     }
 
     // throw error?

@@ -66,7 +66,7 @@ public class TransactionRepositoryTest {
 
     @Test
     public void checkTransactionExistanceByImage() {
-//        when(userRepository.save(user)).thenReturn(user);
+//        when(userRepository.save(medicalUser)).thenReturn(medicalUser);
 
         assertTrue(transactionRepository.existsByImage(fuel.getImage()));
         assertTrue(transactionRepository.existsByImage(parking.getImage()));

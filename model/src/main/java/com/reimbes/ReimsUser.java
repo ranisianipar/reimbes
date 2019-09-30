@@ -37,12 +37,12 @@ public class ReimsUser {
     @JsonBackReference
     private Set<Transaction> transactions;
 
-    @OneToMany(mappedBy = "reimsUser")
+    @OneToMany(mappedBy = "medicalUser")
     @JsonBackReference
     private Set<Medical> medicals;
 
 
-    @OneToMany(mappedBy = "employee")
+    @OneToMany(mappedBy = "familyMemberOf")
     @JsonBackReference
     private Set<FamilyMember> familyMembers;
 

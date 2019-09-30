@@ -17,23 +17,22 @@ public class Medical {
     @Column(updatable = false, insertable = false, columnDefinition = "serial")
     private long id;
 
+    private String title;
+
     private long amount;
     private long date;
 
     private long dateOfBirth; // for age calculation
-    // ????
-    private ClaimReceipent patient;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @JoinColumn(name = "patient", nullable = false)
+    private FamilyMember patient;
 
     private String attachement;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonManagedReference
-    @JoinColumn(name = "reimsUser", nullable = false)
-    private ReimsUser reimsUser;
-
-
-    public enum ClaimReceipent {
-        EMPLOYEE,
-        FAMILY_MEMBER
-    }
+    @JoinColumn(name = "medicalUser", nullable = false)
+    private ReimsUser medicalUser;
 }

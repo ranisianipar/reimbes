@@ -19,6 +19,6 @@ public interface TransactionService {
 
     List<Transaction> getByUser(ReimsUser user);
     List<Transaction> getByUserAndDate(ReimsUser user, long start, long end);
-    String getImage(long id, String imageName) throws ReimsException; // is it ok to dont check the user?
+    String getImage(long id, String imageName) throws ReimsException; // is it ok to dont check the medicalUser?
     // .xls
 }

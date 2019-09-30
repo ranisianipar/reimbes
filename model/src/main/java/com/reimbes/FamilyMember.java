@@ -1,11 +1,13 @@
 package com.reimbes;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.Set;
 
 @Table(name = "Family_Member")
 @Entity
@@ -28,8 +30,13 @@ public class FamilyMember {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonManagedReference
-    @JoinColumn(name = "employee", nullable = false)
-    private ReimsUser employee;
+    @JoinColumn(name = "familyMemberOf", nullable = false)
+    private ReimsUser familyMemberOf;
+
+    @OneToMany(mappedBy = "patient")
+    @JsonBackReference
+    private Set<Medical> medicals;
+
 
     public enum Relationship {
         SPOUSE,

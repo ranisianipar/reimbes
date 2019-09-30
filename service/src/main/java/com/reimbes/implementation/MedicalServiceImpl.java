@@ -41,7 +41,7 @@ public class MedicalServiceImpl implements MedicalService {
         validate(medical);
         if (file != null) medical.setAttachement(uploadFile(file));
 
-        medical.setReimsUser(currentUser);
+        medical.setMedicalUser(currentUser);
         return medicalRepository.save(medical);
     }
 
@@ -63,7 +63,7 @@ public class MedicalServiceImpl implements MedicalService {
     @Override
     public Medical get(long id) throws ReimsException {
         Medical report = medicalRepository.findOne(id);
-        if (report == null || report.getReimsUser() != authService.getCurrentUser())
+        if (report == null || report.getMedicalUser() != authService.getCurrentUser())
             throw new NotFoundException("MEDICAL_REPORT");
         return report;
     }
@@ -89,7 +89,7 @@ public class MedicalServiceImpl implements MedicalService {
     @Override
     public void delete(long id) throws ReimsException {
         Medical report = medicalRepository.findOne(id);
-        if (report == null || report.getReimsUser() != authService.getCurrentUser())
+        if (report == null || report.getMedicalUser() != authService.getCurrentUser())
             throw new NotFoundException("MEDICAL_REPORT");
 
         medicalRepository.delete(id);
