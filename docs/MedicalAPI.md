@@ -1,23 +1,17 @@
 
-# Family Member
+# Medical
 
 # List of API
+- [Get All Medicals](#get-all-medicals)
+- [Get Medical by ID](#get-medical-by-id)
+- [Create Medical](#create-medical)
+- [Delete Medical](#delete-medical)
+- [Update Medical](#update-medical)
 
-### Admin
-- [Get All Family Member for Admin](#get-all-family-member-for-admin)
-- [Get Family Member by ID](#get-family-member-by-id-for-admin)
-- [Create Family Member](#create-family-member-for-admin)
-- [Delete Family Member](#delete-family-member-for-admin)
-- [Update Family Member](#update-family-member-for-admin)
-### User
-- [Get All Family Member](#get-all-family-member)
-- [Get Family Member by ID](#get-family-member-by-id)
+## Get All Medicals
+only for USER
 
-
-## Get All Family Member for Admin
-only for ADMIN
-
-- Endpoint : `/api/admin/user/{userId}/family-members`
+- Endpoint : `/api/medicals`
 - HTTP Method : `GET`
 - Filter : 
     - Format data / Possible data value:
@@ -50,23 +44,31 @@ only for ADMIN
   "data": [
     {
 		"id":92769,
-		"name":"Andre Forbes"
-		"relationship":`CHILDREN`,
-		"dateOfBirth":"1993-01-01"
+		"title":"Istri Demam",
+		"amount":1000000,
+		"date":`2020-01-01`,
+		"attachment":[
+		// need notes?
+    		"92769/lqeigbhqohjgpoq313019504185.jpg",
+    		"92769/1gr2hbo23gbfo12332r5m5.jpg"
+		],
+		"patient":{
+    		"id":92768,
+    		"name":"Zendaya"
+    		"relationship":`SPOUSE`,
+    		"dateOfBirth":"1979-02-06"
+		}
 	},
 	{
-		"id":92768,
-		"name":"Zendaya"
-		"relationship":`SPOUSE`,
-		"dateOfBirth":"1979-02-06"
+	// sama seperti data di atas
 	}
   ],
   "success": true
 }
 ```
 
-## Get Family Member by ID for Admin
-- Endpoint : `/api/admin/user/{userId}/family-members/{familyMemberId}`
+## Get Medical by ID
+- Endpoint : `/api/medicals/{id}`
 - HTTP Method : `GET`
 - Request Header : 
     - Accept : `application/json`
@@ -88,11 +90,22 @@ only for ADMIN
   },
   "data": {
 		"id":92769,
-		"name":"Andre Forbes"
-		"relationship":`CHILDREN`,
-		"dateOfBirth":"1993-01-01"
-    }
-  
+		"title":"Istri Demam",
+		"amount":1000000,
+		"date":`2020-01-01`,
+		"attachment":[
+		// need notes?
+    		"92769/lqeigbhqohjgpoq313019504185.jpg",
+    		"92769/1gr2hbo23gbfo12332r5m5.jpg"
+		]
+		"patient":{
+    		"id":92768,
+    		"name":"Zendaya"
+    		"relationship":`SPOUSE`,
+    		"dateOfBirth":"1979-02-06"
+		}
+	}
+}
 ```
 - Response Body (Failure) :
 
@@ -100,7 +113,7 @@ only for ADMIN
 {
   "code": 404,
   "status": "NOT_FOUND",
-  "errors": "Not Found => Family Member with ID 249",
+  "errors": "Not Found => Medical with ID {ID}",
   "paging": null,
   "data": null,
   "success": false
@@ -108,7 +121,7 @@ only for ADMIN
 ```
 
 ## Create Medical
-- Endpoint : `api/admin/user/{userId}/family-members`
+- Endpoint : `api/medicals`
 - HTTP Method : `POST`
 - Request Header : 
     - Accept : `application/json`
@@ -116,10 +129,20 @@ only for ADMIN
 - Request Body : 
 ```json
 {
-	"id":92769,
-	"name":"Andre Forbes"
-	"relationship":`CHILDREN`,
-	"dateOfBirth":"1993-01-01"
+	"title":"Istri Demam"
+	"date":`2020-01-01`,
+	"amount":1000000,
+	"attachment":[
+	// need notes?
+		"92769/lqeigbhqohjgpoq313019504185.jpg",
+		"92769/1gr2hbo23gbfo12332r5m5.jpg"
+	],
+	"patient":{
+		"id":92768,
+		"name":"Zendaya"
+		"relationship":`SPOUSE`,
+		"dateOfBirth":"1979-02-06"
+	}
 }
 ```
 
@@ -130,10 +153,21 @@ only for ADMIN
     "code": 200,
     "status": "OK",
     "data": {
-		"id":92769,
-		"name":"Andre Forbes"
-		"relationship":`CHILDREN`,
-		"dateOfBirth":"1993-01-01"
+        "id":"998175",
+    	"title":"Istri Demam"
+    	"amount":1000000,
+    	"date":`2020-01-01`,
+    	"attachment":[
+    	// need notes?
+    		"92769/lqeigbhqohjgpoq313019504185.jpg",
+    		"92769/1gr2hbo23gbfo12332r5m5.jpg"
+    	],
+    	"patient":{
+    		"id":92768,
+    		"name":"Zendaya"
+    		"relationship":`SPOUSE`,
+    		"dateOfBirth":"1979-02-06"
+    	}
     }
 }
 ```
@@ -151,7 +185,7 @@ only for ADMIN
     }
 }
 ```
-## Delete Family Member by id
+## Delete Medical
 
 - Endpoint : `/api/medicals/{id}`
 - HTTP Method : `DELETE`
@@ -171,8 +205,8 @@ only for ADMIN
 ```
 - Response Body (Failure) : -
 
-## Update Family Member
-- Endpoint : `api/admin/user/{userId}/family-members/{familyMemberId}`
+## Update Medical
+- Endpoint : `api/medicals/{id}`
 - HTTP Method : `POST`
 - Request Header : 
     - Accept : `application/json`
@@ -180,10 +214,21 @@ only for ADMIN
 - Request Body : 
 ```json
 {
-	"id":92769,
-	"name":"Andre Forbes"
-	"relationship":`CHILDREN`,
-	"dateOfBirth":"1993-01-01"
+    "id":"998175",
+	"title":"Istri Demam"
+	"amount":1000000,
+	"date":`2020-01-01`,
+	"attachment":[
+	// need notes?
+		"92769/lqeigbhqohjgpoq313019504185.jpg",
+		"92769/1gr2hbo23gbfo12332r5m5.jpg"
+	],
+	"patient":{
+		"id":92768,
+		"name":"Zendaya"
+		"relationship":`SPOUSE`,
+		"dateOfBirth":"1979-02-06"
+	}
 }
 ```
 
@@ -213,99 +258,6 @@ only for ADMIN
         "date":NOT_NULL,
         "title":NOT_NULL
     }
-}
-```
-
-## Get All Family Member
-only for ADMIN
-
-- Endpoint : `/api/family-members`
-- HTTP Method : `GET`
-- Filter : 
-    - Format data / Possible data value:
-        - search: "`Demam`"
-- Pagination : 
-    - support pagination by URL Path, add this on URL: `page=P&size=S&sortBy=created_at`
-    - Default data :
-        - Page : `1`
-        - Size : `5`
-        - SortBy : `created_at`
-
-- Request Header : 
-    - Accept : `application/json`
-    - Content-Type : `application/json`
-- Request Body : -
-
-- Response Body (Success) :
-
-```json
-{
-  "code": 200,
-  "status": "OK",
-  "errors": null,
-  "paging": {
-    "pageNumber": 3,
-    "pageSize": 5,
-    "totalPages": 3,
-    "totalRecords": 1
-  },
-  "data": [
-    {
-		"id":92769,
-		"name":"Andre Forbes"
-		"relationship":`CHILDREN`,
-		"dateOfBirth":"1993-01-01"
-	},
-	{
-		"id":92768,
-		"name":"Zendaya"
-		"relationship":`SPOUSE`,
-		"dateOfBirth":"1979-02-06"
-	}
-  ],
-  "success": true
-}
-```
-
-## Get Family Member by ID
-- Endpoint : `/api/family-members/{familyMemberId}`
-- HTTP Method : `GET`
-- Request Header : 
-    - Accept : `application/json`
-    - Content-Type : `application/json`
-- Request Body : -
-
-- Response Body (Success) :
-
-```json
-{
-  "code": 200,
-  "status": "OK",
-  "errors": null,
-  "paging": {
-    "pageNumber": 3,
-    "pageSize": 5,
-    "totalPages": 3,
-    "totalRecords": 1
-  },
-  "data": {
-		"id":92769,
-		"name":"Andre Forbes"
-		"relationship":`CHILDREN`,
-		"dateOfBirth":"1993-01-01"
-    }
-  
-```
-- Response Body (Failure) :
-
-```json
-{
-  "code": 404,
-  "status": "NOT_FOUND",
-  "errors": "Not Found => Family Member with ID 249",
-  "paging": null,
-  "data": null,
-  "success": false
 }
 ```
 
