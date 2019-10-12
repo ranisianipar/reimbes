@@ -1,7 +1,5 @@
-<<<<<<< HEAD
-C:\Users\Z\Documents\future\reimbes\repository\src\main\java\com\reimbes\TransactionRepository.java
-C:\Users\Z\Documents\future\reimbes\repository\src\main\java\com\reimbes\ActiveTokenRepository.java
-C:\Users\Z\Documents\future\reimbes\repository\src\main\java\com\reimbes\ReimsUserRepository.java
-=======
-C:\Users\Z\Documents\future\reimbes\repository\src\main\java\com\reimbes\UserRepository.java
->>>>>>> 366e8739cac0b2f7e5f612ccb0f9c08949277064
+C:\Users\Z\Documents\code\reimbes\repository\src\main\java\com\reimbes\FamilyMemberRepository.java
+C:\Users\Z\Documents\code\reimbes\repository\src\main\java\com\reimbes\TransactionRepository.java
+C:\Users\Z\Documents\code\reimbes\repository\src\main\java\com\reimbes\ActiveTokenRepository.java
+C:\Users\Z\Documents\code\reimbes\repository\src\main\java\com\reimbes\MedicalRepository.java
+C:\Users\Z\Documents\code\reimbes\repository\src\main\java\com\reimbes\ReimsUserRepository.java
