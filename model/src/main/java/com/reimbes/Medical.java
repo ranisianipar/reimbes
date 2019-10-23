@@ -24,15 +24,15 @@ public class Medical {
 
     private long dateOfBirth; // for age calculation
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonManagedReference
-    @JoinColumn(name = "patient", nullable = false)
-    private FamilyMember patient;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JsonManagedReference(value = "patientMedicals")
+//    @JoinColumn(name = "patient", nullable = false)
+//    private FamilyMember patient;
 
     private String attachement;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonManagedReference
-    @JoinColumn(name = "medicalUser", nullable = false)
-    private ReimsUser medicalUser;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JsonManagedReference(value = "medicalUser")
+//    @JoinColumn(name = "reimsUser", nullable = false)
+//    private ReimsUser medicalUser;
 }

@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface FamilyMemberRepository extends JpaRepository<FamilyMember, Long> {
-    List<FamilyMember> findByFamilyMemberOf(ReimsUser employee, Pageable pageable);
+//    List<FamilyMember> findByFamilyMemberOf(ReimsUser employee, Pageable pageable);
 }

@@ -41,7 +41,7 @@ public class MedicalServiceImpl implements MedicalService {
         validate(medical);
         if (file != null) medical.setAttachement(uploadFile(file));
 
-        medical.setMedicalUser(currentUser);
+//        medical.setMedicalUser(currentUser);
         return medicalRepository.save(medical);
     }
 
@@ -52,7 +52,7 @@ public class MedicalServiceImpl implements MedicalService {
         validate(newMedical);
         old.setAmount(newMedical.getAmount());
         old.setDateOfBirth(newMedical.getDateOfBirth());
-        old.setPatient(newMedical.getPatient());
+//        old.setPatient(newMedical.getPatient());
         old.setDate(newMedical.getDate());
 
         if (file != null) old.setAttachement(uploadFile(file));
@@ -63,8 +63,8 @@ public class MedicalServiceImpl implements MedicalService {
     @Override
     public Medical get(long id) throws ReimsException {
         Medical report = medicalRepository.findOne(id);
-        if (report == null || report.getMedicalUser() != authService.getCurrentUser())
-            throw new NotFoundException("MEDICAL_REPORT");
+//        if (report == null || report.getMedicalUser() != authService.getCurrentUser())
+//            throw new NotFoundException("MEDICAL_REPORT");
         return report;
     }
 
@@ -89,8 +89,8 @@ public class MedicalServiceImpl implements MedicalService {
     @Override
     public void delete(long id) throws ReimsException {
         Medical report = medicalRepository.findOne(id);
-        if (report == null || report.getMedicalUser() != authService.getCurrentUser())
-            throw new NotFoundException("MEDICAL_REPORT");
+//        if (report == null || report.getMedicalUser() != authService.getCurrentUser())
+//            throw new NotFoundException("MEDICAL_REPORT");
 
         medicalRepository.delete(id);
     }
@@ -111,7 +111,7 @@ public class MedicalServiceImpl implements MedicalService {
         ArrayList<String> errors = new ArrayList();
 
         if (report.getAmount() <= 0) errors.add("PROHIBITED_AMOUNT");
-        if (report.getPatient() == null) errors.add("NULL_ATTRIBUTE_CLAIM_FOR");
+//        if (report.getPatient() == null) errors.add("NULL_ATTRIBUTE_CLAIM_FOR");
 
         if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
     }

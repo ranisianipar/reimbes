@@ -1,7 +1,6 @@
 package com.reimbes;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -10,8 +9,10 @@ import java.util.Date;
 import java.util.Set;
 
 @Table(name = "Family_Member")
-@Entity
 @Data
+@Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class FamilyMember {
 
     @Id
@@ -29,13 +30,12 @@ public class FamilyMember {
     private Date dateOfBirth;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonManagedReference
     @JoinColumn(name = "familyMemberOf", nullable = false)
     private ReimsUser familyMemberOf;
 
-    @OneToMany(mappedBy = "patient")
-    @JsonBackReference
-    private Set<Medical> medicals;
+//    @OneToMany(mappedBy = "patient")
+//    @JsonBackReference(value = "patientMedicals")
+//    private Set<Medical> medicals;
 
 
     public enum Relationship {
