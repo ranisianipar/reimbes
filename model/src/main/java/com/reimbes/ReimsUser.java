@@ -43,9 +43,8 @@ public class ReimsUser {
     @OneToMany(mappedBy = "familyMemberOf")
     private Set<FamilyMember> familyMemberOf;
 
-//    @OneToMany(mappedBy = "medicalUser")
-//    @JsonBackReference(value = "medicalUser")
-//    private Set<Medical> medicals;
+    @OneToMany(mappedBy = "medicalUser")
+    private Set<Medical> medicals;
 
     @Column(updatable = false, nullable = false)
     private long createdAt;

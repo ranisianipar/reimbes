@@ -33,9 +33,8 @@ public class FamilyMember {
     @JoinColumn(name = "familyMemberOf", nullable = false)
     private ReimsUser familyMemberOf;
 
-//    @OneToMany(mappedBy = "patient")
-//    @JsonBackReference(value = "patientMedicals")
-//    private Set<Medical> medicals;
+    @OneToMany(mappedBy = "patient")
+    private Set<Medical> medicals;
 
 
     public enum Relationship {

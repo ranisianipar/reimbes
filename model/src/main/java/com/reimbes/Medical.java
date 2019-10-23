@@ -1,7 +1,9 @@
 package com.reimbes;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -10,6 +12,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Medical {
 
     @Id
@@ -24,15 +27,13 @@ public class Medical {
 
     private long dateOfBirth; // for age calculation
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JsonManagedReference(value = "patientMedicals")
-//    @JoinColumn(name = "patient", nullable = false)
-//    private FamilyMember patient;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient", nullable = false)
+    private FamilyMember patient;
 
     private String attachement;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JsonManagedReference(value = "medicalUser")
-//    @JoinColumn(name = "reimsUser", nullable = false)
-//    private ReimsUser medicalUser;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reimsUser", nullable = false)
+    private ReimsUser medicalUser;
 }
