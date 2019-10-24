@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,13 +22,17 @@ public class FamilyMemberServiceImpl {
     @Autowired
     private FamilyMemberRepository familyMemberRepository;
 
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
 
     public FamilyMember create(ReimsUser user, FamilyMember member) throws ReimsException {
         if (user.getGender() != ReimsUser.Gender.MALE)
             throw new DataConstraintException("GENDER_CONSTRAINT");
 
         FamilyMember familyMember = new FamilyMember();
-//        familyMember.setFamilyMemberOf(user);
+        familyMember.setFamilyMemberOf(user);
+
+
         familyMember.setDateOfBirth(member.getDateOfBirth());
         familyMember.setName(member.getName());
         familyMember.setRelationship(member.getRelationship());
@@ -34,8 +41,8 @@ public class FamilyMemberServiceImpl {
 
     public FamilyMember get(ReimsUser user, Long familyMemberId) throws ReimsException {
         FamilyMember familyMember = familyMemberRepository.findOne(familyMemberId);
-//        if (familyMember != null && familyMember.getFamilyMemberOf().getId() != user.getId())
-//            throw new NotFoundException("FAMILY_MEMBER");
+        if (familyMember != null && familyMember.getFamilyMemberOf().getId() != user.getId())
+            throw new NotFoundException("FAMILY_MEMBER");
 
         return familyMember;
     }
@@ -45,8 +52,7 @@ public class FamilyMemberServiceImpl {
         if (user.getGender() != ReimsUser.Gender.MALE)
             return new ArrayList<>();
 
-//        return familyMemberRepository.findByFamilyMemberOf(user, pageable);
-        return new ArrayList<>();
+        return familyMemberRepository.findByFamilyMemberOf(user, pageable);
     }
 
     // throw error?
@@ -67,7 +73,18 @@ public class FamilyMemberServiceImpl {
         return familyMemberRepository.save(member);
     }
 
-    public void validate(FamilyMember data) {
+    public void validate(FamilyMember data) throws DataConstraintException {
         // name?
+
+        ArrayList errorMessages = new ArrayList();
+
+        try {
+            dateFormat.parse(data.getDateOfBirth()+"");
+        }   catch (ParseException e) {
+            errorMessages.add("INVALID_BIRTHDATE_FORMAT");
+        }
+
+        throw new DataConstraintException(errorMessages.toString());
+
     }
 }
