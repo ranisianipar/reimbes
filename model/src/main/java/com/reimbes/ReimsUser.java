@@ -46,6 +46,10 @@ public class ReimsUser {
     @OneToMany(mappedBy = "medicalUser")
     private Set<Medical> medicals;
 
+    private String license;
+
+    private Parking.Type transportation;
+
     @Column(updatable = false, nullable = false)
     private long createdAt;
 
