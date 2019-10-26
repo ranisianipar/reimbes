@@ -1,5 +1,6 @@
 package com.reimbes;
 
+import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.FamilyMemberServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +19,7 @@ import java.util.Set;
 
 import static com.reimbes.ReimsUser.Role.USER;
 import static org.junit.Assert.assertEquals;
+import static org.junit.gen5.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -74,8 +76,13 @@ public class FamilyMemberServiceTest {
     }
 
     @Test
-    public void succeedRegisterFamilyMemberToMaleUser() throws Exception {
+    public void succeedRegisterFamilyMemberForMaleUser() throws Exception {
         when(repository.save(familyMember)).thenReturn(familyMember);
         assertEquals(service.create(maleUser, familyMember), familyMember);
+    }
+
+    @Test
+    public void failedRegisterFamilyMemberForFemaleUser() throws Exception {
+        assertThrows(ReimsException.class, () -> service.create(femaleUser, familyMember));
     }
 }
