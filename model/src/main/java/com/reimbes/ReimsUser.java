@@ -40,6 +40,7 @@ public class ReimsUser {
     @JsonBackReference
     private Set<Transaction> transactions;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "familyMemberOf")
     private Set<FamilyMember> familyMemberOf;
 

@@ -6,6 +6,8 @@ import com.reimbes.ReimsUser;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ import java.util.List;
 @Service
 public class FamilyMemberServiceImpl {
 
+    private static Logger log = LoggerFactory.getLogger(FamilyMemberServiceImpl.class);
+
     @Autowired
     private FamilyMemberRepository familyMemberRepository;
 
@@ -29,13 +33,14 @@ public class FamilyMemberServiceImpl {
         if (user.getGender() != ReimsUser.Gender.MALE)
             throw new DataConstraintException("GENDER_CONSTRAINT");
 
-        FamilyMember familyMember = new FamilyMember();
-        familyMember.setFamilyMemberOf(user);
+        FamilyMember familyMember = FamilyMember.builder()
+                .familyMemberOf(user)
+                .dateOfBirth(member.getDateOfBirth())
+                .name(member.getName())
+                .relationship(member.getRelationship())
+                .build();
+        log.info("FAMILY_MEMBER: "+familyMember.toString());
 
-
-        familyMember.setDateOfBirth(member.getDateOfBirth());
-        familyMember.setName(member.getName());
-        familyMember.setRelationship(member.getRelationship());
         return familyMemberRepository.save(familyMember);
     }
 
