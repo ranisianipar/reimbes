@@ -34,7 +34,7 @@ public class FamilyMember {
     private Relationship relationship;
 
     @NotNull
-    private Date dateOfBirth;
+    private Date dateOfBirth; // yyyy-MM-dd
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "familyMemberOf", nullable = false)

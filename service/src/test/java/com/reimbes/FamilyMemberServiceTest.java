@@ -85,4 +85,5 @@ public class FamilyMemberServiceTest {
     public void failedRegisterFamilyMemberForFemaleUser() throws Exception {
         assertThrows(ReimsException.class, () -> service.create(femaleUser, familyMember));
     }
+
 }

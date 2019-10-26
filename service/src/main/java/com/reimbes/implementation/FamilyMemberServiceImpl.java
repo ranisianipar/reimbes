@@ -30,6 +30,7 @@ public class FamilyMemberServiceImpl {
 
 
     public FamilyMember create(ReimsUser user, FamilyMember member) throws ReimsException {
+        if (user.getRole() == ReimsUser.Role.ADMIN) return null;
         if (user.getGender() != ReimsUser.Gender.MALE)
             throw new DataConstraintException("GENDER_CONSTRAINT");
 
