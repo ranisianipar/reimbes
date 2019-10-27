@@ -24,8 +24,10 @@ public class FamilyMemberController {
 
 
     // FAMILY MEMBER THINGS
-    @PostMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM + FAMILY_MEMBER_PREFIX)
-    public BaseResponse addFamilyMember(@PathVariable long id, @RequestBody FamilyMember familyMember) {
+    // TANYAIN BAIKNYA GIMANA
+    @PostMapping
+    public BaseResponse addFamilyMember(
+            @RequestParam(value = "user-id") Integer id, @RequestBody FamilyMember familyMember) {
         BaseResponse br = new BaseResponse();
         try {
             br.setData(familyMemberService.addFamilyMember(id, familyMember));

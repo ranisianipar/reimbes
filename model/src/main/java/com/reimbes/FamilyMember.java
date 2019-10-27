@@ -1,7 +1,11 @@
 package com.reimbes;
 
 import com.fasterxml.jackson.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import net.bytebuddy.build.ToStringPlugin;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -9,8 +13,11 @@ import java.util.Date;
 import java.util.Set;
 
 @Table(name = "Family_Member")
-@Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class FamilyMember {
@@ -27,11 +34,11 @@ public class FamilyMember {
     private Relationship relationship;
 
     @NotNull
-    private Date dateOfBirth;
+    private Date dateOfBirth; // yyyy-MM-dd
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "familyMemberOf", nullable = false)
-    private ReimsUser familyMemberOf;
+    @ToStringPlugin.Exclude private ReimsUser familyMemberOf;
 
     @OneToMany(mappedBy = "patient")
     private Set<Medical> medicals;
@@ -41,6 +48,7 @@ public class FamilyMember {
         SPOUSE,
         CHILDREN
     }
+
 
 
 }
