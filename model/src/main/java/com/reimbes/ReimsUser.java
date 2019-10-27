@@ -49,7 +49,7 @@ public class ReimsUser {
 
     private String license;
 
-    private Parking.Type transportation;
+    private Parking.Type vehicle;
 
     @Column(updatable = false, nullable = false)
     private long createdAt;
