@@ -103,13 +103,23 @@
             "id": 500000026,
             "username": "hafiztesting",
             "role": "ADMIN",
-            "created_at":1559058600
+            "gender":"MALE",
+	    "dateOfBirth":"1970-11-1",
+	    "license":"B XXXX XX",
+	    "vehicle":"CAR",
+	    "created_at":1559058600,
+	    "updated_at":0
         },
         {
             "id": 500000027,
             "username": "testinggg",
             "role": "USER",
-            "created_at":1559058600
+            "gender":"MALE",
+	    "dateOfBirth":"1970-11-1",
+	    "license":"B XXXX XX",
+	    "vehicle":"CAR"
+	    "created_at":1559058600,
+	    "updated_at":1559058655"
         }
     ]
 }
@@ -146,7 +156,6 @@
 	"vehicle":"CAR"
         "created_at":1559058600,
         "updated_at":0
-        "created_at":1559058600
     }
 
 }
@@ -342,11 +351,9 @@
 	"gender":"MALE",
 	"dateOfBirth":"1970-11-1",
 	"license":"B XXXX XX",
-	"vehicle":"CAR"
+	"vehicle":"CAR",
         "created_at":1559058600,
-        "updated_at":0
-        "created_at":1559058600,
-        "updated_at":1559058655"
+        "updated_at":1559058655
     }
 }
 ```
@@ -398,9 +405,9 @@
 	"gender":"MALE",
 	"dateOfBirth":"1970-11-1",
 	"license":"B XXXX XX",
-	"vehicle":"CAR"
+	"vehicle":"CAR",
         "created_at":1559058600,
-        "updated_at":1559058655"
+        "updated_at":1559058655
     }
 }
 ```
