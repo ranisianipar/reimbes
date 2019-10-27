@@ -208,7 +208,7 @@
 
 ```json
 {
-    "code": 400,
+    "code": 500,
     "status": "BAD_REQUEST",
     "errors": {
         "password": NOT_NULL,
@@ -355,7 +355,7 @@
 
 ```json
 {
-    "code": 400,
+    "code": 500,
     "status": "BAD_REQUEST",
     "errors": {
         "password": NOT_NULL,
