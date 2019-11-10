@@ -14,9 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class MedicalServiceImpl implements MedicalService {
@@ -36,11 +34,35 @@ public class MedicalServiceImpl implements MedicalService {
     public Medical create(Medical medical, MultipartFile file) throws ReimsException {
 
         ReimsUser currentUser = authService.getCurrentUser();
+        Set<MedicalReport> reports = new HashSet<>();
 
         validate(medical);
-        if (file != null) medical.setAttachement(uploadFile(file));
+
+        if (file != null) {
+            medical.setAttachement(uploadFile(file));
+            medical.setReports(reports);
+        }
 
         // check user claim medical for himself or not
+        medical.setMedicalUser(currentUser);
+        return medicalRepository.save(medical);
+    }
+
+//    A COPY
+    public Medical create(Medical medical, List<MultipartFile> files) throws ReimsException {
+
+        ReimsUser currentUser = authService.getCurrentUser();
+        Set<MedicalReport> reports = new HashSet<>();
+
+        validate(medical);
+
+        for (MultipartFile file: files) {
+            uploadFile(file);
+            reports.add(MedicalReport.builder().image(uploadFile(file)).build());
+        }
+        medical.setReports(reports);
+
+        // [CHECK]: user claim medical for himself or not
         medical.setMedicalUser(currentUser);
         return medicalRepository.save(medical);
     }
@@ -93,27 +115,6 @@ public class MedicalServiceImpl implements MedicalService {
             throw new NotFoundException("MEDICAL_REPORT");
 
         medicalRepository.delete(id);
-    }
-
-    @Transactional
-    public List<String> uploadFiles(List<MultipartFile> files) throws FormatTypeError {
-        ReimsUser currentUser = authService.getCurrentUser();
-        List<MedicalReport> reports = new ArrayList<>();
-
-        // get filepath
-        // create medical reports when each report upload succeed
-
-        String filePath;
-        for (MultipartFile file: files) {
-            filePath = uploadFile(file);
-            
-        }
-
-
-
-        // return list of file path string
-
-        return null;
     }
 
     private String uploadFile(MultipartFile file) throws FormatTypeError {
