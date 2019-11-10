@@ -4,11 +4,14 @@ import com.reimbes.constant.UrlConstants;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.UUID;
 
 /*
 * Author: Rani Lasma Uli
@@ -58,5 +61,9 @@ public class Utils {
 
     public byte[] getFile(String filename) throws IOException {
         return Files.readAllBytes(Paths.get(filename));
+    }
+
+    public String getFilePath(String username, MultipartFile file) {
+        return String.format("%s/%s.%s", username, UUID.randomUUID(), file.getContentType());
     }
 }

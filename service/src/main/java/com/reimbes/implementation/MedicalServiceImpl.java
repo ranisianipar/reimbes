@@ -1,9 +1,6 @@
 package com.reimbes.implementation;
 
-import com.reimbes.Medical;
-import com.reimbes.MedicalRepository;
-import com.reimbes.MedicalService;
-import com.reimbes.ReimsUser;
+import com.reimbes.*;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.NotFoundException;
@@ -13,10 +10,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -41,6 +40,7 @@ public class MedicalServiceImpl implements MedicalService {
         validate(medical);
         if (file != null) medical.setAttachement(uploadFile(file));
 
+        // check user claim medical for himself or not
         medical.setMedicalUser(currentUser);
         return medicalRepository.save(medical);
     }
@@ -95,10 +95,31 @@ public class MedicalServiceImpl implements MedicalService {
         medicalRepository.delete(id);
     }
 
+    @Transactional
+    public List<String> uploadFiles(List<MultipartFile> files) throws FormatTypeError {
+        ReimsUser currentUser = authService.getCurrentUser();
+        List<MedicalReport> reports = new ArrayList<>();
+
+        // get filepath
+        // create medical reports when each report upload succeed
+
+        String filePath;
+        for (MultipartFile file: files) {
+            filePath = uploadFile(file);
+            
+        }
+
+
+
+        // return list of file path string
+
+        return null;
+    }
+
     private String uploadFile(MultipartFile file) throws FormatTypeError {
         ReimsUser currentUser = authService.getCurrentUser();
 
-        String filePath = currentUser.getUsername()+"/"+ UUID.randomUUID()+"."+file.getContentType();
+        String filePath = utils.getFilePath(currentUser.getUsername(), file);
         try {
             utils.createFile(filePath, file.getBytes());
         }  catch (IOException e) {
@@ -111,7 +132,7 @@ public class MedicalServiceImpl implements MedicalService {
         ArrayList<String> errors = new ArrayList();
 
         if (report.getAmount() <= 0) errors.add("PROHIBITED_AMOUNT");
-        if (report.getPatient() == null) errors.add("NULL_ATTRIBUTE_CLAIM_FOR");
+//        if (report.getPatient() == null) errors.add("NULL_ATTRIBUTE_PATIENT");
 
         if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
     }
