@@ -8,6 +8,8 @@ import com.reimbes.ActiveTokenRepository;
 import com.reimbes.AuthService;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.SecurityConstants;
+import com.reimbes.exception.DataConstraintException;
+import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,6 +125,11 @@ public class AuthServiceImpl implements AuthService {
 
     public ReimsUser getCurrentUser() {
         return userService.getUserByUsername(utils.getUsername());
+    }
+
+    public ReimsUser.Role getRoleByString(String roleString) {
+        if (roleString.equals(ReimsUser.Role.ADMIN.toString())) return ReimsUser.Role.ADMIN;
+        return ReimsUser.Role.USER;
     }
 
     private long getUpdatedTime() {
