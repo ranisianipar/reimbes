@@ -51,7 +51,6 @@ public class AuthServiceImpl implements AuthService {
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
 
 
-        log.info("Active Token: "+activeToken);
         if (activeToken != null && activeToken.getExpiredTime() >= Instant.now().getEpochSecond())
             return true;
 

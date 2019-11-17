@@ -1,6 +1,9 @@
 package com.reimbes.implementation;
 
 import com.reimbes.constant.UrlConstants;
+import com.reimbes.exception.FormatTypeError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -8,9 +11,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 /*
@@ -23,6 +30,8 @@ import java.util.UUID;
 
 @Service
 public class Utils {
+
+    private static Logger log = LoggerFactory.getLogger(Utils.class);
 
     public String getUsername() {
         try {
@@ -63,7 +72,65 @@ public class Utils {
         return Files.readAllBytes(Paths.get(filename));
     }
 
-    public String getFilePath(String username, MultipartFile file) {
-        return String.format("%s/%s.%s", username, UUID.randomUUID(), file.getContentType());
+    public String getFilename(String extension) {
+        return String.format("%s.%s", UUID.randomUUID(), extension);
+    }
+
+    /*
+    *
+    * imageValue: string those contains encoded image value in Base64 format
+    * userId: used to direct the user folder
+    * subfolder: transaction, medical, etc.
+    *
+    * */
+    public String uploadImage(String imageValue, long userId, String subfolder) throws FormatTypeError {
+        String[] extractedByte = imageValue.split(",");
+        String extension = extractedByte[0];
+        String imagePath;
+
+        // get the extension
+        if (extension.contains("jpg")) extension = "jpg";
+        else if (extension.contains("png")) extension = "png";
+        else if (extension.contains("jpeg")) extension = "jpeg";
+        else return null;
+
+        try {
+            byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
+                    .getBytes(StandardCharsets.UTF_8)));
+
+            log.info("Decoding image byte succeed.");
+            log.info("Uploading the image...");
+
+
+            /*
+            * do upload image
+            * */
+
+            // confirm folder existence
+            String folderPath = StringUtils.cleanPath(String.format("%d/%s/", userId, subfolder));
+            if (!isFileExists(folderPath))
+                createDirectory(folderPath);
+
+            imagePath = folderPath + getFilename(extension);
+            createFile(imagePath, imageByte);
+
+
+        } catch (Exception e) {
+            throw new FormatTypeError(e.getMessage());
+        }
+
+        return imagePath;
+    }
+
+    public static long getCurrentYear() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        return calendar.get(Calendar.YEAR);
+    }
+
+    public static long countAge(Date dateOfBirth) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(dateOfBirth);
+        return calendar.get(Calendar.YEAR) - getCurrentYear();
     }
 }

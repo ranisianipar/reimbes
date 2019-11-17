@@ -1,10 +1,13 @@
 package com.reimbes.implementation;
 
 import com.reimbes.*;
+import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,8 +19,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
 
+import static com.reimbes.implementation.Utils.countAge;
+
 @Service
 public class MedicalServiceImpl implements MedicalService {
+
+    private static Logger log = LoggerFactory.getLogger(MedicalServiceImpl.class);
 
 
     @Autowired
@@ -29,55 +36,57 @@ public class MedicalServiceImpl implements MedicalService {
     @Autowired
     private Utils utils;
 
-
-    @Override
-    public Medical create(Medical medical, MultipartFile file) throws ReimsException {
+//    MULTIPLE upload
+    public Medical create(Medical medical, List<String> files) throws ReimsException {
 
         ReimsUser currentUser = authService.getCurrentUser();
-        Set<MedicalReport> reports = new HashSet<>();
 
         validate(medical);
 
-        if (file != null) {
-            medical.setAttachement(uploadFile(file));
+        if (files != null) {
+            Set<MedicalReport> reports = new HashSet<>();
+            for (String file: files) {
+                reports.add(
+                        MedicalReport.builder()
+                                .image(utils.uploadImage(file, currentUser.getId(), UrlConstants.REPORT))
+                                .build()
+                );
+            }
             medical.setReports(reports);
         }
 
-        // check user claim medical for himself or not
-        medical.setMedicalUser(currentUser);
+
+        // [CHECK]: user claim medical for himself or not
+        // patient null --> claim for himself
+         medical.setMedicalUser(currentUser);
+//        if (medical.getPatient() == null)
+        medical.setAge(countAge(currentUser.getDateOfBirth()));
+
+        log.info("MEDICAL --> "+medical.toString());
         return medicalRepository.save(medical);
     }
 
-//    A COPY
-    public Medical create(Medical medical, List<MultipartFile> files) throws ReimsException {
-
+//    this method doesnt support medical report editing
+    @Override
+    public Medical update(long id, Medical newMedical, List<String> files) throws ReimsException {
+        Medical old = medicalRepository.findOne(id);
         ReimsUser currentUser = authService.getCurrentUser();
         Set<MedicalReport> reports = new HashSet<>();
 
-        validate(medical);
-
-        for (MultipartFile file: files) {
-            uploadFile(file);
-            reports.add(MedicalReport.builder().image(uploadFile(file)).build());
-        }
-        medical.setReports(reports);
-
-        // [CHECK]: user claim medical for himself or not
-        medical.setMedicalUser(currentUser);
-        return medicalRepository.save(medical);
-    }
-
-    @Override
-    public Medical update(long id, Medical newMedical, MultipartFile file) throws ReimsException {
-        Medical old = medicalRepository.findOne(id);
-
         validate(newMedical);
         old.setAmount(newMedical.getAmount());
-        old.setDateOfBirth(newMedical.getDateOfBirth());
-        old.setPatient(newMedical.getPatient());
+//        old.setPatient(newMedical.getPatient());
+//        old.setAge(countAge(newMedical.getPatient().getDateOfBirth()));
         old.setDate(newMedical.getDate());
 
-        if (file != null) old.setAttachement(uploadFile(file));
+        for (String file: files) {
+            reports.add(
+                    MedicalReport.builder()
+                            .image(utils.uploadImage(file, currentUser.getId(), UrlConstants.REPORT))
+                            .build()
+            );
+        }
+        old.setReports(reports);
 
         return medicalRepository.save(old);
     }
@@ -115,18 +124,6 @@ public class MedicalServiceImpl implements MedicalService {
             throw new NotFoundException("MEDICAL_REPORT");
 
         medicalRepository.delete(id);
-    }
-
-    private String uploadFile(MultipartFile file) throws FormatTypeError {
-        ReimsUser currentUser = authService.getCurrentUser();
-
-        String filePath = utils.getFilePath(currentUser.getUsername(), file);
-        try {
-            utils.createFile(filePath, file.getBytes());
-        }  catch (IOException e) {
-            throw new FormatTypeError(e.getMessage());
-        }
-        return filePath;
     }
 
     private void validate(Medical report) throws DataConstraintException {

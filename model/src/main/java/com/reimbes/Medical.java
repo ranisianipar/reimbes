@@ -28,22 +28,21 @@ public class Medical {
     private long id;
 
     private String title;
-
+    private long age; // result of year of birth - current year
     private long amount;
     private long date;
 
-    private long dateOfBirth; // for age calculation
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient", nullable = false)
-    private FamilyMember patient;
-
-    private String attachement;
+////    patient null -> claim for him/her self
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "patient")
+//    private FamilyMember patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reimsUser", nullable = false)
     private ReimsUser medicalUser;
 
+//    Mapped to multiple images
     @OneToMany(mappedBy = "medical_id")
     private Set<MedicalReport> reports;
 }

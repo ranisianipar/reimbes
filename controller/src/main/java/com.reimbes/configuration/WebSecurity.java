@@ -69,7 +69,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                         "/v2/api-docs"
                 ).permitAll()
                 .antMatchers(
-                        ADMIN_PREFIX,
+                         ADMIN_PREFIX,
                         ADMIN_PREFIX+"/**",
                         FAMILY_MEMBER_PREFIX
                     ).hasAuthority("ADMIN")
@@ -77,7 +77,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                         USER_PREFIX,
                         USER_PREFIX+"/**",
                         TRANSACTION_PREFIX,
-                        TRANSACTION_PREFIX+"/**"
+                        TRANSACTION_PREFIX+"/**",
+                        MEDICAL_PREFIX,
+                        MEDICAL_PREFIX+"/**"
                     ).hasAuthority("USER")
                 .anyRequest().authenticated()
                 .and()

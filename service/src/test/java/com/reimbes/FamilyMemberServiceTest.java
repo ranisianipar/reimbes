@@ -58,13 +58,13 @@ public class FamilyMemberServiceTest {
                 .name("Kehlani")
                 .dateOfBirth(new Date())
                 .relationship(FamilyMember.Relationship.SPOUSE)
-                .familyMemberOf(maleUser)
+                // .familyMemberOf(maleUser)
                 .build();
 
         familyMembers = new HashSet<>();
         familyMembers.add(familyMember);
 
-        maleUser.setFamilyMemberOf(familyMembers);
+        // maleUser.setFamilyMemberOf(familyMembers);
 
         // USER with gender FEMALE, cant register HER FAMILY.
         femaleUser = new ReimsUser();

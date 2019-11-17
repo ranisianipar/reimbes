@@ -33,6 +33,7 @@ public class ReimsUser {
     @Column
     private Gender gender;
 
+//     ADMIN doesnt need dateOfBirth
     @Column
     private Date dateOfBirth;
 
