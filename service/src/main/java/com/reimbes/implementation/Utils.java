@@ -2,8 +2,10 @@ package com.reimbes.implementation;
 
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.FormatTypeError;
+import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -19,6 +21,8 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
+
+import static com.reimbes.constant.UrlConstants.FOLDER_PATH;
 
 /*
 * Author: Rani Lasma Uli
@@ -44,7 +48,7 @@ public class Utils {
     }
 
     public void removeImage(String imagePath) {
-        imagePath = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + imagePath);
+        imagePath = StringUtils.cleanPath(FOLDER_PATH + imagePath);
         try {
             Files.delete(Paths.get(imagePath));
         }   catch (Exception e) {
@@ -53,7 +57,7 @@ public class Utils {
     }
 
     public byte[] getImageByImagePath(String imagePath) throws IOException {
-        return Files.readAllBytes(Paths.get(UrlConstants.IMAGE_FOLDER_PATH + imagePath));
+        return Files.readAllBytes(Paths.get(FOLDER_PATH + imagePath));
     }
 
     public boolean isFileExists(String filepath) {
@@ -64,8 +68,10 @@ public class Utils {
         Files.write(Paths.get(cleanedPath), data, StandardOpenOption.CREATE);
     }
 
-    public void createDirectory(String cleanedPath) throws IOException {
-        Files.createDirectory(Paths.get(cleanedPath));
+    public void createDirectory(String cleanedPath) {
+        log.info("Create directory: " + cleanedPath);
+        (new File(cleanedPath)).mkdirs(); // create directory even parent directeroy haven't created yet
+        log.info("[DONE] Create directory: " + cleanedPath);
     }
 
     public byte[] getFile(String filename) throws IOException {
@@ -82,8 +88,10 @@ public class Utils {
     * userId: used to direct the user folder
     * subfolder: transaction, medical, etc.
     *
+    * RETURN --> relative image path
     * */
-    public String uploadImage(String imageValue, long userId, String subfolder) throws FormatTypeError {
+    public String uploadImage(String imageValue, long userId, String subfolder) throws ReimsException {
+
         String[] extractedByte = imageValue.split(",");
         String extension = extractedByte[0];
         String imagePath;
@@ -108,15 +116,18 @@ public class Utils {
 
             // confirm folder existence
             String folderPath = StringUtils.cleanPath(String.format("%d/%s/", userId, subfolder));
-            if (!isFileExists(folderPath))
+            log.info("Done generate folder path.");
+
+            if (!isFileExists(folderPath)) {
+                log.info("Directory '" + folderPath + "' not found! Make directory first.");
                 createDirectory(folderPath);
+            }
 
             imagePath = folderPath + getFilename(extension);
+            log.info("Write image in this path: " + imagePath);
             createFile(imagePath, imageByte);
-
-
-        } catch (Exception e) {
-            throw new FormatTypeError(e.getMessage());
+        } catch (IOException e) {
+            throw new ReimsException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, 500);
         }
 
         return imagePath;

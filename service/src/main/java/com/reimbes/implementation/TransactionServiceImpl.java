@@ -47,8 +47,10 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private Utils utils;
 
+    // harus dihapus
     @Override
     public Transaction createByImage(String imageValue) throws ReimsException {
+
 
         ReimsUser user = userService.getUserByUsername(utils.getUsername());
 
@@ -69,7 +71,9 @@ public class TransactionServiceImpl implements TransactionService {
             log.info("Decoding image byte succeed.");
             log.info("Uploading the image...");
 
-            imagePath = uploadImage(imageByte, extension);
+//            imagePath = uploadImage(imageByte, extension);
+
+            imagePath = utils.uploadImage(imageValue, user.getId(), "transaction");
 
             log.info("Predicting image content... ");
 
@@ -203,7 +207,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         String foldername = userId +"/";
 
-        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ foldername);
+        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH + foldername);
         log.info("[After] clean path: "+ path);
 
         if (!utils.isFileExists(path))
@@ -284,7 +288,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         // validate image path
         if (transaction.getImage()== null || !utils.isFileExists(
-                UrlConstants.IMAGE_FOLDER_PATH + transaction.getImage()))
+                UrlConstants.FOLDER_PATH + transaction.getImage()))
             errorMessages.add("INVALID_IMAGE_PATH");
 
 

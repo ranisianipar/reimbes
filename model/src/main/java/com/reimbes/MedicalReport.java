@@ -33,5 +33,5 @@ public class MedicalReport {
 
     @ManyToOne
     @JoinColumn(name = "medical_id", nullable = false)
-    private Medical medical_id;
+    private Medical medical_id; // reference column to Medical
 }

@@ -1,9 +1,6 @@
 package com.reimbes;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,7 +38,9 @@ public class Medical {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reimsUser", nullable = false)
-    @ToStringPlugin.Exclude private ReimsUser medicalUser;
+    @ToStringPlugin.Exclude
+    @JsonIgnore
+    private ReimsUser medicalUser;
 
 //    Mapped to multiple images
     @OneToMany(mappedBy = "medical_id")

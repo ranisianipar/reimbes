@@ -31,7 +31,7 @@ public class UserController {
 
 
     // .xls
-    @GetMapping(REPORT)
+    @GetMapping(SUB_FOLDER_REPORT)
     public BaseResponse getReport(
             @RequestParam(value = "start", required = false) String start,
             @RequestParam(value = "end", required = false) String end

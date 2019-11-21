@@ -3,7 +3,6 @@ package com.reimbes.implementation;
 import com.reimbes.*;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
-import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
@@ -13,10 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.*;
 
 import static com.reimbes.implementation.Utils.countAge;
@@ -39,16 +35,19 @@ public class MedicalServiceImpl implements MedicalService {
 //    MULTIPLE upload
     public Medical create(Medical medical, List<String> files) throws ReimsException {
 
+
+
         ReimsUser currentUser = authService.getCurrentUser();
 
         validate(medical);
 
         if (files != null) {
             Set<MedicalReport> reports = new HashSet<>();
+            log.info("Create register all medical reports those have been attached.");
             for (String file: files) {
                 reports.add(
                         MedicalReport.builder()
-                                .image(utils.uploadImage(file, currentUser.getId(), UrlConstants.REPORT))
+                                .image(utils.uploadImage(file, currentUser.getId(), UrlConstants.SUB_FOLDER_REPORT))
                                 .build()
                 );
             }
@@ -82,7 +81,7 @@ public class MedicalServiceImpl implements MedicalService {
         for (String file: files) {
             reports.add(
                     MedicalReport.builder()
-                            .image(utils.uploadImage(file, currentUser.getId(), UrlConstants.REPORT))
+                            .image(utils.uploadImage(file, currentUser.getId(), UrlConstants.SUB_FOLDER_REPORT))
                             .build()
             );
         }
