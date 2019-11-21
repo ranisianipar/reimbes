@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.bytebuddy.build.ToStringPlugin;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -28,7 +29,7 @@ public class Medical {
     private long id;
 
     private String title;
-    private long age; // result of year of birth - current year
+    private long age; // current age, result of year of birth - current year
     private long amount;
     private long date;
 
@@ -40,7 +41,7 @@ public class Medical {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reimsUser", nullable = false)
-    private ReimsUser medicalUser;
+    @ToStringPlugin.Exclude private ReimsUser medicalUser;
 
 //    Mapped to multiple images
     @OneToMany(mappedBy = "medical_id")

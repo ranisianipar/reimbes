@@ -131,6 +131,6 @@ public class Utils {
     public static long countAge(Date dateOfBirth) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(dateOfBirth);
-        return calendar.get(Calendar.YEAR) - getCurrentYear();
+        return getCurrentYear() - calendar.get(Calendar.YEAR);
     }
 }

@@ -45,6 +45,7 @@ public class ReimsUser {
     @OneToMany(mappedBy = "familyMemberOf")
     private Set<FamilyMember> familyMemberOf;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "medicalUser")
     private Set<Medical> medicals;
 
