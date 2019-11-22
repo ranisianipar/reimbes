@@ -102,7 +102,7 @@ List of API
 
 ## Create Family Member
 this method to register a new family member to a MALE USER.
-- Endpoint : `api/family-member?user-id={userid}`
+- Endpoint : `api/family-members?user-id={userid}`
 - HTTP Method : `POST`
 - Request Header : 
     - Accept : `application/json`
