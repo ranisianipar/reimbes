@@ -64,7 +64,7 @@ public class AdminControllerTest {
         user.setUsername("zzz");
         user.setRole(ReimsUser.Role.ADMIN);
 
-//        mvc.perform(get("/api/admin/users")
+//        mvc.perform(getByUser("/api/admin/users")
 //                .contentType(MediaType.ALL_VALUE))
 //                .andExpect(status().isOk())
 //                .andExpect(jsonPath("data", hasSize(1)))

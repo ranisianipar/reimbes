@@ -9,6 +9,7 @@ import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -26,10 +27,18 @@ public class FamilyMemberServiceImpl {
     @Autowired
     private FamilyMemberRepository familyMemberRepository;
 
+    @Autowired
+    private UserServiceImpl userService;
+
+    @Autowired
+    private AuthServiceImpl authService;
+
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
 
-    public FamilyMember create(ReimsUser user, FamilyMember member) throws ReimsException {
+    public FamilyMember create(Long userId, FamilyMember member) throws ReimsException {
+        ReimsUser user = userService.get(userId);
+
         if (user.getRole() == ReimsUser.Role.ADMIN) return null;
         if (user.getGender() != ReimsUser.Gender.MALE)
             throw new DataConstraintException("GENDER_CONSTRAINT");
@@ -45,7 +54,14 @@ public class FamilyMemberServiceImpl {
         return familyMemberRepository.save(familyMember);
     }
 
-    public FamilyMember get(ReimsUser user, Long familyMemberId) throws ReimsException {
+    public FamilyMember getById(Long id) throws ReimsException {
+        FamilyMember member = familyMemberRepository.findOne(id);
+        if (member == null) throw new NotFoundException(member.getName());
+        return member;
+    }
+
+    // ADMIN
+    public FamilyMember getByUser(ReimsUser user, Long familyMemberId) throws ReimsException {
         FamilyMember familyMember = familyMemberRepository.findOne(familyMemberId);
         if (familyMember != null )
 //            && familyMember.getFamilyMemberOf().getId() != user.getId()
@@ -54,12 +70,19 @@ public class FamilyMemberServiceImpl {
         return familyMember;
     }
 
-    public List<FamilyMember> getAll(ReimsUser user, Pageable pageable) {
+    public Page getAll(Pageable pageable) {
+        ReimsUser user = authService.getCurrentUser();
+        // ADMIN
+        if (user.getRole() == ReimsUser.Role.ADMIN)
+            return familyMemberRepository.findAll(pageable);
 
-        if (user.getGender() != ReimsUser.Gender.MALE)
-            return new ArrayList<>();
-
+        // USER
         // return familyMemberRepository.findByFamilyMemberOf(user, pageable);
+        return null;
+    }
+
+    // ADMIN
+    public Page getAllByUser(ReimsUser user, Pageable pageable) {
         return null;
     }
 
@@ -81,7 +104,7 @@ public class FamilyMemberServiceImpl {
         return familyMemberRepository.save(member);
     }
 
-    public void validate(FamilyMember data) throws DataConstraintException {
+    private void validate(FamilyMember data) throws DataConstraintException {
         // name?
 
         ArrayList errorMessages = new ArrayList();
@@ -92,7 +115,7 @@ public class FamilyMemberServiceImpl {
             errorMessages.add("INVALID_BIRTHDATE_FORMAT");
         }
 
-        throw new DataConstraintException(errorMessages.toString());
+        if (!errorMessages.isEmpty()) throw new DataConstraintException(errorMessages.toString());
 
     }
 }

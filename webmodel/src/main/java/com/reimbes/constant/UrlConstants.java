@@ -23,6 +23,7 @@ public class UrlConstants {
     public static final String FAMILY_MEMBER_PREFIX = "/family-members";
     public static final String USER_PREFIX = "/users";
     public static final String TRANSACTION_PREFIX = "/transactions";
+    public static final String REPORT_PREFIX = "/report";
 
     //Sub-folder name
     public static final String SUB_FOLDER_REPORT = "report";

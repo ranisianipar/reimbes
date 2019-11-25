@@ -96,7 +96,7 @@ public class Utils {
         String extension = extractedByte[0];
         String imagePath;
 
-        // get the extension
+        // getByUser the extension
         if (extension.contains("jpg")) extension = "jpg";
         else if (extension.contains("png")) extension = "png";
         else if (extension.contains("jpeg")) extension = "jpeg";
