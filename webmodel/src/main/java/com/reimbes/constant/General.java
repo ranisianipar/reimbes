@@ -10,6 +10,6 @@ public class General {
     public static final TimeZone TIME_ZONE = TimeZone.getTimeZone("GMT+7");
 
     // a number to represent the current medicalUser and superadmin
-    public static final int SPECIAL_ID = 1;
+    public static final int IDENTITY_CODE = 1;
 
 }
