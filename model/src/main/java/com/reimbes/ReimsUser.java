@@ -1,6 +1,8 @@
 package com.reimbes;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
 
 import javax.persistence.*;
@@ -11,7 +13,7 @@ import java.util.Set;
 @Table(name = "Reims_Users")
 @Entity
 @Data
-// @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ReimsUser {
 
     @Id
@@ -31,7 +33,6 @@ public class ReimsUser {
     @Column
     private Gender gender;
 
-//     ADMIN doesnt need dateOfBirth
     @Column
     private Date dateOfBirth;
 
@@ -43,10 +44,8 @@ public class ReimsUser {
     @OneToMany(mappedBy = "familyMemberOf")
     private Set<FamilyMember> familyMemberOf;
 
-    @ToString.Exclude
     @OneToMany(mappedBy = "medicalUser")
-//    @JsonIgnore
-    private Set<Medical> medicals; // dont use json ignore, to still retrieve all medical assigned by user
+    private Set<Medical> medicals;
 
     private String license;
 

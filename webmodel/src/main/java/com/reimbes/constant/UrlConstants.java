@@ -12,9 +12,7 @@ public class UrlConstants {
 
     // folder path
     public static final String TESSERACT_TRAINNED_DATA_PATH = PROJECT_ROOT + "\\lib\\tesseract\\tessdata\\";
-    // DEPRECATED
     public static final String IMAGE_FOLDER_PATH = PROJECT_ROOT + "\\reims-img\\";
-    public static final String FOLDER_PATH = PROJECT_ROOT + "\\storage\\";
 
     //prefix
     public static final String ADMIN_PREFIX = "/admin";
@@ -23,11 +21,9 @@ public class UrlConstants {
     public static final String FAMILY_MEMBER_PREFIX = "/family-members";
     public static final String USER_PREFIX = "/users";
     public static final String TRANSACTION_PREFIX = "/transactions";
-    public static final String REPORT_PREFIX = "/report";
 
-    //Sub-folder name
-    public static final String SUB_FOLDER_REPORT = "report";
-    public static final String SUB_FOLDER_TRANSACTION = "transaction";
+    //admin
+    public static final String REPORT = "/report";
 
     // others
     public static final String ID_PARAM = "/{id:.+}";

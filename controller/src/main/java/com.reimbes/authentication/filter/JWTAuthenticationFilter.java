@@ -85,12 +85,14 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Collection authorities = user.getAuthorities();
         String token = authService.generateToken(user,authorities);
 
-        // retrieve informative response for frontend needs
         res.setHeader(HEADER_STRING, token);
         UserResponse userResponse = new UserResponse();
         userResponse.setUsername(user.getUsername());
         userResponse.setId(user.getUserId());
-        userResponse.setRole(authService.getRoleByString(authorities.iterator().next().toString()));
+
+        if (authorities.iterator().next().toString().equals("USER"))
+            userResponse.setRole(ReimsUser.Role.USER);
+        else userResponse.setRole(ReimsUser.Role.ADMIN);
 
         String userJsonString = new Gson().toJson(userResponse);
 

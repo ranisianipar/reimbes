@@ -36,9 +36,6 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private UserServiceImpl userService;
 
-    @Autowired
-    private FamilyMemberServiceImpl familyMemberService;
-
     @Override
     public Page getAllUser(String search, Pageable pageRequest) throws ReimsException {
         log.info("Get all medicalUser by: " + utils.getUsername());
@@ -52,12 +49,6 @@ public class AdminServiceImpl implements AdminService {
         return userService.getAllUsers(search, pageable);
     }
 
-    public Page getAllMember(Long userId, Pageable pageable) throws ReimsException {
-
-        if (userId != null) familyMemberService.getAllByUser(userService.get(userId), pageable);
-        return familyMemberService.getAll(pageable);
-    }
-
     @Override
     public ReimsUser getUser(long id) throws ReimsException {
         return userService.get(id);
@@ -69,14 +60,9 @@ public class AdminServiceImpl implements AdminService {
         return userService.create(user);
     }
 
-    public FamilyMember createMember(long userId, FamilyMember member) throws ReimsException {
-
-        return familyMemberService.create(userId, member);
-    }
-
     @Override
     public ReimsUser updateUser(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
-        ReimsUser currentUser = authService.getCurrentUser();
+        ReimsUser currentUser = userService.getUserByUsername(utils.getUsername());
 
         validate(user);
 
@@ -88,9 +74,17 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void deleteUser(long id) throws ReimsException{
-        ReimsUser currentUser = authService.getCurrentUser();
+        ReimsUser currentUser = userService.getUserByUsername(utils.getUsername());
         if (currentUser.getId() == id) throw new ReimsException("SELF_DELETION", HttpStatus.METHOD_NOT_ALLOWED, 405);
         userService.delete(id);
+    }
+
+    public FamilyMember addMember(long userId, FamilyMember member) throws ReimsException {
+        return userService.addFamilyMember(userId, member);
+    }
+
+    public List<FamilyMember> getAllMember(long userId) {
+        return null;
     }
 
     private void validate(ReimsUser newUser) throws ReimsException {

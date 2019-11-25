@@ -21,8 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import static com.reimbes.constant.UrlConstants.SUB_FOLDER_TRANSACTION;
-
 @Service
 public class TransactionServiceImpl implements TransactionService {
 
@@ -52,17 +50,26 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public Transaction createByImage(String imageValue) throws ReimsException {
 
-
         ReimsUser user = userService.getUserByUsername(utils.getUsername());
+
         String[] extractedByte = imageValue.split(",");
+        String extension = extractedByte[0];
         String imagePath;
+
+        // get the extension
+        if (extension.contains("jpg")) extension = "jpg";
+        else if (extension.contains("png")) extension = "png";
+        else if (extension.contains("jpeg")) extension = "jpeg";
 
         Transaction transaction;
         try {
             byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
                     .getBytes(StandardCharsets.UTF_8)));
 
-            imagePath = utils.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
+            log.info("Decoding image byte succeed.");
+            log.info("Uploading the image...");
+
+            imagePath = uploadImage(imageByte, extension);
 
             log.info("Predicting image content... ");
 
@@ -189,6 +196,33 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    public String uploadImage(byte[] data, String extension) throws Exception {
+        long userId;
+
+        userId = userService.getUserByUsername(utils.getUsername()).getId();
+
+        String foldername = userId +"/";
+
+        String path = StringUtils.cleanPath(UrlConstants.IMAGE_FOLDER_PATH+ foldername);
+        log.info("[After] clean path: "+ path);
+
+        if (!utils.isFileExists(path))
+            utils.createDirectory(path);
+
+        String filename = UUID.randomUUID()+"."+extension;
+        path = path + filename;
+
+        // uploadImage photo
+        try {
+            utils.createFile(path, data);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return foldername+filename;
+    }
+
+    @Override
     public String getImage(long id, String imageName) throws ReimsException {
         if (id != userService.getUserByUsername(utils.getUsername()).getId())
             throw new NotFoundException("IMAGE");
@@ -250,7 +284,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         // validate image path
         if (transaction.getImage()== null || !utils.isFileExists(
-                UrlConstants.FOLDER_PATH + transaction.getImage()))
+                UrlConstants.IMAGE_FOLDER_PATH + transaction.getImage()))
             errorMessages.add("INVALID_IMAGE_PATH");
 
 

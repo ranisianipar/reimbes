@@ -11,7 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
-import static com.reimbes.constant.UrlConstants.*;
+import static com.reimbes.constant.UrlConstants.API_PREFIX;
+import static com.reimbes.constant.UrlConstants.FAMILY_MEMBER_PREFIX;
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
@@ -19,26 +20,26 @@ import static com.reimbes.constant.UrlConstants.*;
 public class FamilyMemberController {
 
     @Autowired
-    private FamilyMemberServiceImpl familyMemberService;
+    private UserServiceImpl familyMemberService;
 
 
     // FAMILY MEMBER THINGS
     // TANYAIN BAIKNYA GIMANA
     @PostMapping
-    public BaseResponse create(
-            @RequestParam(value = "user-id") Long id,
-            @RequestBody FamilyMember familyMember) {
+    public BaseResponse addFamilyMember(
+            @RequestParam(value = "user-id") Integer id, @RequestBody FamilyMember familyMember) {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(familyMemberService.create(id, familyMember));
+            br.setData(familyMemberService.addFamilyMember(id, familyMember));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
         return br;
     }
 
-    @GetMapping
-    public BaseResponse getAll(
+    @GetMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM)
+    public BaseResponse getAllFamilyMember(
+            @PathVariable long id,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
@@ -46,30 +47,7 @@ public class FamilyMemberController {
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.DESC, sortBy));
 
-        br.setData(familyMemberService.getAll(pageRequest));
+        br.setData(familyMemberService.getAllFamilyMember(id, pageRequest));
         return br;
     }
-
-    @GetMapping(ID_PARAM)
-    public BaseResponse getById(@PathVariable Long id) {
-        BaseResponse br = new BaseResponse();
-        try {
-            br.setData(familyMemberService.getById(id));
-        } catch (ReimsException r) {
-            br.setErrorResponse(r);
-        }
-        return br;
-    }
-
-    @PutMapping(ID_PARAM)
-    public BaseResponse update(@PathVariable Long id, @RequestBody FamilyMember member) {
-        BaseResponse br = new BaseResponse();
-        br.setData(familyMemberService.update(id, member));
-        return br;
-    }
-
-    // delete???
-
-
-
 }
