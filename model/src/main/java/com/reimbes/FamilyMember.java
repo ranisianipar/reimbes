@@ -40,8 +40,8 @@ public class FamilyMember {
     @JoinColumn(name = "familyMemberOf", nullable = false)
     @ToStringPlugin.Exclude private ReimsUser familyMemberOf;
 
-    @OneToMany(mappedBy = "patient")
-    private Set<Medical> medicals;
+//    @OneToMany(mappedBy = "patient")
+//    private Set<Medical> medicals;
 
 
     public enum Relationship {

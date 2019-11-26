@@ -26,8 +26,8 @@ service/*.xls
 /build/
 
 ### Reims ###
-reims-img/*
-!reims-img/.gitkeep
+storage/*
+!storage/.gitkeep
 
 ### Traning ###
 training/image/*

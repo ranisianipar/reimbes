@@ -3,20 +3,24 @@ package com.reimbes;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.MedicalServiceImpl;
+import com.reimbes.request.MedicalRequest;
 import com.reimbes.response.BaseResponse;
+import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
 @RequestMapping(UrlConstants.API_PREFIX + UrlConstants.MEDICAL_PREFIX)
 public class MedicalController {
+    private static Logger log = LoggerFactory.getLogger(MedicalController.class);
 
     @Autowired
     private MedicalServiceImpl medicalService;
@@ -50,13 +54,16 @@ public class MedicalController {
     }
 
     @PostMapping
-    public BaseResponse create(
-            @RequestBody Medical report,
-            @RequestParam(value = "attachement", required = false) MultipartFile attachement
-    ) {
+    public BaseResponse create(@RequestBody MedicalRequest report) {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(medicalService.create(report, attachement));
+            log.info("attachment: "+ report.getAttachments());
+            br.setData(
+                    medicalService.create(
+                            getTransactionMapper(report).map(report, Medical.class),
+                            report.getAttachments()
+                    )
+            );
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -66,11 +73,17 @@ public class MedicalController {
     @PutMapping(UrlConstants.ID_PARAM)
     public BaseResponse update(
             @PathVariable long id,
-            @RequestBody Medical report,
-            @RequestParam(value = "attachement", required = false) MultipartFile attachement) {
+            @RequestBody MedicalRequest report
+    ) {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(medicalService.update(id, report, attachement));
+            br.setData(
+                    medicalService.update(
+                            id,
+                            getTransactionMapper(report).map(report, Medical.class),
+                            report.getAttachments()
+                    )
+            );
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -86,5 +99,18 @@ public class MedicalController {
             br.setErrorResponse(r);
         }
         return br;
+    }
+
+
+    // mapping medicalRequest to medical entity
+
+    private MapperFacade getTransactionMapper(MedicalRequest request) {
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+        mapperFactory.classMap(MedicalRequest.class, Medical.class)
+                .field("","")
+                .byDefault().register();
+        mapperFactory.getMapperFacade().map(request, Medical.class);
+
+        return mapperFactory.getMapperFacade();
     }
 }
