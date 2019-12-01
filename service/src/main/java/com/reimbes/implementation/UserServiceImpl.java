@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.reimbes.constant.General.SPECIAL_ID;
+import static com.reimbes.constant.General.IDENTITY_CODE;
 import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 
 @Service
@@ -66,14 +66,14 @@ public class UserServiceImpl implements UserService {
         ReimsUser oldUser;
 
 
-        if (id == SPECIAL_ID) oldUser = userRepository.findByUsername(utils.getUsername());
+        if (id == IDENTITY_CODE) oldUser = userRepository.findByUsername(utils.getUsername());
         else oldUser = userRepository.findOne(id);
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
 
         validate(user, oldUser);
 
-        if (id != SPECIAL_ID) oldUser.setRole(user.getRole());
+        if (id != IDENTITY_CODE) oldUser.setRole(user.getRole());
         
         oldUser.setUsername(user.getUsername());
         oldUser.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ReimsUser updateMyData(ReimsUser user, HttpServletResponse response) throws ReimsException {
-        ReimsUser userWithNewData = update(SPECIAL_ID, user);
+        ReimsUser userWithNewData = update(IDENTITY_CODE, user);
 
         // update token with latest username
         Collection authorities =  new ArrayList();
@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser get(long id) throws ReimsException {
         ReimsUser user;
 
-        if (id == SPECIAL_ID) return userRepository.findByUsername(utils.getUsername());
+        if (id == IDENTITY_CODE) return userRepository.findByUsername(utils.getUsername());
         else user = userRepository.findOne(id);
         if (user == null)
             throw new NotFoundException("USER "+id);
@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page getAllUsers(String username, Pageable pageable) {
-        return userRepository.findByIdGreaterThanAndUsernameContainingIgnoreCase(SPECIAL_ID, username, pageable);
+        return userRepository.findByIdGreaterThanAndUsernameContainingIgnoreCase(IDENTITY_CODE, username, pageable);
     }
 
     @Override
@@ -161,23 +161,6 @@ public class UserServiceImpl implements UserService {
         }
         return reportGeneratorService.getReport(getUserByUsername(utils.getUsername()),
                 start, end);
-    }
-
-    // accessed by Admin
-    public FamilyMember addFamilyMember(long id, FamilyMember member) throws ReimsException {
-        return familyMemberService.create(userRepository.findOne(id), member);
-    }
-
-    public List<FamilyMember> getAllFamilyMember(Long id, Pageable pageable) {
-        return familyMemberService.getAll(userRepository.findOne(id), pageable);
-    }
-
-    // accessed by Admin and User
-    public FamilyMember getFamilyMember(Long userId, Long memberId) throws ReimsException {
-        if (userId == null)
-            return familyMemberService.get(userRepository.findByUsername(utils.getUsername()), memberId);
-
-        return familyMemberService.get(userRepository.findOne(userId), memberId);
     }
 
 

@@ -58,13 +58,13 @@ public class FamilyMemberServiceTest {
                 .name("Kehlani")
                 .dateOfBirth(new Date())
                 .relationship(FamilyMember.Relationship.SPOUSE)
-                .familyMemberOf(maleUser)
+                // .familyMemberOf(maleUser)
                 .build();
 
         familyMembers = new HashSet<>();
         familyMembers.add(familyMember);
 
-        maleUser.setFamilyMemberOf(familyMembers);
+        // maleUser.setFamilyMemberOf(familyMembers);
 
         // USER with gender FEMALE, cant register HER FAMILY.
         femaleUser = new ReimsUser();
@@ -78,12 +78,12 @@ public class FamilyMemberServiceTest {
     @Test
     public void succeedRegisterFamilyMemberForMaleUser() throws Exception {
         when(repository.save(familyMember)).thenReturn(familyMember);
-        assertEquals(service.create(maleUser, familyMember), familyMember);
+        assertEquals(service.create(maleUser.getId(), familyMember), familyMember);
     }
 
     @Test
     public void failedRegisterFamilyMemberForFemaleUser() throws Exception {
-        assertThrows(ReimsException.class, () -> service.create(femaleUser, familyMember));
+        assertThrows(ReimsException.class, () -> service.create(femaleUser.getId(), familyMember));
     }
 
 }

@@ -9,7 +9,6 @@ import java.util.List;
 
 public interface TransactionService {
     Transaction createByImage(String transaction) throws ReimsException;
-    String uploadImage(byte[] image, String extension) throws Exception;
     Transaction update(TransactionRequest transaction) throws ReimsException;
     void delete(long id) throws ReimsException;
     void deleteByUser(ReimsUser user);

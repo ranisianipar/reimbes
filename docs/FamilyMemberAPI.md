@@ -36,27 +36,23 @@ List of API
   "status": "OK",
   "errors": null,
   "paging": {
-    "pageNumber": 3,
-    "pageSize": 5,
-    "totalPages": 3,
-    "totalRecords": 2
+    "pageNumber": 1,
+    "pageSize": 10,
+    "totalPages": 1,
+    "totalRecords": 3
   },
   "data": [
     {
-		"id":92769,
-		"name":"Andre Forbes"
-		"relationship":`CHILDREN`,
-		"dateOfBirth":"1993-01-01"
-	},
-	{
-		"id":92768,
-		"name":"Zendaya"
-		"relationship":`SPOUSE`,
-		"dateOfBirth":"1979-02-06"
-	}
-  ],
-  "success": true
-}
+        "id": 4,
+        "name": "Isyana Sarasvati",
+        "familyMemberOf": "3",
+        "relationship": "CHILDREN",
+        "dateOfBirth": 820368000000
+    },
+
+    ...
+
+  ]
 ```
 ## Get Family Member by ID
 - Endpoint : `/api/family-members/{familyMemberId}`
@@ -73,19 +69,16 @@ List of API
   "code": 200,
   "status": "OK",
   "errors": null,
-  "paging": {
-    "pageNumber": 3,
-    "pageSize": 5,
-    "totalPages": 3,
-    "totalRecords": 1
-  },
+  "paging": null,
   "data": {
-		"id":92769,
-		"name":"Andre Forbes"
-		"relationship":`CHILDREN`,
-		"dateOfBirth":"1993-01-01"
-    }
-  
+       "id": 4,
+       "name": "Isyana Sarasvati",
+       "familyMemberOf": "3",
+       "relationship": "CHILDREN",
+       "dateOfBirth": 820368000000
+  },
+  "success": true
+}
 ```
 - Response Body (Failure) :
 
@@ -110,10 +103,10 @@ this method to register a new family member to a MALE USER.
 - Request Body : 
 ```json
 {
-	"id":92769,
-	"name":"Andre Forbes"
-	"relationship":`CHILDREN`,
-	"dateOfBirth":"1993-01-01"
+	"name":"Isyana Sarasvati",
+	"familyMemberOf": "3",
+	"relationship":"CHILDREN",
+	"dateOfBirth":"1995-12-31"
 }
 ```
 
@@ -121,14 +114,18 @@ this method to register a new family member to a MALE USER.
 
 ```json
 {
-    "code": 200,
-    "status": "OK",
-    "data": {
-		"id":92769,
-		"name":"Andre Forbes"
-		"relationship":`CHILDREN`,
-		"dateOfBirth":"1993-01-01"
-    }
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": null,
+  "data": {
+        "id": 4,
+        "name": "Isyana Sarasvati",
+        "familyMemberOf": "3",
+        "relationship": "CHILDREN",
+        "dateOfBirth": 820368000000
+  },
+  "success": true
 }
 ```
 
@@ -163,7 +160,7 @@ this method to register a new family member to a MALE USER.
 - Response Body (Failure) : -
 
 ## Update Family Member
-- Endpoint : `api/family-members/{familyMemberId}`
+- Endpoint : `api/family-members/{familyMembersId}?user-id={userId}`
 - HTTP Method : `POST`
 - Request Header : 
     - Accept : `application/json`
@@ -171,8 +168,8 @@ this method to register a new family member to a MALE USER.
 - Request Body : 
 ```json
 {
-	"id":92769,
-	"name":"Andre Forbes"
+	"name":"Andre Forbes",
+	"familyMemberOf": "3",
 	"relationship":`CHILDREN`,
 	"dateOfBirth":"1993-01-01"
 }
@@ -187,8 +184,9 @@ this method to register a new family member to a MALE USER.
     "data": {
 		"id":92769,
 		"name":"Andre Forbes"
-		"relationship":`CHILDREN`,
-		"dateOfBirth":"1993-01-01"
+        "familyMemberOf": "3",
+        "relationship": "CHILDREN",
+        "dateOfBirth": 820368000000
     }
 }
 ```

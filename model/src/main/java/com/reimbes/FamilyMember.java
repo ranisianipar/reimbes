@@ -10,7 +10,7 @@ import net.bytebuddy.build.ToStringPlugin;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.Set;
+
 
 @Table(name = "Family_Member")
 @Entity
@@ -38,10 +38,15 @@ public class FamilyMember {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "familyMemberOf", nullable = false)
-    @ToStringPlugin.Exclude private ReimsUser familyMemberOf;
+    @ToStringPlugin.Exclude
+    @JsonIgnore
+    private ReimsUser familyMemberOf;
 
-    @OneToMany(mappedBy = "patient")
-    private Set<Medical> medicals;
+//    @OneToMany(mappedBy = "patient")
+//    private Set<Medical> medicals;
+
+    @Column(updatable = false)
+    private long createdAt;
 
 
     public enum Relationship {

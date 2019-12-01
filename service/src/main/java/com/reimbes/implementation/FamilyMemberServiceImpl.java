@@ -4,11 +4,14 @@ import com.reimbes.FamilyMember;
 import com.reimbes.FamilyMemberRepository;
 import com.reimbes.ReimsUser;
 import com.reimbes.exception.DataConstraintException;
+import com.reimbes.exception.MethodNotAllowedException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.reimbes.ReimsUser.Role.ADMIN;
+
 @Service
 public class FamilyMemberServiceImpl {
 
@@ -26,13 +31,27 @@ public class FamilyMemberServiceImpl {
     @Autowired
     private FamilyMemberRepository familyMemberRepository;
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    @Autowired
+    private UserServiceImpl userService;
+
+    @Autowired
+    private AuthServiceImpl authService;
+
+    @Autowired
+    private Utils utils;
+
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 
-    public FamilyMember create(ReimsUser user, FamilyMember member) throws ReimsException {
-        if (user.getRole() == ReimsUser.Role.ADMIN) return null;
+    public FamilyMember create(Long userId, FamilyMember member) throws ReimsException {
+        ReimsUser user = userService.get(userId);
+
+
+        if (user.getRole() == ADMIN) return null;
         if (user.getGender() != ReimsUser.Gender.MALE)
             throw new DataConstraintException("GENDER_CONSTRAINT");
+
+        validate(null, member);
 
         FamilyMember familyMember = FamilyMember.builder()
                 .familyMemberOf(user)
@@ -40,37 +59,75 @@ public class FamilyMemberServiceImpl {
                 .name(member.getName())
                 .relationship(member.getRelationship())
                 .build();
-        log.info("FAMILY_MEMBER: "+familyMember.toString());
+
+        familyMember.setCreatedAt(utils.getCurrentTime());
+
+        log.info("Done mapping! FAMILY_MEMBER: " + familyMember.toString());
 
         return familyMemberRepository.save(familyMember);
     }
 
-    public FamilyMember get(ReimsUser user, Long familyMemberId) throws ReimsException {
-        FamilyMember familyMember = familyMemberRepository.findOne(familyMemberId);
-        if (familyMember != null && familyMember.getFamilyMemberOf().getId() != user.getId())
-            throw new NotFoundException("FAMILY_MEMBER");
+    public FamilyMember getById(Long id) throws ReimsException {
+        ReimsUser currentUser = authService.getCurrentUser();
+        FamilyMember member = familyMemberRepository.findOne(id);
 
-        return familyMember;
+        // only for ADMIN and related MEMBER
+        if (currentUser.getRole() == ADMIN || member.getFamilyMemberOf().getId() == currentUser.getId())
+            return member;
+
+        else throw new NotFoundException(member.getName());
+
     }
 
-    public List<FamilyMember> getAll(ReimsUser user, Pageable pageable) {
+    public Page getAll(long userId, String nameFilter, Pageable pageRequest) throws ReimsException{
+        /****************************************HANDLING REQUEST PARAM************************************************/
+        int index = pageRequest.getPageNumber() - 1;
+        if (index < 0) index = 0;
+        Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
 
-        if (user.getGender() != ReimsUser.Gender.MALE)
-            return new ArrayList<>();
+        // logic
 
-        return familyMemberRepository.findByFamilyMemberOf(user, pageable);
+        ReimsUser currentUser = authService.getCurrentUser();
+        // ADMIN
+        if (currentUser.getRole() == ADMIN) {
+            log.info("[ADMIN] Query Family Member");
+            if (userId == 0) return getAllByUser(null, nameFilter, pageable);
+            return getAllByUser(userService.get(userId), nameFilter, pageable);
+        }
+
+        // USER
+        return getAllByUser(currentUser, nameFilter, pageable);
     }
 
-    // throw error?
-    public void delete(long id) {
+    public Page getAllByUser(ReimsUser searchUser, String name, Pageable pageable) {
+        if (searchUser == null) {
+            log.info("[Query Activity] Query Family Member with no User");
+            log.info("[Query Activity] Pageable: " + pageable);
+            return familyMemberRepository.findByNameContainingIgnoreCase(name, pageable);
+        }
+
+        log.info("[Query Activity] Query Family Member with User -> user ID: " + searchUser.getId());
+
+        return familyMemberRepository.findByFamilyMemberOfAndNameContainingIgnoreCase(searchUser, name, pageable);
+
+    }
+
+
+    public void delete(long id) throws ReimsException{
+        ReimsUser currentUser = authService.getCurrentUser();
+        if (currentUser.getRole() != ADMIN)
+            throw new MethodNotAllowedException("Delete family member with ID " + id);
         familyMemberRepository.delete(id);
     }
 
 
-    public FamilyMember update(long id, FamilyMember latestData) {
+    public FamilyMember update(long id, FamilyMember latestData, long userId) throws ReimsException {
         FamilyMember member = familyMemberRepository.findOne(id);
 
+        latestData.setFamilyMemberOf(userService.get(userId));
+
         // validate
+        validate(member, latestData);
 
         member.setName(latestData.getName());
         member.setRelationship(latestData.getRelationship());
@@ -79,18 +136,37 @@ public class FamilyMemberServiceImpl {
         return familyMemberRepository.save(member);
     }
 
-    public void validate(FamilyMember data) throws DataConstraintException {
-        // name?
+    private void validate(FamilyMember oldData, FamilyMember newData) throws DataConstraintException {
+        List errors = new ArrayList();
 
-        ArrayList errorMessages = new ArrayList();
+        // Validate the credential data
+        if (newData.getName() == null || newData.getName().isEmpty())
+            errors.add("NULL_NAME");
+        if (newData.getDateOfBirth() == null)
+            errors.add("NULL_DATE_OF_BIRTH");
+        if (newData.getRelationship() == null)
+            errors.add("NULL_RELATIONSHIP");
+        if (newData.getFamilyMemberOf() == null)
+            errors.add("NULL_FAMILY_MEMBER_OF");
 
-        try {
-            dateFormat.parse(data.getDateOfBirth()+"");
-        }   catch (ParseException e) {
-            errorMessages.add("INVALID_BIRTHDATE_FORMAT");
+        // compare new medicalUser data with other medicalUser data
+        if (errors.isEmpty()){
+            FamilyMember familyMember = familyMemberRepository.findByName(newData.getName());
+
+            // update
+            if (oldData != null && familyMember != null &&
+                    familyMember.getFamilyMemberOf().getId() == oldData.getFamilyMemberOf().getId() &&
+                    familyMember.getId() != oldData.getId())
+                errors.add("UNIQUENESS_NAME");
+
+                // create
+            else if (oldData == null && familyMember != null &&
+                    familyMember.getFamilyMemberOf().getId() == newData.getFamilyMemberOf().getId())
+                errors.add("UNIQUENESS_NAME");
+
         }
 
-        throw new DataConstraintException(errorMessages.toString());
+        if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
 
     }
 }
