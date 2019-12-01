@@ -2,7 +2,6 @@ package com.reimbes;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 
@@ -25,7 +24,7 @@ public class Medical {
     private long amount;
     private long date;
 
-    private long dateOfBirth; // for age calculation
+    private long age; // for age calculation
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient", nullable = false)

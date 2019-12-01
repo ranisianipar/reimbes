@@ -41,6 +41,8 @@ public class MedicalServiceImpl implements MedicalService {
         validate(medical);
         if (file != null) medical.setAttachement(uploadFile(file));
 
+
+
 //        medical.setMedicalUser(currentUser);
         return medicalRepository.save(medical);
     }
@@ -51,7 +53,7 @@ public class MedicalServiceImpl implements MedicalService {
 
         validate(newMedical);
         old.setAmount(newMedical.getAmount());
-        old.setDateOfBirth(newMedical.getDateOfBirth());
+        old.setAge(newMedical.getAge());
 //        old.setPatient(newMedical.getPatient());
         old.setDate(newMedical.getDate());
 
