@@ -101,7 +101,7 @@ public class TransactionServiceTest {
         String imageValue = "data:image/png;base64,iVBORw";
         String imagePath = user.getId()+"/123."+extension;
 
-//        when(userService.getUserByUsername(authService.getCurrentUsername())).thenReturn(user);
+//        when(userService.getUserByUsername(authService.getCurrentUsername())).thenReturn(medicalUser);
 //        when(transactionService.uploadImage(imageByte, extension)).thenReturn(imagePath);
 //        when(ocrService.predictImageContent(imageByte)).thenReturn(fuel);
 //
@@ -144,7 +144,7 @@ public class TransactionServiceTest {
     public void removeTransactionByUserTest() {
         when(transactionRepository.findByReimsUser(user)).thenReturn(transactions);
 
-//        transactionService.deleteByUser(user);
+//        transactionService.deleteByUser(medicalUser);
 //
 //        verify(transactionRepository, times(1)).delete(transactions);
     }

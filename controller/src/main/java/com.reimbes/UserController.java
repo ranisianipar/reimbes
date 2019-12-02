@@ -1,6 +1,5 @@
 package com.reimbes;
 
-import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.UserServiceImpl;
 import com.reimbes.response.BaseResponse;
@@ -13,18 +12,23 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 
+import static com.reimbes.constant.General.IDENTITY_CODE;
+import static com.reimbes.constant.UrlConstants.*;
 
-@CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
+
+@CrossOrigin(origins = CROSS_ORIGIN_URL)
 @RestController
-@RequestMapping(UrlConstants.API_PREFIX+UrlConstants.USER_PREFIX)
+@RequestMapping(API_PREFIX + USER_PREFIX)
 public class UserController {
 
     @Autowired
     private UserServiceImpl userService;
 
 
+
+
     // .xls
-    @GetMapping(UrlConstants.REPORT)
+    @GetMapping(REPORT_PREFIX)
     public BaseResponse getReport(
             @RequestParam(value = "start", required = false) String start,
             @RequestParam(value = "end", required = false) String end
@@ -51,18 +55,18 @@ public class UserController {
         return br;
     }
 
-    // get personal details
     @GetMapping
     public BaseResponse getUser() {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(getMapper().map(userService.get(1), UserResponse.class));
+            br.setData(getMapper().map(userService.get(IDENTITY_CODE), UserResponse.class));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
 
         return br;
     }
+
 
     private MapperFacade getMapper() {
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();

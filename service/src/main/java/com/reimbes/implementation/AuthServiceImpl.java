@@ -8,6 +8,8 @@ import com.reimbes.ActiveTokenRepository;
 import com.reimbes.AuthService;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.SecurityConstants;
+import com.reimbes.exception.DataConstraintException;
+import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,19 +39,24 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private ActiveTokenRepository activeTokenRepository;
 
+    @Autowired
+    private UserServiceImpl userService;
+
+    @Autowired
+    private Utils utils;
+
     @Override
     public boolean isLogin(String token) {
         log.info("Check the token is in the Active Token Repo or not");
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
 
 
-        log.info("Active Token: "+activeToken);
         if (activeToken != null && activeToken.getExpiredTime() >= Instant.now().getEpochSecond())
             return true;
 
         // token expired
 
-        log.info("Unauthenticated user try to request!");
+        log.info("Unauthenticated medicalUser try to request!");
         log.info("[DEBUG]:"+Instant.now().toEpochMilli());
         return false;
     }
@@ -113,6 +120,15 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("Token has been created.");
         return token;
+    }
+
+    public ReimsUser getCurrentUser() {
+        return userService.getUserByUsername(utils.getUsername());
+    }
+
+    public ReimsUser.Role getRoleByString(String roleString) {
+        if (roleString.equals(ReimsUser.Role.ADMIN.toString())) return ReimsUser.Role.ADMIN;
+        return ReimsUser.Role.USER;
     }
 
     private long getUpdatedTime() {

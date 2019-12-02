@@ -2,7 +2,6 @@ package com.reimbes;
 
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.*;
-import com.reimbes.response.LoginResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -200,7 +199,7 @@ public class UserServiceTest {
 
     @Test
     public void removeUnregisteredUser(){
-        userService.deleteUser(100);
+        userService.delete(100);
         verify(transactionService, times(0)).deleteByUser(user);
         verify(userRepository, times(0)).delete(user);
     }
@@ -209,7 +208,7 @@ public class UserServiceTest {
     public void removeRegisteredUser() {
         when(userRepository.findOne(user.getId())).thenReturn(user);
 
-        userService.deleteUser(user.getId());
+        userService.delete(user.getId());
         verify(transactionService, times(1)).deleteByUser(user);
         verify(userRepository, times(1)).delete(user);
 

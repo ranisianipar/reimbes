@@ -9,7 +9,6 @@ import java.util.List;
 
 public interface TransactionService {
     Transaction createByImage(String transaction) throws ReimsException;
-    String uploadImage(byte[] image, String extension) throws Exception;
     Transaction update(TransactionRequest transaction) throws ReimsException;
     void delete(long id) throws ReimsException;
     void deleteByUser(ReimsUser user);
@@ -19,6 +18,6 @@ public interface TransactionService {
 
     List<Transaction> getByUser(ReimsUser user);
     List<Transaction> getByUserAndDate(ReimsUser user, long start, long end);
-    String getImage(long id, String imageName) throws ReimsException; // is it ok to dont check the user?
+    String getImage(long id, String imageName) throws ReimsException; // is it ok to dont check the medicalUser?
     // .xls
 }

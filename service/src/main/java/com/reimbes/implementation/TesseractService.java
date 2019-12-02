@@ -21,11 +21,10 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Date;
 import java.util.Random;
 
 import static com.reimbes.constant.UrlConstants.TESSERACT_TRAINNED_DATA_PATH;
-import static com.sun.xml.internal.bind.v2.util.EditDistance.editDistance;
+//import static com.sun.xml.internal.bind.v2.util.EditDistance.editDistance;
 
 @Service
 public class TesseractService implements OcrService {
@@ -76,8 +75,10 @@ public class TesseractService implements OcrService {
 
         Transaction transaction;
 
-        int parking_score = editDistance(ocrResult, parkingKeyWords);
-        int fuel_score = editDistance(ocrResult, fuelKeyWords);
+//        int parking_score = editDistance(ocrResult, parkingKeyWords);
+        int parking_score = 0;
+//        int fuel_score = editDistance(ocrResult, fuelKeyWords);
+        int fuel_score = 0;
 
         log.info("Parking score: "+parking_score+" Fuel score: "+fuel_score);
 

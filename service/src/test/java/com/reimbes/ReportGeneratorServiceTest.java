@@ -3,6 +3,7 @@ package com.reimbes;
 import com.reimbes.*;
 import com.reimbes.implementation.ReportGeneratorServiceImpl;
 import com.reimbes.implementation.TransactionServiceImpl;
+import com.reimbes.implementation.Utils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Before;
@@ -30,6 +31,9 @@ public class ReportGeneratorServiceTest {
 
     @Mock
     private TransactionServiceImpl transactionService;
+
+    @Mock
+    private Utils utils;
 
     @InjectMocks
     private ReportGeneratorServiceImpl reportGeneratorService;
@@ -81,6 +85,7 @@ public class ReportGeneratorServiceTest {
     @Test
     public void whenCreateReportWithoutRangeOfDate_thenReturnReportOfAllTransactions() throws Exception{
         when(transactionService.getByUser(user)).thenReturn(new ArrayList<>(transactions));
+        when(utils.getFile(user.getUsername()+"_ALL")).thenReturn(new byte[19]);
 
         reportGeneratorService.getReport(user, null, null);
 
@@ -100,10 +105,10 @@ public class ReportGeneratorServiceTest {
 
     @Test
     public void whenCreateReport_thenGenerateAndWriteReport() throws Exception {
-//        when(transactionService.getByUserAndDate(user, epochNow, epochNow)).thenReturn(new ArrayList<>(transactions));
-//        reportGeneratorService.getReport(user, epochNow, epochNow);
+//        when(transactionService.getByUserAndDate(medicalUser, epochNow, epochNow)).thenReturn(new ArrayList<>(transactions));
+//        reportGeneratorService.getReport(medicalUser, epochNow, epochNow);
 //
-//        verify(Files.readAllBytes(Paths.get(String.format("%s_%s_%s", user.getUsername(), epochNow, epochNow))),
+//        verify(Files.readAllBytes(Paths.getByUser(String.format("%s_%s_%s", medicalUser.getUsername(), epochNow, epochNow))),
 //                times(1));
     }
 }

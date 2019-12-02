@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static com.sun.xml.internal.bind.v2.util.EditDistance.editDistance;
+//import static com.sun.xml.internal.bind.v2.util.EditDistance.editDistance;
 
 @Service
 public class ParkingServiceImpl implements ParkingService {
@@ -53,9 +53,9 @@ public class ParkingServiceImpl implements ParkingService {
 
             if (temp.length > 1) {
                 if (temp[1].length() > 3) transaction.setType(Parking.Type.MOTORCYCLE);
-                else if (editDistance(Parking.Type.CAR.name(), temp[1]) >= editDistance(Parking.Type.BUS.name(), temp[1]))
-                    transaction.setType(Parking.Type.CAR);
-                transaction.setType(Parking.Type.BUS);
+//                else if (editDistance(Parking.Type.CAR.name(), temp[1]) >= editDistance(Parking.Type.BUS.name(), temp[1]))
+//                    transaction.setType(Parking.Type.CAR);
+                transaction.setType(Parking.Type.CAR);
             }
 
             log.info("Extract from the 6th row");

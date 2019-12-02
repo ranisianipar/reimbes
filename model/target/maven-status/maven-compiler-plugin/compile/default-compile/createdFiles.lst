@@ -1,9 +1,14 @@
-com\reimbes\ReimsUser$Role.class
+com\reimbes\UserDetailsImpl.class
 com\reimbes\ActiveToken.class
+com\reimbes\Medical.class
 com\reimbes\Transaction$Category.class
-com\reimbes\Fuel$Type.class
 com\reimbes\Fuel.class
+com\reimbes\ReimsUser.class
+com\reimbes\FamilyMember$Relationship.class
+com\reimbes\ReimsUser$Gender.class
+com\reimbes\ReimsUser$Role.class
+com\reimbes\Fuel$Type.class
 com\reimbes\Transaction.class
 com\reimbes\Parking$Type.class
+com\reimbes\FamilyMember.class
 com\reimbes\Parking.class
-com\reimbes\ReimsUser.class

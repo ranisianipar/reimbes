@@ -1,4 +1,5 @@
-/target/
+**/target/**
+service/*.xls
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
@@ -25,8 +26,8 @@
 /build/
 
 ### Reims ###
-reims-img/*
-!reims-img/.gitkeep
+storage/*
+!storage/.gitkeep
 
 ### Traning ###
 training/image/*

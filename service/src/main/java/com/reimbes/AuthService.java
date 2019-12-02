@@ -12,4 +12,5 @@ public interface AuthService {
     ActiveToken registerToken(String token);
     void logout(HttpServletRequest req);
     HashMap getCurrentUserDetails(HttpServletRequest req);
+    ReimsUser getCurrentUser();
 }

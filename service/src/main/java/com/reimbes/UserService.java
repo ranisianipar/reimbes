@@ -14,7 +14,7 @@ public interface UserService {
     ReimsUser getUserByUsername(String username);
     ReimsUser get(long id) throws ReimsException;
     Page getAllUsers(String username, Pageable pageable);
-    void deleteUser(long id);
+    void delete(long id);
     boolean isExist(String username);
     byte[] getReport(String startDate, String endDate) throws Exception;
 }

@@ -1,9 +1,6 @@
 package com.reimbes.implementation;
 
-import com.reimbes.ReimsUser;
-import com.reimbes.ReimsUserRepository;
-import com.reimbes.UserDetailsImpl;
-import com.reimbes.UserService;
+import com.reimbes.*;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
@@ -24,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.reimbes.constant.General.IDENTITY_CODE;
 import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 
 @Service
@@ -49,6 +47,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private FamilyMemberServiceImpl familyMemberService;
+
 
     @Override
     public ReimsUser create(ReimsUser user) throws ReimsException {
@@ -65,14 +66,14 @@ public class UserServiceImpl implements UserService {
         ReimsUser oldUser;
 
 
-        if (id == 1) oldUser = userRepository.findByUsername(utils.getUsername());
+        if (id == IDENTITY_CODE) oldUser = userRepository.findByUsername(utils.getUsername());
         else oldUser = userRepository.findOne(id);
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
 
         validate(user, oldUser);
 
-        if (id != 1) oldUser.setRole(user.getRole());
+        if (id != IDENTITY_CODE) oldUser.setRole(user.getRole());
         
         oldUser.setUsername(user.getUsername());
         oldUser.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -83,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ReimsUser updateMyData(ReimsUser user, HttpServletResponse response) throws ReimsException {
-        ReimsUser userWithNewData = update(1, user);
+        ReimsUser userWithNewData = update(IDENTITY_CODE, user);
 
         // update token with latest username
         Collection authorities =  new ArrayList();
@@ -113,7 +114,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser get(long id) throws ReimsException {
         ReimsUser user;
 
-        if (id == 1) return userRepository.findByUsername(utils.getUsername());
+        if (id == IDENTITY_CODE) return userRepository.findByUsername(utils.getUsername());
         else user = userRepository.findOne(id);
         if (user == null)
             throw new NotFoundException("USER "+id);
@@ -122,11 +123,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page getAllUsers(String username, Pageable pageable) {
-        return userRepository.findByIdGreaterThanAndUsernameContainingIgnoreCase(1, username, pageable);
+        return userRepository.findByIdGreaterThanAndUsernameContainingIgnoreCase(IDENTITY_CODE, username, pageable);
     }
 
     @Override
-    public void deleteUser(long id) {
+    public void delete(long id) {
         ReimsUser user = userRepository.findOne(id);
 
         if (user == null) {
@@ -162,7 +163,8 @@ public class UserServiceImpl implements UserService {
                 start, end);
     }
 
-    /* Old User Data NOT NULL indicate update user activity */
+
+    /* Old User Data NOT NULL indicate update medicalUser activity */
     private void validate(ReimsUser newUserData, ReimsUser oldUserData) throws DataConstraintException{
         List errors = new ArrayList();
 
@@ -172,7 +174,7 @@ public class UserServiceImpl implements UserService {
         if (newUserData.getPassword() == null || newUserData.getPassword().isEmpty())
             errors.add("NULL_PASSWORD");
 
-        // compare new user data with other user data
+        // compare new medicalUser data with other medicalUser data
         if (errors.isEmpty()){
             ReimsUser user = userRepository.findByUsername(newUserData.getUsername());
 

@@ -5,7 +5,6 @@ import com.reimbes.implementation.AdminServiceImpl;
 import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.UserServiceImpl;
 import com.reimbes.implementation.Utils;
-import com.reimbes.response.LoginResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -55,11 +55,15 @@ public class AdminServiceTest {
         user.setPassword("HEHE");
         user.setRole(ReimsUser.Role.USER);
         user.setId(1);
+        user.setDateOfBirth(new Date());
+        user.setGender(ReimsUser.Gender.FEMALE);
 
         user2.setId(user.getId()+1);
         user2.setUsername(user.getUsername()+"123");
         user2.setPassword(user.getPassword()+"123");
         user2.setRole(ReimsUser.Role.USER);
+        user2.setDateOfBirth(new Date());
+        user2.setGender(ReimsUser.Gender.MALE);
     }
 
     @Test
@@ -120,9 +124,21 @@ public class AdminServiceTest {
     }
 
     @Test
-    public void doUserDeletion_whenAdminDeleteUserById() {
-        adminService.deleteUser(user.getId());
-        verify(userService, times(1)).deleteUser(user.getId());
+    public void doUserDeletion_whenAdminDeleteUserById() throws ReimsException {
+        when(utils.getUsername()).thenReturn(user.getUsername());
+        when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
+        adminService.deleteUser(user2.getId());
+        verify(userService, times(1)).delete(user2.getId());
+    }
+
+    @Test
+    public void throwErrorForUserDeletion_whenAdminDeleteHimself() {
+        when(utils.getUsername()).thenReturn(user.getUsername());
+        when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
+        assertThrows(ReimsException.class, () -> {
+            adminService.deleteUser(user.getId());
+        });
+
     }
 
 

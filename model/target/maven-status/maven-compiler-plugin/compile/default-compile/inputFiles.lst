@@ -1,9 +1,8 @@
-<<<<<<< HEAD
-C:\Users\Z\Documents\future\reimbes\model\src\main\java\com\reimbes\Fuel.java
-C:\Users\Z\Documents\future\reimbes\model\src\main\java\com\reimbes\ReimsUser.java
-C:\Users\Z\Documents\future\reimbes\model\src\main\java\com\reimbes\ActiveToken.java
-C:\Users\Z\Documents\future\reimbes\model\src\main\java\com\reimbes\Parking.java
-C:\Users\Z\Documents\future\reimbes\model\src\main\java\com\reimbes\Transaction.java
-=======
-C:\Users\Z\Documents\future\reimbes\model\src\main\java\com\reimbes\User.java
->>>>>>> 366e8739cac0b2f7e5f612ccb0f9c08949277064
+C:\Users\Z\Documents\code\reimbes\model\src\main\java\com\reimbes\FamilyMember.java
+C:\Users\Z\Documents\code\reimbes\model\src\main\java\com\reimbes\Fuel.java
+C:\Users\Z\Documents\code\reimbes\model\src\main\java\com\reimbes\Medical.java
+C:\Users\Z\Documents\code\reimbes\model\src\main\java\com\reimbes\ActiveToken.java
+C:\Users\Z\Documents\code\reimbes\model\src\main\java\com\reimbes\Transaction.java
+C:\Users\Z\Documents\code\reimbes\model\src\main\java\com\reimbes\UserDetailsImpl.java
+C:\Users\Z\Documents\code\reimbes\model\src\main\java\com\reimbes\Parking.java
+C:\Users\Z\Documents\code\reimbes\model\src\main\java\com\reimbes\ReimsUser.java

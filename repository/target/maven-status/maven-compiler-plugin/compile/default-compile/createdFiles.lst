@@ -1,3 +1,5 @@
+com\reimbes\MedicalRepository.class
+com\reimbes\FamilyMemberRepository.class
 com\reimbes\TransactionRepository.class
 com\reimbes\ActiveTokenRepository.class
 com\reimbes\ReimsUserRepository.class

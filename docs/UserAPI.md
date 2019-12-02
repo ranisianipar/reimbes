@@ -27,53 +27,6 @@
 - Response Body (Success) : -
 - Response Body (Failure) : -
 
-
-## Update Personal Data
-- Endpoint : `/api/users`
-- HTTP Method : `PUT`
-- Allowed User: `Authorized User`
-- Request Header :
-    - Accept : `application/json`
-    - Content-Type : `application/json`
-- Request Body :
-
-```json
-{
-	"username" : "eko1@pyeongyang.com",
-	"password" : "blibli12345",
-	"role": "USER"
-}
-```
-
-- Response Body (Success) :
-
-```json
-{
-    "code": 200,
-    "status": "OK",
-    "data": {
-        "id": 1,
-        "username": "eko1@pyeongyang.com",
-        "role": "USER",
-        "created_at":1559058600,
-        "updated_at":1559058655"
-    }
-}
-```
-
-- Response Body (Failure) :
-
-```json
-{
-    "code": 400,
-    "status": "BAD_REQUEST",
-    "errors": {
-        "password": NOT_NULL,
-        "username": INVALID_VALUE
-    }
-}
-```
-
 ## Get Personal Data
 - Endpoint : `/api/users`
 - HTTP Method : `GET`
@@ -150,13 +103,23 @@
             "id": 500000026,
             "username": "hafiztesting",
             "role": "ADMIN",
-            "created_at":1559058600
+            "gender":"MALE",
+	    "dateOfBirth":"1970-11-1",
+	    "license":"B XXXX XX",
+	    "vehicle":"CAR",
+	    "created_at":1559058600,
+	    "updated_at":0
         },
         {
             "id": 500000027,
             "username": "testinggg",
             "role": "USER",
-            "created_at":1559058600
+            "gender":"MALE",
+	    "dateOfBirth":"1970-11-1",
+	    "license":"B XXXX XX",
+	    "vehicle":"CAR"
+	    "created_at":1559058600,
+	    "updated_at":1559058655"
         }
     ]
 }
@@ -186,8 +149,13 @@
     "data": {
         "id": 500000026,
         "username": "hafiztesting",
-        "role": "ADMIN",
-        "created_at":1559058600
+        "role": "USER",
+	"gender":"MALE",
+	"dateOfBirth":"1970-11-1",
+	"license":"B XXXX XX",
+	"vehicle":"CAR"
+        "created_at":1559058600,
+        "updated_at":0
     }
 
 }
@@ -217,54 +185,11 @@
 {
 	"username" : "eko1@pyeongyang.com",
 	"password" : "blibli12345",
-	"role": "ADMIN"
-}
-```
-
-- Response Body (Success) :
-
-```json
-{
-    "code": 200,
-    "status": "OK",
-    "data": {
-        "id": 1,
-        "username": "eko1@pyeongyang.com",
-        "role": "ADMIN",
-        "created_at":1559058600,
-        "updated_at":0
-    }
-}
-```
-
-- Response Body (Failure) :
-
-```json
-{
-    "code": 400,
-    "status": "BAD_REQUEST",
-    "errors": {
-        "password": NOT_NULL,
-        "username": NOT_UNIQUE,
-        "role": INVALID_VALUE
-    }
-}
-```
-
-## Update user
-- Endpoint : `api/admin/users/{id}`
-- HTTP Method : `POST`
-- Allowed User: `ADMIN`
-- Request Header :
-    - Accept : `application/json`
-    - Content-Type : `application/json`
-- Request Body :
-
-```json
-{
-	"username" : "eko1@pyeongyang.com",
-	"password" : "blibli12345",
-	"role": "USER"
+	"role": "USER",
+	"gender":"MALE",
+	"dateOfBirth":"1970-11-1",
+	"license":"B XXXX XX",
+	"vehicle":"CAR"
 }
 ```
 
@@ -278,8 +203,12 @@
         "id": 1,
         "username": "eko1@pyeongyang.com",
         "role": "USER",
+	"gender":"MALE",
+	"dateOfBirth":"1970-11-1",
+	"license":"B XXXX XX",
+	"vehicle":"CAR"
         "created_at":1559058600,
-        "updated_at":1559058655"
+        "updated_at":0
     }
 }
 ```
@@ -288,11 +217,12 @@
 
 ```json
 {
-    "code": 400,
+    "code": 500,
     "status": "BAD_REQUEST",
     "errors": {
         "password": NOT_NULL,
-        "username": INVALID_VALUE
+        "username": NOT_UNIQUE,
+        "role": INVALID_VALUE
     }
 }
 ```
@@ -331,7 +261,7 @@
 
 ```json
 {
-    "code": 400,
+    "code": 500,
     "status": "BAD_REQUEST",
     "errors": NOT_MATCH
 }
@@ -385,4 +315,113 @@
 }
 ```
 
+## Update user
+- Endpoint : `api/admin/users/{id}`
+- HTTP Method : `POST`
+- Allowed User: `ADMIN`
+- Request Header :
+    - Accept : `application/json`
+    - Content-Type : `application/json`
+- Request Body :
+
+```json
+{
+	"username" : "eko1@pyeongyang.com",
+	"password" : "blibli12345",
+	"role": "USER",
+	"gender":"MALE",
+	"dateOfBirth":"1970-11-1",
+	"license":"B XXXX XX",
+	"vehicle":"CAR"
+        "created_at":1559058600,
+        "updated_at":0
+}
+```
+
+- Response Body (Success) :
+
+```json
+{
+    "code": 200,
+    "status": "OK",
+    "data": {
+        "id": 1,
+        "username": "eko1@pyeongyang.com",
+        "role": "USER",
+	"gender":"MALE",
+	"dateOfBirth":"1970-11-1",
+	"license":"B XXXX XX",
+	"vehicle":"CAR",
+        "created_at":1559058600,
+        "updated_at":1559058655
+    }
+}
+```
+
+- Response Body (Failure) :
+
+```json
+{
+    "code": 500,
+    "status": "BAD_REQUEST",
+    "errors": {
+        "password": NOT_NULL,
+        "username": INVALID_VALUE
+    }
+}
+```
+
+## Update Personal Data
+- Endpoint : `/api/users`
+- HTTP Method : `PUT`
+- Allowed User: `Authorized User`
+- Request Header :
+    - Accept : `application/json`
+    - Content-Type : `application/json`
+- Request Body :
+
+```json
+{
+	"username" : "eko1@pyeongyang.com",
+	"password" : "blibli12345",
+	"role": "USER",
+	"gender":"MALE",
+	"dateOfBirth":"1970-11-1",
+	"license":"B XXXX XX",
+	"vehicle":"CAR"
+}
+```
+
+- Response Body (Success) :
+
+```json
+{
+    "code": 200,
+    "status": "OK",
+    "data": {
+        "id": 1,
+        "username": "eko1@pyeongyang.com",
+        "role": "USER",
+	"gender":"MALE",
+	"dateOfBirth":"1970-11-1",
+	"license":"B XXXX XX",
+	"vehicle":"CAR",
+        "created_at":1559058600,
+        "updated_at":1559058655
+    }
+}
+```
+
+- Response Body (Failure) :
+
+```json
+{
+    "code": 500,
+    "status": "BAD_REQUEST",
+    "errors": {
+        "password": NOT_NULL,
+        "username": INVALID_VALUE
+    }
+}
+```
   

@@ -1,7 +1,9 @@
 package com.reimbes.implementation;
 
 import com.reimbes.AdminService;
+import com.reimbes.FamilyMember;
 import com.reimbes.ReimsUser;
+import com.reimbes.constant.ResponseCode;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
@@ -10,10 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -31,9 +36,12 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private UserServiceImpl userService;
 
+    @Autowired
+    private FamilyMemberServiceImpl familyMemberService;
+
     @Override
     public Page getAllUser(String search, Pageable pageRequest) throws ReimsException {
-        log.info("Get all user by: "+utils.getUsername());
+        log.info("Get all medicalUser by: " + utils.getUsername());
 
         log.info("Page request number: "+pageRequest.getPageNumber());
         // tha page number default is 1, but querying things start from 0.
@@ -51,12 +59,20 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public ReimsUser createUser(ReimsUser user) throws ReimsException {
+        validate(user);
         return userService.create(user);
     }
 
+    public FamilyMember createMember(long userId, FamilyMember member) throws ReimsException {
+
+        return familyMemberService.create(userId, member);
+    }
+
     @Override
-    public Object updateUser(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
-        ReimsUser currentUser = userService.getUserByUsername(utils.getUsername());
+    public ReimsUser updateUser(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
+        ReimsUser currentUser = authService.getCurrentUser();
+
+        validate(user);
 
         // if admin try to update his data
         if (currentUser.getId() == id) return userService.updateMyData(user, response);
@@ -65,7 +81,24 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void deleteUser(long id) {
-        userService.deleteUser(id);
+    public void deleteUser(long id) throws ReimsException{
+        ReimsUser currentUser = authService.getCurrentUser();
+        if (currentUser.getId() == id) throw new ReimsException("SELF_DELETION", HttpStatus.METHOD_NOT_ALLOWED, 405);
+        userService.delete(id);
+    }
+
+    private void validate(ReimsUser newUser) throws ReimsException {
+        List<String> errors = new ArrayList<>();
+
+        if (newUser.getRole() == null)
+            errors.add("NULL_ATTRIBUTE_ROLE");
+        else if (newUser.getRole() == ReimsUser.Role.USER && newUser.getGender() == null)
+            errors.add("NULL_ATTRIBUTE_GENDER");
+
+        if (newUser.getDateOfBirth() == null)
+            errors.add("NULL_ATTRIBUTE_DATE_OF_BIRTH");
+
+        if (!errors.isEmpty())
+            throw new ReimsException(errors.toString(),HttpStatus.BAD_REQUEST, ResponseCode.BAD_REQUEST);
     }
 }
