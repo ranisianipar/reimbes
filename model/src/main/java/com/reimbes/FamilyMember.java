@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import net.bytebuddy.build.ToStringPlugin;
 
 import javax.persistence.*;
@@ -14,36 +15,19 @@ import java.util.Date;
 
 @Table(name = "Family_Member")
 @Entity
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
+@Data @NoArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class FamilyMember {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false, insertable = false, columnDefinition = "serial")
-    private long id;
-
-    @NotNull
-    private String name;
+public class FamilyMember extends Patient {
 
     @NotNull
     private Relationship relationship;
-
-    @NotNull
-    private Date dateOfBirth; // yyyy-MM-dd
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "familyMemberOf", nullable = false)
     @ToStringPlugin.Exclude
     @JsonIgnore
     private ReimsUser familyMemberOf;
-
-//    @OneToMany(mappedBy = "patient")
-//    private Set<Medical> medicals;
 
     @Column(updatable = false)
     private long createdAt;
@@ -54,6 +38,11 @@ public class FamilyMember {
         CHILDREN
     }
 
-
+    @Builder(builderMethodName = "FamilyMemberBuilder")
+    public FamilyMember(long id, ReimsUser familyMemberOf, Relationship relationship, String name, Date dateOfBirth) {
+        super(id, name, dateOfBirth);
+        this.familyMemberOf = familyMemberOf;
+        this.relationship = relationship;
+    }
 
 }

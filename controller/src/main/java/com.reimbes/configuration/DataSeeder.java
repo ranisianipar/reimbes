@@ -22,10 +22,12 @@ public class DataSeeder {
     public void seed(ContextRefreshedEvent event) throws ReimsException {
         if (!userService.isExist("ADMIN")) {
             log.info("Seeding data for Super Admin...");
-            ReimsUser user = new ReimsUser();
-            user.setRole(ReimsUser.Role.ADMIN);
-            user.setUsername("ADMIN");
-            user.setPassword("ADMIN123");
+            ReimsUser user = ReimsUser.ReimsUserBuilder()
+                    .username("ADMIN")
+                    .password("ADMIN123")
+                    .role(ReimsUser.Role.ADMIN)
+                    .id(1)
+                    .build();
             userService.create(user);
         }
 

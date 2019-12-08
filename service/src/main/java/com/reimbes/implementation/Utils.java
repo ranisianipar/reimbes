@@ -110,7 +110,6 @@ public class Utils {
             log.info("Decoding image byte succeed.");
             log.info("Uploading the image...");
 
-
             /*
             * do upload image
             * */

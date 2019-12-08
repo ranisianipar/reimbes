@@ -52,7 +52,7 @@ public class TransactionServiceTest {
     @InjectMocks
     private TransactionServiceImpl transactionService;
 
-    private ReimsUser user = new ReimsUser();
+    private ReimsUser user;
 
     private Fuel fuel = new Fuel();
     private Parking parking = new Parking();
@@ -60,11 +60,6 @@ public class TransactionServiceTest {
 
     @Before
     public void setup() {
-        user.setUsername("HAHA");
-        user.setPassword("HEHE");
-        user.setRole(ReimsUser.Role.USER);
-        user.setId(1);
-
         fuel.setId(new Long(1));
         fuel.setAmount(61000);
         fuel.setReimsUser(user);
@@ -88,7 +83,13 @@ public class TransactionServiceTest {
         transactions.add(fuel);
         transactions.add(parking);
 
-        user.setTransactions(new HashSet(transactions));
+        user = ReimsUser.ReimsUserBuilder()
+                .username("HAHA")
+                .password("HEHE")
+                .role(ReimsUser.Role.USER)
+                .id(1)
+                .transactions(new HashSet(transactions))
+                .build();
 
         when(userService.getUserByUsername(utils.getUsername())).thenReturn(user);
 

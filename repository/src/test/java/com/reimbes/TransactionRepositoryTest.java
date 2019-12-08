@@ -36,10 +36,9 @@ public class TransactionRepositoryTest {
 
     @Before
     public void setup() {
-        user = new ReimsUser();
-        user.setId(123);
-
-
+        user = ReimsUser.ReimsUserBuilder()
+                .id(123)
+                .build();
         fuel = new Fuel();
         fuel.setTitle("The fuel");
         fuel.setCategory(Transaction.Category.FUEL);

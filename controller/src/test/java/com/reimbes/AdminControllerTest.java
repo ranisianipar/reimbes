@@ -23,6 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.reimbes.ReimsUser.Role.ADMIN;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -58,11 +59,12 @@ public class AdminControllerTest {
 
     @Test
     public void givenListOfUsers_whenGetAllUsers() throws Exception {
-        ReimsUser user = new ReimsUser();
-        user.setId(0);
-        user.setPassword("!@#qwe");
-        user.setUsername("zzz");
-        user.setRole(ReimsUser.Role.ADMIN);
+        ReimsUser user = ReimsUser.ReimsUserBuilder()
+                .username("zzz")
+                .password("!@#qwe")
+                .role(ADMIN)
+                .id(0)
+                .build();
 
 //        mvc.perform(getByUser("/api/admin/users")
 //                .contentType(MediaType.ALL_VALUE))
