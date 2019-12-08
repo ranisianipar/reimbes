@@ -14,11 +14,7 @@ import javax.persistence.*;
 * This model will be used to map medical and report (img)
 * */
 @Table(name="Medical_Reports")
-
-@AllArgsConstructor
-@Builder
-@Data
-@NoArgsConstructor
+@Data @Builder @NoArgsConstructor @AllArgsConstructor
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")

@@ -27,10 +27,6 @@ public class ReimsUser extends Patient {
     @Column
     private Gender gender;
 
-//     ADMIN doesnt need dateOfBirth
-//    @Column
-//    private Date dateOfBirth;
-
     @ToString.Exclude
     @OneToMany(mappedBy = "reimsUser")
     private Set<Transaction> transactions;
@@ -38,10 +34,6 @@ public class ReimsUser extends Patient {
     @ToString.Exclude
     @OneToMany(mappedBy = "familyMemberOf")
     private Set<FamilyMember> familyMemberOf;
-
-//    @ToString.Exclude
-//    @OneToMany(mappedBy = "medicalUser")
-//    private Set<Medical> medicals; // dont use json ignore, to still retrieve all medical assigned by user
 
     private String license;
 

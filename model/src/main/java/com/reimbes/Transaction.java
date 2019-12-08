@@ -1,11 +1,9 @@
 package com.reimbes;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import net.bytebuddy.build.ToStringPlugin;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Data
 @Entity
