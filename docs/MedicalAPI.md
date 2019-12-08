@@ -35,36 +35,25 @@ only for USER
   "code": 200,
   "status": "OK",
   "errors": null,
-  "paging": {
-    "pageNumber": 3,
-    "pageSize": 5,
-    "totalPages": 3,
-    "totalRecords": 1
-  },
+  "paging": null,
   "data": [
-    {
-		"id":92769,
-		"title":"Istri Demam",
-		"amount":1000000,
-		"date":`2020-01-01`,
-		"attachment":[
-		// need notes?
-    		"92769/lqeigbhqohjgpoq313019504185.jpg",
-    		"92769/1gr2hbo23gbfo12332r5m5.jpg"
-		],
-		"patient":{
-    		"id":92768,
-    		"name":"Zendaya"
-    		"relationship":`SPOUSE`,
-    		"dateOfBirth":"1979-02-06"
-		}
-	},
-	{
-	// sama seperti data di atas
-	}
-  ],
+      {
+          "id": 5,
+          "title": "SAKIT",
+          "age": 21,
+          "amount": 5000000,
+          "date": 1575775787000,
+          "patient": {
+            "id": 32768,
+            "name": "user-with-member",
+            "dateOfBirth": 895017600000
+          },
+          "attachments": []
+      },
+      ...
+    ],
   "success": true
-}
+  }
 ```
 
 ## Get Medical by ID
@@ -82,29 +71,24 @@ only for USER
   "code": 200,
   "status": "OK",
   "errors": null,
-  "paging": {
-    "pageNumber": 3,
-    "pageSize": 5,
-    "totalPages": 3,
-    "totalRecords": 1
-  },
+  "paging": null,
   "data": {
-		"id":92769,
-		"title":"Istri Demam",
-		"amount":1000000,
-		"date":`2020-01-01`,
-		"attachment":[
-		// need notes?
-    		"92769/lqeigbhqohjgpoq313019504185.jpg",
-    		"92769/1gr2hbo23gbfo12332r5m5.jpg"
-		]
-		"patient":{
-    		"id":92768,
-    		"name":"Zendaya"
-    		"relationship":`SPOUSE`,
-    		"dateOfBirth":"1979-02-06"
-		}
-	}
+    "id": 3,
+    "title": "SAKIT",
+    "age": 21,
+    "amount": 1,
+    "date": 1575775787000,
+    "patient": {
+      "id": 32768,
+      "name": "user-with-member",
+      "dateOfBirth": 895017600000
+    },
+    "attachments": [
+        "92769/lqeigbhqohjgpoq313019504185.jpg",
+        "92769/1gr2hbo23gbfo12332r5m5.jpg"
+    ]
+  },
+  "success": true
 }
 ```
 - Response Body (Failure) :
@@ -133,45 +117,40 @@ only for USER
 	"date":`2020-01-01`,
 	"amount":1000000,
 	"attachment":[
-	// need notes?
-		"92769/lqeigbhqohjgpoq313019504185.jpg",
-		"92769/1gr2hbo23gbfo12332r5m5.jpg"
+		"%%image_in_base64%%",
+		...
 	],
-	"patient":{
-		"id":92768,
-		"name":"Zendaya"
-		"relationship":`SPOUSE`,
-		"dateOfBirth":"1979-02-06"
-	}
+	"patient": null
 }
 ```
-
+*patient: null => assign Current User as the Patient*
 - Response Body (Success) :
 
 ```json
 {
-    "code": 200,
-    "status": "OK",
-    "data": {
-        "id":"998175",
-    	"title":"Istri Demam"
-    	"amount":1000000,
-    	"date":`2020-01-01`,
-    	"attachment":[
-    	// need notes?
-    		"92769/lqeigbhqohjgpoq313019504185.jpg",
-    		"92769/1gr2hbo23gbfo12332r5m5.jpg"
-    	],
-    	"patient":{
-    		"id":92768,
-    		"name":"Zendaya"
-    		"relationship":`SPOUSE`,
-    		"dateOfBirth":"1979-02-06"
-    	}
-    }
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": null,
+  "data": {
+    "id": 14,
+    "title": "pusyang",
+    "age": 21,
+    "amount": 700000,
+    "date": 1575775787000,
+    "patient": {
+      "id": 32768,
+      "name": "user-with-member",
+      "dateOfBirth": 895017600000
+    },
+    "attachments": [
+        "92769/lqeigbhqohjgpoq313019504185.jpg",
+        "92769/1gr2hbo23gbfo12332r5m5.jpg"
+    ]
+  },
+  "success": true
 }
 ```
-
 - Response Body (Failure) :
 
 ```json
@@ -214,21 +193,16 @@ only for USER
 - Request Body : 
 ```json
 {
-    "id":"998175",
-	"title":"Istri Demam"
-	"amount":1000000,
-	"date":`2020-01-01`,
-	"attachment":[
-	// need notes?
-		"92769/lqeigbhqohjgpoq313019504185.jpg",
-		"92769/1gr2hbo23gbfo12332r5m5.jpg"
-	],
-	"patient":{
-		"id":92768,
-		"name":"Zendaya"
-		"relationship":`SPOUSE`,
-		"dateOfBirth":"1979-02-06"
-	}
+	"title": "pusyang update",
+	"age": 21,
+	"amount": 710000,
+	"date": 1575775787000,
+	"patient": {
+		"id": 32768,
+		"name": "user-with-member",
+		"dateOfBirth": 895017600000
+	},
+	"attachments": null
 }
 ```
 
@@ -236,14 +210,24 @@ only for USER
 
 ```json
 {
-    "code": 200,
-    "status": "OK",
-    "data": {
-		"id":92769,
-		"name":"Andre Forbes"
-		"relationship":`CHILDREN`,
-		"dateOfBirth":"1993-01-01"
-    }
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": null,
+  "data": {
+    "id": 14,
+    "title": "pusyang",
+    "age": 21,
+    "amount": 710000,
+    "date": 1575775787000,
+    "patient": {
+      "id": 32768,
+      "name": "user-with-member",
+      "dateOfBirth": 895017600000
+    },
+    "attachments": []
+  },
+  "success": true
 }
 ```
 

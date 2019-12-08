@@ -3,8 +3,9 @@ package com.reimbes;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.MedicalServiceImpl;
-import com.reimbes.request.MedicalRequest;
 import com.reimbes.response.BaseResponse;
+import com.reimbes.response.MedicalWebModel;
+import com.reimbes.response.TransactionResponse;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
@@ -15,6 +16,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
@@ -37,7 +42,9 @@ public class MedicalController {
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
 
-        br.setData(medicalService.getAll(pageRequest, search, start, end).getContent());
+        br.setData(getAllMedicalResponse(
+                medicalService.getAll(pageRequest, search, start, end).getContent()
+        ));
         return br;
     }
 
@@ -45,7 +52,8 @@ public class MedicalController {
     public BaseResponse get(@PathVariable long id) {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(medicalService.get(id));
+            Medical result = medicalService.get(id);
+            br.setData(getMedicalMapper(result).map(result, MedicalWebModel.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -54,16 +62,18 @@ public class MedicalController {
     }
 
     @PostMapping
-    public BaseResponse create(@RequestBody MedicalRequest report) {
+    public BaseResponse create(@RequestBody MedicalWebModel report) {
         BaseResponse br = new BaseResponse();
         try {
             log.info("attachment: "+ report.getAttachments());
-            br.setData(
-                    medicalService.create(
-                            getTransactionMapper(report).map(report, Medical.class),
-                            report.getAttachments()
-                    )
+
+            Medical result = medicalService.create(
+                    getMedicalMapper(report).map(report, Medical.class),
+                    report.getAttachments()
             );
+
+            br.setData(getMedicalMapper(result).map(result, MedicalWebModel.class));
+
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -73,17 +83,17 @@ public class MedicalController {
     @PutMapping(UrlConstants.ID_PARAM)
     public BaseResponse update(
             @PathVariable long id,
-            @RequestBody MedicalRequest report
+            @RequestBody MedicalWebModel report
     ) {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(
-                    medicalService.update(
-                            id,
-                            getTransactionMapper(report).map(report, Medical.class),
-                            report.getAttachments()
-                    )
+            Medical result = medicalService.update(
+                    id,
+                    getMedicalMapper(report).map(report, Medical.class),
+                    report.getAttachments()
             );
+
+            br.setData(getMedicalMapper(result).map(result, MedicalWebModel.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -102,15 +112,38 @@ public class MedicalController {
     }
 
 
-    // mapping medicalRequest to medical entity
 
-    private MapperFacade getTransactionMapper(MedicalRequest request) {
+    // mapping medicalResponse to medical entity
+    private MapperFacade getMedicalMapper(MedicalWebModel response) {
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
-        mapperFactory.classMap(MedicalRequest.class, Medical.class)
-                .field("","")
-                .byDefault().register();
-        mapperFactory.getMapperFacade().map(request, Medical.class);
+        mapperFactory.classMap(MedicalWebModel.class, Medical.class)
+                .byDefault()
+                .register();
+        mapperFactory.getMapperFacade().map(response, MedicalWebModel.class);
 
         return mapperFactory.getMapperFacade();
+    }
+
+    // mapping medical entity medicalResponse
+    private MapperFacade getMedicalMapper(Medical response) {
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+        mapperFactory.classMap(Medical.class, MedicalWebModel.class)
+                .byDefault().register();
+        mapperFactory.getMapperFacade().map(response, MedicalWebModel.class);
+
+        return mapperFactory.getMapperFacade();
+    }
+
+    // mapping medical entity medicalResponse
+    private List<MedicalWebModel> getAllMedicalResponse(List<Medical> medicals) {
+        List<MedicalWebModel> medicalResponses = new ArrayList<>();
+        Iterator<Medical> iterator = medicals.iterator();
+        Medical medical;
+        while (iterator.hasNext()) {
+            medical = iterator.next();
+            medicalResponses.add(getMedicalMapper(medical).map(medical,MedicalWebModel.class));
+        }
+
+        return medicalResponses;
     }
 }

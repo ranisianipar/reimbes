@@ -40,7 +40,7 @@ public class MedicalServiceImpl implements MedicalService {
 
         if (files != null) {
             Set<MedicalReport> reports = new HashSet<>();
-            log.info("Create register all medical reports those have been attached.");
+            log.info("Create register all medical attachments those have been attached.");
             for (String file: files) {
                 reports.add(
                         MedicalReport.builder()
@@ -48,7 +48,7 @@ public class MedicalServiceImpl implements MedicalService {
                                 .build()
                 );
             }
-            medical.setReports(reports);
+            medical.setAttachments(reports);
         }
 
 
@@ -57,6 +57,7 @@ public class MedicalServiceImpl implements MedicalService {
          medical.setMedicalUser(currentUser);
 
         if (medical.getPatient() == null) {
+            currentUser.setName(currentUser.getUsername());
             medical.setPatient(currentUser);
         }
 
@@ -82,14 +83,16 @@ public class MedicalServiceImpl implements MedicalService {
         old.setAge(countAge(newMedical.getPatient().getDateOfBirth()));
         old.setDate(newMedical.getDate());
 
-        for (String file: files) {
-            reports.add(
-                    MedicalReport.builder()
-                            .image(utils.uploadImage(file, currentUser.getId(), UrlConstants.SUB_FOLDER_REPORT))
-                            .build()
-            );
+        if (files != null) {
+            for (String file: files) {
+                reports.add(
+                        MedicalReport.builder()
+                                .image(utils.uploadImage(file, currentUser.getId(), UrlConstants.SUB_FOLDER_REPORT))
+                                .build()
+                );
+            }
+            old.setAttachments(reports);
         }
-        old.setReports(reports);
 
         return medicalRepository.save(old);
     }
@@ -116,7 +119,7 @@ public class MedicalServiceImpl implements MedicalService {
 
             return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetween(title, start, end, pageRequest);
         } catch (Exception e) {
-            return medicalRepository.findByTitleContainingIgnoreCase(title, pageRequest);
+            return medicalRepository.findAll(pageRequest);
         }
     }
 

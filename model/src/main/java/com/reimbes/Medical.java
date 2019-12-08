@@ -40,13 +40,12 @@ public class Medical {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reimsUser", nullable = false)
-    @ToStringPlugin.Exclude
     @JsonIgnore
     private ReimsUser medicalUser;
 
 //    Mapped to multiple images
     @OneToMany(mappedBy = "medical_id")
-    private Set<MedicalReport> reports;
+    private Set<MedicalReport> attachments;
 
 
 }
