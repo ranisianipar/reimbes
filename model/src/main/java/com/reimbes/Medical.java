@@ -14,7 +14,7 @@ import net.bytebuddy.build.ToStringPlugin;
 import javax.persistence.*;
 import java.util.Set;
 
-@Table(name="Medicals")
+@Table(name="Medical")
 @AllArgsConstructor
 @Builder
 @Data
@@ -34,18 +34,18 @@ public class Medical {
     private long amount;
     private long date;
 
-////    patient null -> claim for him/her self
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient")
-    private FamilyMember patient;
+    private Patient patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reimsUser", nullable = false)
-    @ToStringPlugin.Exclude
     @JsonIgnore
     private ReimsUser medicalUser;
 
 //    Mapped to multiple images
     @OneToMany(mappedBy = "medical_id")
-    private Set<MedicalReport> reports;
+    private Set<MedicalReport> attachments;
+
+
 }

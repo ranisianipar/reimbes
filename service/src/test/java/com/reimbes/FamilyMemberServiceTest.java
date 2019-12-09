@@ -46,15 +46,16 @@ public class FamilyMemberServiceTest {
     public void setUp() throws ParseException {
 
         // USER with HIS FAMILY
-        maleUser = new ReimsUser();
-        maleUser.setGender(ReimsUser.Gender.MALE);
-        maleUser.setDateOfBirth(new SimpleDateFormat("dd/MM/yyyy").parse("13/05/1998"));
-        maleUser.setRole(USER);
-        maleUser.setPassword("xxx123");
-        maleUser.setUsername("joker");
+        maleUser = ReimsUser.ReimsUserBuilder()
+                .username("joker")
+                .password("HEHE")
+                .role(USER)
+                .id(1)
+                .gender(ReimsUser.Gender.MALE)
+                .dateOfBirth(new SimpleDateFormat("dd/MM/yyyy").parse("13/05/1998"))
+                .build();
 
-
-        familyMember = FamilyMember.builder()
+        familyMember = FamilyMember.FamilyMemberBuilder()
                 .name("Kehlani")
                 .dateOfBirth(new Date())
                 .relationship(FamilyMember.Relationship.SPOUSE)
@@ -64,15 +65,17 @@ public class FamilyMemberServiceTest {
         familyMembers = new HashSet<>();
         familyMembers.add(familyMember);
 
-        // maleUser.setFamilyMemberOf(familyMembers);
+         maleUser.setFamilyMemberOf(familyMembers);
 
         // USER with gender FEMALE, cant register HER FAMILY.
-        femaleUser = new ReimsUser();
-        femaleUser.setGender(ReimsUser.Gender.FEMALE);
-        femaleUser.setUsername("harley queen");
-        femaleUser.setPassword("xixixi");
-        femaleUser.setRole(USER);
-        femaleUser.setDateOfBirth(new SimpleDateFormat("dd/MM/yyyy").parse("13/05/1998"));
+        femaleUser = ReimsUser.ReimsUserBuilder()
+                .username("harley queen")
+                .password("xixixi")
+                .role(USER)
+                .id(2)
+                .gender(ReimsUser.Gender.FEMALE)
+                .dateOfBirth(new SimpleDateFormat("dd/MM/yyyy").parse("13/05/1998"))
+                .build();
     }
 
     @Test

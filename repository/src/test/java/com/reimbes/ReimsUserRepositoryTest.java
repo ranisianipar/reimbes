@@ -30,11 +30,12 @@ public class ReimsUserRepositoryTest {
 
     @Before
     public void setup() {
-        user = new ReimsUser();
-        user.setId(0);
-        user.setPassword("!@#qwe");
-        user.setUsername("kjkszpj");
-        user.setRole(ReimsUser.Role.ADMIN);
+        user = ReimsUser.ReimsUserBuilder()
+                .id(0)
+                .password("!@#qwe")
+                .role(ReimsUser.Role.ADMIN)
+                .username("kjkszpj")
+                .build();
         entityManager.persistAndFlush(user);
     }
 

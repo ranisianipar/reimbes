@@ -34,16 +34,13 @@ public class MedicalServiceImpl implements MedicalService {
 
 //    MULTIPLE upload
     public Medical create(Medical medical, List<String> files) throws ReimsException {
-
-
-
         ReimsUser currentUser = authService.getCurrentUser();
 
         validate(medical);
 
         if (files != null) {
             Set<MedicalReport> reports = new HashSet<>();
-            log.info("Create register all medical reports those have been attached.");
+            log.info("Create register all medical attachments those have been attached.");
             for (String file: files) {
                 reports.add(
                         MedicalReport.builder()
@@ -51,22 +48,28 @@ public class MedicalServiceImpl implements MedicalService {
                                 .build()
                 );
             }
-            medical.setReports(reports);
+            medical.setAttachments(reports);
         }
 
 
         // [CHECK]: user claim medical for himself or not
         // patient null --> claim for himself
          medical.setMedicalUser(currentUser);
-//        if (medical.getPatient() == null)
+
+        if (medical.getPatient() == null) {
+            currentUser.setName(currentUser.getUsername());
+            medical.setPatient(currentUser);
+        }
+
+        medical.setPatient(medical.getPatient());
+
         medical.setAge(countAge(currentUser.getDateOfBirth()));
 
-        log.info("MEDICAL --> "+medical.toString());
+        log.info("MEDICAL --> " + medical.toString());
 
         return medicalRepository.save(medical);
     }
 
-//    this method doesnt support medical report editing
     @Override
     public Medical update(long id, Medical newMedical, List<String> files) throws ReimsException {
         Medical old = medicalRepository.findOne(id);
@@ -76,18 +79,20 @@ public class MedicalServiceImpl implements MedicalService {
         validate(newMedical);
         old.setAmount(newMedical.getAmount());
 
-//        old.setPatient(newMedical.getPatient());
-//        old.setAge(countAge(newMedical.getPatient().getDateOfBirth()));
+        old.setPatient(newMedical.getPatient());
+        old.setAge(countAge(newMedical.getPatient().getDateOfBirth()));
         old.setDate(newMedical.getDate());
 
-        for (String file: files) {
-            reports.add(
-                    MedicalReport.builder()
-                            .image(utils.uploadImage(file, currentUser.getId(), UrlConstants.SUB_FOLDER_REPORT))
-                            .build()
-            );
+        if (files != null) {
+            for (String file: files) {
+                reports.add(
+                        MedicalReport.builder()
+                                .image(utils.uploadImage(file, currentUser.getId(), UrlConstants.SUB_FOLDER_REPORT))
+                                .build()
+                );
+            }
+            old.setAttachments(reports);
         }
-        old.setReports(reports);
 
         return medicalRepository.save(old);
     }
@@ -114,7 +119,7 @@ public class MedicalServiceImpl implements MedicalService {
 
             return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetween(title, start, end, pageRequest);
         } catch (Exception e) {
-            return medicalRepository.findByTitleContainingIgnoreCase(title, pageRequest);
+            return medicalRepository.findAll(pageRequest);
         }
     }
 
@@ -131,7 +136,6 @@ public class MedicalServiceImpl implements MedicalService {
         ArrayList<String> errors = new ArrayList();
 
         if (report.getAmount() <= 0) errors.add("PROHIBITED_AMOUNT");
-//        if (report.getPatient() == null) errors.add("NULL_ATTRIBUTE_PATIENT");
 
         if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
     }

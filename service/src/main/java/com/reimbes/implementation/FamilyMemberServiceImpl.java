@@ -53,11 +53,11 @@ public class FamilyMemberServiceImpl {
 
         validate(null, member);
 
-        FamilyMember familyMember = FamilyMember.builder()
+        FamilyMember familyMember = FamilyMember.FamilyMemberBuilder()
                 .familyMemberOf(user)
+                .relationship(member.getRelationship())
                 .dateOfBirth(member.getDateOfBirth())
                 .name(member.getName())
-                .relationship(member.getRelationship())
                 .build();
 
         familyMember.setCreatedAt(utils.getCurrentTime());

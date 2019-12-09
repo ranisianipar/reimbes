@@ -2,22 +2,18 @@ package com.reimbes;
 
 import com.fasterxml.jackson.annotation.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
 
-@Table(name = "Reims_Users")
+@Table(name = "Reims_User")
 @Entity
-@Data
-// @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class ReimsUser {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false, insertable = false, columnDefinition = "serial")
-    private long id;
+@Data @NoArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+public class ReimsUser extends Patient {
 
     @NotNull
     private String username;
@@ -31,22 +27,13 @@ public class ReimsUser {
     @Column
     private Gender gender;
 
-//     ADMIN doesnt need dateOfBirth
-    @Column
-    private Date dateOfBirth;
-
+    @ToString.Exclude
     @OneToMany(mappedBy = "reimsUser")
-    @JsonBackReference
     private Set<Transaction> transactions;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "familyMemberOf")
     private Set<FamilyMember> familyMemberOf;
-
-    @ToString.Exclude
-    @OneToMany(mappedBy = "medicalUser")
-//    @JsonIgnore
-    private Set<Medical> medicals; // dont use json ignore, to still retrieve all medical assigned by user
 
     private String license;
 
@@ -67,4 +54,23 @@ public class ReimsUser {
         MALE,
         FEMALE
     }
+
+    @Builder(builderMethodName = "ReimsUserBuilder")
+    public ReimsUser(long id, String username, String password, Role role, Gender gender, Set<Transaction> transactions,
+                     Set<FamilyMember> familyMemberOf, String license, Parking.Type vehicle, Date dateOfBirth) {
+        super(id, username, dateOfBirth);
+
+        this.username = username;
+        this.password = password;
+        this.role = role;
+        this.transactions = transactions;
+        this.familyMemberOf = familyMemberOf;
+        this.license = license;
+        this.vehicle = vehicle;
+        this.gender = gender;
+    }
+
+
+
+
 }

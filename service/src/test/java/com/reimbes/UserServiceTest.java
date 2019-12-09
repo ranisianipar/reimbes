@@ -60,18 +60,21 @@ public class UserServiceTest {
 
     @Before
     public void setup() {
-        user = new ReimsUser();
-        user.setUsername("@min");
-        user.setRole(ReimsUser.Role.ADMIN);
-        user.setPassword("1234567890");
-        user.setId(2);
+        user = ReimsUser.ReimsUserBuilder()
+                .username("@min")
+                .role(ReimsUser.Role.ADMIN)
+                .password("1234567890")
+                .id(2)
+                .build();
+
         users.add(user);
 
-        userWithEncodedPass = new ReimsUser();
-        userWithEncodedPass.setUsername(user.getUsername());
-        userWithEncodedPass.setRole(user.getRole());
-        userWithEncodedPass.setId(user.getId());
-        userWithEncodedPass.setPassword("123456xxx");
+        userWithEncodedPass = ReimsUser.ReimsUserBuilder()
+                .username(user.getUsername())
+                .role(user.getRole())
+                .password(user.getPassword())
+                .id(user.getId())
+                .build();
     }
 
     @Test
@@ -165,15 +168,17 @@ public class UserServiceTest {
 
         ReimsUser newUser = userService.create(user);
 
-        ReimsUser user2 = new ReimsUser();
-        user2.setUsername("REIMBES");
-        user2.setPassword("xxxxx");
-        user2.setRole(ReimsUser.Role.USER);
+        ReimsUser user2 = ReimsUser.ReimsUserBuilder()
+                .username("REIMBES")
+                .password("xxxxxx")
+                .role(ReimsUser.Role.USER)
+                .build();
 
-        ReimsUser user2WithEncodedPass = new ReimsUser();
-        user2.setUsername("REIMBES");
-        user2.setPassword("xxxxx123");
-        user2.setRole(ReimsUser.Role.USER);
+        ReimsUser user2WithEncodedPass = ReimsUser.ReimsUserBuilder()
+                .username(user2.getUsername())
+                .password("xxxxx123")
+                .role(ReimsUser.Role.USER)
+                .build();
 
         when(passwordEncoder.encode(user.getPassword())).thenReturn(user2WithEncodedPass.getPassword());
         when(userRepository.save(user2)).thenReturn(user2WithEncodedPass);
