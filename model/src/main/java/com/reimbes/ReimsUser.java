@@ -37,7 +37,9 @@ public class ReimsUser extends Patient {
 
     private String license;
 
-    private Parking.Type vehicle;
+    private String vehicle;
+
+    private String division;
 
     @Column(updatable = false, nullable = false)
     private long createdAt;
@@ -57,7 +59,7 @@ public class ReimsUser extends Patient {
 
     @Builder(builderMethodName = "ReimsUserBuilder")
     public ReimsUser(long id, String username, String password, Role role, Gender gender, Set<Transaction> transactions,
-                     Set<FamilyMember> familyMemberOf, String license, Parking.Type vehicle, Date dateOfBirth) {
+                     Set<FamilyMember> familyMemberOf, String license, String vehicle, Date dateOfBirth) {
         super(id, username, dateOfBirth);
 
         this.username = username;

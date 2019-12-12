@@ -119,6 +119,7 @@ public class MedicalServiceImpl implements MedicalService {
 
             return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetween(title, start, end, pageRequest);
         } catch (Exception e) {
+            log.info("GET ALL medicals");
             return medicalRepository.findAll(pageRequest);
         }
     }

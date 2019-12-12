@@ -1,9 +1,7 @@
 package com.reimbes.response;
 
-import com.reimbes.Patient;
 import lombok.Data;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -15,7 +13,7 @@ public class MedicalWebModel {
 
     private long date;
 
-    private Patient patient;
+    private PatientResponse patient;
     private List<String> attachments; // images
 
 }

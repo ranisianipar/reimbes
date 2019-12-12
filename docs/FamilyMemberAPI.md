@@ -104,7 +104,6 @@ this method to register a new family member to a MALE USER.
 ```json
 {
 	"name":"Isyana Sarasvati",
-	"familyMemberOf": "3",
 	"relationship":"CHILDREN",
 	"dateOfBirth":"1995-12-31"
 }
@@ -169,7 +168,6 @@ this method to register a new family member to a MALE USER.
 ```json
 {
 	"name":"Andre Forbes",
-	"familyMemberOf": "3",
 	"relationship":`CHILDREN`,
 	"dateOfBirth":"1993-01-01"
 }

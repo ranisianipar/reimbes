@@ -2,6 +2,7 @@ package com.reimbes.implementation;
 
 import com.reimbes.FamilyMember;
 import com.reimbes.FamilyMemberRepository;
+import com.reimbes.PatientRepository;
 import com.reimbes.ReimsUser;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.MethodNotAllowedException;
@@ -32,6 +33,9 @@ public class FamilyMemberServiceImpl {
     private FamilyMemberRepository familyMemberRepository;
 
     @Autowired
+    private PatientRepository patientRepository;
+
+    @Autowired
     private UserServiceImpl userService;
 
     @Autowired
@@ -51,8 +55,6 @@ public class FamilyMemberServiceImpl {
         if (user.getGender() != ReimsUser.Gender.MALE)
             throw new DataConstraintException("GENDER_CONSTRAINT");
 
-        validate(null, member);
-
         FamilyMember familyMember = FamilyMember.FamilyMemberBuilder()
                 .familyMemberOf(user)
                 .relationship(member.getRelationship())
@@ -60,11 +62,14 @@ public class FamilyMemberServiceImpl {
                 .name(member.getName())
                 .build();
 
+        validate(null, familyMember);
+
         familyMember.setCreatedAt(utils.getCurrentTime());
 
         log.info("Done mapping! FAMILY_MEMBER: " + familyMember.toString());
 
         return familyMemberRepository.save(familyMember);
+//        return patientRepository.save(familyMember);
     }
 
     public FamilyMember getById(Long id) throws ReimsException {
@@ -100,6 +105,7 @@ public class FamilyMemberServiceImpl {
     }
 
     public Page getAllByUser(ReimsUser searchUser, String name, Pageable pageable) {
+        log.info("GET ALL family member WITH CRITERIA all users");
         if (searchUser == null) {
             log.info("[Query Activity] Query Family Member with no User");
             log.info("[Query Activity] Pageable: " + pageable);

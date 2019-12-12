@@ -115,11 +115,8 @@ public class FamilyMemberController {
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
 
         mapperFactory.classMap(FamilyMember.class, FamilyMemberResponse.class)
-                .field("familyMemberOf.id", "claimBy")
+                .field("familyMemberOf.id", "familyMemberOf")
                 .byDefault().register();
-
-        mapperFactory.getMapperFacade().map(familyMember, FamilyMemberResponse.class);
-
 
         return mapperFactory.getMapperFacade()
                 .map(familyMember, FamilyMemberResponse.class);

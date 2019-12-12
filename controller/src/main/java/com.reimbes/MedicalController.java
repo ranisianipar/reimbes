@@ -5,6 +5,7 @@ import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.MedicalServiceImpl;
 import com.reimbes.response.BaseResponse;
 import com.reimbes.response.MedicalWebModel;
+import com.reimbes.response.PatientResponse;
 import com.reimbes.response.TransactionResponse;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
@@ -111,10 +112,9 @@ public class MedicalController {
         return br;
     }
 
-
-
     // mapping medicalResponse to medical entity
     private MapperFacade getMedicalMapper(MedicalWebModel response) {
+        log.info("Translate MedicalWebModel -> Medical");
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
         mapperFactory.classMap(MedicalWebModel.class, Medical.class)
                 .byDefault()
@@ -126,6 +126,7 @@ public class MedicalController {
 
     // mapping medical entity medicalResponse
     private MapperFacade getMedicalMapper(Medical response) {
+        log.info("Translate Medical -> MedicalWebModel");
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
         mapperFactory.classMap(Medical.class, MedicalWebModel.class)
                 .byDefault().register();

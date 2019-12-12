@@ -31,6 +31,7 @@ public class Patient {
     private String name;
 
     // null for ADMIN
+    @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
 
     @OneToMany(mappedBy = "patient")
