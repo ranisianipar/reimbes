@@ -37,23 +37,22 @@ only for USER
   "errors": null,
   "paging": null,
   "data": [
-      {
-          "id": 5,
-          "title": "SAKIT",
-          "age": 21,
-          "amount": 5000000,
-          "date": 1575775787000,
-          "patient": {
-            "id": 32768,
-            "name": "user-with-member",
-            "dateOfBirth": 895017600000
-          },
-          "attachments": []
+    {
+      "id": 1,
+      "title": "pusyang",
+      "age": 21,
+      "amount": 700000,
+      "date": 1575775787000,
+      "patient": {
+        "id": 4,
+        "name": "Clean Bandit",
+        "dateOfBirth": "2000-11-19"
       },
-      ...
-    ],
+      "attachments": []
+    }
+  ],
   "success": true
-  }
+}
 ```
 
 ## Get Medical by ID
@@ -73,20 +72,17 @@ only for USER
   "errors": null,
   "paging": null,
   "data": {
-    "id": 3,
-    "title": "SAKIT",
+    "id": 1,
+    "title": "pusyang",
     "age": 21,
-    "amount": 1,
+    "amount": 700000,
     "date": 1575775787000,
     "patient": {
-      "id": 32768,
-      "name": "user-with-member",
-      "dateOfBirth": 895017600000
+      "id": 4,
+      "name": "Clean Bandit",
+      "dateOfBirth": "2000-11-19"
     },
-    "attachments": [
-        "92769/lqeigbhqohjgpoq313019504185.jpg",
-        "92769/1gr2hbo23gbfo12332r5m5.jpg"
-    ]
+    "attachments": []
   },
   "success": true
 }
@@ -198,9 +194,9 @@ only for USER
 	"amount": 710000,
 	"date": 1575775787000,
 	"patient": {
-		"id": 32768,
-		"name": "user-with-member",
-		"dateOfBirth": 895017600000
+        "id": 4,
+        "name": "Clean Bandit",
+		"dateOfBirth": "2000-11-19"
 	},
 	"attachments": null
 }
@@ -214,19 +210,21 @@ only for USER
   "status": "OK",
   "errors": null,
   "paging": null,
-  "data": {
-    "id": 14,
-    "title": "pusyang",
-    "age": 21,
-    "amount": 710000,
-    "date": 1575775787000,
-    "patient": {
-      "id": 32768,
-      "name": "user-with-member",
-      "dateOfBirth": 895017600000
-    },
-    "attachments": []
-  },
+  "data": [
+    {
+      "id": 1,
+      "title": "pusyang",
+      "age": 21,
+      "amount": 700000,
+      "date": 1575775787000,
+      "patient": {
+        "id": 4,
+        "name": "Clean Bandit",
+        "dateOfBirth": "2000-11-19"
+      },
+      "attachments": []
+    }
+  ],
   "success": true
 }
 ```
