@@ -52,8 +52,6 @@ public class FamilyMemberServiceImpl {
 
 
         if (user.getRole() == ADMIN) return null;
-        if (user.getGender() != ReimsUser.Gender.MALE)
-            throw new DataConstraintException("GENDER_CONSTRAINT");
 
         FamilyMember familyMember = FamilyMember.FamilyMemberBuilder()
                 .familyMemberOf(user)
@@ -69,7 +67,6 @@ public class FamilyMemberServiceImpl {
         log.info("Done mapping! FAMILY_MEMBER: " + familyMember.toString());
 
         return familyMemberRepository.save(familyMember);
-//        return patientRepository.save(familyMember);
     }
 
     public FamilyMember getById(Long id) throws ReimsException {

@@ -13,7 +13,8 @@ public interface MedicalService {
     Medical create(Medical medical, List<String> files) throws ReimsException;
     Medical update(long id, Medical newMedical, List<String> files) throws ReimsException;
     Medical get(long id) throws ReimsException;
-    Page<Medical> getAll(Pageable pageRequest, String title, String startDate, String endDate);
+    Page<Medical> getAll(Pageable pageRequest, String title, String startDate, String endDate); // for admin
+    Page<Medical> getAll(Pageable pageRequest, String title, String startDate, String endDate, String userId) throws ReimsException;
     void delete(long id) throws ReimsException;
 
 }

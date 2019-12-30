@@ -38,14 +38,20 @@ public class MedicalController {
             @RequestParam(value = "sortBy", defaultValue = "date") String sortBy,
             @RequestParam(value = "start", required = false) String start,
             @RequestParam(value = "end", required = false) String end,
+            @RequestParam(value = "user-id") String userId,
             @RequestParam (value = "search", required = false) String search
     ) {
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
 
-        br.setData(getAllMedicalResponse(
-                medicalService.getAll(pageRequest, search, start, end).getContent()
-        ));
+         try {
+             br.setData(getAllMedicalResponse(
+                     medicalService.getAll(pageRequest, search, start, end, userId).getContent()
+             ));
+         } catch (ReimsException r) {
+             br.setErrorResponse(r);
+         }
+
         return br;
     }
 

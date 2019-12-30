@@ -30,6 +30,9 @@ public class MedicalServiceImpl implements MedicalService {
     private AuthServiceImpl authService;
 
     @Autowired
+    private UserServiceImpl userService;
+
+    @Autowired
     private Utils utils;
 
 //    MULTIPLE upload
@@ -103,6 +106,30 @@ public class MedicalServiceImpl implements MedicalService {
         if (report == null || report.getMedicalUser() != authService.getCurrentUser())
             throw new NotFoundException("MEDICAL_REPORT");
         return report;
+    }
+
+    @Override
+    public Page<Medical> getAll(Pageable page, String title, String startDate, String endDate, String userId) throws ReimsException {
+        ReimsUser currentUser = authService.getCurrentUser();
+
+        ReimsUser queryUser = currentUser;
+        if (currentUser.getRole() == ReimsUser.Role.ADMIN) {
+            queryUser = userService.get(Long.parseLong(userId));
+        }
+
+        Long start; Long end;
+        int index = page.getPageNumber() - 1;
+        if (index < 0) index = 0;
+        Pageable pageRequest = new PageRequest(index, page.getPageSize(), page.getSort());
+
+        try {
+            start = new Long(startDate);
+            end = new Long(endDate);
+            return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(title, start, end, queryUser, pageRequest);
+        } catch (NumberFormatException e) {
+            log.info("GET ALL medicals");
+            return medicalRepository.findByMedicalUser(queryUser, pageRequest);
+        }
     }
 
     @Override
