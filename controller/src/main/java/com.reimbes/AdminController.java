@@ -3,9 +3,7 @@ package com.reimbes;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.AdminServiceImpl;
-import com.reimbes.response.BaseResponse;
-import com.reimbes.response.Paging;
-import com.reimbes.response.UserResponse;
+import com.reimbes.response.*;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
@@ -23,7 +21,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.reimbes.constant.UrlConstants.FAMILY_MEMBER_PREFIX;
+import static com.reimbes.constant.Mapper.*;
+import static com.reimbes.constant.UrlConstants.*;
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
@@ -101,6 +100,68 @@ public class AdminController {
         adminService.deleteUser(id);
 
         return br;
+    }
+
+//    MEDICAL
+    @GetMapping(UrlConstants.MEDICAL_PREFIX)
+    public BaseResponse<Medical> getAllMedical(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @RequestParam(value = "sortBy", defaultValue = "date") String sortBy,
+            @RequestParam(value = "start", required = false) Long start,
+            @RequestParam(value = "end", required = false) Long end,
+            @RequestParam(value = "user-id", required = false) String userId,
+            @RequestParam (value = "search", required = false) String search
+    ) {
+        BaseResponse br = new BaseResponse();
+        Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
+
+
+        try {
+            Page medicals = adminService.getAllMedical(pageRequest, search, start, end, userId);
+            Paging paging = getPagingMapper().map(pageRequest, Paging.class);
+            br.setData(getAllMedicalResponse(
+                    medicals.getContent()
+            ));
+            paging.setTotalPages(medicals.getTotalPages());
+            paging.setTotalRecords(medicals.getContent().size());
+            br.setPaging(paging);
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
+        return br;
+    }
+
+    @GetMapping(MEDICAL_PREFIX + ID_PARAM)
+    public BaseResponse get(@PathVariable long id) {
+        BaseResponse br = new BaseResponse();
+        try {
+            Medical result = adminService.getMedical(id);
+            br.setData(getMedicalMapper(result).map(result, MedicalWebModel.class));
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
+        return br;
+    }
+
+
+//    FAMILY MEMBER
+    @PostMapping(FAMILY_MEMBER_PREFIX)
+    public BaseResponse<FamilyMemberResponse> addFamilyMember() {return null;}
+
+    @GetMapping(FAMILY_MEMBER_PREFIX)
+    public BaseResponse<FamilyMemberResponse> getAllFamilyMember() {return null;}
+
+    @GetMapping(FAMILY_MEMBER_PREFIX + ID_PARAM)
+    public BaseResponse<FamilyMemberResponse> getFamilyMember(@PathVariable long familyMemberId) {
+        return null;
+    }
+
+    @DeleteMapping(FAMILY_MEMBER_PREFIX + ID_PARAM)
+    public BaseResponse deleteFamilyMember(@PathVariable long familyMemberId) {
+        return null;
     }
 
     private MapperFacade getMapper() {

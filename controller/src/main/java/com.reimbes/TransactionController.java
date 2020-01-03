@@ -78,7 +78,7 @@ public class TransactionController {
         return br;
     }
 
-    @GetMapping(value = UrlConstants.ID_PARAM+UrlConstants.IMAGE_PARAM)
+    @GetMapping(value = UrlConstants.ID_PARAM + UrlConstants.IMAGE_PARAM)
     public BaseResponse getImage(@PathVariable long id, @PathVariable String image) {
         BaseResponse<String> br = new BaseResponse();
         try {

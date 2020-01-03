@@ -2,6 +2,7 @@ package com.reimbes.implementation;
 
 import com.reimbes.AdminService;
 import com.reimbes.FamilyMember;
+import com.reimbes.Medical;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.ResponseCode;
 import com.reimbes.exception.NotFoundException;
@@ -38,6 +39,9 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private FamilyMemberServiceImpl familyMemberService;
+
+    @Autowired
+    private MedicalServiceImpl medicalService;
 
     @Override
     public Page getAllUser(String search, Pageable pageRequest) throws ReimsException {
@@ -85,6 +89,15 @@ public class AdminServiceImpl implements AdminService {
         ReimsUser currentUser = authService.getCurrentUser();
         if (currentUser.getId() == id) throw new ReimsException("SELF_DELETION", HttpStatus.METHOD_NOT_ALLOWED, 405);
         userService.delete(id);
+    }
+
+    public Page<Medical> getAllMedical(Pageable page, String title, Long start, Long end, String userId)
+            throws ReimsException {
+        return medicalService.getAll(page, title, start, end, userId);
+    }
+
+    public Medical getMedical(long id) throws ReimsException {
+        return medicalService.get(id);
     }
 
     private void validate(ReimsUser newUser) throws ReimsException {

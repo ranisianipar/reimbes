@@ -55,6 +55,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser create(ReimsUser user) throws ReimsException {
         validate(user, null);
 
+        user.setName(user.getUsername()); // default
         user.setCreatedAt(Instant.now().toEpochMilli());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 

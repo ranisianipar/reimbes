@@ -12,4 +12,6 @@ public class General {
     // a number to represent the current medicalUser and superadmin
     public static final int IDENTITY_CODE = 1;
 
+    public static final String STORAGE_DIRECTORY = "storage";
+
 }

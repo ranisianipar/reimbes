@@ -3,16 +3,14 @@ package com.reimbes;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.MedicalServiceImpl;
-import com.reimbes.response.BaseResponse;
-import com.reimbes.response.MedicalWebModel;
-import com.reimbes.response.PatientResponse;
-import com.reimbes.response.TransactionResponse;
+import com.reimbes.response.*;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,6 +19,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.reimbes.constant.Mapper.*;
+import static com.reimbes.constant.UrlConstants.IMAGE_PARAM;
+import static com.reimbes.constant.UrlConstants.IMAGE_PREFIX;
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
@@ -36,18 +38,23 @@ public class MedicalController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size,
             @RequestParam(value = "sortBy", defaultValue = "date") String sortBy,
-            @RequestParam(value = "start", required = false) String start,
-            @RequestParam(value = "end", required = false) String end,
-            @RequestParam(value = "user-id") String userId,
+            @RequestParam(value = "start", required = false) Long start,
+            @RequestParam(value = "end", required = false) Long end,
             @RequestParam (value = "search", required = false) String search
     ) {
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
 
+
          try {
+             Page medicals = medicalService.getAll(pageRequest, search, start, end, null);
+             Paging paging = getPagingMapper().map(pageRequest, Paging.class);
              br.setData(getAllMedicalResponse(
-                     medicalService.getAll(pageRequest, search, start, end, userId).getContent()
+                     medicals.getContent()
              ));
+             paging.setTotalPages(medicals.getTotalPages());
+             paging.setTotalRecords(medicals.getContent().size());
+             br.setPaging(paging);
          } catch (ReimsException r) {
              br.setErrorResponse(r);
          }
@@ -66,6 +73,16 @@ public class MedicalController {
         }
 
         return br;
+    }
+
+    @GetMapping(IMAGE_PREFIX)
+    public byte[] getImage(@RequestParam String path) {
+        try {
+            return medicalService.getImage(path);
+
+        }   catch (ReimsException r) {
+            return new byte[0];
+        }
     }
 
     @PostMapping
@@ -118,39 +135,4 @@ public class MedicalController {
         return br;
     }
 
-    // mapping medicalResponse to medical entity
-    private MapperFacade getMedicalMapper(MedicalWebModel response) {
-        log.info("Translate MedicalWebModel -> Medical");
-        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
-        mapperFactory.classMap(MedicalWebModel.class, Medical.class)
-                .byDefault()
-                .register();
-        mapperFactory.getMapperFacade().map(response, MedicalWebModel.class);
-
-        return mapperFactory.getMapperFacade();
-    }
-
-    // mapping medical entity medicalResponse
-    private MapperFacade getMedicalMapper(Medical response) {
-        log.info("Translate Medical -> MedicalWebModel");
-        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
-        mapperFactory.classMap(Medical.class, MedicalWebModel.class)
-                .byDefault().register();
-        mapperFactory.getMapperFacade().map(response, MedicalWebModel.class);
-
-        return mapperFactory.getMapperFacade();
-    }
-
-    // mapping medical entity medicalResponse
-    private List<MedicalWebModel> getAllMedicalResponse(List<Medical> medicals) {
-        List<MedicalWebModel> medicalResponses = new ArrayList<>();
-        Iterator<Medical> iterator = medicals.iterator();
-        Medical medical;
-        while (iterator.hasNext()) {
-            medical = iterator.next();
-            medicalResponses.add(getMedicalMapper(medical).map(medical,MedicalWebModel.class));
-        }
-
-        return medicalResponses;
-    }
 }

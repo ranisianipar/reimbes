@@ -5,13 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import net.bytebuddy.build.ToStringPlugin;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Table(name="Medical")
@@ -22,6 +20,7 @@ import java.util.Set;
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@ToString(onlyExplicitlyIncluded = true)
 public class Medical {
 
     @Id
@@ -43,9 +42,7 @@ public class Medical {
     @JsonIgnore
     private ReimsUser medicalUser;
 
-//    Mapped to multiple images
-    @OneToMany(mappedBy = "medical_id")
+    //    Mapped to multiple images
+    @OneToMany(mappedBy = "medicalImage", cascade = CascadeType.PERSIST)
     private Set<MedicalReport> attachments;
-
-
 }
