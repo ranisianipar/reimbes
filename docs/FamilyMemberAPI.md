@@ -10,12 +10,12 @@ List of API
 
 ## Get All Family Member
 
-- Endpoint : `/api/family-members`
+- Endpoint : [USER] `/api/family-members` | [ADMIN] `/api/admin/family-members`
 - HTTP Method : `GET`
 - Filter : 
     - Format data / Possible data value:
         - search: "Supatno"
-        - user-id: 198
+        - user-id: 198 {QUESTIONABLE}
 - Pagination : 
     - support pagination by URL Path, add this on URL: `page=P&size=S&sortBy=created_at`
     - Default data :
@@ -55,7 +55,7 @@ List of API
   ]
 ```
 ## Get Family Member by ID
-- Endpoint : `/api/family-members/{familyMemberId}`
+- Endpoint : [USER] `/api/family-members/{familyMemberId}` | [ADMIN]`/api/admin/family-members/{familyMemberId}`
 - HTTP Method : `GET`
 - Request Header : 
     - Accept : `application/json`
@@ -94,8 +94,8 @@ List of API
 ```
 
 ## Create Family Member
-this method to register a new family member to a MALE USER.
-- Endpoint : `api/family-members?user-id={userid}`
+This method is only for admin.
+- Endpoint : `api/admin/family-members?user-id={userid}`
 - HTTP Method : `POST`
 - Request Header : 
     - Accept : `application/json`
@@ -139,8 +139,8 @@ this method to register a new family member to a MALE USER.
 ```
 
 ## Delete Family Member by id
-
-- Endpoint : `/api/family-members/{id}`
+This method is only for admin.
+- Endpoint : `/api/admin/family-members/{id}`
 - HTTP Method : `DELETE`
 - Request Header : 
     - Accept : `application/json`
@@ -159,7 +159,8 @@ this method to register a new family member to a MALE USER.
 - Response Body (Failure) : -
 
 ## Update Family Member
-- Endpoint : `api/family-members/{familyMembersId}?user-id={userId}`
+This method is only for admin.
+- Endpoint : `api/admin/family-members/{familyMembersId}`
 - HTTP Method : `POST`
 - Request Header : 
     - Accept : `application/json`

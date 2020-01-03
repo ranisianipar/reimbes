@@ -1,8 +1,12 @@
 package com.reimbes.constant;
 
+import com.reimbes.FamilyMember;
 import com.reimbes.Medical;
+import com.reimbes.ReimsUser;
+import com.reimbes.response.FamilyMemberResponse;
 import com.reimbes.response.MedicalWebModel;
 import com.reimbes.response.Paging;
+import com.reimbes.response.UserResponse;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
@@ -52,5 +56,38 @@ public class Mapper {
         mapperFactory.classMap(Pageable.class, Paging.class)
                 .byDefault().register();
         return mapperFactory.getMapperFacade();
+    }
+
+    public static FamilyMemberResponse getFamilyMemberResponse(FamilyMember familyMember) {
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+
+        mapperFactory.classMap(FamilyMember.class, FamilyMemberResponse.class)
+                .field("familyMemberOf.id", "familyMemberOf")
+                .byDefault().register();
+
+        return mapperFactory.getMapperFacade()
+                .map(familyMember, FamilyMemberResponse.class);
+
+    }
+
+    public static List<? extends FamilyMemberResponse> getAllFamilyMemberResponses(List<FamilyMember> familyMembers) {
+        log.info("Mapping object to web response...");
+        List<FamilyMemberResponse> familyMemberResponses = new ArrayList<>();
+        familyMembers.forEach(familyMember -> familyMemberResponses.add(getFamilyMemberResponse(familyMember)));
+
+        return familyMemberResponses;
+    }
+
+    public static MapperFacade getUserResponseMapper() {
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+        mapperFactory.classMap(ReimsUser.class, UserResponse.class)
+                .byDefault().register();
+        return mapperFactory.getMapperFacade();
+    }
+
+    public static List<UserResponse> getAllUserResponses(List<ReimsUser> users) {
+        List<UserResponse> userResponses = new ArrayList<>();
+        users.forEach(user -> userResponses.add(getUserResponseMapper().map(user, UserResponse.class)));
+        return userResponses;
     }
 }

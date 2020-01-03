@@ -67,9 +67,25 @@ public class AdminServiceImpl implements AdminService {
         return userService.create(user);
     }
 
+    public Page<FamilyMember> getAllFamilyMember(Long userId, String name, Pageable page) throws ReimsException {
+        return familyMemberService.getAll(userId, name, page);
+    }
+
+    public FamilyMember getMember(long memberId) throws ReimsException {
+        return familyMemberService.getById(memberId);
+    }
+
     public FamilyMember createMember(long userId, FamilyMember member) throws ReimsException {
 
         return familyMemberService.create(userId, member);
+    }
+
+    public void deleteFamilyMember(long familyMemberId) throws ReimsException{
+        familyMemberService.delete(familyMemberId);
+    }
+
+    public FamilyMember updateMember(long familyMemberId, FamilyMember latestData, long userId) throws ReimsException {
+        return familyMemberService.update(familyMemberId, latestData, userId);
     }
 
     @Override

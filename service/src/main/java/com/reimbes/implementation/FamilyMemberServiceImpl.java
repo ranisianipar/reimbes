@@ -81,7 +81,7 @@ public class FamilyMemberServiceImpl {
 
     }
 
-    public Page getAll(long userId, String nameFilter, Pageable pageRequest) throws ReimsException{
+    public Page getAll(Long userId, String nameFilter, Pageable pageRequest) throws ReimsException{
         /****************************************HANDLING REQUEST PARAM************************************************/
         int index = pageRequest.getPageNumber() - 1;
         if (index < 0) index = 0;
@@ -93,7 +93,7 @@ public class FamilyMemberServiceImpl {
         // ADMIN
         if (currentUser.getRole() == ADMIN) {
             log.info("[ADMIN] Query Family Member");
-            if (userId == 0) return getAllByUser(null, nameFilter, pageable);
+            if (userId == null) return getAllByUser(null, nameFilter, pageable);
             return getAllByUser(userService.get(userId), nameFilter, pageable);
         }
 

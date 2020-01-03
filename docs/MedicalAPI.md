@@ -7,6 +7,7 @@
 - [Create Medical](#create-medical)
 - [Delete Medical](#delete-medical)
 - [Update Medical](#update-medical)
+- [Get Image](#get-image)
 
 ## Get All Medicals
 only for USER
@@ -99,6 +100,12 @@ only for USER
   "success": false
 }
 ```
+
+## Get Image
+- Endpoint : `api/medicals/image?path={imagePath}`
+- HTTP Method : `GET`
+- Request Body : -
+- Response Body : byte[]
 
 ## Create Medical
 - Endpoint : `api/medicals`

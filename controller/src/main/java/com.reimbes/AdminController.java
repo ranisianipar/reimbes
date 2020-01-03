@@ -38,7 +38,7 @@ public class AdminController {
     public BaseResponse<UserResponse> createUser(@RequestBody ReimsUser user) throws Exception{
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setData(getMapper().map(adminService.createUser(user), UserResponse.class));
+            br.setData(getUserResponseMapper().map(adminService.createUser(user), UserResponse.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -76,7 +76,7 @@ public class AdminController {
     public BaseResponse<UserResponse> getUser(@PathVariable long id) {
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setData(getMapper().map(adminService.getUser(id), UserResponse.class));
+            br.setData(getUserResponseMapper().map(adminService.getUser(id), UserResponse.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -87,7 +87,7 @@ public class AdminController {
     public BaseResponse<UserResponse> updateUser(@PathVariable long id, @RequestBody ReimsUser user, HttpServletResponse response) throws Exception{
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setData(getMapper().map(adminService.updateUser(id,user, response), UserResponse.class));
+            br.setData(getUserResponseMapper().map(adminService.updateUser(id,user, response), UserResponse.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -149,41 +149,81 @@ public class AdminController {
 
 //    FAMILY MEMBER
     @PostMapping(FAMILY_MEMBER_PREFIX)
-    public BaseResponse<FamilyMemberResponse> addFamilyMember() {return null;}
+    public BaseResponse<FamilyMemberResponse> addFamilyMember(
+            @RequestParam(value = "user-id") Long id,
+            @RequestBody FamilyMember familyMember
+    ) {
+        BaseResponse br = new BaseResponse();
+        try {
+            br.setData(adminService.createMember(id, familyMember));
+        }   catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+        return br;
+    }
+
+    @PutMapping(ID_PARAM)
+    public BaseResponse update(
+            @PathVariable Long id,
+            @RequestParam(value = "user-id") Long userId,
+            @RequestBody FamilyMember familyMember) {
+        BaseResponse br = new BaseResponse();
+        try {
+            br.setData(getFamilyMemberResponse(adminService.updateMember(id, familyMember, userId)));
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
+        return br;
+    }
 
     @GetMapping(FAMILY_MEMBER_PREFIX)
-    public BaseResponse<FamilyMemberResponse> getAllFamilyMember() {return null;}
+    public BaseResponse<FamilyMemberResponse> getAllFamilyMember(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
+            @RequestParam (value = "search", defaultValue = "") String search,
+            @RequestParam (value = "user-id", required = false) Long userId
+    ) {
+        BaseResponse br = new BaseResponse();
+        Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.DESC, sortBy));
+
+        try {
+            Page familyMembers = adminService.getAllFamilyMember(userId, search, pageRequest);
+            Paging paging = getPagingMapper().map(pageRequest, Paging.class);
+            paging.setTotalPages(familyMembers.getTotalPages());
+            paging.setTotalRecords(familyMembers.getContent().size());
+
+            br.setData(getAllFamilyMemberResponses(familyMembers.getContent()));
+            br.setPaging(paging);
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
+        return br;
+    }
 
     @GetMapping(FAMILY_MEMBER_PREFIX + ID_PARAM)
     public BaseResponse<FamilyMemberResponse> getFamilyMember(@PathVariable long familyMemberId) {
-        return null;
+        BaseResponse br = new BaseResponse();
+
+        try {
+            br.setData(getFamilyMemberResponse(adminService.getMember(familyMemberId)));
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+        return br;
     }
 
     @DeleteMapping(FAMILY_MEMBER_PREFIX + ID_PARAM)
     public BaseResponse deleteFamilyMember(@PathVariable long familyMemberId) {
-        return null;
-    }
-
-    private MapperFacade getMapper() {
-        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
-        mapperFactory.classMap(ReimsUser.class, UserResponse.class)
-                .byDefault().register();
-        return mapperFactory.getMapperFacade();
-    }
-
-    private MapperFacade getPagingMapper() {
-        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
-        mapperFactory.classMap(Pageable.class, Paging.class)
-                .byDefault().register();
-        return mapperFactory.getMapperFacade();
-    }
-
-    private List<UserResponse> getAllUserResponses(List<ReimsUser> users) {
-        List<UserResponse> userResponses = new ArrayList<>();
-        Iterator iterator = users.iterator();
-        while (iterator.hasNext()) {
-            userResponses.add(getMapper().map(iterator.next(), UserResponse.class));
+        BaseResponse br = new BaseResponse();
+        try {
+            adminService.deleteFamilyMember(familyMemberId);
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
         }
-        return userResponses;
+
+        return br;
     }
 }
