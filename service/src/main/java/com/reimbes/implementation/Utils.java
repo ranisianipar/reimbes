@@ -93,7 +93,6 @@ public class Utils {
         String[] extractedByte = imageValue.split(",");
         String extension = extractedByte[0];
         String imagePath;
-        String relativeFilePath;
 
         // getByUser the extension
         if (extension.contains("jpg")) extension = "jpg";
@@ -113,7 +112,7 @@ public class Utils {
             * */
 
             // confirm folder existence
-            String folderPath = StringUtils.cleanPath(String.format("%d/%s/", userId, subfolder ));
+            String folderPath = StringUtils.cleanPath(String.format("%s/%d/%s/", STORAGE_DIR, userId, subfolder ));
             log.info("Done generate folder path.");
 
             if (!isFileExists(folderPath)) {
@@ -121,9 +120,7 @@ public class Utils {
                 createDirectory(folderPath);
             }
 
-            relativeFilePath = folderPath + getFilename(extension);
-
-            imagePath = STORAGE_DIR + relativeFilePath;
+            imagePath = folderPath + getFilename(extension);
 
             log.info("Write image in this path: " + imagePath);
             createFile(imagePath, imageByte);
@@ -131,7 +128,7 @@ public class Utils {
             throw new ReimsException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, 500);
         }
 
-        return relativeFilePath;
+        return imagePath;
     }
 
     public static long getCurrentYear() {

@@ -120,6 +120,7 @@ public class MedicalServiceImpl implements MedicalService {
     // userId == null when this method called from medical controller
     @Override
     public Page<Medical> getAll(Pageable page, String title, Long start, Long end, String userId) throws ReimsException {
+        log.info("TITLEEEEE "+(title == null));
         ReimsUser currentUser = authService.getCurrentUser();
 
         // enabling query by specific for admin. In the other hand, user get his medical report list
@@ -137,7 +138,7 @@ public class MedicalServiceImpl implements MedicalService {
         if (index < 0) index = 0;
         Pageable pageRequest = new PageRequest(index, page.getPageSize(), page.getSort());
 
-        if (start == null || end == null) {
+        if (start == 0 && end == 0) {
             if (queryUser == null) return medicalRepository.findByTitleContainingIgnoreCase(title, page);
             return medicalRepository.findByTitleContainingIgnoreCaseAndMedicalUser(title, queryUser, page);
         } else {

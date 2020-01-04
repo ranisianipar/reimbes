@@ -38,16 +38,16 @@ public class MedicalController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size,
             @RequestParam(value = "sortBy", defaultValue = "date") String sortBy,
-            @RequestParam(value = "start", required = false) Long start,
-            @RequestParam(value = "end", required = false) Long end,
-            @RequestParam (value = "search", required = false) String search
+            @RequestParam(value = "start", defaultValue = "0") String start,
+            @RequestParam(value = "end", defaultValue = "0") String end,
+            @RequestParam (value = "search", defaultValue = "") String search
     ) {
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
 
 
          try {
-             Page medicals = medicalService.getAll(pageRequest, search, start, end, null);
+             Page medicals = medicalService.getAll(pageRequest, search, new Long(start), new Long(end), null);
              Paging paging = getPagingMapper().map(pageRequest, Paging.class);
              br.setData(getAllMedicalResponse(
                      medicals.getContent()
