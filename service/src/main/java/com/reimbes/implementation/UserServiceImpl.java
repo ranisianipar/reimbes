@@ -192,9 +192,6 @@ public class UserServiceImpl implements UserService {
             // create
             else if (oldUserData == null && user != null)
                 errors.add("UNIQUENESS_USERNAME");
-
-            if (newUserData.getUsername().toLowerCase().equals(newUserData.getPassword().toLowerCase()))
-                errors.add("INSECURE_PASSWORD");
         }
 
         if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
