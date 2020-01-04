@@ -59,8 +59,7 @@ only for authenticated User
       "title": "HR Team nobar",
       "hours": 6,
       "type": "CAR",
-      "location": "GI",
-      "license": "B XXXX FF"
+      "location": "GI"
     }
   ],
   "success": true
@@ -93,8 +92,7 @@ only for authenticated User
     "title": "HR Team nobar",
     "hours": 6,
     "type": "CAR",
-    "location": "GI",
-    "license": "B XXXX FF"
+    "location": "GI"
   },
   "success": true
 }
@@ -144,8 +142,7 @@ only for authenticated User
     "title": "gkiih nirga tharrin",
     "hours": 0,
     "type": "CAR",
-    "location": null,
-    "license": null
+    "location": null
   },
   "success": true
 }
@@ -170,8 +167,7 @@ only for authenticated User
     "title": "HR Team nobar",
     "hours": 6,
     "parkingType": "CAR",
-    "location": "GI",
-    "license": "B XXXX FF"
+    "location": "GI"
 }
 ```
 

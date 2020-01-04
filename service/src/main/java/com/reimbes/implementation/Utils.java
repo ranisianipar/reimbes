@@ -20,7 +20,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
-import static com.reimbes.constant.UrlConstants.STORAGE_DIR;
+import static com.reimbes.constant.UrlConstants.STORAGE_FOLDER;
 
 /*
 * Author: Rani Lasma Uli
@@ -46,7 +46,7 @@ public class Utils {
     }
 
     public void removeImage(String imagePath) {
-        imagePath = StringUtils.cleanPath(STORAGE_DIR + imagePath);
+        imagePath = StringUtils.cleanPath(STORAGE_FOLDER + imagePath);
         try {
             Files.delete(Paths.get(imagePath));
         }   catch (Exception e) {
@@ -55,9 +55,10 @@ public class Utils {
     }
 
     public byte[] getImageByImagePath(String imagePath) throws IOException {
-        return Files.readAllBytes(Paths.get(STORAGE_DIR + imagePath));
+        return Files.readAllBytes(Paths.get(imagePath));
     }
 
+//    Check file existance using relative file path
     public boolean isFileExists(String filepath) {
         return Files.exists(Paths.get(filepath));
     }
@@ -73,7 +74,7 @@ public class Utils {
     }
 
     public byte[] getFile(String filepath) throws IOException {
-        return Files.readAllBytes(Paths.get(STORAGE_DIR + filepath));
+        return Files.readAllBytes(Paths.get(STORAGE_FOLDER + filepath));
     }
 
     public String getFilename(String extension) {
@@ -112,7 +113,7 @@ public class Utils {
             * */
 
             // confirm folder existence
-            String folderPath = StringUtils.cleanPath(String.format("%s/%d/%s/", STORAGE_DIR, userId, subfolder ));
+            String folderPath = StringUtils.cleanPath(String.format("%s/%d/%s/", STORAGE_FOLDER, userId, subfolder ));
             log.info("Done generate folder path.");
 
             if (!isFileExists(folderPath)) {

@@ -249,8 +249,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // validate image path
-        if (transaction.getImage()== null || !utils.isFileExists(
-                UrlConstants.STORAGE_DIR + transaction.getImage()))
+        if (transaction.getImage()== null || !utils.isFileExists(transaction.getImage()))
             errorMessages.add("INVALID_IMAGE_PATH");
 
 
