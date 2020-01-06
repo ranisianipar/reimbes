@@ -22,7 +22,7 @@ public class FamilyMember extends Patient {
     @NotNull
     private Relationship relationship;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "familyMemberOf", nullable = false)
     @ToStringPlugin.Exclude
     @JsonIgnore

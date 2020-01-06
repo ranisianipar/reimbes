@@ -108,17 +108,17 @@ public class AdminController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size,
             @RequestParam(value = "sortBy", defaultValue = "date") String sortBy,
-            @RequestParam(value = "start", required = false) Long start,
-            @RequestParam(value = "end", required = false) Long end,
+            @RequestParam(value = "start", defaultValue = "0") String start,
+            @RequestParam(value = "end", defaultValue = "0") String end,
             @RequestParam(value = "user-id", required = false) String userId,
-            @RequestParam (value = "search", required = false) String search
+            @RequestParam (value = "search", defaultValue = "") String search
     ) {
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
 
 
         try {
-            Page medicals = adminService.getAllMedical(pageRequest, search, start, end, userId);
+            Page medicals = adminService.getAllMedical(pageRequest, search, new Long(start), new Long(end), userId);
             Paging paging = getPagingMapper().map(pageRequest, Paging.class);
             br.setData(getAllMedicalResponse(
                     medicals.getContent()

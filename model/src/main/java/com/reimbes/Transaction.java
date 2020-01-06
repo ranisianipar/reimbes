@@ -25,7 +25,7 @@ public class Transaction {
     private long date;
     private String image;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @ToStringPlugin.Exclude
     @JoinColumn(name = "reimsUser", nullable = false)
     private ReimsUser reimsUser;
