@@ -75,22 +75,10 @@ public class MedicalController {
         return br;
     }
 
-    @GetMapping(IMAGE_PREFIX)
-    public byte[] getImage(@RequestParam String path) {
-        try {
-            return medicalService.getImage(path);
-
-        }   catch (ReimsException r) {
-            return new byte[0];
-        }
-    }
-
     @PostMapping
     public BaseResponse create(@RequestBody MedicalWebModel report) {
         BaseResponse br = new BaseResponse();
         try {
-            log.info("attachment: "+ report.getAttachments());
-
             Medical result = medicalService.create(
                     getMedicalMapper(report).map(report, Medical.class),
                     report.getAttachments()

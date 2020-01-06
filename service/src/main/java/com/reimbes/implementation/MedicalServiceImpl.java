@@ -70,12 +70,10 @@ public class MedicalServiceImpl implements MedicalService {
         // POTENTIALLY THROW ERROR
         Patient patient = (medical.getPatient() == null || medical.getPatient().getId() == 0)
                 ? currentUser : familyMemberService.getById(medical.getPatient().getId());
-        medical.setMedicalUser(currentUser);
 
+        medical.setMedicalUser(currentUser);
         medical.setPatient(patient);
         medical.setAge(countAge(patient.getDateOfBirth()));
-
-        log.info("MEDICAL --> " + medical.toString());
 
         return medicalRepository.save(medical);
     }
@@ -93,6 +91,7 @@ public class MedicalServiceImpl implements MedicalService {
 
         Patient patient = (newMedical.getPatient() == null || newMedical.getPatient().getId() == 0)
                 ? currentUser : familyMemberService.getById(newMedical.getPatient().getId());
+
         old.setPatient(patient);
         old.setAge(countAge(patient.getDateOfBirth()));
         old.setDate(newMedical.getDate());
@@ -154,18 +153,6 @@ public class MedicalServiceImpl implements MedicalService {
         medicalRepository.delete(id);
     }
 
-
-    public byte[] getImage(String imagePath) throws ReimsException {
-        ReimsUser currentUser = authService.getCurrentUser();
-
-        if (!imagePath.contains(String.format("/%d/", currentUser.getId()))) throw new NotFoundException("Image");
-        try {
-            return utils.getFile(imagePath);
-        }   catch (IOException e) {
-            throw new ReimsException(e.getMessage(), HttpStatus.BAD_REQUEST, BAD_REQUEST);
-        }
-
-    }
 
     private void validate(Medical report) throws DataConstraintException {
         ArrayList<String> errors = new ArrayList();

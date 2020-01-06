@@ -1,5 +1,7 @@
 package com.reimbes.implementation;
 
+import com.reimbes.ReimsUser;
+import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
+import static com.reimbes.constant.ResponseCode.BAD_REQUEST;
 import static com.reimbes.constant.UrlConstants.STORAGE_FOLDER;
 
 /*
@@ -56,6 +59,17 @@ public class Utils {
 
     public byte[] getImageByImagePath(String imagePath) throws IOException {
         return Files.readAllBytes(Paths.get(imagePath));
+    }
+
+    public byte[] getImage(ReimsUser currentUser, String imagePath) throws ReimsException {
+
+        if (!imagePath.contains(String.format("/%d/", currentUser.getId()))) throw new NotFoundException("Image");
+        try {
+            return getFile(imagePath);
+        }   catch (IOException e) {
+            throw new ReimsException(e.getMessage(), HttpStatus.BAD_REQUEST, BAD_REQUEST);
+        }
+
     }
 
 //    Check file existance using relative file path

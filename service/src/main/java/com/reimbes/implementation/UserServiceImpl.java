@@ -171,6 +171,10 @@ public class UserServiceImpl implements UserService {
                 start, end);
     }
 
+    public byte[] getImage(String imagePath) throws ReimsException{
+        return utils.getImage(authService.getCurrentUser(), imagePath);
+    }
+
 
     /* Old User Data NOT NULL indicate update medicalUser activity */
     private void validate(ReimsUser newUserData, ReimsUser oldUserData) throws DataConstraintException{

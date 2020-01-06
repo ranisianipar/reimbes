@@ -188,29 +188,6 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    @Override
-    public String getImage(long id, String imageName) throws ReimsException {
-        if (id != userService.getUserByUsername(utils.getUsername()).getId())
-            throw new NotFoundException("IMAGE");
-
-        String imagePath = id+"/"+imageName;
-
-        Transaction tr = transactionRepository.findByImageContaining(imagePath);
-        if (tr != null) imagePath = StringUtils.cleanPath(tr.getImage());
-        byte[] imageByte;
-        String result;
-        try {
-            imageByte = utils.getImageByImagePath(imagePath);
-            log.info("Translate to byte done.");
-
-            result = Base64.getEncoder().encodeToString(imageByte);
-            log.info("Get image in Base64 format.");
-            return result;
-        } catch (Exception e) {
-            throw new NotFoundException("IMAGE");
-        }
-    }
-
     public List<Transaction> getByUser(ReimsUser user) {
         return transactionRepository.findByReimsUser(user);
     }

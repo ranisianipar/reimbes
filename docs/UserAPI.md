@@ -9,6 +9,7 @@
 - [Remove User by ID](#delete-user-by-id)
 - [Update User](#update-user)
 - [Update Personal Data](#update-personal-data)
+- [Get Image](#get-image)
 
 ## Get Personal Report
 - Endpoint : `/api/users/report`
@@ -420,5 +421,36 @@
         "username": INVALID_VALUE
     }
 }
+```
+
+## Get Personal Report
+- Endpoint : `/api/users/report`
+- HTTP Method : `GET`
+- Allowed User: `Authorized User`
+- Filter :
+    - Support filtering by URL Path, add this on URL :
+        `start=[date in epoch format]&end=[date in epoch format]`
+    - Default data:
+        - start = 0
+        - end = 0
+- Request Header :
+    - Accept : `application/json`
+    - Content-Type : `application/json`
+- Request Body : -
+- Response Body (Success) : -
+- Response Body (Failure) : -
+
+## Get Image
+- Endpoint : `/api/users/image?path={imagePath}`
+- HTTP Method : `GET`
+- Allowed User: `Authorized User`
+- Request Header :
+    - Accept : `application/json`
+    - Content-Type : `application/json`
+- Request Body : -
+
+- Response Body (Success) : image in array of bytes
+
+- Response Body (Failure) : []
 ```
   
