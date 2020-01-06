@@ -120,7 +120,6 @@ public class MedicalServiceImpl implements MedicalService {
     // userId == null when this method called from medical controller
     @Override
     public Page<Medical> getAll(Pageable page, String title, Long start, Long end, String userId) throws ReimsException {
-        log.info("TITLEEEEE "+(title == null));
         ReimsUser currentUser = authService.getCurrentUser();
 
         // enabling query by specific for admin. In the other hand, user get his medical report list
@@ -132,7 +131,6 @@ public class MedicalServiceImpl implements MedicalService {
         } else {
             queryUser = currentUser;
         }
-
 
         int index = page.getPageNumber() - 1;
         if (index < 0) index = 0;
@@ -162,7 +160,7 @@ public class MedicalServiceImpl implements MedicalService {
     public byte[] getImage(String imagePath) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
 
-        if (!imagePath.startsWith(currentUser.getId() + "")) throw new NotFoundException("Image");
+        if (!imagePath.contains(String.format("/%d/", currentUser.getId()))) throw new NotFoundException("Image");
         try {
             return utils.getFile(imagePath);
         }   catch (IOException e) {
