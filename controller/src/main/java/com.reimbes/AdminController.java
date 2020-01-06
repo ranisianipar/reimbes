@@ -28,14 +28,15 @@ import static com.reimbes.constant.UrlConstants.*;
 @RestController
 @RequestMapping(UrlConstants.API_PREFIX + UrlConstants.ADMIN_PREFIX)
 public class AdminController {
-
     private static Logger log = LoggerFactory.getLogger(AdminController.class);
 
     @Autowired
     private AdminServiceImpl adminService;
 
     @PostMapping(UrlConstants.USER_PREFIX)
-    public BaseResponse<UserResponse> createUser(@RequestBody ReimsUser user) throws Exception{
+    public BaseResponse<UserResponse> createUser(@RequestBody ReimsUser user) {
+        log.info("[POST] Create user.");
+
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
             br.setData(getUserResponseMapper().map(adminService.createUser(user), UserResponse.class));
@@ -52,6 +53,7 @@ public class AdminController {
             @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
             @RequestParam (value = "search", defaultValue = "") String search) {
 
+        log.info(String.format("[GET] Get all users with criteria page: %d, size: %d, sortBy: %s, search: %s", page, size, sortBy, search ));
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.DESC, sortBy));
         BaseResponse br = new BaseResponse();
 
@@ -74,6 +76,7 @@ public class AdminController {
 
     @GetMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM)
     public BaseResponse<UserResponse> getUser(@PathVariable long id) {
+        log.info(String.format("[GET] Get user with ID: %d", id));
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
             br.setData(getUserResponseMapper().map(adminService.getUser(id), UserResponse.class));
@@ -84,7 +87,9 @@ public class AdminController {
     }
 
     @PutMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM)
-    public BaseResponse<UserResponse> updateUser(@PathVariable long id, @RequestBody ReimsUser user, HttpServletResponse response) throws Exception{
+    public BaseResponse<UserResponse> updateUser(@PathVariable long id, @RequestBody ReimsUser user, HttpServletResponse response){
+        log.info(String.format("[PUT] Update user with ID: %d", id));
+
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
             br.setData(getUserResponseMapper().map(adminService.updateUser(id,user, response), UserResponse.class));
@@ -96,6 +101,7 @@ public class AdminController {
 
     @DeleteMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM)
     public BaseResponse<UserResponse> deleteUser(@PathVariable long id) throws ReimsException {
+        log.info(String.format("[DELETE] Delete user with ID: %d", id));
         BaseResponse<UserResponse> br = new BaseResponse<>();
         adminService.deleteUser(id);
 
@@ -113,6 +119,8 @@ public class AdminController {
             @RequestParam(value = "user-id", required = false) String userId,
             @RequestParam (value = "search", defaultValue = "") String search
     ) {
+        log.info(String.format("[GET] Get all medicals with criteria page: %d, size: %d, sortBy: %s, search: %s, time range: %d-%d",
+                page, size, sortBy, search, start, end));
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
 
@@ -135,6 +143,7 @@ public class AdminController {
 
     @GetMapping(MEDICAL_PREFIX + ID_PARAM)
     public BaseResponse get(@PathVariable long id) {
+        log.info(String.format("[GET] Get Medical with ID: %d", id));
         BaseResponse br = new BaseResponse();
         try {
             Medical result = adminService.getMedical(id);
@@ -153,6 +162,7 @@ public class AdminController {
             @RequestParam(value = "user-id") Long id,
             @RequestBody FamilyMember familyMember
     ) {
+        log.info(String.format("[POST] Create Family Member for User with ID: %d", id));
         BaseResponse br = new BaseResponse();
         try {
             br.setData(adminService.createMember(id, familyMember));
@@ -167,6 +177,7 @@ public class AdminController {
             @PathVariable Long id,
             @RequestParam(value = "user-id") Long userId,
             @RequestBody FamilyMember familyMember) {
+        log.info(String.format("[PUT] Update Family Member with ID: %d", id));
         BaseResponse br = new BaseResponse();
         try {
             br.setData(getFamilyMemberResponse(adminService.updateMember(id, familyMember, userId)));
@@ -185,6 +196,8 @@ public class AdminController {
             @RequestParam (value = "search", defaultValue = "") String search,
             @RequestParam (value = "user-id", required = false) Long userId
     ) {
+        log.info(String.format("[GET] Get all family members with criteria page: %d, size: %d, sortBy: %s, search: %s",
+                page, size, sortBy, search ));
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.DESC, sortBy));
 
@@ -204,11 +217,11 @@ public class AdminController {
     }
 
     @GetMapping(FAMILY_MEMBER_PREFIX + ID_PARAM)
-    public BaseResponse<FamilyMemberResponse> getFamilyMember(@PathVariable long familyMemberId) {
+    public BaseResponse<FamilyMemberResponse> getFamilyMember(@PathVariable long id) {
+        log.info(String.format("[GET] Get Family Member with ID: %d", id));
         BaseResponse br = new BaseResponse();
-
         try {
-            br.setData(getFamilyMemberResponse(adminService.getMember(familyMemberId)));
+            br.setData(getFamilyMemberResponse(adminService.getMember(id)));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -216,10 +229,11 @@ public class AdminController {
     }
 
     @DeleteMapping(FAMILY_MEMBER_PREFIX + ID_PARAM)
-    public BaseResponse deleteFamilyMember(@PathVariable long familyMemberId) {
+    public BaseResponse deleteFamilyMember(@PathVariable long id) {
+        log.info(String.format("[DELETE] Delete Family Member with ID: %d", id));
         BaseResponse br = new BaseResponse();
         try {
-            adminService.deleteFamilyMember(familyMemberId);
+            adminService.deleteFamilyMember(id);
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }

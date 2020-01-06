@@ -28,7 +28,6 @@ import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 
 @Component
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
     private static Logger log = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
 
     @Autowired
