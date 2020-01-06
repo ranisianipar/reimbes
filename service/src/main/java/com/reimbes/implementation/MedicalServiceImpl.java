@@ -3,6 +3,7 @@ package com.reimbes.implementation;
 import com.reimbes.*;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
+import com.reimbes.exception.MethodNotAllowedException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
@@ -45,6 +46,8 @@ public class MedicalServiceImpl implements MedicalService {
 //    MULTIPLE upload
     public Medical create(Medical medical, List<String> files) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
+        if (currentUser.getRole() == ADMIN) throw new MethodNotAllowedException("Only User allowed.");
+
         log.info("Create method called. With files: " + files);
 
         validate(medical);
@@ -77,11 +80,13 @@ public class MedicalServiceImpl implements MedicalService {
         return medicalRepository.save(medical);
     }
 
+    /*
+    * User cant update medical attachment
+     */
     @Override
     public Medical update(long id, Medical newMedical, List<String> files) throws ReimsException {
         Medical old = medicalRepository.findOne(id);
         ReimsUser currentUser = authService.getCurrentUser();
-        Set<MedicalReport> reports = new HashSet<>();
 
         validate(newMedical);
         old.setAmount(newMedical.getAmount());
@@ -91,19 +96,6 @@ public class MedicalServiceImpl implements MedicalService {
         old.setPatient(patient);
         old.setAge(countAge(patient.getDateOfBirth()));
         old.setDate(newMedical.getDate());
-
-        if (files != null) {
-            log.info("Update register all medical attachments those have been attached.");
-            for (String file: files) {
-                reports.add(
-                        MedicalReport.builder()
-                                .image(utils.uploadImage(file, currentUser.getId(), UrlConstants.SUB_FOLDER_REPORT))
-                                .medicalImage(old)
-                                .build()
-                );
-            }
-            old.setAttachments(reports);
-        }
 
         return medicalRepository.save(old);
     }
@@ -119,31 +111,36 @@ public class MedicalServiceImpl implements MedicalService {
 
     // userId == null when this method called from medical controller
     @Override
-    public Page<Medical> getAll(Pageable page, String title, Long start, Long end, String userId) throws ReimsException {
-        log.info("TITLEEEEE "+(title == null));
+    public Page<Medical> getAll(Pageable pageRequest, String title, Long start, Long end, String userId) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
+
 
         // enabling query by specific for admin. In the other hand, user get his medical report list
         ReimsUser queryUser;
         if (userId != null && currentUser.getRole() == ADMIN) {
+            log.info("GET Medical with User ID criteria by ADMIN");
             queryUser = userService.get(Long.parseLong(userId));
         } else if (currentUser.getRole() == ADMIN) {
+            log.info("GET Medical by ADMIN");
             queryUser = null;
         } else {
+            log.info("GET Medical by User");
             queryUser = currentUser;
         }
 
 
-        int index = page.getPageNumber() - 1;
+
+        int index = pageRequest.getPageNumber() - 1;
         if (index < 0) index = 0;
-        Pageable pageRequest = new PageRequest(index, page.getPageSize(), page.getSort());
+        Pageable page = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
 
         if (start == 0 && end == 0) {
             if (queryUser == null) return medicalRepository.findByTitleContainingIgnoreCase(title, page);
+            log.info(String.format("GET MEDICAL by User with criteria title: %s;queryUser: %s", title, queryUser));
             return medicalRepository.findByTitleContainingIgnoreCaseAndMedicalUser(title, queryUser, page);
         } else {
             if (queryUser == null) return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetween(title, start, end, page);
-            return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(title, start, end, queryUser, pageRequest);
+            return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(title, start, end, queryUser, page);
         }
     }
 

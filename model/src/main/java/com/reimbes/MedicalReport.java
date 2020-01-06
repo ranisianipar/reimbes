@@ -22,9 +22,10 @@ public class MedicalReport {
     @Column(updatable = false, insertable = false, columnDefinition = "serial")
     private long id;
 
+    @NonNull
     private String image;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "medicalImage", nullable = false)
     @JsonIgnore
     @EqualsAndHashCode.Exclude
@@ -32,7 +33,6 @@ public class MedicalReport {
 
     @Override
     public String toString(){
-        if (image != null) return image;
-        return null;
+        return image;
     }
 }

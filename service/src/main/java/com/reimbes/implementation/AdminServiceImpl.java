@@ -68,6 +68,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     public Page<FamilyMember> getAllFamilyMember(Long userId, String name, Pageable page) throws ReimsException {
+        log.info(String.format("GET all family member with criteria => User Id %d; Name %s", userId, name));
         return familyMemberService.getAll(userId, name, page);
     }
 

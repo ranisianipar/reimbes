@@ -28,6 +28,7 @@ public class Medical {
     @Column(updatable = false, insertable = false, columnDefinition = "serial")
     private long id;
 
+    @NonNull
     private String title;
     private long age; // current age, result of year of birth - current year
     private long amount;
@@ -37,7 +38,7 @@ public class Medical {
     @JoinColumn(name = "patient")
     private Patient patient;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "reimsUser", nullable = false)
     @JsonIgnore
     private ReimsUser medicalUser;

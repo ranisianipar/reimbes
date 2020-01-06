@@ -122,6 +122,8 @@ public class UserServiceImpl implements UserService {
 
         if (id == IDENTITY_CODE) return userRepository.findByUsername(utils.getUsername());
         else user = userRepository.findOne(id);
+
+        log.info(String.format("Get user with ID %d. Found => %s", id, user));
         if (user == null)
             throw new NotFoundException("USER "+id);
         return user;
