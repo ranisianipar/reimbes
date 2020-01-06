@@ -55,6 +55,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser create(ReimsUser user) throws ReimsException {
         validate(user, null);
 
+        user.setName(user.getUsername()); // default
         user.setCreatedAt(Instant.now().toEpochMilli());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
@@ -62,22 +63,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ReimsUser update(long id, ReimsUser user) throws ReimsException {
+    public ReimsUser update(long id, ReimsUser newUser) throws ReimsException {
         ReimsUser oldUser;
-
 
         if (id == IDENTITY_CODE) oldUser = userRepository.findByUsername(utils.getUsername());
         else oldUser = userRepository.findOne(id);
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
 
-        validate(user, oldUser);
+        validate(newUser, oldUser);
 
-        if (id != IDENTITY_CODE) oldUser.setRole(user.getRole());
+        if (id != IDENTITY_CODE) oldUser.setRole(newUser.getRole());
         
-        oldUser.setUsername(user.getUsername());
-        oldUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        oldUser.setUsername(newUser.getUsername());
+        if (newUser.getPassword() != null)
+            oldUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         oldUser.setUpdatedAt(Instant.now().toEpochMilli());
+
+        oldUser.setDivision(newUser.getDivision());
+        oldUser.setGender(newUser.getGender());
+        oldUser.setLicense(newUser.getLicense());
+        oldUser.setVehicle(newUser.getVehicle());
 
         return userRepository.save(oldUser);
     }
@@ -171,7 +177,8 @@ public class UserServiceImpl implements UserService {
         // Validate the credential data
         if (newUserData.getUsername() == null || newUserData.getUsername().isEmpty())
             errors.add("NULL_USERNAME");
-        if (newUserData.getPassword() == null || newUserData.getPassword().isEmpty())
+        // when create user
+        if (oldUserData == null && (newUserData.getPassword() == null || newUserData.getPassword().isEmpty()))
             errors.add("NULL_PASSWORD");
 
         // compare new medicalUser data with other medicalUser data
@@ -185,9 +192,6 @@ public class UserServiceImpl implements UserService {
             // create
             else if (oldUserData == null && user != null)
                 errors.add("UNIQUENESS_USERNAME");
-
-            if (newUserData.getUsername().toLowerCase().equals(newUserData.getPassword().toLowerCase()))
-                errors.add("INSECURE_PASSWORD");
         }
 
         if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());

@@ -90,38 +90,38 @@
 
 ```json
 {
-    "code": 200,
-    "status": "OK",
-    "paging":{
-            "pageSize":10,
-            "pageNumber":1,
-            "totalRecords":100,
-            "totalPages":10
-     },
-    "data": [
-        {
-            "id": 500000026,
-            "username": "hafiztesting",
-            "role": "ADMIN",
-            "gender":"MALE",
-	    "dateOfBirth":"1970-11-1",
-	    "license":"B XXXX XX",
-	    "vehicle":"CAR",
-	    "created_at":1559058600,
-	    "updated_at":0
-        },
-        {
-            "id": 500000027,
-            "username": "testinggg",
-            "role": "USER",
-            "gender":"MALE",
-	    "dateOfBirth":"1970-11-1",
-	    "license":"B XXXX XX",
-	    "vehicle":"CAR"
-	    "created_at":1559058600,
-	    "updated_at":1559058655"
-        }
-    ]
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": {
+    "pageNumber": 1,
+    "pageSize": 10,
+    "totalPages": 1,
+    "totalRecords": 2
+  },
+  "data": [
+    {
+      "id": 3,
+      "username": "user-with-member",
+      "role": "USER",
+      "license": null,
+      "vehicle": null,
+      "division": null,
+      "dateOfBirth": "1998-05-13",
+      "gender": "MALE"
+    },
+    {
+      "id": 2,
+      "username": "user-no-member",
+      "role": "USER",
+      "license": null,
+      "vehicle": null,
+      "division": null,
+      "dateOfBirth": "1998-05-13",
+      "gender": "FEMALE"
+    }
+  ],
+  "success": true
 }
 ```
 
@@ -140,24 +140,21 @@
 
 ```json
 {
-    "code": 200,
-    "status": "OK",
-    "pagination":{
-        "totalPage":10,
-        "page":1
-    },
-    "data": {
-        "id": 500000026,
-        "username": "hafiztesting",
-        "role": "USER",
-	"gender":"MALE",
-	"dateOfBirth":"1970-11-1",
-	"license":"B XXXX XX",
-	"vehicle":"CAR"
-        "created_at":1559058600,
-        "updated_at":0
-    }
-
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": null,
+  "data": {
+    "id": 3,
+    "username": "user-with-member",
+    "role": "USER",
+    "license": null,
+    "vehicle": null,
+    "division": null,
+    "dateOfBirth": "1998-05-13",
+    "gender": "MALE"
+  },
+  "success": true
 }
 ```
 - Response Body (Failure) :
@@ -203,10 +200,10 @@
         "id": 1,
         "username": "eko1@pyeongyang.com",
         "role": "USER",
-	"gender":"MALE",
-	"dateOfBirth":"1970-11-1",
-	"license":"B XXXX XX",
-	"vehicle":"CAR"
+	    "gender":"MALE",
+	    "dateOfBirth":"1970-11-1",
+	    "license":"B XXXX XX",
+	    "vehicle":"CAR"
         "created_at":1559058600,
         "updated_at":0
     }
@@ -333,8 +330,8 @@
 	"dateOfBirth":"1970-11-1",
 	"license":"B XXXX XX",
 	"vehicle":"CAR"
-        "created_at":1559058600,
-        "updated_at":0
+    "created_at":1559058600,
+    "updated_at":0
 }
 ```
 
@@ -348,10 +345,10 @@
         "id": 1,
         "username": "eko1@pyeongyang.com",
         "role": "USER",
-	"gender":"MALE",
-	"dateOfBirth":"1970-11-1",
-	"license":"B XXXX XX",
-	"vehicle":"CAR",
+        "gender":"MALE",
+        "dateOfBirth":"1970-11-1",
+        "license":"B XXXX XX",
+        "vehicle":"CAR",
         "created_at":1559058600,
         "updated_at":1559058655
     }
@@ -402,10 +399,10 @@
         "id": 1,
         "username": "eko1@pyeongyang.com",
         "role": "USER",
-	"gender":"MALE",
-	"dateOfBirth":"1970-11-1",
-	"license":"B XXXX XX",
-	"vehicle":"CAR",
+        "gender":"MALE",
+        "dateOfBirth":"1970-11-1",
+        "license":"B XXXX XX",
+        "vehicle":"CAR",
         "created_at":1559058600,
         "updated_at":1559058655
     }

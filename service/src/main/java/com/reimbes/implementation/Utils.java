@@ -1,7 +1,5 @@
 package com.reimbes.implementation;
 
-import com.reimbes.constant.UrlConstants;
-import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +20,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
-import static com.reimbes.constant.UrlConstants.FOLDER_PATH;
+import static com.reimbes.constant.UrlConstants.STORAGE_FOLDER;
 
 /*
 * Author: Rani Lasma Uli
@@ -49,7 +46,7 @@ public class Utils {
     }
 
     public void removeImage(String imagePath) {
-        imagePath = StringUtils.cleanPath(FOLDER_PATH + imagePath);
+        imagePath = StringUtils.cleanPath(STORAGE_FOLDER + imagePath);
         try {
             Files.delete(Paths.get(imagePath));
         }   catch (Exception e) {
@@ -58,9 +55,10 @@ public class Utils {
     }
 
     public byte[] getImageByImagePath(String imagePath) throws IOException {
-        return Files.readAllBytes(Paths.get(FOLDER_PATH + imagePath));
+        return Files.readAllBytes(Paths.get(imagePath));
     }
 
+//    Check file existance using relative file path
     public boolean isFileExists(String filepath) {
         return Files.exists(Paths.get(filepath));
     }
@@ -75,8 +73,8 @@ public class Utils {
         log.info("[DONE] Create directory: " + cleanedPath);
     }
 
-    public byte[] getFile(String filename) throws IOException {
-        return Files.readAllBytes(Paths.get(filename));
+    public byte[] getFile(String filepath) throws IOException {
+        return Files.readAllBytes(Paths.get(STORAGE_FOLDER + filepath));
     }
 
     public String getFilename(String extension) {
@@ -115,7 +113,7 @@ public class Utils {
             * */
 
             // confirm folder existence
-            String folderPath = StringUtils.cleanPath(String.format("%d/%s/", subfolder, userId ));
+            String folderPath = StringUtils.cleanPath(String.format("%s/%d/%s/", STORAGE_FOLDER, userId, subfolder ));
             log.info("Done generate folder path.");
 
             if (!isFileExists(folderPath)) {
@@ -124,6 +122,7 @@ public class Utils {
             }
 
             imagePath = folderPath + getFilename(extension);
+
             log.info("Write image in this path: " + imagePath);
             createFile(imagePath, imageByte);
         } catch (IOException e) {

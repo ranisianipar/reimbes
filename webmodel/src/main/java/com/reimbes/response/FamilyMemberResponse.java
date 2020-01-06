@@ -4,6 +4,7 @@ import com.reimbes.FamilyMember;
 import lombok.Data;
 
 import javax.management.relation.Relation;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -18,8 +19,7 @@ public class FamilyMemberResponse {
 
     private FamilyMember.Relationship relationship;
 
-    // epoch
-    private long dateOfBirth;
+    private Date dateOfBirth;
 
 
 

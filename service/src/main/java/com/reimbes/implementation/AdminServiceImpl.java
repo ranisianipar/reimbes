@@ -2,6 +2,7 @@ package com.reimbes.implementation;
 
 import com.reimbes.AdminService;
 import com.reimbes.FamilyMember;
+import com.reimbes.Medical;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.ResponseCode;
 import com.reimbes.exception.NotFoundException;
@@ -39,6 +40,9 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private FamilyMemberServiceImpl familyMemberService;
 
+    @Autowired
+    private MedicalServiceImpl medicalService;
+
     @Override
     public Page getAllUser(String search, Pageable pageRequest) throws ReimsException {
         log.info("Get all medicalUser by: " + utils.getUsername());
@@ -63,9 +67,25 @@ public class AdminServiceImpl implements AdminService {
         return userService.create(user);
     }
 
+    public Page<FamilyMember> getAllFamilyMember(Long userId, String name, Pageable page) throws ReimsException {
+        return familyMemberService.getAll(userId, name, page);
+    }
+
+    public FamilyMember getMember(long memberId) throws ReimsException {
+        return familyMemberService.getById(memberId);
+    }
+
     public FamilyMember createMember(long userId, FamilyMember member) throws ReimsException {
 
         return familyMemberService.create(userId, member);
+    }
+
+    public void deleteFamilyMember(long familyMemberId) throws ReimsException{
+        familyMemberService.delete(familyMemberId);
+    }
+
+    public FamilyMember updateMember(long familyMemberId, FamilyMember latestData, long userId) throws ReimsException {
+        return familyMemberService.update(familyMemberId, latestData, userId);
     }
 
     @Override
@@ -85,6 +105,15 @@ public class AdminServiceImpl implements AdminService {
         ReimsUser currentUser = authService.getCurrentUser();
         if (currentUser.getId() == id) throw new ReimsException("SELF_DELETION", HttpStatus.METHOD_NOT_ALLOWED, 405);
         userService.delete(id);
+    }
+
+    public Page<Medical> getAllMedical(Pageable page, String title, Long start, Long end, String userId)
+            throws ReimsException {
+        return medicalService.getAll(page, title, start, end, userId);
+    }
+
+    public Medical getMedical(long id) throws ReimsException {
+        return medicalService.get(id);
     }
 
     private void validate(ReimsUser newUser) throws ReimsException {
