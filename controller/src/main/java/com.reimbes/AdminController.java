@@ -172,7 +172,7 @@ public class AdminController {
         return br;
     }
 
-    @PutMapping(ID_PARAM)
+    @PutMapping(FAMILY_MEMBER_PREFIX + ID_PARAM)
     public BaseResponse update(
             @PathVariable Long id,
             @RequestParam(value = "user-id") Long userId,
