@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 import com.reimbes.ReimsUser;
 import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.UserDetailsImpl;
-import com.reimbes.response.LoginResponse;
 import com.reimbes.response.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,6 @@ import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 
 @Component
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
     private static Logger log = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
 
     @Autowired

@@ -1,15 +1,15 @@
 package com.reimbes;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
+import net.bytebuddy.build.ToStringPlugin;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Data
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class Transaction {
+@Inheritance(strategy = InheritanceType.JOINED)
+
+public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
@@ -25,8 +25,8 @@ public abstract class Transaction {
     private long date;
     private String image;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ToStringPlugin.Exclude
     @JoinColumn(name = "reimsUser", nullable = false)
     private ReimsUser reimsUser;
 

@@ -3,9 +3,7 @@ package com.reimbes;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.AdminServiceImpl;
-import com.reimbes.response.BaseResponse;
-import com.reimbes.response.Paging;
-import com.reimbes.response.UserResponse;
+import com.reimbes.response.*;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
@@ -23,23 +21,25 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.reimbes.constant.UrlConstants.FAMILY_MEMBER_PREFIX;
+import static com.reimbes.constant.Mapper.*;
+import static com.reimbes.constant.UrlConstants.*;
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
 @RequestMapping(UrlConstants.API_PREFIX + UrlConstants.ADMIN_PREFIX)
 public class AdminController {
-
     private static Logger log = LoggerFactory.getLogger(AdminController.class);
 
     @Autowired
     private AdminServiceImpl adminService;
 
     @PostMapping(UrlConstants.USER_PREFIX)
-    public BaseResponse<UserResponse> createUser(@RequestBody ReimsUser user) throws Exception{
+    public BaseResponse<UserResponse> createUser(@RequestBody ReimsUser user) {
+        log.info("[POST] Create user.");
+
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setData(getMapper().map(adminService.createUser(user), UserResponse.class));
+            br.setData(getUserResponseMapper().map(adminService.createUser(user), UserResponse.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -53,6 +53,7 @@ public class AdminController {
             @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
             @RequestParam (value = "search", defaultValue = "") String search) {
 
+        log.info(String.format("[GET] Get all users with criteria page: %d, size: %d, sortBy: %s, search: %s", page, size, sortBy, search ));
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.DESC, sortBy));
         BaseResponse br = new BaseResponse();
 
@@ -75,9 +76,10 @@ public class AdminController {
 
     @GetMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM)
     public BaseResponse<UserResponse> getUser(@PathVariable long id) {
+        log.info(String.format("[GET] Get user with ID: %d", id));
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setData(getMapper().map(adminService.getUser(id), UserResponse.class));
+            br.setData(getUserResponseMapper().map(adminService.getUser(id), UserResponse.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -85,10 +87,12 @@ public class AdminController {
     }
 
     @PutMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM)
-    public BaseResponse<UserResponse> updateUser(@PathVariable long id, @RequestBody ReimsUser user, HttpServletResponse response) throws Exception{
+    public BaseResponse<UserResponse> updateUser(@PathVariable long id, @RequestBody ReimsUser user, HttpServletResponse response){
+        log.info(String.format("[PUT] Update user with ID: %d", id));
+
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setData(getMapper().map(adminService.updateUser(id,user, response), UserResponse.class));
+            br.setData(getUserResponseMapper().map(adminService.updateUser(id,user, response), UserResponse.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -97,32 +101,143 @@ public class AdminController {
 
     @DeleteMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM)
     public BaseResponse<UserResponse> deleteUser(@PathVariable long id) throws ReimsException {
+        log.info(String.format("[DELETE] Delete user with ID: %d", id));
         BaseResponse<UserResponse> br = new BaseResponse<>();
         adminService.deleteUser(id);
 
         return br;
     }
 
-    private MapperFacade getMapper() {
-        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
-        mapperFactory.classMap(ReimsUser.class, UserResponse.class)
-                .byDefault().register();
-        return mapperFactory.getMapperFacade();
-    }
+//    MEDICAL
+    @GetMapping(UrlConstants.MEDICAL_PREFIX)
+    public BaseResponse<Medical> getAllMedical(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @RequestParam(value = "sortBy", defaultValue = "date") String sortBy,
+            @RequestParam(value = "start", defaultValue = "0") String start,
+            @RequestParam(value = "end", defaultValue = "0") String end,
+            @RequestParam(value = "user-id", required = false) String userId,
+            @RequestParam (value = "search", defaultValue = "") String search
+    ) {
+        log.info(String.format("[GET] Get all medicals with criteria page: %d, size: %d, sortBy: %s, search: %s, time range: %d-%d",
+                page, size, sortBy, search, start, end));
+        BaseResponse br = new BaseResponse();
+        Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
 
-    private MapperFacade getPagingMapper() {
-        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
-        mapperFactory.classMap(Pageable.class, Paging.class)
-                .byDefault().register();
-        return mapperFactory.getMapperFacade();
-    }
 
-    private List<UserResponse> getAllUserResponses(List<ReimsUser> users) {
-        List<UserResponse> userResponses = new ArrayList<>();
-        Iterator iterator = users.iterator();
-        while (iterator.hasNext()) {
-            userResponses.add(getMapper().map(iterator.next(), UserResponse.class));
+        try {
+            Page medicals = adminService.getAllMedical(pageRequest, search, new Long(start), new Long(end), userId);
+            Paging paging = getPagingMapper().map(pageRequest, Paging.class);
+            br.setData(getAllMedicalResponse(
+                    medicals.getContent()
+            ));
+            paging.setTotalPages(medicals.getTotalPages());
+            paging.setTotalRecords(medicals.getContent().size());
+            br.setPaging(paging);
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
         }
-        return userResponses;
+
+        return br;
+    }
+
+    @GetMapping(MEDICAL_PREFIX + ID_PARAM)
+    public BaseResponse get(@PathVariable long id) {
+        log.info(String.format("[GET] Get Medical with ID: %d", id));
+        BaseResponse br = new BaseResponse();
+        try {
+            Medical result = adminService.getMedical(id);
+            br.setData(getMedicalMapper(result).map(result, MedicalWebModel.class));
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
+        return br;
+    }
+
+
+//    FAMILY MEMBER
+    @PostMapping(FAMILY_MEMBER_PREFIX)
+    public BaseResponse<FamilyMemberResponse> addFamilyMember(
+            @RequestParam(value = "user-id") Long id,
+            @RequestBody FamilyMember familyMember
+    ) {
+        log.info(String.format("[POST] Create Family Member for User with ID: %d", id));
+        BaseResponse br = new BaseResponse();
+        try {
+            br.setData(adminService.createMember(id, familyMember));
+        }   catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+        return br;
+    }
+
+    @PutMapping(ID_PARAM)
+    public BaseResponse update(
+            @PathVariable Long id,
+            @RequestParam(value = "user-id") Long userId,
+            @RequestBody FamilyMember familyMember) {
+        log.info(String.format("[PUT] Update Family Member with ID: %d", id));
+        BaseResponse br = new BaseResponse();
+        try {
+            br.setData(getFamilyMemberResponse(adminService.updateMember(id, familyMember, userId)));
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
+        return br;
+    }
+
+    @GetMapping(FAMILY_MEMBER_PREFIX)
+    public BaseResponse<FamilyMemberResponse> getAllFamilyMember(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
+            @RequestParam (value = "search", defaultValue = "") String search,
+            @RequestParam (value = "user-id", required = false) Long userId
+    ) {
+        log.info(String.format("[GET] Get all family members with criteria page: %d, size: %d, sortBy: %s, search: %s",
+                page, size, sortBy, search ));
+        BaseResponse br = new BaseResponse();
+        Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.DESC, sortBy));
+
+        try {
+            Page familyMembers = adminService.getAllFamilyMember(userId, search, pageRequest);
+            Paging paging = getPagingMapper().map(pageRequest, Paging.class);
+            paging.setTotalPages(familyMembers.getTotalPages());
+            paging.setTotalRecords(familyMembers.getContent().size());
+
+            br.setData(getAllFamilyMemberResponses(familyMembers.getContent()));
+            br.setPaging(paging);
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
+        return br;
+    }
+
+    @GetMapping(FAMILY_MEMBER_PREFIX + ID_PARAM)
+    public BaseResponse<FamilyMemberResponse> getFamilyMember(@PathVariable long id) {
+        log.info(String.format("[GET] Get Family Member with ID: %d", id));
+        BaseResponse br = new BaseResponse();
+        try {
+            br.setData(getFamilyMemberResponse(adminService.getMember(id)));
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+        return br;
+    }
+
+    @DeleteMapping(FAMILY_MEMBER_PREFIX + ID_PARAM)
+    public BaseResponse deleteFamilyMember(@PathVariable long id) {
+        log.info(String.format("[DELETE] Delete Family Member with ID: %d", id));
+        BaseResponse br = new BaseResponse();
+        try {
+            adminService.deleteFamilyMember(id);
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
+        return br;
     }
 }

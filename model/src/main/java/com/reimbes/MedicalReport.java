@@ -1,20 +1,14 @@
 package com.reimbes;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
-/*
-* This model will be used to map medical and report (img)
-* */
-@Table(name="Medical_Reports")
-
+@Table(name="Medical_Report")
 @AllArgsConstructor
 @Builder
 @Data
@@ -23,15 +17,22 @@ import javax.persistence.*;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class MedicalReport {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, insertable = false, columnDefinition = "serial")
     private long id;
 
-    private String image; // image path
+    @NonNull
+    private String image;
 
-    @ManyToOne
-    @JoinColumn(name = "medical_id", nullable = false)
-    private Medical medical_id; // reference column to Medical
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "medicalImage", nullable = false)
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    private Medical medicalImage;
+
+    @Override
+    public String toString(){
+        return image;
+    }
 }

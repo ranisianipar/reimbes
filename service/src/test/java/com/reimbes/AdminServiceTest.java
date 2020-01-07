@@ -45,25 +45,30 @@ public class AdminServiceTest {
     @InjectMocks
     private AdminServiceImpl adminService;
 
-    private ReimsUser user = new ReimsUser();
-    private ReimsUser user2 = new ReimsUser();
+    private ReimsUser user;
+    private ReimsUser user2;
     private Pageable pageRequest = new PageRequest(1, 5, new Sort(Sort.Direction.DESC, "createdAt"));
     private Pageable pageForQuery = new PageRequest(0, pageRequest.getPageSize(), pageRequest.getSort());
     @Before
     public void setup() {
-        user.setUsername("HAHA");
-        user.setPassword("HEHE");
-        user.setRole(ReimsUser.Role.USER);
-        user.setId(1);
-        user.setDateOfBirth(new Date());
-        user.setGender(ReimsUser.Gender.FEMALE);
+        user = ReimsUser.ReimsUserBuilder()
+                .username("HAHA")
+                .password("HEHE")
+                .role(ReimsUser.Role.USER)
+                .id(1)
+                .gender(ReimsUser.Gender.FEMALE)
+                .dateOfBirth(new Date())
+                .build();
 
-        user2.setId(user.getId()+1);
-        user2.setUsername(user.getUsername()+"123");
-        user2.setPassword(user.getPassword()+"123");
-        user2.setRole(ReimsUser.Role.USER);
-        user2.setDateOfBirth(new Date());
-        user2.setGender(ReimsUser.Gender.MALE);
+
+        user2 = ReimsUser.ReimsUserBuilder()
+                .username(user.getUsername()+"123")
+                .password("HEHE")
+                .role(ReimsUser.Role.USER)
+                .id(user.getId()+1)
+                .gender(ReimsUser.Gender.MALE)
+                .dateOfBirth(new Date())
+                .build();
     }
 
     @Test
@@ -112,7 +117,13 @@ public class AdminServiceTest {
         when(utils.getUsername()).thenReturn(user.getUsername());
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
 
-        ReimsUser userWithNewData = new ReimsUser();
+        ReimsUser userWithNewData = ReimsUser.ReimsUserBuilder()
+                .username(user.getUsername())
+                .role(user.getRole())
+                .id(user.getId())
+                .build();
+
+
         userWithNewData.setId(user.getId());
         userWithNewData.setRole(user.getRole());
         userWithNewData.setUsername(user.getUsername());

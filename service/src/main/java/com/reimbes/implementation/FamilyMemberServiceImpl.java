@@ -2,6 +2,7 @@ package com.reimbes.implementation;
 
 import com.reimbes.FamilyMember;
 import com.reimbes.FamilyMemberRepository;
+import com.reimbes.PatientRepository;
 import com.reimbes.ReimsUser;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.MethodNotAllowedException;
@@ -32,6 +33,9 @@ public class FamilyMemberServiceImpl {
     private FamilyMemberRepository familyMemberRepository;
 
     @Autowired
+    private PatientRepository patientRepository;
+
+    @Autowired
     private UserServiceImpl userService;
 
     @Autowired
@@ -48,17 +52,15 @@ public class FamilyMemberServiceImpl {
 
 
         if (user.getRole() == ADMIN) return null;
-        if (user.getGender() != ReimsUser.Gender.MALE)
-            throw new DataConstraintException("GENDER_CONSTRAINT");
 
-        validate(null, member);
-
-        FamilyMember familyMember = FamilyMember.builder()
+        FamilyMember familyMember = FamilyMember.FamilyMemberBuilder()
                 .familyMemberOf(user)
+                .relationship(member.getRelationship())
                 .dateOfBirth(member.getDateOfBirth())
                 .name(member.getName())
-                .relationship(member.getRelationship())
                 .build();
+
+        validate(null, familyMember);
 
         familyMember.setCreatedAt(utils.getCurrentTime());
 
@@ -79,7 +81,7 @@ public class FamilyMemberServiceImpl {
 
     }
 
-    public Page getAll(long userId, String nameFilter, Pageable pageRequest) throws ReimsException{
+    public Page getAll(Long userId, String nameFilter, Pageable pageRequest) throws ReimsException{
         /****************************************HANDLING REQUEST PARAM************************************************/
         int index = pageRequest.getPageNumber() - 1;
         if (index < 0) index = 0;
@@ -91,7 +93,7 @@ public class FamilyMemberServiceImpl {
         // ADMIN
         if (currentUser.getRole() == ADMIN) {
             log.info("[ADMIN] Query Family Member");
-            if (userId == 0) return getAllByUser(null, nameFilter, pageable);
+            if (userId == null) return getAllByUser(null, nameFilter, pageable);
             return getAllByUser(userService.get(userId), nameFilter, pageable);
         }
 
@@ -100,6 +102,7 @@ public class FamilyMemberServiceImpl {
     }
 
     public Page getAllByUser(ReimsUser searchUser, String name, Pageable pageable) {
+        log.info("GET ALL family member WITH CRITERIA all users");
         if (searchUser == null) {
             log.info("[Query Activity] Query Family Member with no User");
             log.info("[Query Activity] Pageable: " + pageable);

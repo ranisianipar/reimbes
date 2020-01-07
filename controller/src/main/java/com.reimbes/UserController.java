@@ -1,5 +1,6 @@
 package com.reimbes;
 
+import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.UserServiceImpl;
 import com.reimbes.response.BaseResponse;
@@ -65,6 +66,16 @@ public class UserController {
         }
 
         return br;
+    }
+
+    @GetMapping(UrlConstants.IMAGE_PREFIX)
+    public byte[] getImage(@RequestParam(value = "path") String imagePath) {
+        try {
+            return userService.getImage(imagePath);
+        } catch (Exception e) {
+            return new byte[0];
+        }
+
     }
 
 

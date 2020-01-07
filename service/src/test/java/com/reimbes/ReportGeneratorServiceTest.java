@@ -16,11 +16,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.reimbes.ReimsUser.Role.USER;
 import static org.mockito.Mockito.*;
 
 
@@ -38,17 +40,19 @@ public class ReportGeneratorServiceTest {
     @InjectMocks
     private ReportGeneratorServiceImpl reportGeneratorService;
 
-    private ReimsUser user = new ReimsUser();
+    private ReimsUser user;
     private Set<Transaction> transactions = new HashSet<>();
 
     private long epochNow = Instant.now().getEpochSecond();
 
     @Before
     public void setup() {
-        user.setRole(ReimsUser.Role.USER);
-        user.setUsername("HAHA");
-        user.setPassword("xoxo");
-        user.setId(0);
+        user = ReimsUser.ReimsUserBuilder()
+                .username("HAHA")
+                .password("xoxo")
+                .role(USER)
+                .id(0)
+                .build();
 
         Transaction fuel = new Fuel();
         fuel.setTitle("BENSIN");

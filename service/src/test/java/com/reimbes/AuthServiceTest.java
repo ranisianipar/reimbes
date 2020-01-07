@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 public class AuthServiceTest {
 
     private UserDetails userDetails;
-    private ReimsUser user = new ReimsUser();
+    private ReimsUser user;
     private Collection authorities;
 
 
@@ -44,9 +44,12 @@ public class AuthServiceTest {
 
     @Before
     public void setup() {
-        user.setUsername("HAHA");
-        user.setPassword("HEHE");
-        user.setRole(USER);
+
+        user = ReimsUser.ReimsUserBuilder()
+                .username("HAHA")
+                .password("HEHE")
+                .role(USER)
+                .build();
 
         authorities = new ArrayList();
         authorities.add(user.getRole());

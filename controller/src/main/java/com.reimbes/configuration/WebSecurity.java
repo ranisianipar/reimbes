@@ -70,8 +70,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 ).permitAll()
                 .antMatchers(
                          ADMIN_PREFIX,
-                        ADMIN_PREFIX+"/**",
-                        FAMILY_MEMBER_PREFIX
+                        ADMIN_PREFIX+"/**"
                     ).hasAuthority("ADMIN")
                 .antMatchers(
                         USER_PREFIX,

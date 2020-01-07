@@ -5,16 +5,14 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import net.bytebuddy.build.ToStringPlugin;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
-@Table(name="Medicals")
+@Table(name="Medical")
 @AllArgsConstructor
 @Builder
 @Data
@@ -22,6 +20,7 @@ import java.util.Set;
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@ToString(onlyExplicitlyIncluded = true)
 public class Medical {
 
     @Id
@@ -29,23 +28,22 @@ public class Medical {
     @Column(updatable = false, insertable = false, columnDefinition = "serial")
     private long id;
 
+    @NonNull
     private String title;
     private long age; // current age, result of year of birth - current year
     private long amount;
     private long date;
 
-////    patient null -> claim for him/her self
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient")
-    private FamilyMember patient;
+    private Patient patient;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "reimsUser", nullable = false)
-    @ToStringPlugin.Exclude
     @JsonIgnore
     private ReimsUser medicalUser;
 
-//    Mapped to multiple images
-    @OneToMany(mappedBy = "medical_id")
-    private Set<MedicalReport> reports;
+    //    Mapped to multiple images
+    @OneToMany(mappedBy = "medicalImage", cascade = CascadeType.PERSIST)
+    private Set<MedicalReport> attachments;
 }

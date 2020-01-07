@@ -78,21 +78,6 @@ public class TransactionController {
         return br;
     }
 
-    @GetMapping(value = UrlConstants.ID_PARAM+UrlConstants.IMAGE_PARAM)
-    public BaseResponse getImage(@PathVariable long id, @PathVariable String image) {
-        BaseResponse<String> br = new BaseResponse();
-        try {
-            String result = transactionService.getImage(id,image);
-            log.info(result);
-            br.setData(result);
-
-        }   catch (ReimsException r) {
-            br.setErrorResponse(r);
-        }
-
-        return br;
-    }
-
     @PutMapping
     public BaseResponse<TransactionResponse> updateTransaction(@RequestBody TransactionRequest newTransaction) {
         BaseResponse br = new BaseResponse();
