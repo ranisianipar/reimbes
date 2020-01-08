@@ -1,6 +1,7 @@
 package com.reimbes.implementation;
 
 import com.reimbes.*;
+import com.reimbes.exception.ReimsException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
@@ -10,14 +11,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.reimbes.constant.General.DATE_FORMAT;
-import static com.reimbes.constant.General.TIME_ZONE;
+import static com.reimbes.constant.General.*;
 
 @Service
 public class ReportGeneratorServiceImpl implements ReportGeneratorService {
@@ -28,109 +26,57 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private TransactionServiceImpl transactionService;
 
     @Autowired
+    private MedicalServiceImpl medicalService;
+
+    @Autowired
+    private AuthServiceImpl authService;
+
+    @Autowired
     private Utils utils;
 
     @Override
-    public byte[] getReport(ReimsUser user, Long start, Long end) throws Exception {
+    public byte[] getReport(ReimsUser user, Long start, Long end, String reimbursementType) throws Exception {
 
         String filename;
 
-        List<Transaction> transactions;
 
-        if (start == null || end == null){
-            filename = String.format("%s_%s.xls", user.getUsername(), "ALL");
-            transactions = transactionService.getByUser(user);
+        filename = String.format("%s_%s_%s.xls", user.getUsername(), reimbursementType, "ALL");
+        if (start != 0 && end != 0){
+            filename = String.format("%s_%s_%s_%s.xls", user.getUsername(), reimbursementType, start+"", end+"");
 
-        } else {
-            transactions = transactionService.getByUserAndDate(user, start, end);
-            filename = String.format("%s_%s_%s.xls", user.getUsername(), start+"", end+"");
         }
 
+        /* INIT */
         Workbook wb = new HSSFWorkbook();
-
         DATE_FORMAT.setTimeZone(TIME_ZONE);
-
         OutputStream out;
-
         out = new FileOutputStream(filename);
 
-        Sheet fuel = wb.createSheet("Fuel Report");
-        Sheet parking = wb.createSheet("Parking Report");
+        Sheet reimbursement = wb.createSheet(String.format("%s report", reimbursementType));
 
 
         // styling header
-        Font headerFont = wb.createFont();
-        headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
-        headerFont.setColor(IndexedColors.LIGHT_GREEN.getIndex());
-        headerFont.setFontName("Arial");
+        Font headerFont = stylingHeader(wb.createFont());
 
         CellStyle headerCellStyle = wb.createCellStyle();
         headerCellStyle.setFont(headerFont);
 
-        // first row --> header
-        Row rowFuel = fuel.createRow(0);
-        Row rowParking = parking.createRow(0);
+        Row reportRow = reimbursement.createRow(0);
+        reportRow.setRowStyle(headerCellStyle);
 
-        rowFuel.setRowStyle(headerCellStyle);
-        rowParking.setRowStyle(headerCellStyle);
+        writeHeaderCell(reimbursement, reportRow);
 
-        Iterator<Transaction> iterator = transactions.iterator();
-        Transaction transaction;
-
-
-        // fuel
-        createCell(rowFuel, 0, "No.");
-        createCell(rowParking, 0, "No.");
-        createCell(rowFuel, 1, "Title");
-        createCell(rowParking, 1, "Title");
-        createCell(rowFuel, 2, "Date");
-        createCell(rowParking, 2, "Date");
-        createCell(rowFuel, 3, "Amount");
-        createCell(rowParking, 3, "Amount");
-
-        createCell(rowFuel, 4, "Liters");
-        createCell(rowParking, 4, "Hours");
-
-        int indexFuel = 1;
-        int indexParking = 1;
-
-        int accumulatedAmountParking = 0;
-        int accumulatedAmountFuel = 0;
-
-
-        Row row;
-        while (iterator.hasNext()) {
-            transaction = iterator.next();
-
-            if (transaction.getCategory().equals(Transaction.Category.FUEL)) {
-                row = fuel.createRow(indexFuel++);
-                createCell(row, 0, indexFuel-1);
-                createCell(row, 4, ((Fuel) transaction).getLiters());
-                accumulatedAmountFuel += transaction.getAmount();
-            } else {
-                row = parking.createRow(indexParking++);
-                createCell(row, 0, indexParking-1);
-                createCell(row, 4, ((Parking) transaction).getHours());
-                accumulatedAmountParking += transaction.getAmount();
-            }
-
-            createCell(row, 1, transaction.getTitle());
-            createCell(row, 2, DATE_FORMAT.format(new Date(transaction.getDate())));
-            createCell(row, 3, transaction.getAmount());
+        // determine report type
+        switch (reimbursementType) {
+            case PARKING:
+                writeParkingReport(reimbursement, reportRow);
+            case FUEL:
+                writeFuelReport(reimbursement, reportRow);
+            case MEDICAL:
+                writeMedicalReport(reimbursement, reportRow);
         }
 
-        indexFuel++;
-        row = fuel.createRow(indexFuel);
-        createCell(row, 0, "TOTAL:");
-        createCell(row, 3, accumulatedAmountFuel);
-
-        indexParking++;
-        row = parking.createRow(indexParking);
-        createCell(row, 0, "TOTAL:");
-        createCell(row, 3, accumulatedAmountParking);
-
         wb.write(out);
-
         out.close();
 
         return utils.getFile(filename);
@@ -150,11 +96,73 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         return cell;
     }
 
-    private Cell createCell(Row row, int index, float value) {
-        Cell cell = row.createCell(index);
-        cell.setCellValue(value);
+    private Font stylingHeader(Font headerFont) {
+        headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        headerFont.setColor(IndexedColors.LIGHT_GREEN.getIndex());
+        headerFont.setFontName("Arial");
+        return headerFont;
+    }
 
-        return cell;
+    // general attribute
+    private void writeHeaderCell(Sheet sheet, Row row) {
+        int currentIndex = row.getRowNum();
+        row = sheet.createRow(++currentIndex);
+
+        log.info(String.format("Write Header Cell in row index %d", row.getRowNum()));
+        createCell(row, 0, "No.");
+        createCell(row, 1, "Title");
+        createCell(row, 2, "Date");
+        createCell(row, 3, "Amount");
+    }
+
+    private void writeParkingReport(Sheet sheet, Row row) {
+        createCell(row, 4, "Hours");
+
+        int totalAmount = 0;
+        int currentIndex = row.getRowNum();
+
+        /*LOOP*/
+
+        createCell(row, 0, "TOTAL:");
+        createCell(row, 3, totalAmount);
+    }
+
+    private void writeFuelReport(Sheet sheet, Row row) {
+        createCell(row, 4, "Liters");
+
+        int totalAmount = 0;
+        int currentIndex = row.getRowNum();
+
+        /*LOOP*/
+
+        createCell(row, 0, "TOTAL:");
+        createCell(row, 3, totalAmount);
+    }
+
+    private void writeMedicalReport(Sheet sheet, Row row){
+        createCell(row, 4, "Patient");
+
+        int totalAmount = 0;
+        int currentIndex = row.getRowNum();
+        int sheetIndex = 1 ;
+
+
+        List<Medical> medicals = medicalService.getAll(INFINITE_DATE_RANGE, INFINITE_DATE_RANGE, authService.getCurrentUser());
+
+        /*LOOP*/
+        for (Medical medical : medicals) {
+            row = sheet.createRow(++currentIndex);
+            createCell(row, 0, sheetIndex++);
+            createCell(row, 1, medical.getTitle());
+            createCell(row, 2, DATE_FORMAT.format(new Date(medical.getDate())));
+            createCell(row, 3, medical.getAmount());
+            createCell(row, 4, medical.getPatient().getName());
+            totalAmount += medical.getAmount();
+        }
+
+        row = sheet.createRow(++currentIndex);
+        createCell(row, 0, "TOTAL:");
+        createCell(row, 3, totalAmount);
     }
 
 }

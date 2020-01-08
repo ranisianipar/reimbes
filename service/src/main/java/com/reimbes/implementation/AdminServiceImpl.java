@@ -117,7 +117,7 @@ public class AdminServiceImpl implements AdminService {
         userService.delete(id);
     }
 
-    public Page<Medical> getAllMedical(Pageable page, String title, Long start, Long end, String userId)
+    public Page<Medical> getAllMedical(Pageable page, String title, Long start, Long end, Long userId)
             throws ReimsException {
         log.info(String.format("GET all medicals with criteria title: %s, time range: %d-%d, User Id: %d",
                 title, start, end, userId));

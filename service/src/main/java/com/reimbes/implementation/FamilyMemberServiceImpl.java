@@ -105,7 +105,6 @@ public class FamilyMemberServiceImpl {
         log.info("GET ALL family member WITH CRITERIA all users");
         if (searchUser == null) {
             log.info("[Query Activity] Query Family Member with no User");
-            log.info("[Query Activity] Pageable: " + pageable);
             return familyMemberRepository.findByNameContainingIgnoreCase(name, pageable);
         }
 

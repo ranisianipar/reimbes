@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.reimbes.ReimsUser.Role.ADMIN;
+import static com.reimbes.constant.General.INFINITE_DATE_RANGE;
 import static com.reimbes.constant.ResponseCode.BAD_REQUEST;
 import static com.reimbes.implementation.Utils.countAge;
 
@@ -108,18 +109,16 @@ public class MedicalServiceImpl implements MedicalService {
         return report;
     }
 
-    // userId == null when this method called from medical controller
     @Override
-
-    public Page<Medical> getAll(Pageable pageRequest, String title, Long start, Long end, String userId) throws ReimsException {
+    public Page<Medical> getAll(Pageable pageRequest, String title, Long start, Long end, Long userId) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
 
 
         // enabling query by specific for admin. In the other hand, user get his medical report list
         ReimsUser queryUser;
-        if (userId != null && currentUser.getRole() == ADMIN) {
+        if (userId != 0 && currentUser.getRole() == ADMIN) {
             log.info("GET Medical with User ID criteria by ADMIN");
-            queryUser = userService.get(Long.parseLong(userId));
+            queryUser = userService.get(userId);
         } else if (currentUser.getRole() == ADMIN) {
             log.info("GET Medical by ADMIN");
             queryUser = null;
@@ -140,6 +139,13 @@ public class MedicalServiceImpl implements MedicalService {
             if (queryUser == null) return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetween(title, start, end, page);
             return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(title, start, end, queryUser, page);
         }
+    }
+
+
+    public List<Medical> getAll(Long start, Long end, ReimsUser user) {
+        if (start == INFINITE_DATE_RANGE && end == INFINITE_DATE_RANGE)
+            return medicalRepository.findByMedicalUser(user);
+        return medicalRepository.findByDateBetweenAndMedicalUser(start, end, user);
     }
 
 

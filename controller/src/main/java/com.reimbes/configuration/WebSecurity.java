@@ -63,22 +63,22 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers(
-                        LOGIN_URL,
-                        LOGOUT_URL,
-                        ISLOGIN_URL,
+                        API_PREFIX + LOGIN_URL,
+                        API_PREFIX + LOGOUT_URL,
+                        API_PREFIX + ISLOGIN_URL,
                         "/v2/api-docs"
                 ).permitAll()
                 .antMatchers(
-                         ADMIN_PREFIX,
-                        ADMIN_PREFIX+"/**"
+                        API_PREFIX + ADMIN_PREFIX,
+                        API_PREFIX + ADMIN_PREFIX+"/**"
                     ).hasAuthority("ADMIN")
                 .antMatchers(
-                        USER_PREFIX,
-                        USER_PREFIX+"/**",
-                        TRANSACTION_PREFIX,
-                        TRANSACTION_PREFIX+"/**",
-                        MEDICAL_PREFIX,
-                        MEDICAL_PREFIX+"/**"
+                        API_PREFIX + USER_PREFIX,
+                        API_PREFIX + USER_PREFIX+"/**",
+                        API_PREFIX + TRANSACTION_PREFIX,
+                        API_PREFIX + TRANSACTION_PREFIX+"/**",
+                        API_PREFIX + MEDICAL_PREFIX,
+                        API_PREFIX + MEDICAL_PREFIX+"/**"
                     ).hasAuthority("USER")
                 .anyRequest().authenticated()
                 .and()

@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.reimbes.ReimsUser.Role.USER;
+import static com.reimbes.constant.General.INFINITE_DATE_RANGE;
 import static org.mockito.Mockito.*;
 
 
@@ -91,19 +92,9 @@ public class ReportGeneratorServiceTest {
         when(transactionService.getByUser(user)).thenReturn(new ArrayList<>(transactions));
         when(utils.getFile(user.getUsername()+"_ALL")).thenReturn(new byte[19]);
 
-        reportGeneratorService.getReport(user, null, null);
+        reportGeneratorService.getReport(user, INFINITE_DATE_RANGE, INFINITE_DATE_RANGE, null);
 
         verify(transactionService, times(1)).getByUser(user);
-
-    }
-
-    @Test
-    public void whenCreateReportWithRangeOfDate_thenReturnReportOfTheTransactions() throws Exception{
-        when(transactionService.getByUserAndDate(user, epochNow, epochNow)).thenReturn(new ArrayList<>(transactions));
-
-        reportGeneratorService.getReport(user, epochNow, epochNow);
-
-        verify(transactionService, times(1)).getByUserAndDate(user, epochNow, epochNow);
 
     }
 

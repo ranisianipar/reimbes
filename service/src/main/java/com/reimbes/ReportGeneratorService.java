@@ -1,5 +1,5 @@
 package com.reimbes;
 
 public interface ReportGeneratorService {
-    byte[] getReport(ReimsUser user, Long start, Long end) throws Exception;
+    byte[] getReport(ReimsUser user, Long start, Long end, String reimbursementType) throws Exception;
 }

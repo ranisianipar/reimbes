@@ -88,7 +88,7 @@ public class Utils {
     }
 
     public byte[] getFile(String filepath) throws IOException {
-        return Files.readAllBytes(Paths.get(STORAGE_FOLDER + filepath));
+        return Files.readAllBytes(Paths.get(filepath));
     }
 
     public String getFilename(String extension) {

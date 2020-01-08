@@ -31,11 +31,12 @@ public class UserController {
     // .xls
     @GetMapping(REPORT_PREFIX)
     public BaseResponse getReport(
-            @RequestParam(value = "start", required = false) String start,
-            @RequestParam(value = "end", required = false) String end
+            @RequestParam(value = "start", defaultValue = "0") String start,
+            @RequestParam(value = "end", defaultValue = "0") String end,
+            @RequestParam(value = "type") String type
     ) {
         try {
-            userService.getReport(start, end);
+            userService.getReport(new Long(start), new Long(end), type);
         } catch (Exception e) {
             e.printStackTrace();
         }

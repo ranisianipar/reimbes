@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.reimbes.constant.General.PARKING;
 import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
@@ -262,11 +263,11 @@ public class UserServiceTest {
     @Test
     public void makingAReport_whenUserAskedForIt() throws Exception {
         byte[] fakeReport = new byte[100];
-        when(reportGeneratorService.getReport(user,new Long(0),new Long(0))).thenReturn(fakeReport);
+        when(reportGeneratorService.getReport(user,new Long(0),new Long(0), PARKING)).thenReturn(fakeReport);
         when(utils.getUsername()).thenReturn(user.getUsername());
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
 
-        assertEquals(userService.getReport("0", "0"), fakeReport);
+        assertEquals(userService.getReport(new Long(0), new Long(0), PARKING), fakeReport);
     }
 
     @Test
