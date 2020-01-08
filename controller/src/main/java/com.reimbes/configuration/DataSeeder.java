@@ -44,7 +44,7 @@ public class DataSeeder {
                     .role(ReimsUser.Role.ADMIN)
                     .id(1)
                     .build();
-            userService.create(admin);
+            userRepository.save(admin);
         }
 
         if (userRepository.findByUsername("iceland") == null) {
@@ -58,7 +58,7 @@ public class DataSeeder {
                     .createdAt(getCurrentTime())
                     .id(2)
                     .build();
-            userService.create(user);
+            userRepository.save(user);
         }
 
         if (familyMemberRepository.findByName("swedish house mafia") == null) {
@@ -71,6 +71,7 @@ public class DataSeeder {
                     .createdAt(getCurrentTime())
                     .id(3)
                     .build();
+            familyMemberRepository.save(member);
         }
 
     }
