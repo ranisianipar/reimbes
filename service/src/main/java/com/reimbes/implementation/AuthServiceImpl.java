@@ -30,6 +30,7 @@ import java.util.HashMap;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.reimbes.constant.SecurityConstants.*;
+import static com.reimbes.implementation.Utils.getCurrentTime;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -51,13 +52,11 @@ public class AuthServiceImpl implements AuthService {
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
 
 
-        if (activeToken != null && activeToken.getExpiredTime() >= Instant.now().getEpochSecond())
+        if (activeToken != null && activeToken.getExpiredTime() >= getCurrentTime())
             return true;
 
         // token expired
-
-        log.info("Unauthenticated medicalUser try to request!");
-        log.info("[DEBUG]:"+Instant.now().toEpochMilli());
+        log.info("Unauthenticated User try to request!");
         return false;
     }
 
@@ -127,12 +126,17 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public ReimsUser.Role getRoleByString(String roleString) {
-        if (roleString.equals(ReimsUser.Role.ADMIN.toString())) return ReimsUser.Role.ADMIN;
-        return ReimsUser.Role.USER;
+        log.info("GET ROLE BY STRING: "+ roleString);
+        switch (roleString) {
+            case "ADMIN":
+                return ReimsUser.Role.ADMIN;
+            default:
+                return ReimsUser.Role.USER;
+        }
     }
 
     private long getUpdatedTime() {
-        return Instant.now().getEpochSecond() + SecurityConstants.TOKEN_PERIOD;
+        return getCurrentTime() + SecurityConstants.TOKEN_PERIOD;
     }
 
 

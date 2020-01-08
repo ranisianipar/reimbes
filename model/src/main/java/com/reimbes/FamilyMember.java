@@ -38,8 +38,9 @@ public class FamilyMember extends Patient {
     }
 
     @Builder(builderMethodName = "FamilyMemberBuilder")
-    public FamilyMember(long id, ReimsUser familyMemberOf, Relationship relationship, String name, Date dateOfBirth) {
-        super(id, name, dateOfBirth);
+    public FamilyMember(long id, ReimsUser familyMemberOf, Relationship relationship, String name, Date dateOfBirth,
+                        long createdAt, long updatedAt) {
+        super(id, name, dateOfBirth, createdAt, updatedAt);
         this.familyMemberOf = familyMemberOf;
         this.relationship = relationship;
     }

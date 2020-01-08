@@ -41,12 +41,6 @@ public class ReimsUser extends Patient {
 
     private String division;
 
-    @Column(updatable = false, nullable = false)
-    private long createdAt;
-
-    @Column
-    private Long updatedAt;
-
     public enum Role {
         ADMIN,
         USER
@@ -59,8 +53,9 @@ public class ReimsUser extends Patient {
 
     @Builder(builderMethodName = "ReimsUserBuilder")
     public ReimsUser(long id, String username, String password, Role role, Gender gender, Set<Transaction> transactions,
-                     Set<FamilyMember> familyMemberOf, String license, String vehicle, Date dateOfBirth) {
-        super(id, username, dateOfBirth);
+                     Set<FamilyMember> familyMemberOf, String license, String vehicle, Date dateOfBirth,
+                     long createdAt, long updatedAt) {
+        super(id, username, dateOfBirth, createdAt, updatedAt);
 
         this.username = username;
         this.password = password;

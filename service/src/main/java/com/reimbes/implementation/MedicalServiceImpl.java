@@ -16,12 +16,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 
 import static com.reimbes.ReimsUser.Role.ADMIN;
 import static com.reimbes.constant.General.INFINITE_DATE_RANGE;
 import static com.reimbes.constant.ResponseCode.BAD_REQUEST;
 import static com.reimbes.implementation.Utils.countAge;
+import static com.reimbes.implementation.Utils.getCurrentTime;
 
 @Service
 public class MedicalServiceImpl implements MedicalService {
@@ -75,7 +77,7 @@ public class MedicalServiceImpl implements MedicalService {
         medical.setMedicalUser(currentUser);
         medical.setPatient(patient);
         medical.setAge(countAge(patient.getDateOfBirth()));
-
+        medical.setCreatedAt(getCurrentTime());
         return medicalRepository.save(medical);
     }
 

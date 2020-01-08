@@ -9,6 +9,7 @@ import lombok.*;
 import net.bytebuddy.build.ToStringPlugin;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -46,4 +47,7 @@ public class Medical {
     //    Mapped to multiple images
     @OneToMany(mappedBy = "medicalImage", cascade = CascadeType.PERSIST)
     private Set<MedicalReport> attachments;
+
+    @Column(updatable = false)
+    private long createdAt;
 }
