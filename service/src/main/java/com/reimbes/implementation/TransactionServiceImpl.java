@@ -111,6 +111,7 @@ public class TransactionServiceImpl implements TransactionService {
         ReimsUser user = userService.getUserByUsername(utils.getUsername());
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getReimsUser() != user) throw new NotFoundException("Transaction with ID "+id);
+        utils.removeImage(transaction.getImage());
         transactionRepository.delete(transaction);
     }
 

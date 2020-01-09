@@ -34,7 +34,7 @@ public class Patient {
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
 
-    @OneToMany(mappedBy = "patient")
+    @OneToMany(mappedBy = "patient", orphanRemoval = true, cascade = CascadeType.REMOVE)
     @JsonIgnore
     private Set<Medical> medicals;
 

@@ -38,12 +38,12 @@ public class Medical {
     @JoinColumn(name = "patient")
     private Patient patient;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reimsUser", nullable = false)
     @JsonIgnore
     private ReimsUser medicalUser;
 
     //    Mapped to multiple images
-    @OneToMany(mappedBy = "medicalImage", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "medicalImage", cascade = CascadeType.ALL , orphanRemoval = true)
     private Set<MedicalReport> attachments;
 }

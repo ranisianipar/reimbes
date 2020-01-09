@@ -13,6 +13,7 @@ import java.util.Set;
 @Entity
 @Data @NoArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ReimsUser extends Patient {
 
     @NotNull
@@ -28,11 +29,11 @@ public class ReimsUser extends Patient {
     private Gender gender;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "reimsUser")
+    @OneToMany(mappedBy = "reimsUser", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private Set<Transaction> transactions;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "familyMemberOf")
+    @OneToMany(mappedBy = "familyMemberOf", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private Set<FamilyMember> familyMemberOf;
 
     private String license;

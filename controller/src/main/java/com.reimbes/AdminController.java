@@ -92,7 +92,7 @@ public class AdminController {
 
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setData(getUserResponseMapper().map(adminService.updateUser(id,user, response), UserResponse.class));
+            br.setData(getUserResponseMapper().map(adminService.updateUser(id, user, response), UserResponse.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }

@@ -49,7 +49,7 @@ public class Utils {
     }
 
     public void removeImage(String imagePath) {
-        imagePath = StringUtils.cleanPath(STORAGE_FOLDER + imagePath);
+        imagePath = StringUtils.cleanPath(imagePath);
         try {
             Files.delete(Paths.get(imagePath));
         }   catch (Exception e) {
