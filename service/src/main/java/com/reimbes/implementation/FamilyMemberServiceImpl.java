@@ -50,7 +50,6 @@ public class FamilyMemberServiceImpl {
     public FamilyMember create(Long userId, FamilyMember member) throws ReimsException {
         ReimsUser user = userService.get(userId);
 
-
         if (user.getRole() == ADMIN) return null;
 
         FamilyMember familyMember = FamilyMember.FamilyMemberBuilder()
@@ -135,6 +134,10 @@ public class FamilyMemberServiceImpl {
         member.setName(latestData.getName());
         member.setRelationship(latestData.getRelationship());
         member.setDateOfBirth(latestData.getDateOfBirth());
+
+        if (userId != 0) {
+            member.setFamilyMemberOf(userService.get(userId));
+        }
 
         return familyMemberRepository.save(member);
     }
