@@ -1,5 +1,6 @@
 package com.reimbes.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.reimbes.FamilyMember;
 import lombok.Data;
 
@@ -19,6 +20,7 @@ public class FamilyMemberResponse {
 
     private FamilyMember.Relationship relationship;
 
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date dateOfBirth;
 
 

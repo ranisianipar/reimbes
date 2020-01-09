@@ -126,7 +126,11 @@ public class FamilyMemberServiceImpl {
     public FamilyMember update(long id, FamilyMember latestData, long userId) throws ReimsException {
         FamilyMember member = familyMemberRepository.findOne(id);
 
-        latestData.setFamilyMemberOf(userService.get(userId));
+        latestData.setFamilyMemberOf(member.getFamilyMemberOf());
+
+        if (userId != new Long(0)) {
+            latestData.setFamilyMemberOf(userService.get(userId));
+        }
 
         // validate
         validate(member, latestData);
@@ -135,8 +139,8 @@ public class FamilyMemberServiceImpl {
         member.setRelationship(latestData.getRelationship());
         member.setDateOfBirth(latestData.getDateOfBirth());
 
-        if (userId != 0) {
-            member.setFamilyMemberOf(userService.get(userId));
+        if (latestData.getFamilyMemberOf() != null) {
+            member.setFamilyMemberOf(latestData.getFamilyMemberOf());
         }
 
         return familyMemberRepository.save(member);
