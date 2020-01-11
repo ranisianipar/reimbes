@@ -50,7 +50,6 @@ public class FamilyMemberServiceImpl {
     public FamilyMember create(Long userId, FamilyMember member) throws ReimsException {
         ReimsUser user = userService.get(userId);
 
-
         if (user.getRole() == ADMIN) return null;
 
         FamilyMember familyMember = FamilyMember.FamilyMemberBuilder()
@@ -126,7 +125,11 @@ public class FamilyMemberServiceImpl {
     public FamilyMember update(long id, FamilyMember latestData, long userId) throws ReimsException {
         FamilyMember member = familyMemberRepository.findOne(id);
 
-        latestData.setFamilyMemberOf(userService.get(userId));
+        latestData.setFamilyMemberOf(member.getFamilyMemberOf());
+
+        if (userId != new Long(0)) {
+            latestData.setFamilyMemberOf(userService.get(userId));
+        }
 
         // validate
         validate(member, latestData);
@@ -134,6 +137,10 @@ public class FamilyMemberServiceImpl {
         member.setName(latestData.getName());
         member.setRelationship(latestData.getRelationship());
         member.setDateOfBirth(latestData.getDateOfBirth());
+
+        if (latestData.getFamilyMemberOf() != null) {
+            member.setFamilyMemberOf(latestData.getFamilyMemberOf());
+        }
 
         return familyMemberRepository.save(member);
     }

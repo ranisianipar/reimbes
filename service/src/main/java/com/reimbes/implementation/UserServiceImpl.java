@@ -25,6 +25,7 @@ import java.util.List;
 import static com.reimbes.ReimsUser.Role.ADMIN;
 import static com.reimbes.constant.General.IDENTITY_CODE;
 import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
+import static com.reimbes.implementation.Utils.getCurrentTime;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -80,13 +81,15 @@ public class UserServiceImpl implements UserService {
         oldUser.setUsername(newUser.getUsername());
         if (newUser.getPassword() != null)
             oldUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        oldUser.setUpdatedAt(Instant.now().toEpochMilli());
+        oldUser.setUpdatedAt(getCurrentTime());
 
         oldUser.setDivision(newUser.getDivision());
         oldUser.setGender(newUser.getGender());
         oldUser.setLicense(newUser.getLicense());
         oldUser.setVehicle(newUser.getVehicle());
+        oldUser.setDateOfBirth(newUser.getDateOfBirth());
 
+        log.info("[UPDATE] NEW DATE: " + oldUser.getDateOfBirth());
         return userRepository.save(oldUser);
     }
 

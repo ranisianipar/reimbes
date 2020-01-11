@@ -92,7 +92,7 @@ public class AdminController {
 
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setData(getUserResponseMapper().map(adminService.updateUser(id,user, response), UserResponse.class));
+            br.setData(getUserResponseMapper().map(adminService.updateUser(id, user, response), UserResponse.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -159,13 +159,13 @@ public class AdminController {
 //    FAMILY MEMBER
     @PostMapping(FAMILY_MEMBER_PREFIX)
     public BaseResponse<FamilyMemberResponse> addFamilyMember(
-            @RequestParam(value = "user-id") Long id,
+            @RequestParam(value = "user-id", defaultValue = "0") String id,
             @RequestBody FamilyMember familyMember
     ) {
-        log.info(String.format("[POST] Create Family Member for User with ID: %d", id));
+        log.info(String.format("[POST] Create Family Member for User with ID: %s", id));
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(adminService.createMember(id, familyMember));
+            br.setData(adminService.createMember(new Long(id), familyMember));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -175,12 +175,12 @@ public class AdminController {
     @PutMapping(FAMILY_MEMBER_PREFIX + ID_PARAM)
     public BaseResponse update(
             @PathVariable Long id,
-            @RequestParam(value = "user-id") Long userId,
+            @RequestParam(value = "user-id", defaultValue = "0") String userId,
             @RequestBody FamilyMember familyMember) {
-        log.info(String.format("[PUT] Update Family Member with ID: %d", id));
+        log.info(String.format("[PUT] Update Family Member with ID: %s", id));
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(getFamilyMemberResponse(adminService.updateMember(id, familyMember, userId)));
+            br.setData(getFamilyMemberResponse(adminService.updateMember(id, familyMember, new Long(userId))));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
