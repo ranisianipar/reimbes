@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
@@ -69,11 +70,11 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         // determine report type
         switch (reimbursementType) {
             case PARKING:
-                writeParkingReport(reimbursement, reportRow);
+                writeParkingReport(reimbursement, reportRow, start, end);
             case FUEL:
-                writeFuelReport(reimbursement, reportRow);
+                writeFuelReport(reimbursement, reportRow, start, end);
             case MEDICAL:
-                writeMedicalReport(reimbursement, reportRow);
+                writeMedicalReport(reimbursement, reportRow, start, end);
         }
 
         wb.write(out);
@@ -90,6 +91,13 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     }
 
     private Cell createCell(Row row, int index, long value) {
+        Cell cell = row.createCell(index);
+        cell.setCellValue(value);
+
+        return cell;
+    }
+
+    private Cell createCell(Row row, int index, float value) {
         Cell cell = row.createCell(index);
         cell.setCellValue(value);
 
@@ -115,31 +123,55 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         createCell(row, 3, "Amount");
     }
 
-    private void writeParkingReport(Sheet sheet, Row row) {
+    private void writeParkingReport(Sheet sheet, Row row, Long start, Long end) throws ReimsException {
         createCell(row, 4, "Hours");
 
         int totalAmount = 0;
-        int currentIndex = row.getRowNum();
+        int sheetIndex = row.getRowNum();
+
+        List<Transaction> parkings = transactionService.getByDateAndType(start, end, Transaction.Category.PARKING);
 
         /*LOOP*/
+        for (Transaction transaction : parkings) {
+            Parking parking = (Parking) transaction;
+            row = sheet.createRow(++sheetIndex);
+            createCell(row, 0, sheetIndex++);
+            createCell(row, 1, parking.getTitle());
+            createCell(row, 2, DATE_FORMAT.format(new Date(parking.getDate())));
+            createCell(row, 3, parking.getAmount());
+            createCell(row, 4, parking.getHours());
+            totalAmount += parking.getAmount();
+        }
 
         createCell(row, 0, "TOTAL:");
         createCell(row, 3, totalAmount);
     }
 
-    private void writeFuelReport(Sheet sheet, Row row) {
+    private void writeFuelReport(Sheet sheet, Row row, Long start, Long end) throws ReimsException {
         createCell(row, 4, "Liters");
 
         int totalAmount = 0;
-        int currentIndex = row.getRowNum();
+        int sheetIndex = row.getRowNum();
+
+        List<Transaction> fuels = transactionService.getByDateAndType(start, end, Transaction.Category.FUEL);
 
         /*LOOP*/
+        for (Transaction transaction : fuels) {
+            Fuel fuel = (Fuel) transaction;
+            row = sheet.createRow(++sheetIndex);
+            createCell(row, 0, sheetIndex++);
+            createCell(row, 1, fuel.getTitle());
+            createCell(row, 2, DATE_FORMAT.format(new Date(fuel.getDate())));
+            createCell(row, 3, fuel.getAmount());
+            createCell(row, 4, fuel.getLiters());
+            totalAmount += fuel.getAmount();
+        }
 
         createCell(row, 0, "TOTAL:");
         createCell(row, 3, totalAmount);
     }
 
-    private void writeMedicalReport(Sheet sheet, Row row){
+    private void writeMedicalReport(Sheet sheet, Row row, Long start, Long end) throws ReimsException {
         createCell(row, 4, "Patient");
 
         int totalAmount = 0;
@@ -147,7 +179,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         int sheetIndex = 1 ;
 
 
-        List<Medical> medicals = medicalService.getAll(INFINITE_DATE_RANGE, INFINITE_DATE_RANGE, authService.getCurrentUser());
+        List<Medical> medicals = medicalService.getByDate(start, end);
 
         /*LOOP*/
         for (Medical medical : medicals) {

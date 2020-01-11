@@ -10,9 +10,9 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     boolean existsByImage(String image);
-    List<Transaction> findByIdIn(List<Long> id);
-    Transaction findByImageContaining(String image);
+    List<Transaction> findByReimsUserAndDateBetweenAndCategory(ReimsUser user, long start, long end, Transaction.Category category);
     List<Transaction> findByReimsUser(ReimsUser user);
+    List<Transaction> findByReimsUserAndCategory(ReimsUser user, Transaction.Category category);
     Page<Transaction> findByReimsUserAndTitleContainingIgnoreCase(ReimsUser user, String title, Pageable pageable);
     Page<Transaction> findByReimsUserAndTitleContainingIgnoreCaseAndCategory(ReimsUser user, String title,
                                                                              Transaction.Category category, Pageable pageable);

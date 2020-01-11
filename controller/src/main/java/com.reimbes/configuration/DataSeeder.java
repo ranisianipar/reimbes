@@ -23,9 +23,6 @@ import static com.reimbes.implementation.Utils.getCurrentTime;
 public class DataSeeder {
 
     @Autowired
-    private UserServiceImpl userService;
-
-    @Autowired
     private FamilyMemberRepository familyMemberRepository;
 
     @Autowired
@@ -42,34 +39,67 @@ public class DataSeeder {
                     .username("ADMIN")
                     .password("ADMIN123")
                     .role(ReimsUser.Role.ADMIN)
-                    .id(1)
+                    .createdAt(getCurrentTime())
                     .build();
             userRepository.save(admin);
         }
 
-        if (userRepository.findByUsername("iceland") == null) {
+        if (userRepository.findByUsername("chrisevan") == null) {
             log.info("Seeding data for User 1...");
             ReimsUser user = ReimsUser.ReimsUserBuilder()
-                    .username("iceland")
-                    .password("iceland123")
+                    .username("chrisevan")
+                    .password("chrisevan123")
                     .role(ReimsUser.Role.USER)
                     .dateOfBirth(new SimpleDateFormat("dd-MM-yyyy").parse("13-05-1950"))
                     .gender(ReimsUser.Gender.MALE)
+                    .vehicle("Mini Cooper")
+                    .license("B XXXX YY")
+                    .division("Software Engineer")
                     .createdAt(getCurrentTime())
                     .id(2)
                     .build();
             userRepository.save(user);
         }
 
-        if (familyMemberRepository.findByName("swedish house mafia") == null) {
+        if (userRepository.findByUsername("ariana") == null) {
+            log.info("Seeding data for User 2...");
+            ReimsUser user = ReimsUser.ReimsUserBuilder()
+                    .username("ariana")
+                    .password("ariana123")
+                    .role(ReimsUser.Role.USER)
+                    .dateOfBirth(new SimpleDateFormat("dd-MM-yyyy").parse("13-05-1996"))
+                    .gender(ReimsUser.Gender.FEMALE)
+                    .vehicle("Porsche")
+                    .license("X YYYY ZZ")
+                    .division("Business Development")
+                    .createdAt(getCurrentTime())
+                    .id(5)
+                    .build();
+            userRepository.save(user);
+        }
+
+        if (familyMemberRepository.findByName("galgadot") == null) {
             log.info("Seeding data for Family Member 1...");
             FamilyMember member = FamilyMember.FamilyMemberBuilder()
-                    .name("swedish house mafia")
-                    .relationship(FamilyMember.Relationship.CHILDREN)
-                    .familyMemberOf(userRepository.findByUsername("iceland"))
-                    .dateOfBirth(new SimpleDateFormat("dd-MM-yyyy").parse("13-05-2000"))
+                    .name("galgadot")
+                    .relationship(FamilyMember.Relationship.SPOUSE)
+                    .familyMemberOf(userRepository.findByUsername("chrisevan"))
+                    .dateOfBirth(new SimpleDateFormat("dd-MM-yyyy").parse("11-11-1950"))
                     .createdAt(getCurrentTime())
                     .id(3)
+                    .build();
+            familyMemberRepository.save(member);
+        }
+
+        if (familyMemberRepository.findByName("trump") == null) {
+            log.info("Seeding data for Family Member 2...");
+            FamilyMember member = FamilyMember.FamilyMemberBuilder()
+                    .name("trump")
+                    .relationship(FamilyMember.Relationship.CHILDREN)
+                    .familyMemberOf(userRepository.findByUsername("chrisevan"))
+                    .dateOfBirth(new SimpleDateFormat("dd-MM-yyyy").parse("13-05-2000"))
+                    .createdAt(getCurrentTime())
+                    .id(4)
                     .build();
             familyMemberRepository.save(member);
         }

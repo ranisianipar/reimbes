@@ -144,8 +144,9 @@ public class MedicalServiceImpl implements MedicalService {
     }
 
 
-    public List<Medical> getAll(Long start, Long end, ReimsUser user) {
-        if (start == INFINITE_DATE_RANGE && end == INFINITE_DATE_RANGE)
+    public List<Medical> getByDate(Long start, Long end) throws ReimsException{
+        ReimsUser user = authService.getCurrentUser();
+        if (start == null && end == null)
             return medicalRepository.findByMedicalUser(user);
         return medicalRepository.findByDateBetweenAndMedicalUser(start, end, user);
     }

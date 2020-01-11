@@ -9,6 +9,7 @@ import com.reimbes.AuthService;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.SecurityConstants;
 import com.reimbes.exception.DataConstraintException;
+import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,8 +122,10 @@ public class AuthServiceImpl implements AuthService {
         return token;
     }
 
-    public ReimsUser getCurrentUser() {
-        return userService.getUserByUsername(utils.getUsername());
+    public ReimsUser getCurrentUser() throws NotFoundException {
+        ReimsUser currentUser = userService.getUserByUsername(utils.getUsername());
+        if (currentUser == null) throw new NotFoundException("Current user. Please do re-login.");
+        return currentUser;
     }
 
     public ReimsUser.Role getRoleByString(String roleString) {

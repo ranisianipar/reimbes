@@ -188,6 +188,18 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
+    public List<Transaction> getByDateAndType(Long start, Long end, Transaction.Category category) throws ReimsException {
+        ReimsUser user = authService.getCurrentUser();
+
+        if (start == null || end== null) {
+            return transactionRepository.findByReimsUserAndCategory(user, category);
+        }
+
+        return transactionRepository.findByReimsUserAndDateBetweenAndCategory(user, start, end, category);
+
+
+    }
+
     public List<Transaction> getByUser(ReimsUser user) {
         return transactionRepository.findByReimsUser(user);
     }

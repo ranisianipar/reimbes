@@ -53,7 +53,7 @@ public class ReimsUser extends Patient {
 
     @Builder(builderMethodName = "ReimsUserBuilder")
     public ReimsUser(long id, String username, String password, Role role, Gender gender, Set<Transaction> transactions,
-                     Set<FamilyMember> familyMemberOf, String license, String vehicle, Date dateOfBirth,
+                     Set<FamilyMember> familyMemberOf, String license, String vehicle, Date dateOfBirth, String division,
                      long createdAt, long updatedAt) {
         super(id, username, dateOfBirth, createdAt, updatedAt);
 
@@ -65,6 +65,7 @@ public class ReimsUser extends Patient {
         this.license = license;
         this.vehicle = vehicle;
         this.gender = gender;
+        this.division = division;
     }
 
 

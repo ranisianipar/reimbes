@@ -1,5 +1,6 @@
 package com.reimbes;
 
+import com.reimbes.exception.NotFoundException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,5 +13,5 @@ public interface AuthService {
     ActiveToken registerToken(String token);
     void logout(HttpServletRequest req);
     HashMap getCurrentUserDetails(HttpServletRequest req);
-    ReimsUser getCurrentUser();
+    ReimsUser getCurrentUser() throws NotFoundException;
 }
