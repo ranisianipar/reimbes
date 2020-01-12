@@ -26,6 +26,9 @@ public class DataSeeder {
     private FamilyMemberRepository familyMemberRepository;
 
     @Autowired
+    private UserServiceImpl userService;
+
+    @Autowired
     private ReimsUserRepository userRepository;
 
     private static Logger log = LoggerFactory.getLogger(DataSeeder.class);
@@ -41,7 +44,7 @@ public class DataSeeder {
                     .role(ReimsUser.Role.ADMIN)
                     .createdAt(getCurrentTime())
                     .build();
-            userRepository.save(admin);
+            userService.create(admin);
         }
 
         if (userRepository.findByUsername("chrisevan") == null) {
@@ -55,10 +58,9 @@ public class DataSeeder {
                     .vehicle("Mini Cooper")
                     .license("B XXXX YY")
                     .division("Software Engineer")
-                    .createdAt(getCurrentTime())
                     .id(2)
                     .build();
-            userRepository.save(user);
+            userService.create(user);
         }
 
         if (userRepository.findByUsername("ariana") == null) {
@@ -72,10 +74,9 @@ public class DataSeeder {
                     .vehicle("Porsche")
                     .license("X YYYY ZZ")
                     .division("Business Development")
-                    .createdAt(getCurrentTime())
                     .id(5)
                     .build();
-            userRepository.save(user);
+            userService.create(user);
         }
 
         if (familyMemberRepository.findByName("galgadot") == null) {

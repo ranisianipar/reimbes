@@ -2,18 +2,19 @@ package com.reimbes.implementation;
 
 import com.reimbes.*;
 import com.reimbes.exception.ReimsException;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.reimbes.constant.General.*;
@@ -35,11 +36,24 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     @Autowired
     private Utils utils;
 
+    // Header sizes
+    private final short SUPER_LARGE_TEXT = (short)24;
+    private final short LARGE_TEXT = (short)18;
+    private final short DEFAULT_TEXT_SIZE = (short)12;
+
+    // Font object
+    private Font fontDefault;
+    private Font fontDefaultStrong;
+    private Font fontHeader1;
+    private Font fontHeader2;
+
+    @Setter @Getter
+    private int currentRowIndex;
+
     @Override
     public byte[] getReport(ReimsUser user, Long start, Long end, String reimbursementType) throws Exception {
 
         String filename;
-
 
         filename = String.format("%s_%s_%s.xls", user.getUsername(), reimbursementType, "ALL");
         if (start != 0 && end != 0){
@@ -48,39 +62,44 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         }
 
         /* INIT */
+        //create a new workbook
         Workbook wb = new HSSFWorkbook();
         DATE_FORMAT.setTimeZone(TIME_ZONE);
-        OutputStream out;
-        out = new FileOutputStream(filename);
 
-        Sheet reimbursement = wb.createSheet(String.format("%s report", reimbursementType));
+        Sheet sheet = wb.createSheet(String.format("%s report", reimbursementType));
+
+        // init
+        setCurrentRowIndex(0);
+        initFont(wb);
+        initImage(wb, sheet); // end in 5th row, how can get image position dynamically?
+        initHeader(wb, sheet);
+        initPersonalInfo(wb, sheet);
+        sheet.autoSizeColumn(0); // autosize first column
 
 
-        // styling header
-        Font headerFont = stylingHeader(wb.createFont());
-
-        CellStyle headerCellStyle = wb.createCellStyle();
-        headerCellStyle.setFont(headerFont);
-
-        Row reportRow = reimbursement.createRow(0);
-        reportRow.setRowStyle(headerCellStyle);
-
-        writeHeaderCell(reimbursement, reportRow);
+        // assign user report value
+        writeHeaderCell(sheet); // init header cell
 
         // determine report type
         switch (reimbursementType) {
             case PARKING:
-                writeParkingReport(reimbursement, reportRow, start, end);
+                writeParkingReport(sheet, start, end);
             case FUEL:
-                writeFuelReport(reimbursement, reportRow, start, end);
+                writeFuelReport(sheet, start, end);
             case MEDICAL:
-                writeMedicalReport(reimbursement, reportRow, start, end);
+                writeMedicalReport(sheet, start, end);
         }
 
-        wb.write(out);
-        out.close();
 
+        if(wb instanceof XSSFWorkbook) filename += "x";
+
+        //save workbook
+        OutputStream fileOut = new FileOutputStream(filename);
+        wb.write(fileOut);
+
+        fileOut.close();
         return utils.getFile(filename);
+
     }
 
     private Cell createCell(Row row, int index, String value) {
@@ -104,18 +123,10 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         return cell;
     }
 
-    private Font stylingHeader(Font headerFont) {
-        headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
-        headerFont.setColor(IndexedColors.LIGHT_GREEN.getIndex());
-        headerFont.setFontName("Arial");
-        return headerFont;
-    }
-
     // general attribute
-    private void writeHeaderCell(Sheet sheet, Row row) {
-        int currentIndex = row.getRowNum();
-        row = sheet.createRow(++currentIndex);
-
+    private void writeHeaderCell(Sheet sheet) {
+        Row row = sheet.createRow(getCurrentRowIndex());
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
         log.info(String.format("Write Header Cell in row index %d", row.getRowNum()));
         createCell(row, 0, "No.");
         createCell(row, 1, "Title");
@@ -123,19 +134,24 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         createCell(row, 3, "Amount");
     }
 
-    private void writeParkingReport(Sheet sheet, Row row, Long start, Long end) throws ReimsException {
+    private void writeParkingReport(Sheet sheet, Long start, Long end) throws ReimsException {
+        Row row = sheet.createRow(getCurrentRowIndex());
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
+
         createCell(row, 4, "Hours");
 
         int totalAmount = 0;
-        int sheetIndex = row.getRowNum();
+        int transactionIndex = 0;
 
         List<Transaction> parkings = transactionService.getByDateAndType(start, end, Transaction.Category.PARKING);
 
         /*LOOP*/
         for (Transaction transaction : parkings) {
             Parking parking = (Parking) transaction;
-            row = sheet.createRow(++sheetIndex);
-            createCell(row, 0, sheetIndex++);
+            ++transactionIndex;
+            row = sheet.createRow(getCurrentRowIndex());
+            setCurrentRowIndex(getCurrentRowIndex() + 1);
+            createCell(row, 0, transactionIndex);
             createCell(row, 1, parking.getTitle());
             createCell(row, 2, DATE_FORMAT.format(new Date(parking.getDate())));
             createCell(row, 3, parking.getAmount());
@@ -143,23 +159,32 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             totalAmount += parking.getAmount();
         }
 
+        row = sheet.createRow(getCurrentRowIndex());
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
         createCell(row, 0, "TOTAL:");
         createCell(row, 3, totalAmount);
+
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
     }
 
-    private void writeFuelReport(Sheet sheet, Row row, Long start, Long end) throws ReimsException {
+    private void writeFuelReport(Sheet sheet, Long start, Long end) throws ReimsException {
+        Row row = sheet.createRow(getCurrentRowIndex());
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
+
         createCell(row, 4, "Liters");
 
         int totalAmount = 0;
-        int sheetIndex = row.getRowNum();
+        int transactionIndex = 0;
 
         List<Transaction> fuels = transactionService.getByDateAndType(start, end, Transaction.Category.FUEL);
 
         /*LOOP*/
         for (Transaction transaction : fuels) {
             Fuel fuel = (Fuel) transaction;
-            row = sheet.createRow(++sheetIndex);
-            createCell(row, 0, sheetIndex++);
+            ++transactionIndex;
+            row = sheet.createRow(getCurrentRowIndex());
+            setCurrentRowIndex(getCurrentRowIndex() + 1);
+            createCell(row, 0, transactionIndex);
             createCell(row, 1, fuel.getTitle());
             createCell(row, 2, DATE_FORMAT.format(new Date(fuel.getDate())));
             createCell(row, 3, fuel.getAmount());
@@ -167,24 +192,31 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             totalAmount += fuel.getAmount();
         }
 
+        row = sheet.createRow(getCurrentRowIndex());
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
         createCell(row, 0, "TOTAL:");
         createCell(row, 3, totalAmount);
+
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
     }
 
-    private void writeMedicalReport(Sheet sheet, Row row, Long start, Long end) throws ReimsException {
+    private void writeMedicalReport(Sheet sheet, Long start, Long end) throws ReimsException {
+        Row row = sheet.createRow(getCurrentRowIndex());
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
+
         createCell(row, 4, "Patient");
 
         int totalAmount = 0;
-        int currentIndex = row.getRowNum();
-        int sheetIndex = 1 ;
-
+        int medicalIndex = 0 ;
 
         List<Medical> medicals = medicalService.getByDate(start, end);
 
         /*LOOP*/
         for (Medical medical : medicals) {
-            row = sheet.createRow(++currentIndex);
-            createCell(row, 0, sheetIndex++);
+            ++medicalIndex;
+            row = sheet.createRow(getCurrentRowIndex());
+            setCurrentRowIndex(getCurrentRowIndex() + 1);
+            createCell(row, 0, medicalIndex);
             createCell(row, 1, medical.getTitle());
             createCell(row, 2, DATE_FORMAT.format(new Date(medical.getDate())));
             createCell(row, 3, medical.getAmount());
@@ -192,9 +224,142 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             totalAmount += medical.getAmount();
         }
 
-        row = sheet.createRow(++currentIndex);
+        row = sheet.createRow(getCurrentRowIndex());
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
         createCell(row, 0, "TOTAL:");
         createCell(row, 3, totalAmount);
+
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
+    }
+
+    // space: 5 rows
+    private void initImage(Workbook wb, Sheet sheet) throws IOException {
+        // add picture data to this workbook.
+        int pictureIdx = wb.addPicture(utils.getFile("image/blibli-logo.png"), Workbook.PICTURE_TYPE_PNG);
+        CreationHelper helper = wb.getCreationHelper();
+
+        // Create the drawing patriarch.  This is the top level container for all shapes.
+        Drawing drawing = sheet.createDrawingPatriarch();
+
+        // add a picture shape
+        ClientAnchor anchor = helper.createClientAnchor();
+
+        // set top-left corner of the picture,
+        // subsequent call of Picture#resize() will operate relative to it
+        anchor.setCol1(1);
+        anchor.setRow1(1);
+        Picture pict = drawing.createPicture(anchor, pictureIdx);
+
+        //auto-size picture relative to its top-left corner
+        pict.resize(0.25);
+
+        setCurrentRowIndex(5);
+    }
+
+    // need to be refactored!
+    // (row) start: 5; end: 6;
+    private void initHeader(Workbook wb, Sheet sheet){
+        int startColumnIndex = 0;
+        int endColumnIndex = 5;
+
+        // prepare cell style
+        CellStyle headerStyle1 = wb.createCellStyle();
+        headerStyle1.setFont(fontHeader1);
+        headerStyle1.setAlignment(CellStyle.ALIGN_CENTER);
+
+        CellStyle headerStyle2 = wb.createCellStyle();
+        headerStyle2.setFont(fontHeader2);
+        headerStyle2.setAlignment(CellStyle.ALIGN_CENTER);
+
+
+        // apply style and text in header cell
+        Row rowHeader1 = sheet.createRow(getCurrentRowIndex());
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
+
+        Cell cellHeader1 = rowHeader1.createCell(0);
+        cellHeader1.setCellValue("REKAPITULASI BIAYA");
+        cellHeader1.setCellStyle(headerStyle1);
+
+
+        Row rowHeader2 = sheet.createRow(getCurrentRowIndex());
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
+
+        Cell cell2 = rowHeader2.createCell(0);
+        cell2.setCellValue("REKAP BIAYA [PARKIR]");
+        cell2.setCellStyle(headerStyle2);
+
+        // merge cells
+        // 1-st row header
+        sheet.addMergedRegion(new CellRangeAddress(
+                rowHeader1.getRowNum(), //first row of header (0-based)
+                rowHeader1.getRowNum(), //last row of header (0-based)
+                startColumnIndex, //first column of header (0-based)
+                endColumnIndex  //last column of header (0-based)
+        ));
+        // 2-nd row header
+        sheet.addMergedRegion(new CellRangeAddress(
+                rowHeader2.getRowNum(), //first row of header (0-based)
+                rowHeader2.getRowNum(), //last row of header (0-based)
+                startColumnIndex, //first column of header (0-based)
+                endColumnIndex  //last column of header (0-based)
+        ));
+    }
+
+    private void initPersonalInfo(Workbook wb, Sheet sheet) throws ReimsException {
+        ReimsUser user = authService.getCurrentUser();
+
+        // prepare cell style
+        CellStyle personalInfoStyle = wb.createCellStyle();
+        personalInfoStyle.setFont(fontDefaultStrong);
+
+        // apply style and text in header cell
+        Row personalInfoRow = sheet.createRow(getCurrentRowIndex());
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
+        createCell(personalInfoRow, 0, "Nama").setCellStyle(personalInfoStyle);
+        createCell(personalInfoRow, 1, ":").setCellStyle(personalInfoStyle);
+        createCell(personalInfoRow, 2, user.getUsername());
+
+        personalInfoRow = sheet.createRow(getCurrentRowIndex());
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
+        createCell(personalInfoRow, 0, "Divisi").setCellStyle(personalInfoStyle);
+        createCell(personalInfoRow, 1, ":").setCellStyle(personalInfoStyle);
+        createCell(personalInfoRow, 2, user.getDivision());
+
+        personalInfoRow = sheet.createRow(getCurrentRowIndex());
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
+        createCell(personalInfoRow, 0, "No. Polisi").setCellStyle(personalInfoStyle);
+        createCell(personalInfoRow, 1, ":").setCellStyle(personalInfoStyle);
+        createCell(personalInfoRow, 2, user.getLicense());
+
+        personalInfoRow = sheet.createRow(getCurrentRowIndex());
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
+        createCell(personalInfoRow, 0, "Tipe Mobil / Motor").setCellStyle(personalInfoStyle);
+        createCell(personalInfoRow, 1, ":").setCellStyle(personalInfoStyle);
+        createCell(personalInfoRow, 2, user.getVehicle());
+
+    }
+
+    private void initFont(Workbook wb) {
+        // Create a new font and alter it.
+        fontDefault = wb.createFont();
+        fontDefault.setFontName("Courier New");
+        fontDefault.setFontHeightInPoints(DEFAULT_TEXT_SIZE);
+
+        fontDefaultStrong = wb.createFont();
+        fontDefaultStrong.setFontName(fontDefault.getFontName());
+        fontDefaultStrong.setFontHeightInPoints(fontDefault.getFontHeightInPoints());
+        fontDefaultStrong.setBoldweight(Font.BOLDWEIGHT_BOLD);
+
+        fontHeader1 = wb.createFont();
+        fontHeader1.setFontName(fontDefault.getFontName());
+        fontHeader1.setFontHeightInPoints(SUPER_LARGE_TEXT);
+        fontHeader1.setBoldweight(Font.BOLDWEIGHT_BOLD);
+
+        fontHeader2 = wb.createFont();
+        fontHeader2.setFontName(fontDefault.getFontName());
+        fontHeader2.setFontHeightInPoints(LARGE_TEXT);
+        fontHeader2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+
     }
 
 }
