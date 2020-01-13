@@ -55,13 +55,6 @@
             <version>20180130</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/net.sourceforge.tess4j/tess4j -->
-        <dependency>
-            <groupId>net.sourceforge.tess4j</groupId>
-            <artifactId>tess4j</artifactId>
-            <version>4.3.1</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/com.github.jai-imageio/jai-imageio-core -->
         <dependency>
             <groupId>com.github.jai-imageio</groupId>

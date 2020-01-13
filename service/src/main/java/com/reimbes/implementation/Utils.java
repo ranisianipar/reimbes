@@ -40,7 +40,7 @@ public class Utils {
 
     private static Logger log = LoggerFactory.getLogger(Utils.class);
 
-    public String getUsername() {
+    public static String getPrincipalUsername() {
         try {
             return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         }   catch (Exception e) {
@@ -50,17 +50,15 @@ public class Utils {
 
     }
 
+    // imagePath: relative path
     public void removeImage(String imagePath) {
+        imagePath = PROJECT_ROOT + imagePath;
         imagePath = StringUtils.cleanPath(imagePath);
         try {
             Files.delete(Paths.get(imagePath));
         }   catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public byte[] getImageByImagePath(String imagePath) throws IOException {
-        return Files.readAllBytes(Paths.get(imagePath));
     }
 
     public byte[] getImage(ReimsUser currentUser, String imagePath) throws ReimsException {
@@ -74,9 +72,9 @@ public class Utils {
 
     }
 
-//    Check file existance using relative file path
+    // Check file existance using relative file path
     public boolean isFileExists(String filepath) {
-        return Files.exists(Paths.get(filepath));
+        return Files.exists(Paths.get(PROJECT_ROOT + filepath));
     }
 
     // cleanedPath: relative path
@@ -94,13 +92,10 @@ public class Utils {
 
     // filepath: relative path of file
     public byte[] getFile(String filepath) throws IOException {
-        byte[] result = Files.readAllBytes(Paths.get(PROJECT_ROOT + filepath));
-        log.info("FILE CONTENT: " + result);
-
-        return result;
+        return Files.readAllBytes(Paths.get(PROJECT_ROOT + filepath));
     }
 
-    public String getFilename(String extension) {
+    public String generateFilename(String extension) {
         return String.format("%s.%s", UUID.randomUUID(), extension);
     }
 
@@ -125,10 +120,11 @@ public class Utils {
         else return null;
 
         try {
+            log.info("Decoding image.");
             byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
                     .getBytes(StandardCharsets.UTF_8)));
 
-            log.info("Decoding image byte succeed.");
+            log.info("Decoding image succeed.");
             log.info("Uploading the image...");
 
             /*
@@ -136,19 +132,20 @@ public class Utils {
             * */
 
             // confirm folder existence
-            String folderPath = StringUtils.cleanPath(String.format("%s/%d/%s/", STORAGE_FOLDER, userId, subfolder ));
+            String folderPath = StringUtils.cleanPath(String.format("%s/%d/%s/", STORAGE_FOLDER, userId, subfolder));
             log.info("Done generate folder path.");
 
             if (!isFileExists(folderPath)) {
-                log.info("Directory '" + folderPath + "' not found! Make directory first.");
+                log.info(String.format("Directory '%s' not found! Make directory first.", folderPath));
                 createDirectory(folderPath);
             }
 
-            imagePath = folderPath + getFilename(extension); // relative path
+            imagePath = folderPath + generateFilename(extension); // relative path
 
-            log.info("Write image in this path: " + imagePath);
+            log.info(String.format("Write image in this path: %s", imagePath));
             Path path = createFile(imagePath, imageByte);
-            log.info("ABSOLUTE PATH: " + path);
+            log.info(String.format("Image writing succeed: %b", (path != null)));
+
         } catch (IOException e) {
             throw new ReimsException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, 500);
         }

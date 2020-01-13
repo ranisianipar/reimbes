@@ -4,7 +4,6 @@ import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.gen5.api.BeforeAll;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -45,9 +44,6 @@ public class TransactionServiceTest {
 
     @Mock
     private Utils utils;
-
-    @Mock
-    private TesseractService ocrService;
 
     @InjectMocks
     private TransactionServiceImpl transactionService;
@@ -91,7 +87,7 @@ public class TransactionServiceTest {
                 .transactions(new HashSet(transactions))
                 .build();
 
-        when(userService.getUserByUsername(utils.getUsername())).thenReturn(user);
+        when(userService.getUserByUsername(utils.getPrincipalUsername())).thenReturn(user);
 
     }
 

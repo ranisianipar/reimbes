@@ -103,7 +103,7 @@ public class ReportGeneratorServiceTest {
 //        when(transactionService.getByUserAndDate(medicalUser, epochNow, epochNow)).thenReturn(new ArrayList<>(transactions));
 //        reportGeneratorService.getReport(medicalUser, epochNow, epochNow);
 //
-//        verify(Files.readAllBytes(Paths.getByUser(String.format("%s_%s_%s", medicalUser.getUsername(), epochNow, epochNow))),
+//        verify(Files.readAllBytes(Paths.getByUser(String.format("%s_%s_%s", medicalUser.getPrincipalUsername(), epochNow, epochNow))),
 //                times(1));
     }
 }

@@ -6,7 +6,6 @@ import java.util.*;
 
 import com.reimbes.*;
 
-import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.NotFoundException;
@@ -19,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import static com.reimbes.constant.UrlConstants.SUB_FOLDER_TRANSACTION;
 
@@ -44,29 +42,26 @@ public class TransactionServiceImpl implements TransactionService {
     private AuthServiceImpl authService;
 
     @Autowired
-    private TesseractService ocrService;
+    private ReceiptMapperServiceImpl receiptMapperService;
 
     @Autowired
     private Utils utils;
 
     @Override
     public Transaction createByImage(String imageValue) throws ReimsException {
-
-
-        ReimsUser user = userService.getUserByUsername(utils.getUsername());
-        String[] extractedByte = imageValue.split(",");
+        ReimsUser user = authService.getCurrentUser();
         String imagePath;
 
         Transaction transaction;
         try {
-            byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
-                    .getBytes(StandardCharsets.UTF_8)));
-
             imagePath = utils.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
 
             log.info("Predicting image content... ");
 
-            transaction = ocrService.predictImageContent(imageByte);
+            String receiptMapperResult = receiptMapperService.translateImage(imagePath, imageValue);
+            log.info(String.format("Receipt Mapper Result %s", receiptMapperResult));
+
+            transaction = new Transaction(); // default
 
         } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
@@ -100,7 +95,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
         transaction.setImage(transactionRequest.getImage());
         transaction.setTitle(transactionRequest.getTitle());
-        transaction.setReimsUser(userService.getUserByUsername(utils.getUsername()));
+        transaction.setReimsUser(userService.getUserByUsername(utils.getPrincipalUsername()));
 
         return transactionRepository.save(transaction);
     }
@@ -108,7 +103,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void delete(long id) throws ReimsException{
-        ReimsUser user = userService.getUserByUsername(utils.getUsername());
+        ReimsUser user = userService.getUserByUsername(utils.getPrincipalUsername());
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getReimsUser() != user) throw new NotFoundException("Transaction with ID "+id);
         utils.removeImage(transaction.getImage());
@@ -131,7 +126,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction get(long id) throws ReimsException{
-        ReimsUser user = userService.getUserByUsername(utils.getUsername());
+        ReimsUser user = userService.getUserByUsername(utils.getPrincipalUsername());
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getReimsUser() != user)
             throw new NotFoundException("Transaction with ID "+id);
@@ -151,7 +146,7 @@ public class TransactionServiceImpl implements TransactionService {
         Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
 
         /****************************************SERVE REQUEST w/ JPA METHOD*******************************************/
-        ReimsUser user = userService.getUserByUsername(utils.getUsername());
+        ReimsUser user = userService.getUserByUsername(utils.getPrincipalUsername());
         if (title == null) title = "";
 
         if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {

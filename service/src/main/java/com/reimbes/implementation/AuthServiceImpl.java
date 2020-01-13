@@ -8,14 +8,10 @@ import com.reimbes.ActiveTokenRepository;
 import com.reimbes.AuthService;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.SecurityConstants;
-import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
-import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.sleuth.Span;
-import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,7 +20,6 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -123,7 +118,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public ReimsUser getCurrentUser() throws NotFoundException {
-        ReimsUser currentUser = userService.getUserByUsername(utils.getUsername());
+        ReimsUser currentUser = userService.getUserByUsername(utils.getPrincipalUsername());
         if (currentUser == null) throw new NotFoundException("Current user. Please do re-login.");
         return currentUser;
     }

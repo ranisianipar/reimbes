@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser update(long id, ReimsUser newUser) throws ReimsException {
         ReimsUser oldUser;
 
-        if (id == IDENTITY_CODE) oldUser = userRepository.findByUsername(utils.getUsername());
+        if (id == IDENTITY_CODE) oldUser = userRepository.findByUsername(utils.getPrincipalUsername());
         else oldUser = userRepository.findOne(id);
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser get(long id) throws ReimsException {
         ReimsUser user;
 
-        if (id == IDENTITY_CODE) return userRepository.findByUsername(utils.getUsername());
+        if (id == IDENTITY_CODE) return userRepository.findByUsername(utils.getPrincipalUsername());
         else user = userRepository.findOne(id);
 
         log.info(String.format("Get user with ID %d. Found => %s", id, user));

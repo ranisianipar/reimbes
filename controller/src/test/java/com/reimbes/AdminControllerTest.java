@@ -70,7 +70,7 @@ public class AdminControllerTest {
 //                .contentType(MediaType.ALL_VALUE))
 //                .andExpect(status().isOk())
 //                .andExpect(jsonPath("data", hasSize(1)))
-//                .andExpect(jsonPath("data[0].username", is(user.getUsername())));
+//                .andExpect(jsonPath("data[0].username", is(user.getPrincipalUsername())));
         assertTrue(true);
     }
 
