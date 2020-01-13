@@ -47,6 +47,13 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private Font fontHeader1;
     private Font fontHeader2;
 
+    // Cell style
+    @Setter @Getter
+    private CellStyle tableHeaderCellStyle;
+    @Setter @Getter
+    private CellStyle defaultCellStyle;
+    private CellStyle totalCellStyle;
+
     @Setter @Getter
     private int currentRowIndex;
 
@@ -71,11 +78,17 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         // init
         setCurrentRowIndex(0);
         initFont(wb);
+        initCellStyle(wb);
         initImage(wb, sheet); // end in 5th row, how can get image position dynamically?
         initHeader(wb, sheet);
         initPersonalInfo(wb, sheet);
-        sheet.autoSizeColumn(0); // autosize first column
 
+        // set column width
+        sheet.autoSizeColumn(0); // autosize first column, depends on maximum width of applied cells
+        sheet.setColumnWidth(1, 20 * 256); // autosize first column, depends on maximum width of applied cells
+        sheet.setColumnWidth(2, 12 * 256); // autosize first column, depends on maximum width of applied cells
+        sheet.setColumnWidth(3, 12 * 256); // autosize first column, depends on maximum width of applied cells
+        sheet.setColumnWidth(4, 15 * 256); // autosize first column, depends on maximum width of applied cells
 
         // assign user report value
         writeHeaderCell(sheet); // init header cell
@@ -89,7 +102,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             case MEDICAL:
                 writeMedicalReport(sheet, start, end);
         }
-
 
         if(wb instanceof XSSFWorkbook) filename += "x";
 
@@ -105,21 +117,21 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private Cell createCell(Row row, int index, String value) {
         Cell cell = row.createCell(index);
         cell.setCellValue(value);
-
+        cell.setCellStyle(defaultCellStyle);
         return cell;
     }
 
     private Cell createCell(Row row, int index, long value) {
         Cell cell = row.createCell(index);
         cell.setCellValue(value);
-
+        cell.setCellStyle(defaultCellStyle);
         return cell;
     }
 
     private Cell createCell(Row row, int index, float value) {
         Cell cell = row.createCell(index);
         cell.setCellValue(value);
-
+        cell.setCellStyle(defaultCellStyle);
         return cell;
     }
 
@@ -128,16 +140,32 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         Row row = sheet.createRow(getCurrentRowIndex());
         setCurrentRowIndex(getCurrentRowIndex() + 1);
         log.info(String.format("Write Header Cell in row index %d", row.getRowNum()));
-        createCell(row, 0, "No.");
-        createCell(row, 1, "Title");
-        createCell(row, 2, "Date");
-        createCell(row, 3, "Amount");
+
+        createCell(row, 0, "No.").setCellStyle(getTableHeaderCellStyle());
+        createCell(row, 1, "Title").setCellStyle(getTableHeaderCellStyle());
+        createCell(row, 2, "Date").setCellStyle(getTableHeaderCellStyle());
+        createCell(row, 3, "Amount").setCellStyle(getTableHeaderCellStyle());
+
+    }
+
+    private void initCellStyle(Workbook wb) {
+        tableHeaderCellStyle = wb.createCellStyle();
+        tableHeaderCellStyle.setFont(fontDefaultStrong);
+        tableHeaderCellStyle.setAlignment(CellStyle.ALIGN_CENTER);
+
+        defaultCellStyle = wb.createCellStyle();
+        defaultCellStyle.setFont(fontDefault);
+        defaultCellStyle.setAlignment(CellStyle.ALIGN_LEFT);
+
+        totalCellStyle = wb.createCellStyle();
+        totalCellStyle.setFont(fontDefaultStrong);
+        totalCellStyle.setAlignment(CellStyle.ALIGN_LEFT);
+
     }
 
     private void writeParkingReport(Sheet sheet, Long start, Long end) throws ReimsException {
         Row row = sheet.createRow(getCurrentRowIndex());
         setCurrentRowIndex(getCurrentRowIndex() + 1);
-
         createCell(row, 4, "Hours");
 
         int totalAmount = 0;
@@ -159,9 +187,19 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             totalAmount += parking.getAmount();
         }
 
-        row = sheet.createRow(getCurrentRowIndex());
-        setCurrentRowIndex(getCurrentRowIndex() + 1);
-        createCell(row, 0, "TOTAL:");
+        // footer row
+        row = sheet.createRow(getCurrentRowIndex() + 1);
+        setCurrentRowIndex(getCurrentRowIndex() + 2);
+
+        createCell(row, 1, "TOTAL:").setCellStyle(totalCellStyle);
+
+        sheet.addMergedRegion(new CellRangeAddress(
+                row.getRowNum(), //first row of header (0-based)
+                row.getRowNum(), //last row of header (0-based)
+                1, //first column of header (0-based)
+                2  //last column of header (0-based)
+        ));
+
         createCell(row, 3, totalAmount);
 
         setCurrentRowIndex(getCurrentRowIndex() + 1);
@@ -192,19 +230,27 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             totalAmount += fuel.getAmount();
         }
 
-        row = sheet.createRow(getCurrentRowIndex());
-        setCurrentRowIndex(getCurrentRowIndex() + 1);
-        createCell(row, 0, "TOTAL:");
+        // footer row
+        row = sheet.createRow(getCurrentRowIndex() + 1);
+        setCurrentRowIndex(getCurrentRowIndex() + 2);
+
+        createCell(row, 1, "TOTAL:").setCellStyle(totalCellStyle);
+
+        sheet.addMergedRegion(new CellRangeAddress(
+                row.getRowNum(), //first row of header (0-based)
+                row.getRowNum(), //last row of header (0-based)
+                1, //first column of header (0-based)
+                2  //last column of header (0-based)
+        ));
+
         createCell(row, 3, totalAmount);
 
         setCurrentRowIndex(getCurrentRowIndex() + 1);
     }
 
     private void writeMedicalReport(Sheet sheet, Long start, Long end) throws ReimsException {
-        Row row = sheet.createRow(getCurrentRowIndex());
-        setCurrentRowIndex(getCurrentRowIndex() + 1);
-
-        createCell(row, 4, "Patient");
+        Row row = sheet.getRow(getCurrentRowIndex() - 1); // write specific attribute based on report type
+        createCell(row, 4, "Patient").setCellStyle(getTableHeaderCellStyle());
 
         int totalAmount = 0;
         int medicalIndex = 0 ;
@@ -224,9 +270,19 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             totalAmount += medical.getAmount();
         }
 
-        row = sheet.createRow(getCurrentRowIndex());
-        setCurrentRowIndex(getCurrentRowIndex() + 1);
-        createCell(row, 0, "TOTAL:");
+        // footer row
+        row = sheet.createRow(getCurrentRowIndex() + 1);
+        setCurrentRowIndex(getCurrentRowIndex() + 2);
+
+        createCell(row, 1, "TOTAL:").setCellStyle(totalCellStyle);
+
+        sheet.addMergedRegion(new CellRangeAddress(
+                row.getRowNum(), //first row of header (0-based)
+                row.getRowNum(), //last row of header (0-based)
+                1, //first column of header (0-based)
+                2  //last column of header (0-based)
+        ));
+
         createCell(row, 3, totalAmount);
 
         setCurrentRowIndex(getCurrentRowIndex() + 1);
@@ -253,7 +309,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         //auto-size picture relative to its top-left corner
         pict.resize(0.25);
 
-        setCurrentRowIndex(5);
+        setCurrentRowIndex(getCurrentRowIndex() + 5);
     }
 
     // need to be refactored!
@@ -333,10 +389,11 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         personalInfoRow = sheet.createRow(getCurrentRowIndex());
         setCurrentRowIndex(getCurrentRowIndex() + 1);
-        createCell(personalInfoRow, 0, "Tipe Mobil / Motor").setCellStyle(personalInfoStyle);
+        createCell(personalInfoRow, 0, "Kendaraan").setCellStyle(personalInfoStyle);
         createCell(personalInfoRow, 1, ":").setCellStyle(personalInfoStyle);
         createCell(personalInfoRow, 2, user.getVehicle());
 
+        setCurrentRowIndex(getCurrentRowIndex() + 2);
     }
 
     private void initFont(Workbook wb) {
