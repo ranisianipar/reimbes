@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
@@ -23,6 +24,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import static com.reimbes.constant.ResponseCode.BAD_REQUEST;
+import static com.reimbes.constant.UrlConstants.PROJECT_ROOT;
 import static com.reimbes.constant.UrlConstants.STORAGE_FOLDER;
 
 /*
@@ -77,18 +79,22 @@ public class Utils {
         return Files.exists(Paths.get(filepath));
     }
 
-    public void createFile(String cleanedPath, byte[] data) throws IOException {
-        Files.write(Paths.get(cleanedPath), data, StandardOpenOption.CREATE);
+    // cleanedPath: relative path
+    public Path createFile(String cleanedPath, byte[] data) throws IOException {
+        Path file = Files.write(Paths.get(PROJECT_ROOT + cleanedPath), data, StandardOpenOption.CREATE);
+        return file.toAbsolutePath();
     }
 
+    // cleanedPath: relative path
     public void createDirectory(String cleanedPath) {
         log.info("Create directory: " + cleanedPath);
-        (new File(cleanedPath)).mkdirs(); // create directory even parent directeroy haven't created yet
-        log.info("[DONE] Create directory: " + cleanedPath);
+        boolean isDirectoryCreated = (new File(PROJECT_ROOT + cleanedPath)).mkdirs(); // create directory even parent directeroy haven't created yet
+        log.info(String.format("Create directory, path: %s, succeed: %b", cleanedPath, isDirectoryCreated));
     }
 
+    // filepath: relative path of file
     public byte[] getFile(String filepath) throws IOException {
-        byte[] result = Files.readAllBytes(Paths.get(filepath));
+        byte[] result = Files.readAllBytes(Paths.get(PROJECT_ROOT + filepath));
         log.info("FILE CONTENT: " + result);
 
         return result;
@@ -138,15 +144,16 @@ public class Utils {
                 createDirectory(folderPath);
             }
 
-            imagePath = folderPath + getFilename(extension);
+            imagePath = folderPath + getFilename(extension); // relative path
 
             log.info("Write image in this path: " + imagePath);
-            createFile(imagePath, imageByte);
+            Path path = createFile(imagePath, imageByte);
+            log.info("ABSOLUTE PATH: " + path);
         } catch (IOException e) {
             throw new ReimsException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, 500);
         }
 
-        return imagePath;
+        return imagePath; // relative path
     }
 
     public static long getCurrentYear() {
