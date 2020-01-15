@@ -16,8 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +75,6 @@ public class FamilyMemberServiceImpl {
             return member;
 
         else throw new NotFoundException(member.getName());
-
     }
 
     public Page getAll(Long userId, String nameFilter, Pageable pageRequest) throws ReimsException{
@@ -91,7 +88,7 @@ public class FamilyMemberServiceImpl {
         ReimsUser currentUser = authService.getCurrentUser();
         // ADMIN
         if (currentUser.getRole() == ADMIN) {
-            log.info("[ADMIN] Query Family Member");
+            log.info("[ADMIN] Query Family Member ");
             if (userId == null) return getAllByUser(null, nameFilter, pageable);
             return getAllByUser(userService.get(userId), nameFilter, pageable);
         }
@@ -121,7 +118,6 @@ public class FamilyMemberServiceImpl {
         familyMemberRepository.delete(id);
     }
 
-
     public FamilyMember update(long id, FamilyMember latestData, long userId) throws ReimsException {
         FamilyMember member = familyMemberRepository.findOne(id);
 
@@ -131,7 +127,7 @@ public class FamilyMemberServiceImpl {
             ReimsUser user = userService.get(userId);
             if (user.getRole() != ADMIN)
                 latestData.setFamilyMemberOf(userService.get(userId));
-            throw new DataConstraintException("Family Member can't be assigned to user with role ADMIN");
+            else throw new DataConstraintException("Family Member can't be assigned to user with role ADMIN");
         }
 
         // validate
@@ -158,13 +154,10 @@ public class FamilyMemberServiceImpl {
             errors.add("NULL_DATE_OF_BIRTH");
         if (newData.getRelationship() == null)
             errors.add("NULL_RELATIONSHIP");
-        if (newData.getFamilyMemberOf() == null || newData.getFamilyMemberOf().getRole() == ADMIN)
-            errors.add("NULL_FAMILY_MEMBER_OF");
 
         // compare new medicalUser data with other medicalUser data
         if (errors.isEmpty()){
             FamilyMember familyMember = familyMemberRepository.findByName(newData.getName());
-
             // update
             if (oldData != null && familyMember != null &&
                     familyMember.getFamilyMemberOf().getId() == oldData.getFamilyMemberOf().getId() &&
@@ -175,8 +168,8 @@ public class FamilyMemberServiceImpl {
             else if (oldData == null && familyMember != null &&
                     familyMember.getFamilyMemberOf().getId() == newData.getFamilyMemberOf().getId())
                 errors.add("UNIQUENESS_NAME");
-
         }
+
 
         if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
 

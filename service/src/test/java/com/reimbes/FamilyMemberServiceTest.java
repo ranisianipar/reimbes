@@ -1,6 +1,7 @@
 package com.reimbes;
 
 import com.reimbes.exception.DataConstraintException;
+import com.reimbes.exception.MethodNotAllowedException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.AuthServiceImpl;
@@ -14,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.domain.*;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.text.ParseException;
@@ -21,16 +23,14 @@ import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static com.reimbes.ReimsUser.Role.ADMIN;
 import static com.reimbes.ReimsUser.Role.USER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.gen5.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @ContextConfiguration
@@ -55,6 +55,9 @@ public class FamilyMemberServiceTest {
     private ReimsUser admin;
     private ReimsUser maleUser;
     private ReimsUser femaleUser;
+
+    private Pageable pageRequest = new PageRequest(1, 5, new Sort(Sort.Direction.DESC, "createdAt"));
+    private Pageable pageForQuery = new PageRequest(0, pageRequest.getPageSize(), pageRequest.getSort());
 
     private FamilyMember familyMember;
     private FamilyMember familyMember2;
@@ -86,13 +89,15 @@ public class FamilyMemberServiceTest {
                 .dateOfBirth(new Date())
                 .relationship(FamilyMember.Relationship.SPOUSE)
                 .familyMemberOf(maleUser)
+                .id(maleUser.getId() + 1)
                 .build();
 
         familyMember2 = FamilyMember.FamilyMemberBuilder()
-                .name("Kehlani")
+                .name("Shawn Mendes")
                 .dateOfBirth(new Date())
                 .relationship(FamilyMember.Relationship.SPOUSE)
                 .familyMemberOf(maleUser)
+                .id(familyMember.getId() + 1)
                 .build();
 
         familyMembers = new HashSet<>();
@@ -150,6 +155,7 @@ public class FamilyMemberServiceTest {
     public void errorThrown_whenAdminCreateFamilyMemberWithDuplicateFamilyMemberData() throws ReimsException {
         when(authService.getCurrentUser()).thenReturn(admin);
         when(userService.get(maleUser.getId())).thenReturn(maleUser);
+        familyMember2.setName(familyMember.getName());
         when(repository.findByName(familyMember.getName())).thenReturn(familyMember2);
 
         assertThrows(DataConstraintException.class, () -> {
@@ -183,14 +189,126 @@ public class FamilyMemberServiceTest {
         });
     }
 
-    // update: good case
-    // update: invalid data
-    // update: family member of --> admin
+    @Test
+    public void succeedUpdateFamilyMember() throws Exception {
+        when(repository.findOne(familyMember.getId())).thenReturn(familyMember);
+        when(repository.save(familyMember2)).thenReturn(familyMember2);
+        when(userService.get(maleUser.getId())).thenReturn(maleUser);
+
+        assertEquals(familyMember2, service.update(familyMember.getId(), familyMember2, maleUser.getId()));
+    }
+
+    @Test
+    public void errorThrown_whenAdminUpdateFamilyMemberAndAssignedMemberToAdmin() throws Exception {
+        familyMember.setFamilyMemberOf(admin);
+        when(repository.findOne(familyMember.getId())).thenReturn(familyMember);
+        when(repository.save(familyMember2)).thenReturn(familyMember2);
+        when(userService.get(admin.getId())).thenReturn(admin);
+
+        assertThrows(DataConstraintException.class, () -> {
+            service.update(familyMember.getId(), familyMember2, admin.getId());
+        } );
+    }
+
+    @Test
+    public void errorThrown_whenAdminUpdateFamilyMemberWithInvalidData() throws Exception {
+        familyMember2.setName(familyMember.getName());
+
+        when(repository.findOne(familyMember2.getId())).thenReturn(familyMember2);
+        when(repository.findByName(familyMember2.getName())).thenReturn(familyMember);
+        when(userService.get(maleUser.getId())).thenReturn(maleUser);
+
+        assertThrows(DataConstraintException.class, () -> {
+            service.update(familyMember2.getId(), familyMember2, new Long(0));
+        } );
+
+    }
 
 
+    @Test
+    public void removeFamilyMember() throws ReimsException {
+        when(authService.getCurrentUser()).thenReturn(admin);
+        service.delete(familyMember.getId());
+        verify(repository, times(1)).delete(familyMember.getId());
+    }
+
+    @Test
+    public void errorThrown_whenUserTryToRemoveFamilyMember() throws ReimsException {
+        when(authService.getCurrentUser()).thenReturn(maleUser);
+        assertThrows(MethodNotAllowedException.class, () -> {
+            service.delete(familyMember.getId());
+        });
+    }
+
+    @Test
+    public void getAllFamilyMember_forAdmin() throws ReimsException {
+        when(authService.getCurrentUser()).thenReturn(admin);
+
+        service.getAll(maleUser.getId(), familyMember.getName(), pageRequest);
+    }
+
+    @Test
+    public void getAllByUser_noQuery_succeed() {
+        List<FamilyMember> members = new ArrayList<>();
+        members.add(familyMember);
+        Page page = new PageImpl(members);
+
+        when(repository.findByNameContainingIgnoreCase(familyMember.getName(), pageRequest)).thenReturn(page);
+        assertEquals(page, service.getAllByUser(null, familyMember.getName(), pageRequest));
+    }
+
+    @Test
+    public void getAllByUser_withUserQuery_succeed() {
+        List<FamilyMember> members = new ArrayList<>();
+        members.add(familyMember);
+        Page page = new PageImpl(members);
+
+        when(repository.findByFamilyMemberOfAndNameContainingIgnoreCase(maleUser, familyMember.getName(), pageRequest))
+                .thenReturn(page);
+        assertEquals(page, service.getAllByUser(maleUser, familyMember.getName(), pageRequest));
+    }
+
+    @Test
+    public void getAll_forUser_succeed() throws ReimsException {
+        List<FamilyMember> members = new ArrayList<>();
+        members.add(familyMember);
+        Page page = new PageImpl(members);
+
+        when(authService.getCurrentUser()).thenReturn(maleUser); // set current user
+        when(service.getAllByUser(maleUser, familyMember.getName(), pageForQuery)).thenReturn(page);
+
+        assertEquals(page, service.getAll(null, familyMember.getName(), pageRequest));
 
 
+        when(repository.findByFamilyMemberOfAndNameContainingIgnoreCase(maleUser, familyMember.getName(), pageRequest))
+                .thenReturn(page);
+        assertEquals(page, service.getAllByUser(maleUser, familyMember.getName(), pageRequest));
+    }
 
+    @Test
+    public void getAll_ForAdmin_withUserQuery_succeed() throws ReimsException {
+        List<FamilyMember> members = new ArrayList<>();
+        members.add(familyMember);
+        Page page = new PageImpl(members);
+
+        when(authService.getCurrentUser()).thenReturn(admin); // set current user
+        when(userService.get(maleUser.getId())).thenReturn(maleUser); // set current user
+        when(service.getAllByUser(maleUser, familyMember.getName(), pageForQuery)).thenReturn(page);
+
+        assertEquals(page, service.getAll(maleUser.getId(), familyMember.getName(), pageRequest));
+    }
+
+    @Test
+    public void getAll_ForAdmin_withoutUserQuery_succeed() throws ReimsException {
+        List<FamilyMember> members = new ArrayList<>();
+        members.add(familyMember);
+        Page page = new PageImpl(members);
+
+        when(authService.getCurrentUser()).thenReturn(admin); // set current user
+        when(service.getAllByUser(null, familyMember.getName(), pageForQuery)).thenReturn(page);
+
+        assertEquals(page, service.getAll(null, familyMember.getName(), pageRequest));
+    }
 
 
 }
