@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import static com.reimbes.Transaction.Category.PARKING;
 import static com.reimbes.constant.UrlConstants.SUB_FOLDER_TRANSACTION;
 
 @Service
@@ -59,9 +60,10 @@ public class TransactionServiceImpl implements TransactionService {
             log.info("Predicting image content... ");
 
             String receiptMapperResult = receiptMapperService.translateImage(imagePath, imageValue);
-            log.info(String.format("Receipt Mapper Result %s", receiptMapperResult));
+            log.info(String.format("Receipt Mapper Result %s"));
 
             transaction = new Transaction(); // default
+            transaction.setCategory(PARKING);
 
         } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
@@ -226,7 +228,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (transaction.getCategory() == null) {
             errorMessages.add("NULL_CATEGORY");
-        } else if (transaction.getCategory().equals(Transaction.Category.PARKING)) {
+        } else if (transaction.getCategory().equals(PARKING)) {
             if (transaction.getParkingType() == null) errorMessages.add("NULL_PARKING_TYPE");
             if (transaction.getHours() == 0) errorMessages.add("ZERO_PARKING_HOURS");
         } else if (transaction.getCategory().equals(Transaction.Category.FUEL)) {
