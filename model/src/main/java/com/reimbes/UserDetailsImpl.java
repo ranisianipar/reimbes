@@ -6,9 +6,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+
 @Data
 public class UserDetailsImpl implements UserDetails {
-
 
     private ReimsUser user;
     private Collection authorities;
@@ -56,4 +56,5 @@ public class UserDetailsImpl implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

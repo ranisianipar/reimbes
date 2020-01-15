@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.reimbes.constant.General.NULL_USER_ID_CODE;
 import static com.reimbes.constant.Mapper.*;
 import static com.reimbes.constant.UrlConstants.IMAGE_PARAM;
 import static com.reimbes.constant.UrlConstants.IMAGE_PREFIX;
@@ -47,7 +48,7 @@ public class MedicalController {
 
 
          try {
-             Page medicals = medicalService.getAll(pageRequest, search, new Long(start), new Long(end), null);
+             Page medicals = medicalService.getAll(pageRequest, search, new Long(start), new Long(end), NULL_USER_ID_CODE);
              Paging paging = getPagingMapper().map(pageRequest, Paging.class);
              br.setData(getAllMedicalResponse(
                      medicals.getContent()

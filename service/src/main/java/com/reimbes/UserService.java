@@ -16,5 +16,5 @@ public interface UserService {
     Page getAllUsers(String username, Pageable pageable);
     void delete(long id);
     boolean isExist(String username);
-    byte[] getReport(String startDate, String endDate) throws Exception;
+    byte[] getReport(Long start, Long end, String reimbursementType) throws Exception;
 }

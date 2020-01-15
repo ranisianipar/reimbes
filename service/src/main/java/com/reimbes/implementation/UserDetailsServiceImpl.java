@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 
+
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -35,12 +36,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException(username);
         }
 
-        log.info("USER: "+reimsUser.getUsername());
-
         // will be useful, if users have multi authorities
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(reimsUser.getRole().toString()));
-
 
         return new UserDetailsImpl(reimsUser, authorities);
 

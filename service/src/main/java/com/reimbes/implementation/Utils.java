@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
@@ -23,6 +24,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import static com.reimbes.constant.ResponseCode.BAD_REQUEST;
+import static com.reimbes.constant.UrlConstants.PROJECT_ROOT;
 import static com.reimbes.constant.UrlConstants.STORAGE_FOLDER;
 
 /*
@@ -38,7 +40,7 @@ public class Utils {
 
     private static Logger log = LoggerFactory.getLogger(Utils.class);
 
-    public String getUsername() {
+    public static String getPrincipalUsername() {
         try {
             return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         }   catch (Exception e) {
@@ -48,17 +50,15 @@ public class Utils {
 
     }
 
+    // imagePath: relative path
     public void removeImage(String imagePath) {
+        imagePath = PROJECT_ROOT + imagePath;
         imagePath = StringUtils.cleanPath(imagePath);
         try {
             Files.delete(Paths.get(imagePath));
         }   catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public byte[] getImageByImagePath(String imagePath) throws IOException {
-        return Files.readAllBytes(Paths.get(imagePath));
     }
 
     public byte[] getImage(ReimsUser currentUser, String imagePath) throws ReimsException {
@@ -72,26 +72,30 @@ public class Utils {
 
     }
 
-//    Check file existance using relative file path
+    // Check file existance using relative file path
     public boolean isFileExists(String filepath) {
-        return Files.exists(Paths.get(filepath));
+        return Files.exists(Paths.get(PROJECT_ROOT + filepath));
     }
 
-    public void createFile(String cleanedPath, byte[] data) throws IOException {
-        Files.write(Paths.get(cleanedPath), data, StandardOpenOption.CREATE);
+    // cleanedPath: relative path
+    public Path createFile(String cleanedPath, byte[] data) throws IOException {
+        Path file = Files.write(Paths.get(PROJECT_ROOT + cleanedPath), data, StandardOpenOption.CREATE);
+        return file.toAbsolutePath();
     }
 
+    // cleanedPath: relative path
     public void createDirectory(String cleanedPath) {
         log.info("Create directory: " + cleanedPath);
-        (new File(cleanedPath)).mkdirs(); // create directory even parent directeroy haven't created yet
-        log.info("[DONE] Create directory: " + cleanedPath);
+        boolean isDirectoryCreated = (new File(PROJECT_ROOT + cleanedPath)).mkdirs(); // create directory even parent directeroy haven't created yet
+        log.info(String.format("Create directory, path: %s, succeed: %b", cleanedPath, isDirectoryCreated));
     }
 
+    // filepath: relative path of file
     public byte[] getFile(String filepath) throws IOException {
-        return Files.readAllBytes(Paths.get(STORAGE_FOLDER + filepath));
+        return Files.readAllBytes(Paths.get(PROJECT_ROOT + filepath));
     }
 
-    public String getFilename(String extension) {
+    public String generateFilename(String extension) {
         return String.format("%s.%s", UUID.randomUUID(), extension);
     }
 
@@ -116,10 +120,11 @@ public class Utils {
         else return null;
 
         try {
+            log.info("Decoding image.");
             byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
                     .getBytes(StandardCharsets.UTF_8)));
 
-            log.info("Decoding image byte succeed.");
+            log.info("Decoding image succeed.");
             log.info("Uploading the image...");
 
             /*
@@ -127,23 +132,25 @@ public class Utils {
             * */
 
             // confirm folder existence
-            String folderPath = StringUtils.cleanPath(String.format("%s/%d/%s/", STORAGE_FOLDER, userId, subfolder ));
+            String folderPath = StringUtils.cleanPath(String.format("%s/%d/%s/", STORAGE_FOLDER, userId, subfolder));
             log.info("Done generate folder path.");
 
             if (!isFileExists(folderPath)) {
-                log.info("Directory '" + folderPath + "' not found! Make directory first.");
+                log.info(String.format("Directory '%s' not found! Make directory first.", folderPath));
                 createDirectory(folderPath);
             }
 
-            imagePath = folderPath + getFilename(extension);
+            imagePath = folderPath + generateFilename(extension); // relative path
 
-            log.info("Write image in this path: " + imagePath);
-            createFile(imagePath, imageByte);
+            log.info(String.format("Write image in this path: %s", imagePath));
+            Path path = createFile(imagePath, imageByte);
+            log.info(String.format("Image writing succeed: %b", (path != null)));
+
         } catch (IOException e) {
             throw new ReimsException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, 500);
         }
 
-        return imagePath;
+        return imagePath; // relative path
     }
 
     public static long getCurrentYear() {

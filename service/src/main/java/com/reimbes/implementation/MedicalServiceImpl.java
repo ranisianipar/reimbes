@@ -16,11 +16,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 
 import static com.reimbes.ReimsUser.Role.ADMIN;
+import static com.reimbes.constant.General.INFINITE_DATE_RANGE;
 import static com.reimbes.constant.ResponseCode.BAD_REQUEST;
 import static com.reimbes.implementation.Utils.countAge;
+import static com.reimbes.implementation.Utils.getCurrentTime;
 
 @Service
 public class MedicalServiceImpl implements MedicalService {
@@ -74,7 +77,7 @@ public class MedicalServiceImpl implements MedicalService {
         medical.setMedicalUser(currentUser);
         medical.setPatient(patient);
         medical.setAge(countAge(patient.getDateOfBirth()));
-
+        medical.setCreatedAt(getCurrentTime());
         return medicalRepository.save(medical);
     }
 
@@ -108,18 +111,16 @@ public class MedicalServiceImpl implements MedicalService {
         return report;
     }
 
-    // userId == null when this method called from medical controller
     @Override
-
-    public Page<Medical> getAll(Pageable pageRequest, String title, Long start, Long end, String userId) throws ReimsException {
+    public Page<Medical> getAll(Pageable pageRequest, String title, Long start, Long end, Long userId) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
 
 
         // enabling query by specific for admin. In the other hand, user get his medical report list
         ReimsUser queryUser;
-        if (userId != null && currentUser.getRole() == ADMIN) {
+        if (userId != 0 && currentUser.getRole() == ADMIN) {
             log.info("GET Medical with User ID criteria by ADMIN");
-            queryUser = userService.get(Long.parseLong(userId));
+            queryUser = userService.get(userId);
         } else if (currentUser.getRole() == ADMIN) {
             log.info("GET Medical by ADMIN");
             queryUser = null;
@@ -140,6 +141,14 @@ public class MedicalServiceImpl implements MedicalService {
             if (queryUser == null) return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetween(title, start, end, page);
             return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(title, start, end, queryUser, page);
         }
+    }
+
+
+    public List<Medical> getByDate(Long start, Long end) throws ReimsException{
+        ReimsUser user = authService.getCurrentUser();
+        if (start == null && end == null)
+            return medicalRepository.findByMedicalUser(user);
+        return medicalRepository.findByDateBetweenAndMedicalUser(start, end, user);
     }
 
 

@@ -12,6 +12,13 @@ public class General {
     // a number to represent the current medicalUser and superadmin
     public static final int IDENTITY_CODE = 1;
 
-    public static final String STORAGE_DIRECTORY = "storage";
+    // reimbursement type
+    public static final String PARKING = "parking";
+    public static final String FUEL = "fuel";
+    public static final String MEDICAL = "medical";
+
+    public static final long NULL_USER_ID_CODE = new Long(0);
+    public static final long INFINITE_DATE_RANGE = new Long(0);
+
 
 }

@@ -126,7 +126,7 @@ public class AdminController {
 
 
         try {
-            Page medicals = adminService.getAllMedical(pageRequest, search, new Long(start), new Long(end), userId);
+            Page medicals = adminService.getAllMedical(pageRequest, search, new Long(start), new Long(end), new Long(userId));
             Paging paging = getPagingMapper().map(pageRequest, Paging.class);
             br.setData(getAllMedicalResponse(
                     medicals.getContent()

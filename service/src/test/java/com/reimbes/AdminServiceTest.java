@@ -105,7 +105,7 @@ public class AdminServiceTest {
 
     @Test
     public void returnUpdatedUser_whenAdminUpdateUser() throws ReimsException {
-        when(utils.getUsername()).thenReturn(user.getUsername());
+        when(utils.getPrincipalUsername()).thenReturn(user.getUsername());
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
         when(userService.update(user2.getId(), user2)).thenReturn(user2);
 
@@ -114,7 +114,7 @@ public class AdminServiceTest {
 
     @Test
     public void returnUpdatedUser_whenAdminUpdateHimself() throws ReimsException {
-        when(utils.getUsername()).thenReturn(user.getUsername());
+        when(utils.getPrincipalUsername()).thenReturn(user.getUsername());
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
 
         ReimsUser userWithNewData = ReimsUser.ReimsUserBuilder()
@@ -136,7 +136,7 @@ public class AdminServiceTest {
 
     @Test
     public void doUserDeletion_whenAdminDeleteUserById() throws ReimsException {
-        when(utils.getUsername()).thenReturn(user.getUsername());
+        when(utils.getPrincipalUsername()).thenReturn(user.getUsername());
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
         adminService.deleteUser(user2.getId());
         verify(userService, times(1)).delete(user2.getId());
@@ -144,7 +144,7 @@ public class AdminServiceTest {
 
     @Test
     public void throwErrorForUserDeletion_whenAdminDeleteHimself() {
-        when(utils.getUsername()).thenReturn(user.getUsername());
+        when(utils.getPrincipalUsername()).thenReturn(user.getUsername());
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
         assertThrows(ReimsException.class, () -> {
             adminService.deleteUser(user.getId());

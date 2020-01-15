@@ -34,15 +34,24 @@ public class Patient {
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
 
-    @OneToMany(mappedBy = "patient", orphanRemoval = true, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "patient")
     @JsonIgnore
     private Set<Medical> medicals;
 
+    @Column(updatable = false)
+    private long createdAt;
+
+    @Column
+    private long updatedAt;
+
+
 
     @Builder(builderMethodName = "PatientBuilder")
-    public Patient(long id, String name, Date dateOfBirth) {
+    public Patient(long id, String name, Date dateOfBirth, long createdAt, long updatedAt) {
         this.id = id;
         this.name = name;
         this.dateOfBirth = dateOfBirth;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 }

@@ -2,6 +2,7 @@ package com.reimbes.implementation;
 
 import com.reimbes.*;
 import com.reimbes.exception.DataConstraintException;
+import com.reimbes.exception.MethodNotAllowedException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.reimbes.ReimsUser.Role.ADMIN;
 import static com.reimbes.constant.General.IDENTITY_CODE;
 import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 import static com.reimbes.implementation.Utils.getCurrentTime;
@@ -67,7 +69,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser update(long id, ReimsUser newUser) throws ReimsException {
         ReimsUser oldUser;
 
-        if (id == IDENTITY_CODE) oldUser = userRepository.findByUsername(utils.getUsername());
+        if (id == IDENTITY_CODE) oldUser = userRepository.findByUsername(utils.getPrincipalUsername());
         else oldUser = userRepository.findOne(id);
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
@@ -123,7 +125,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser get(long id) throws ReimsException {
         ReimsUser user;
 
-        if (id == IDENTITY_CODE) return userRepository.findByUsername(utils.getUsername());
+        if (id == IDENTITY_CODE) return userRepository.findByUsername(utils.getPrincipalUsername());
         else user = userRepository.findOne(id);
 
         log.info(String.format("Get user with ID %d. Found => %s", id, user));
@@ -157,21 +159,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public byte[] getReport(String startDate, String endDate) throws Exception {
-        Long start;
-        Long end;
+    public byte[] getReport(Long start, Long end, String reimbursementType) throws Exception {
+        ReimsUser currentUser = authService.getCurrentUser();
+        if (currentUser.getRole() == ADMIN) throw new MethodNotAllowedException("Get Report");
 
-
-
-        if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
-            start = null;
-            end = null;
-        } else {
-            start = Long.parseLong(startDate);
-            end = Long.parseLong(endDate);
-        }
-        return reportGeneratorService.getReport(getUserByUsername(utils.getUsername()),
-                start, end);
+        return reportGeneratorService.getReport(currentUser,
+                start, end, reimbursementType.toLowerCase());
     }
 
     public byte[] getImage(String imagePath) throws ReimsException{

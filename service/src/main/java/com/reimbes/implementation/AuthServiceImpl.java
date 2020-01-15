@@ -8,13 +8,10 @@ import com.reimbes.ActiveTokenRepository;
 import com.reimbes.AuthService;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.SecurityConstants;
-import com.reimbes.exception.DataConstraintException;
-import com.reimbes.exception.ReimsException;
+import com.reimbes.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.sleuth.Span;
-import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,13 +20,13 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.reimbes.constant.SecurityConstants.*;
+import static com.reimbes.implementation.Utils.getCurrentTime;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -51,13 +48,11 @@ public class AuthServiceImpl implements AuthService {
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
 
 
-        if (activeToken != null && activeToken.getExpiredTime() >= Instant.now().getEpochSecond())
+        if (activeToken != null && activeToken.getExpiredTime() >= getCurrentTime())
             return true;
 
         // token expired
-
-        log.info("Unauthenticated medicalUser try to request!");
-        log.info("[DEBUG]:"+Instant.now().toEpochMilli());
+        log.info("Unauthenticated User try to request!");
         return false;
     }
 
@@ -122,17 +117,24 @@ public class AuthServiceImpl implements AuthService {
         return token;
     }
 
-    public ReimsUser getCurrentUser() {
-        return userService.getUserByUsername(utils.getUsername());
+    public ReimsUser getCurrentUser() throws NotFoundException {
+        ReimsUser currentUser = userService.getUserByUsername(utils.getPrincipalUsername());
+        if (currentUser == null) throw new NotFoundException("Current user. Please do re-login.");
+        return currentUser;
     }
 
     public ReimsUser.Role getRoleByString(String roleString) {
-        if (roleString.equals(ReimsUser.Role.ADMIN.toString())) return ReimsUser.Role.ADMIN;
-        return ReimsUser.Role.USER;
+        log.info("GET ROLE BY STRING: "+ roleString);
+        switch (roleString) {
+            case "ADMIN":
+                return ReimsUser.Role.ADMIN;
+            default:
+                return ReimsUser.Role.USER;
+        }
     }
 
     private long getUpdatedTime() {
-        return Instant.now().getEpochSecond() + SecurityConstants.TOKEN_PERIOD;
+        return getCurrentTime() + SecurityConstants.TOKEN_PERIOD;
     }
 
 
