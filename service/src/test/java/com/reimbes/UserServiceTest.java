@@ -86,6 +86,7 @@ public class UserServiceTest {
         ReimsUser newUser = userService.create(user);
         assertNotNull(newUser);
         assertEquals(userWithEncodedPass.getPassword(), newUser.getPassword());
+        assertEquals(userWithEncodedPass, newUser);
     }
 
     @Test

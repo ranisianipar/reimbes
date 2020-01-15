@@ -1,7 +1,12 @@
 package com.reimbes;
 
+import com.reimbes.exception.DataConstraintException;
+import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.FamilyMemberServiceImpl;
+import com.reimbes.implementation.UserServiceImpl;
+import com.reimbes.implementation.Utils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,12 +18,17 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.reimbes.ReimsUser.Role.ADMIN;
 import static com.reimbes.ReimsUser.Role.USER;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.gen5.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -27,23 +37,39 @@ import static org.mockito.Mockito.when;
 @ComponentScan(basePackageClasses = FamilyMemberServiceImpl.class)
 public class FamilyMemberServiceTest {
 
-
     @Mock
     private FamilyMemberRepository repository;
+
+    @Mock
+    private AuthServiceImpl authService;
+
+    @Mock
+    private UserServiceImpl userService;
+
+    @Mock
+    private Utils utils;
 
     @InjectMocks
     private FamilyMemberServiceImpl service;
 
-
+    private ReimsUser admin;
     private ReimsUser maleUser;
     private ReimsUser femaleUser;
 
     private FamilyMember familyMember;
+    private FamilyMember familyMember2;
 
     private Set<FamilyMember> familyMembers;
 
     @Before
     public void setUp() throws ParseException {
+
+        admin = ReimsUser.ReimsUserBuilder()
+                .username("admin")
+                .password("adminhaha")
+                .role(ReimsUser.Role.ADMIN)
+                .id(1)
+                .build();
 
         // USER with HIS FAMILY
         maleUser = ReimsUser.ReimsUserBuilder()
@@ -59,7 +85,14 @@ public class FamilyMemberServiceTest {
                 .name("Kehlani")
                 .dateOfBirth(new Date())
                 .relationship(FamilyMember.Relationship.SPOUSE)
-                // .familyMemberOf(maleUser)
+                .familyMemberOf(maleUser)
+                .build();
+
+        familyMember2 = FamilyMember.FamilyMemberBuilder()
+                .name("Kehlani")
+                .dateOfBirth(new Date())
+                .relationship(FamilyMember.Relationship.SPOUSE)
+                .familyMemberOf(maleUser)
                 .build();
 
         familyMembers = new HashSet<>();
@@ -67,7 +100,7 @@ public class FamilyMemberServiceTest {
 
          maleUser.setFamilyMemberOf(familyMembers);
 
-        // USER with gender FEMALE, cant register HER FAMILY.
+        // USER with gender FEMALE
         femaleUser = ReimsUser.ReimsUserBuilder()
                 .username("harley queen")
                 .password("xixixi")
@@ -80,13 +113,84 @@ public class FamilyMemberServiceTest {
 
     @Test
     public void succeedRegisterFamilyMemberForMaleUser() throws Exception {
+        Instant now = Instant.now(Clock.fixed(
+                Instant.parse("2018-08-22T10:00:00Z"),
+                ZoneOffset.UTC));
+
+        when(utils.getCurrentTime()).thenReturn(now.toEpochMilli());
+        when(userService.get(familyMember.getFamilyMemberOf().getId())).thenReturn(familyMember.getFamilyMemberOf());
+
+        // Prohibit family member for ADMIN
+        maleUser.setRole(ADMIN);
+        assertNull(service.create(maleUser.getId(), familyMember));
+
+        // createdAt is set in create() method
+        maleUser.setRole(USER);
+        familyMember.setCreatedAt(now.toEpochMilli());
         when(repository.save(familyMember)).thenReturn(familyMember);
-        assertEquals(service.create(maleUser.getId(), familyMember), familyMember);
+
+        assertEquals(familyMember, service.create(maleUser.getId(), familyMember));
     }
 
     @Test
-    public void failedRegisterFamilyMemberForFemaleUser() throws Exception {
-        assertThrows(ReimsException.class, () -> service.create(femaleUser.getId(), familyMember));
+    public void errorThrown_whenAdminCreateFamilyMemberWithInvalidData() throws ReimsException {
+        when(authService.getCurrentUser()).thenReturn(admin);
+        when(userService.get(maleUser.getId())).thenReturn(maleUser);
+
+        familyMember.setName(null);
+        familyMember.setDateOfBirth(null);
+        familyMember.setRelationship(null);
+
+        assertThrows(DataConstraintException.class, () -> {
+            service.create(maleUser.getId(), familyMember);
+        });
     }
+
+    @Test
+    public void errorThrown_whenAdminCreateFamilyMemberWithDuplicateFamilyMemberData() throws ReimsException {
+        when(authService.getCurrentUser()).thenReturn(admin);
+        when(userService.get(maleUser.getId())).thenReturn(maleUser);
+        when(repository.findByName(familyMember.getName())).thenReturn(familyMember2);
+
+        assertThrows(DataConstraintException.class, () -> {
+            service.create(maleUser.getId(), familyMember);
+        });
+    }
+
+    @Test
+    public void returnFamilyMember_whenAdminGetById() throws ReimsException {
+        when(authService.getCurrentUser()).thenReturn(admin);
+        when(repository.findOne(familyMember.getId())).thenReturn(familyMember);
+
+        assertEquals(familyMember, service.getById(familyMember.getId()));
+    }
+
+    @Test
+    public void returnFamilyMember_whenReimsUserOfFamilyMemberGetById() throws ReimsException {
+        when(authService.getCurrentUser()).thenReturn(maleUser);
+        when(repository.findOne(familyMember.getId())).thenReturn(familyMember);
+
+        assertEquals(familyMember, service.getById(familyMember.getId()));
+    }
+
+    @Test
+    public void errorThrown_whenUnwantedUserGetFamilyMemberById() throws ReimsException {
+        when(authService.getCurrentUser()).thenReturn(femaleUser);
+        when(repository.findOne(familyMember.getId())).thenReturn(familyMember);
+
+        assertThrows(NotFoundException.class, () -> {
+            service.getById(familyMember.getId());
+        });
+    }
+
+    // update: good case
+    // update: invalid data
+    // update: family member of --> admin
+
+
+
+
+
+
 
 }

@@ -26,7 +26,7 @@ import java.util.HashMap;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.reimbes.constant.SecurityConstants.*;
-import static com.reimbes.implementation.Utils.getCurrentTime;
+
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -48,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
 
 
-        if (activeToken != null && activeToken.getExpiredTime() >= getCurrentTime())
+        if (activeToken != null && activeToken.getExpiredTime() >= utils.getCurrentTime())
             return true;
 
         // token expired
@@ -133,8 +133,8 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private long getUpdatedTime() {
-        return getCurrentTime() + SecurityConstants.TOKEN_PERIOD;
+    public long getUpdatedTime() {
+        return utils.getCurrentTime() + SecurityConstants.TOKEN_PERIOD;
     }
 
 

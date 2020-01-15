@@ -139,7 +139,7 @@ public class AdminServiceImpl implements AdminService {
         else if (newUser.getRole() == ReimsUser.Role.USER && newUser.getGender() == null)
             errors.add("NULL_ATTRIBUTE_GENDER");
 
-        if (newUser.getDateOfBirth() == null)
+        if (newUser.getRole() == ReimsUser.Role.USER && newUser.getDateOfBirth() == null)
             errors.add("NULL_ATTRIBUTE_DATE_OF_BIRTH");
 
         if (!errors.isEmpty())

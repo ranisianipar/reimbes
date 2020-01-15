@@ -128,7 +128,10 @@ public class FamilyMemberServiceImpl {
         latestData.setFamilyMemberOf(member.getFamilyMemberOf());
 
         if (userId != new Long(0)) {
-            latestData.setFamilyMemberOf(userService.get(userId));
+            ReimsUser user = userService.get(userId);
+            if (user.getRole() != ADMIN)
+                latestData.setFamilyMemberOf(userService.get(userId));
+            throw new DataConstraintException("Family Member can't be assigned to user with role ADMIN");
         }
 
         // validate
@@ -155,7 +158,7 @@ public class FamilyMemberServiceImpl {
             errors.add("NULL_DATE_OF_BIRTH");
         if (newData.getRelationship() == null)
             errors.add("NULL_RELATIONSHIP");
-        if (newData.getFamilyMemberOf() == null)
+        if (newData.getFamilyMemberOf() == null || newData.getFamilyMemberOf().getRole() == ADMIN)
             errors.add("NULL_FAMILY_MEMBER_OF");
 
         // compare new medicalUser data with other medicalUser data

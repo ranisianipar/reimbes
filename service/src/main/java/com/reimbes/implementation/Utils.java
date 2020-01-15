@@ -1,6 +1,7 @@
 package com.reimbes.implementation;
 
 import com.reimbes.ReimsUser;
+import com.reimbes.constant.SecurityConstants;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class Utils {
 
     private static Logger log = LoggerFactory.getLogger(Utils.class);
 
-    public static String getPrincipalUsername() {
+    public String getPrincipalUsername() {
         try {
             return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         }   catch (Exception e) {
@@ -166,7 +167,7 @@ public class Utils {
     }
 
     // millis
-    public static long getCurrentTime() {
+    public long getCurrentTime() {
         Instant instant = Instant.now();
         return instant.toEpochMilli();
     }
