@@ -5,6 +5,7 @@ import com.reimbes.FamilyMemberRepository;
 import com.reimbes.ReimsUser;
 import com.reimbes.ReimsUserRepository;
 import com.reimbes.implementation.UserServiceImpl;
+import com.reimbes.implementation.UtilsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 
-import static com.reimbes.implementation.UtilsServiceImpl.getCurrentTime;
 
 @Component
 public class DataSeeder {
@@ -24,6 +24,9 @@ public class DataSeeder {
 
     @Autowired
     private UserServiceImpl userService;
+
+    @Autowired
+    private UtilsServiceImpl utils;
 
     @Autowired
     private ReimsUserRepository userRepository;
@@ -39,7 +42,7 @@ public class DataSeeder {
                     .username("ADMIN")
                     .password("ADMIN123")
                     .role(ReimsUser.Role.ADMIN)
-                    .createdAt(getCurrentTime())
+                    .createdAt(utils.getCurrentTime())
                     .build();
             userService.create(admin);
         }
@@ -83,7 +86,7 @@ public class DataSeeder {
                     .relationship(FamilyMember.Relationship.SPOUSE)
                     .familyMemberOf(userRepository.findByUsername("chrisevan"))
                     .dateOfBirth(new SimpleDateFormat("dd-MM-yyyy").parse("11-11-1950"))
-                    .createdAt(getCurrentTime())
+                    .createdAt(utils.getCurrentTime())
                     .id(3)
                     .build();
             familyMemberRepository.save(member);
@@ -96,7 +99,7 @@ public class DataSeeder {
                     .relationship(FamilyMember.Relationship.CHILDREN)
                     .familyMemberOf(userRepository.findByUsername("chrisevan"))
                     .dateOfBirth(new SimpleDateFormat("dd-MM-yyyy").parse("13-05-2000"))
-                    .createdAt(getCurrentTime())
+                    .createdAt(utils.getCurrentTime())
                     .id(4)
                     .build();
             familyMemberRepository.save(member);
