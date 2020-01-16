@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static com.reimbes.ReimsUser.Role.ADMIN;
-import static com.reimbes.implementation.UtilsServiceImpl.countAge;
+import static com.reimbes.interfaces.UtilsService.countAge;
 
 @Service
 public class MedicalServiceImpl implements MedicalService {
