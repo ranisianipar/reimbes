@@ -1,6 +1,6 @@
 package com.reimbes.implementation;
 
-import com.reimbes.ReceiptMapperService;
+import com.reimbes.interfaces.ReceiptMapperService;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;

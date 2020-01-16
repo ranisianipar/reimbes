@@ -1,6 +1,6 @@
 package com.reimbes.implementation;
 
-import com.reimbes.AdminService;
+import com.reimbes.interfaces.AdminService;
 import com.reimbes.FamilyMember;
 import com.reimbes.Medical;
 import com.reimbes.ReimsUser;
@@ -29,7 +29,7 @@ public class AdminServiceImpl implements AdminService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private Utils utils;
+    private UtilsServiceImpl utilsServiceImpl;
 
     @Autowired
     private AuthServiceImpl authService;
@@ -70,30 +70,6 @@ public class AdminServiceImpl implements AdminService {
         return userService.create(user);
     }
 
-    public Page<FamilyMember> getAllFamilyMember(Long userId, String name, Pageable page) throws ReimsException {
-        log.info(String.format("GET all family member with criteria User Id: %d and Name: %s", userId, name));
-        return familyMemberService.getAll(userId, name, page);
-    }
-
-    public FamilyMember getMember(long memberId) throws ReimsException {
-        log.info(String.format("GET family member with ID: %d ", memberId));
-        return familyMemberService.getById(memberId);
-    }
-
-    public FamilyMember createMember(long userId, FamilyMember member) throws ReimsException {
-        log.info(String.format("Create family member for User with ID: %d", userId));
-        return familyMemberService.create(userId, member);
-    }
-
-    public void deleteFamilyMember(long familyMemberId) throws ReimsException{
-        log.info(String.format("Delete family member with ID: %d", familyMemberId));
-        familyMemberService.delete(familyMemberId);
-    }
-
-    public FamilyMember updateMember(long familyMemberId, FamilyMember latestData, long userId) throws ReimsException {
-        return familyMemberService.update(familyMemberId, latestData, userId);
-    }
-
     @Override
     public ReimsUser updateUser(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
@@ -117,6 +93,36 @@ public class AdminServiceImpl implements AdminService {
         userService.delete(id);
     }
 
+    @Override
+    public Page<FamilyMember> getAllFamilyMember(Long userId, String familyMemberName, Pageable pageRequest) throws ReimsException {
+        log.info(String.format("GET all family member with criteria User Id: %d and Name: %s", userId, familyMemberName));
+        return familyMemberService.getAll(userId, familyMemberName, pageRequest);
+    }
+
+    @Override
+    public FamilyMember getFamilyMember(long memberId) throws ReimsException {
+        log.info(String.format("GET family member with ID: %d ", memberId));
+        return familyMemberService.getById(memberId);
+    }
+
+    @Override
+    public FamilyMember createFamilyMember(long userId, FamilyMember member) throws ReimsException {
+        log.info(String.format("Create family member for User with ID: %d", userId));
+        return familyMemberService.create(userId, member);
+    }
+
+    @Override
+    public void deleteFamilyMember(long familyMemberId) throws ReimsException{
+        log.info(String.format("Delete family member with ID: %d", familyMemberId));
+        familyMemberService.delete(familyMemberId);
+    }
+
+    @Override
+    public FamilyMember updateFamilyMember(long familyMemberId, FamilyMember latestData, long userId) throws ReimsException {
+        return familyMemberService.update(familyMemberId, latestData, userId);
+    }
+
+    @Override
     public Page<Medical> getAllMedical(Pageable page, String title, Long start, Long end, Long userId)
             throws ReimsException {
         log.info(String.format("GET all medicals with criteria title: %s, time range: %d-%d, User Id: %d",
@@ -124,6 +130,7 @@ public class AdminServiceImpl implements AdminService {
         return medicalService.getAll(page, title, start, end, userId);
     }
 
+    @Override
     public Medical getMedical(long id) throws ReimsException {
         log.info(String.format("Get medical with ID:%d", id));
         return medicalService.get(id);

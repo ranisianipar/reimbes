@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.reimbes.ActiveToken;
 import com.reimbes.ActiveTokenRepository;
-import com.reimbes.AuthService;
+import com.reimbes.interfaces.AuthService;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.SecurityConstants;
 import com.reimbes.exception.NotFoundException;
@@ -40,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
     private UserServiceImpl userService;
 
     @Autowired
-    private Utils utils;
+    private UtilsServiceImpl utilsServiceImpl;
 
     @Override
     public boolean isLogin(String token) {
@@ -48,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
 
 
-        if (activeToken != null && activeToken.getExpiredTime() >= utils.getCurrentTime())
+        if (activeToken != null && activeToken.getExpiredTime() >= utilsServiceImpl.getCurrentTime())
             return true;
 
         // token expired
@@ -95,7 +95,7 @@ public class AuthServiceImpl implements AuthService {
                 Collection<GrantedAuthority> roles = new ArrayList();
                 roles.add(new SimpleGrantedAuthority(role));
                 userDetails.put("username", user);
-                userDetails.put("roles",roles);
+                userDetails.put("roles", roles);
                 return userDetails;
             }
         }
@@ -105,11 +105,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String generateToken(UserDetails user, Collection authorities) {
         String role = authorities.iterator().next().toString();
-        log.info("Generate new token. Username: "+user.getUsername()+" Role: "+role);
+        log.info(String.format("Generate new token. Username: %s, Role: %s", user.getUsername(), role));
 
         String token = TOKEN_PREFIX + JWT.create()
                 .withSubject(user.getUsername())
-                .withClaim("expire",getUpdatedTime())
+                .withClaim("expire", getUpdatedTime())
                 .withClaim("role", role)
                 .sign(HMAC512(SECRET.getBytes()));
 
@@ -117,14 +117,16 @@ public class AuthServiceImpl implements AuthService {
         return token;
     }
 
+    @Override
     public ReimsUser getCurrentUser() throws NotFoundException {
-        ReimsUser currentUser = userService.getUserByUsername(utils.getPrincipalUsername());
+        ReimsUser currentUser = userService.getUserByUsername(utilsServiceImpl.getPrincipalUsername());
         if (currentUser == null) throw new NotFoundException("Current user. Please do re-login.");
         return currentUser;
     }
 
+    @Override
     public ReimsUser.Role getRoleByString(String roleString) {
-        log.info("GET ROLE BY STRING: "+ roleString);
+        log.info("GET ROLE BY STRING: " + roleString);
         switch (roleString) {
             case "ADMIN":
                 return ReimsUser.Role.ADMIN;
@@ -133,8 +135,9 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    @Override
     public long getUpdatedTime() {
-        return utils.getCurrentTime() + SecurityConstants.TOKEN_PERIOD;
+        return utilsServiceImpl.getCurrentTime() + SecurityConstants.TOKEN_PERIOD;
     }
 
 

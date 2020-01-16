@@ -43,7 +43,7 @@ public class TransactionServiceTest {
     private AuthServiceImpl authService;
 
     @Mock
-    private Utils utils;
+    private UtilsServiceImpl utilsServiceImpl;
 
     @InjectMocks
     private TransactionServiceImpl transactionService;
@@ -87,7 +87,7 @@ public class TransactionServiceTest {
                 .transactions(new HashSet(transactions))
                 .build();
 
-        when(userService.getUserByUsername(utils.getPrincipalUsername())).thenReturn(user);
+        when(userService.getUserByUsername(utilsServiceImpl.getPrincipalUsername())).thenReturn(user);
 
     }
 

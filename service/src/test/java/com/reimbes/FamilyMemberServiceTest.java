@@ -7,7 +7,7 @@ import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.FamilyMemberServiceImpl;
 import com.reimbes.implementation.UserServiceImpl;
-import com.reimbes.implementation.Utils;
+import com.reimbes.implementation.UtilsServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +47,7 @@ public class FamilyMemberServiceTest {
     private UserServiceImpl userService;
 
     @Mock
-    private Utils utils;
+    private UtilsServiceImpl utilsServiceImpl;
 
     @InjectMocks
     private FamilyMemberServiceImpl service;
@@ -122,7 +122,7 @@ public class FamilyMemberServiceTest {
                 Instant.parse("2018-08-22T10:00:00Z"),
                 ZoneOffset.UTC));
 
-        when(utils.getCurrentTime()).thenReturn(now.toEpochMilli());
+        when(utilsServiceImpl.getCurrentTime()).thenReturn(now.toEpochMilli());
         when(userService.get(familyMember.getFamilyMemberOf().getId())).thenReturn(familyMember.getFamilyMemberOf());
 
         // Prohibit family member for ADMIN

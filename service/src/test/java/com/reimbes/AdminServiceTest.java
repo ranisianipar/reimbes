@@ -7,15 +7,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.*;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
@@ -32,7 +27,7 @@ import static org.mockito.Mockito.*;
 public class AdminServiceTest {
 
     @Mock
-    private Utils utils;
+    private UtilsServiceImpl utilsServiceImpl;
 
     @Mock
     private AuthServiceImpl authService;
@@ -102,7 +97,7 @@ public class AdminServiceTest {
                 .build();
 
         when(authService.getCurrentUser()).thenReturn(admin);
-        when(utils.getPrincipalUsername()).thenReturn(admin.getUsername());
+        when(utilsServiceImpl.getPrincipalUsername()).thenReturn(admin.getUsername());
     }
 
     @Test
@@ -231,20 +226,20 @@ public class AdminServiceTest {
     @Test
     public void returnAFamilyMember_whenAdminGetFamilyMemberById() throws ReimsException {
         when(familyMemberService.getById(familyMember.getId())).thenReturn(familyMember);
-        assertEquals(adminService.getMember(familyMember.getId()), familyMember);
+        assertEquals(adminService.getFamilyMember(familyMember.getId()), familyMember);
     }
 
     @Test
     public void returnFamilyMember_whenAdminCreateFamilyMemberOfAUser() throws ReimsException {
         when(familyMemberService.create(familyMember.getFamilyMemberOf().getId(), familyMember)).thenReturn(familyMember);
-        assertEquals(adminService.createMember(familyMember.getFamilyMemberOf().getId(), familyMember), familyMember);
+        assertEquals(adminService.createFamilyMember(familyMember.getFamilyMemberOf().getId(), familyMember), familyMember);
     }
 
     @Test
     public void returnFamilyMemberWithLatestData_whenAdminUpdateFamilyMemberById() throws ReimsException {
         familyMember.setFamilyMemberOf(user2);
         when(familyMemberService.update(familyMember.getId(), familyMember, user2.getId())).thenReturn(familyMember);
-        assertEquals(adminService.updateMember(familyMember.getId(), familyMember, user2.getId()), familyMember);
+        assertEquals(adminService.updateFamilyMember(familyMember.getId(), familyMember, user2.getId()), familyMember);
     }
 
     @Test

@@ -1,5 +1,6 @@
-package com.reimbes;
+package com.reimbes.interfaces;
 
+import com.reimbes.Parking;
 import com.reimbes.request.TransactionRequest;
 import org.springframework.data.domain.Pageable;
 

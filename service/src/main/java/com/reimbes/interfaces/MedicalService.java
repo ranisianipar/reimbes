@@ -1,5 +1,6 @@
-package com.reimbes;
+package com.reimbes.interfaces;
 
+import com.reimbes.Medical;
 import com.reimbes.exception.ReimsException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,5 +16,6 @@ public interface MedicalService {
     Medical get(long id) throws ReimsException;
     Page<Medical> getAll(Pageable pageRequest, String title, Long startDate, Long endDate, Long userId) throws ReimsException;
     void delete(long id) throws ReimsException;
+    List<Medical> getByDate(Long start, Long end) throws ReimsException;
 
 }

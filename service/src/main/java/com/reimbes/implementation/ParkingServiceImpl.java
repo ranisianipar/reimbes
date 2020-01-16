@@ -1,6 +1,7 @@
 package com.reimbes.implementation;
 
 import com.reimbes.*;
+import com.reimbes.interfaces.ParkingService;
 import com.reimbes.request.TransactionRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

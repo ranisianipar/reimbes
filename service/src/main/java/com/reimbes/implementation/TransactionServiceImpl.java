@@ -1,6 +1,5 @@
 package com.reimbes.implementation;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 
@@ -10,6 +9,7 @@ import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.interfaces.TransactionService;
 import com.reimbes.request.TransactionRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class TransactionServiceImpl implements TransactionService {
     private ReceiptMapperServiceImpl receiptMapperService;
 
     @Autowired
-    private Utils utils;
+    private UtilsServiceImpl utilsServiceImpl;
 
     @Override
     public Transaction createByImage(String imageValue) throws ReimsException {
@@ -55,7 +55,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         Transaction transaction;
         try {
-            imagePath = utils.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
+            imagePath = utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
 
             log.info("Predicting image content... ");
 
@@ -97,7 +97,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
         transaction.setImage(transactionRequest.getImage());
         transaction.setTitle(transactionRequest.getTitle());
-        transaction.setReimsUser(userService.getUserByUsername(utils.getPrincipalUsername()));
+        transaction.setReimsUser(userService.getUserByUsername(utilsServiceImpl.getPrincipalUsername()));
 
         return transactionRepository.save(transaction);
     }
@@ -105,10 +105,10 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void delete(long id) throws ReimsException{
-        ReimsUser user = userService.getUserByUsername(utils.getPrincipalUsername());
+        ReimsUser user = userService.getUserByUsername(utilsServiceImpl.getPrincipalUsername());
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getReimsUser() != user) throw new NotFoundException("Transaction with ID "+id);
-        utils.removeImage(transaction.getImage());
+        utilsServiceImpl.removeImage(transaction.getImage());
         transactionRepository.delete(transaction);
     }
 
@@ -120,7 +120,7 @@ public class TransactionServiceImpl implements TransactionService {
         log.info("Removing the images");
         Iterator iterator = transactions.iterator();
         while (iterator.hasNext()) {
-            utils.removeImage(((Transaction) iterator.next()).getImage());
+            utilsServiceImpl.removeImage(((Transaction) iterator.next()).getImage());
         }
 
         transactionRepository.delete(transactions);
@@ -128,7 +128,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction get(long id) throws ReimsException{
-        ReimsUser user = userService.getUserByUsername(utils.getPrincipalUsername());
+        ReimsUser user = userService.getUserByUsername(utilsServiceImpl.getPrincipalUsername());
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getReimsUser() != user)
             throw new NotFoundException("Transaction with ID "+id);
@@ -148,7 +148,7 @@ public class TransactionServiceImpl implements TransactionService {
         Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
 
         /****************************************SERVE REQUEST w/ JPA METHOD*******************************************/
-        ReimsUser user = userService.getUserByUsername(utils.getPrincipalUsername());
+        ReimsUser user = userService.getUserByUsername(utilsServiceImpl.getPrincipalUsername());
         if (title == null) title = "";
 
         if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
@@ -236,7 +236,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // validate image path
-        if (transaction.getImage()== null || !utils.isFileExists(transaction.getImage()))
+        if (transaction.getImage()== null || !utilsServiceImpl.isFileExists(transaction.getImage()))
             errorMessages.add("INVALID_IMAGE_PATH");
 
 

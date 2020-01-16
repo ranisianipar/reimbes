@@ -1,9 +1,9 @@
 package com.reimbes.implementation;
 
 import com.reimbes.ReimsUser;
-import com.reimbes.constant.SecurityConstants;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.interfaces.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,8 +20,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.UUID;
 
 import static com.reimbes.constant.ResponseCode.BAD_REQUEST;
@@ -37,9 +35,9 @@ import static com.reimbes.constant.UrlConstants.STORAGE_FOLDER;
 * */
 
 @Service
-public class Utils {
+public class UtilsServiceImpl implements UtilsService {
 
-    private static Logger log = LoggerFactory.getLogger(Utils.class);
+    private static Logger log = LoggerFactory.getLogger(UtilsServiceImpl.class);
 
     public String getPrincipalUsername() {
         try {
@@ -152,18 +150,6 @@ public class Utils {
         }
 
         return imagePath; // relative path
-    }
-
-    public static long getCurrentYear() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        return calendar.get(Calendar.YEAR);
-    }
-
-    public static long countAge(Date dateOfBirth) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(dateOfBirth);
-        return getCurrentYear() - calendar.get(Calendar.YEAR);
     }
 
     // millis

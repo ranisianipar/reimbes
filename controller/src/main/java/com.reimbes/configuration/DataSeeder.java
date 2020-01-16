@@ -4,8 +4,6 @@ import com.reimbes.FamilyMember;
 import com.reimbes.FamilyMemberRepository;
 import com.reimbes.ReimsUser;
 import com.reimbes.ReimsUserRepository;
-import com.reimbes.exception.ReimsException;
-import com.reimbes.implementation.FamilyMemberServiceImpl;
 import com.reimbes.implementation.UserServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +13,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
-import static com.reimbes.implementation.Utils.getCurrentTime;
+import static com.reimbes.implementation.UtilsServiceImpl.getCurrentTime;
 
 @Component
 public class DataSeeder {

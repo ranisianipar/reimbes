@@ -5,7 +5,7 @@ import com.reimbes.constant.SecurityConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.UserServiceImpl;
-import com.reimbes.implementation.Utils;
+import com.reimbes.implementation.UtilsServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +47,7 @@ public class AuthServiceTest {
     private UserServiceImpl userService;
 
     @Mock
-    private Utils utils;
+    private UtilsServiceImpl utilsServiceImpl;
 
     @InjectMocks
     private AuthServiceImpl authService;
@@ -80,7 +80,7 @@ public class AuthServiceTest {
                 Instant.parse("2018-08-22T10:00:00Z"),
                 ZoneOffset.UTC));
 
-        when(utils.getCurrentTime()).thenReturn(now.toEpochMilli());
+        when(utilsServiceImpl.getCurrentTime()).thenReturn(now.toEpochMilli());
         String token = authService.generateToken(userDetails, authorities);
         ActiveToken activeToken = new ActiveToken(token); //
 
@@ -95,7 +95,7 @@ public class AuthServiceTest {
                 Instant.parse("2018-08-22T10:00:00Z"),
                 ZoneOffset.UTC));
 
-        when(utils.getCurrentTime()).thenReturn(now.toEpochMilli());
+        when(utilsServiceImpl.getCurrentTime()).thenReturn(now.toEpochMilli());
 
         String token = authService.generateToken(userDetails, authorities);
         ActiveToken activeToken = new ActiveToken(token);
@@ -113,7 +113,7 @@ public class AuthServiceTest {
                 Instant.parse("2018-08-22T10:00:00Z"),
                 ZoneOffset.UTC));
 
-        when(utils.getCurrentTime()).thenReturn(now.toEpochMilli());
+        when(utilsServiceImpl.getCurrentTime()).thenReturn(now.toEpochMilli());
 
         String token = authService.generateToken(userDetails, authorities);
 
@@ -177,7 +177,7 @@ public class AuthServiceTest {
     public void returnCurrentUser_byFindReimsUserUsingPrincipal() throws ReimsException {
         ReimsUser user = ReimsUser.ReimsUserBuilder()
                 .username("haha").password("haha123").role(ADMIN).build();
-        when(utils.getPrincipalUsername()).thenReturn(user.getUsername());
+        when(utilsServiceImpl.getPrincipalUsername()).thenReturn(user.getUsername());
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
         assertEquals(authService.getCurrentUser(), user);
 

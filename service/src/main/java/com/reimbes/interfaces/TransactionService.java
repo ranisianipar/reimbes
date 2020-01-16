@@ -1,5 +1,7 @@
-package com.reimbes;
+package com.reimbes.interfaces;
 
+import com.reimbes.ReimsUser;
+import com.reimbes.Transaction;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.request.TransactionRequest;
 import org.springframework.data.domain.Page;

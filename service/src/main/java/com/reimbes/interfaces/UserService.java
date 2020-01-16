@@ -1,6 +1,7 @@
-package com.reimbes;
+package com.reimbes.interfaces;
 
 
+import com.reimbes.ReimsUser;
 import com.reimbes.exception.ReimsException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,4 +18,5 @@ public interface UserService {
     void delete(long id);
     boolean isExist(String username);
     byte[] getReport(Long start, Long end, String reimbursementType) throws Exception;
+    byte[] getImage(String imagePath) throws ReimsException;
 }

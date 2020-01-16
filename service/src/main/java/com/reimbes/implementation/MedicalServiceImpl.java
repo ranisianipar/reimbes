@@ -6,19 +6,19 @@ import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.MethodNotAllowedException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.interfaces.MedicalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 import static com.reimbes.ReimsUser.Role.ADMIN;
-import static com.reimbes.implementation.Utils.countAge;
+import static com.reimbes.implementation.UtilsServiceImpl.countAge;
 
 @Service
 public class MedicalServiceImpl implements MedicalService {
@@ -39,9 +39,10 @@ public class MedicalServiceImpl implements MedicalService {
     private FamilyMemberServiceImpl familyMemberService;
 
     @Autowired
-    private Utils utils;
+    private UtilsServiceImpl utilsServiceImpl;
 
-//    MULTIPLE upload
+    //    MULTIPLE upload
+    @Override
     public Medical create(Medical medical, List<String> files) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
         if (currentUser.getRole() == ADMIN) throw new MethodNotAllowedException("Only User allowed.");
@@ -53,10 +54,10 @@ public class MedicalServiceImpl implements MedicalService {
         if (files != null) {
             Set<MedicalReport> reports = new HashSet<>();
             log.info("Create register all medical attachments those have been attached.");
-            for (String file: files) {
+            for (String file : files) {
                 reports.add(
                         MedicalReport.builder()
-                                .image(utils.uploadImage(file, currentUser.getId(), UrlConstants.SUB_FOLDER_REPORT))
+                                .image(utilsServiceImpl.uploadImage(file, currentUser.getId(), UrlConstants.SUB_FOLDER_REPORT))
                                 .medicalImage(medical)
                                 .build()
                 );
@@ -72,12 +73,12 @@ public class MedicalServiceImpl implements MedicalService {
         medical.setMedicalUser(currentUser);
         medical.setPatient(patient);
         medical.setAge(countAge(patient.getDateOfBirth()));
-        medical.setCreatedAt(utils.getCurrentTime());
+        medical.setCreatedAt(utilsServiceImpl.getCurrentTime());
         return medicalRepository.save(medical);
     }
 
     /*
-    * User cant update medical attachment
+     * User cant update medical attachment
      */
     @Override
     public Medical update(long id, Medical newMedical, List<String> files) throws ReimsException {
@@ -133,19 +134,19 @@ public class MedicalServiceImpl implements MedicalService {
             log.info(String.format("GET MEDICAL by User with criteria title: %s;queryUser: %s", title, queryUser));
             return medicalRepository.findByTitleContainingIgnoreCaseAndMedicalUser(title, queryUser, page);
         } else {
-            if (queryUser == null) return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetween(title, start, end, page);
+            if (queryUser == null)
+                return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetween(title, start, end, page);
             return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(title, start, end, queryUser, page);
         }
     }
 
-
-    public List<Medical> getByDate(Long start, Long end) throws ReimsException{
+    @Override
+    public List<Medical> getByDate(Long start, Long end) throws ReimsException {
         ReimsUser user = authService.getCurrentUser();
         if (start == null && end == null)
             return medicalRepository.findByMedicalUser(user);
         return medicalRepository.findByDateBetweenAndMedicalUser(start, end, user);
     }
-
 
 
     @Override

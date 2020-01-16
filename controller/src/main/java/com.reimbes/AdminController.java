@@ -4,9 +4,6 @@ import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.AdminServiceImpl;
 import com.reimbes.response.*;
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import static com.reimbes.constant.Mapper.*;
 import static com.reimbes.constant.UrlConstants.*;
@@ -165,7 +160,7 @@ public class AdminController {
         log.info(String.format("[POST] Create Family Member for User with ID: %s", id));
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(adminService.createMember(new Long(id), familyMember));
+            br.setData(adminService.createFamilyMember(new Long(id), familyMember));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -180,7 +175,7 @@ public class AdminController {
         log.info(String.format("[PUT] Update Family Member with ID: %s", id));
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(getFamilyMemberResponse(adminService.updateMember(id, familyMember, new Long(userId))));
+            br.setData(getFamilyMemberResponse(adminService.updateFamilyMember(id, familyMember, new Long(userId))));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -221,7 +216,7 @@ public class AdminController {
         log.info(String.format("[GET] Get Family Member with ID: %d", id));
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(getFamilyMemberResponse(adminService.getMember(id)));
+            br.setData(getFamilyMemberResponse(adminService.getFamilyMember(id)));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }

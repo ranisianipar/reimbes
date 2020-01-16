@@ -1,22 +1,17 @@
 package com.reimbes;
 
-import com.reimbes.*;
 import com.reimbes.implementation.ReportGeneratorServiceImpl;
 import com.reimbes.implementation.TransactionServiceImpl;
-import com.reimbes.implementation.Utils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Workbook;
+import com.reimbes.implementation.UtilsServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,7 +31,7 @@ public class ReportGeneratorServiceTest {
     private TransactionServiceImpl transactionService;
 
     @Mock
-    private Utils utils;
+    private UtilsServiceImpl utilsServiceImpl;
 
     @InjectMocks
     private ReportGeneratorServiceImpl reportGeneratorService;
@@ -90,7 +85,7 @@ public class ReportGeneratorServiceTest {
     @Test
     public void whenCreateReportWithoutRangeOfDate_thenReturnReportOfAllTransactions() throws Exception{
         when(transactionService.getByUser(user)).thenReturn(new ArrayList<>(transactions));
-        when(utils.getFile(user.getUsername()+"_ALL")).thenReturn(new byte[19]);
+        when(utilsServiceImpl.getFile(user.getUsername()+"_ALL")).thenReturn(new byte[19]);
 
         reportGeneratorService.getReport(user, INFINITE_DATE_RANGE, INFINITE_DATE_RANGE, null);
 

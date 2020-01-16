@@ -2,6 +2,7 @@ package com.reimbes.implementation;
 
 import com.reimbes.*;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.interfaces.ReportGeneratorService;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -34,7 +35,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private AuthServiceImpl authService;
 
     @Autowired
-    private Utils utils;
+    private UtilsServiceImpl utilsServiceImpl;
 
     // Header sizes
     private final short SUPER_LARGE_TEXT = (short)24;
@@ -110,7 +111,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         wb.write(fileOut);
 
         fileOut.close();
-        return utils.getFile(filename);
+        return utilsServiceImpl.getFile(filename);
 
     }
 
@@ -291,7 +292,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     // space: 5 rows
     private void initImage(Workbook wb, Sheet sheet) throws IOException {
         // add picture data to this workbook.
-        int pictureIdx = wb.addPicture(utils.getFile("image/blibli-logo.png"), Workbook.PICTURE_TYPE_PNG);
+        int pictureIdx = wb.addPicture(utilsServiceImpl.getFile("image/blibli-logo.png"), Workbook.PICTURE_TYPE_PNG);
         CreationHelper helper = wb.getCreationHelper();
 
         // Create the drawing patriarch.  This is the top level container for all shapes.
