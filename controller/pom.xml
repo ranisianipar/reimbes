@@ -13,35 +13,30 @@
     <packaging>jar</packaging>
 
 
-
     <dependencies>
 
         <dependency>
             <groupId>com.reimbes</groupId>
             <artifactId>repository</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.reimbes</groupId>
             <artifactId>model</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.reimbes</groupId>
             <artifactId>webmodel</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.reimbes</groupId>
             <artifactId>service</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
 
     </dependencies>

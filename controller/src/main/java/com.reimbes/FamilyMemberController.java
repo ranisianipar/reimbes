@@ -2,14 +2,9 @@ package com.reimbes;
 
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
-import com.reimbes.implementation.FamilyMemberServiceImpl;
+import com.reimbes.interfaces.FamilyMemberService;
 import com.reimbes.response.BaseResponse;
-import com.reimbes.response.FamilyMemberResponse;
-import com.reimbes.response.FuelResponse;
 import com.reimbes.response.Paging;
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import static com.reimbes.constant.Mapper.*;
 import static com.reimbes.constant.UrlConstants.*;
 
@@ -32,7 +22,7 @@ import static com.reimbes.constant.UrlConstants.*;
 public class FamilyMemberController {
 
     @Autowired
-    private FamilyMemberServiceImpl familyMemberService;
+    private FamilyMemberService familyMemberService;
 
     private static Logger log = LoggerFactory.getLogger(FamilyMemberController.class);
 

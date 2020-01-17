@@ -3,7 +3,6 @@ package com.reimbes.implementation;
 import com.reimbes.*;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
-import com.reimbes.exception.MethodNotAllowedException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.interfaces.MedicalService;
@@ -45,7 +44,6 @@ public class MedicalServiceImpl implements MedicalService {
     @Override
     public Medical create(Medical medical, List<String> files) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
-        if (currentUser.getRole() == ADMIN) throw new MethodNotAllowedException("Only User allowed.");
 
         log.info("Create method called. With files: " + files);
 
@@ -65,8 +63,6 @@ public class MedicalServiceImpl implements MedicalService {
             medical.setAttachments(reports);
         }
 
-        // [CHECK]: user claim medical for himself or not
-        // POTENTIALLY THROW ERROR
         Patient patient = (medical.getPatient() == null || medical.getPatient().getId() == 0)
                 ? currentUser : familyMemberService.getById(medical.getPatient().getId());
 
@@ -74,7 +70,10 @@ public class MedicalServiceImpl implements MedicalService {
         medical.setPatient(patient);
         medical.setAge(countAge(patient.getDateOfBirth()));
         medical.setCreatedAt(utilsServiceImpl.getCurrentTime());
-        return medicalRepository.save(medical);
+
+        Medical result = medicalRepository.save(medical);
+
+        return result;
     }
 
     /*
@@ -88,7 +87,7 @@ public class MedicalServiceImpl implements MedicalService {
         validate(newMedical);
         old.setAmount(newMedical.getAmount());
 
-        Patient patient = (newMedical.getPatient() == null || newMedical.getPatient().getId() == 0)
+        Patient patient = (newMedical.getPatient() == null || newMedical.getPatient().getId() == currentUser.getId())
                 ? currentUser : familyMemberService.getById(newMedical.getPatient().getId());
 
         old.setPatient(patient);
@@ -102,7 +101,7 @@ public class MedicalServiceImpl implements MedicalService {
     public Medical get(long id) throws ReimsException {
         Medical report = medicalRepository.findOne(id);
         ReimsUser currentUser = authService.getCurrentUser();
-        if (report == null || currentUser.getRole() == ADMIN || report.getMedicalUser() != currentUser)
+        if (report == null || (report.getMedicalUser() != currentUser && currentUser.getRole() != ADMIN))
             throw new NotFoundException("MEDICAL_REPORT");
         return report;
     }
@@ -110,7 +109,6 @@ public class MedicalServiceImpl implements MedicalService {
     @Override
     public Page<Medical> getAll(Pageable pageRequest, String title, Long start, Long end, Long userId) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
-
 
         // enabling query by specific for admin. In the other hand, user get his medical report list
         ReimsUser queryUser;
@@ -163,7 +161,6 @@ public class MedicalServiceImpl implements MedicalService {
         ArrayList<String> errors = new ArrayList();
 
         if (report.getAmount() <= 0) errors.add("PROHIBITED_AMOUNT");
-
         if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
     }
 }

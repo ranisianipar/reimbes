@@ -27,6 +27,7 @@ public interface UtilsService {
      * RETURN --> relative image path
      * */
     String uploadImage(String imageValue, long userId, String subfolder) throws ReimsException;
+    long getCurrentTime();
 
     static long getCurrentYear() {
         Calendar calendar = Calendar.getInstance();

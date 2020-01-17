@@ -3,6 +3,7 @@ package com.reimbes;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.MedicalServiceImpl;
+import com.reimbes.interfaces.MedicalService;
 import com.reimbes.response.*;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
@@ -32,7 +33,7 @@ public class MedicalController {
     private static Logger log = LoggerFactory.getLogger(MedicalController.class);
 
     @Autowired
-    private MedicalServiceImpl medicalService;
+    private MedicalService medicalService;
 
     @GetMapping
     public BaseResponse getAll(
@@ -46,8 +47,8 @@ public class MedicalController {
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
 
-
          try {
+             log.info("Get All Medicals");
              Page medicals = medicalService.getAll(pageRequest, search, new Long(start), new Long(end), NULL_USER_ID_CODE);
              Paging paging = getPagingMapper().map(pageRequest, Paging.class);
              br.setData(getAllMedicalResponse(
@@ -67,6 +68,7 @@ public class MedicalController {
     public BaseResponse get(@PathVariable long id) {
         BaseResponse br = new BaseResponse();
         try {
+            log.info("Get Medical by ID:" + id);
             Medical result = medicalService.get(id);
             br.setData(getMedicalMapper(result).map(result, MedicalWebModel.class));
         } catch (ReimsException r) {

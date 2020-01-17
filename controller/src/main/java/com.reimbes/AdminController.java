@@ -2,7 +2,7 @@ package com.reimbes;
 
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
-import com.reimbes.implementation.AdminServiceImpl;
+import com.reimbes.interfaces.AdminService;
 import com.reimbes.response.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class AdminController {
     private static Logger log = LoggerFactory.getLogger(AdminController.class);
 
     @Autowired
-    private AdminServiceImpl adminService;
+    private AdminService adminService;
 
     @PostMapping(UrlConstants.USER_PREFIX)
     public BaseResponse<UserResponse> createUser(@RequestBody ReimsUser user) {
