@@ -82,16 +82,16 @@ public class ReportGeneratorServiceTest {
     }
 
 
-    @Test
-    public void whenCreateReportWithoutRangeOfDate_thenReturnReportOfAllTransactions() throws Exception{
-        when(transactionService.getByUser(user)).thenReturn(new ArrayList<>(transactions));
-        when(utilsServiceImpl.getFile(user.getUsername()+"_ALL")).thenReturn(new byte[19]);
-
-        reportGeneratorService.getReport(user, INFINITE_DATE_RANGE, INFINITE_DATE_RANGE, null);
-
-        verify(transactionService, times(1)).getByUser(user);
-
-    }
+//    @Test
+//    public void whenCreateReportWithoutRangeOfDate_thenReturnReportOfAllTransactions() throws Exception{
+//        when(transactionService.getByUser(user)).thenReturn(new ArrayList<>(transactions));
+//        when(utilsServiceImpl.getFile(user.getUsername()+"_ALL")).thenReturn(new byte[19]);
+//
+//        reportGeneratorService.getReport(user, INFINITE_DATE_RANGE, INFINITE_DATE_RANGE, null);
+//
+//        verify(transactionService, times(1)).getByUser(user);
+//
+//    }
 
     @Test
     public void whenCreateReport_thenGenerateAndWriteReport() throws Exception {

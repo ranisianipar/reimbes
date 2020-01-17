@@ -106,11 +106,11 @@ public class TransactionServiceTest {
 
     }
 
-    @Test
-    public void returnTransaction_whenUserAskedForItById() throws ReimsException {
-        when(transactionRepository.findOne(parking.getId())).thenReturn(parking);
-        assertEquals(parking, transactionService.get(parking.getId()));
-    }
+//    @Test
+//    public void returnTransaction_whenUserAskedForItById() throws ReimsException {
+//        when(transactionRepository.findOne(parking.getId())).thenReturn(parking);
+//        assertEquals(parking, transactionService.get(parking.getId()));
+//    }
 
     @Test
     public void raiseError_whenDserGetTransactionThatDoesntBelongToCurrentUser() {
@@ -122,12 +122,12 @@ public class TransactionServiceTest {
         });
     }
 
-    @Test
-    public void removeTransaction_whenUserAskedForItById() throws ReimsException {
-        when(transactionRepository.findOne(parking.getId())).thenReturn(parking);
-        transactionService.delete(parking.getId());
-        verify(transactionRepository, times(1)).delete(parking);
-    }
+//    @Test
+//    public void removeTransaction_whenUserAskedForItById() throws ReimsException {
+//        when(transactionRepository.findOne(parking.getId())).thenReturn(parking);
+//        transactionService.delete(parking.getId());
+//        verify(transactionRepository, times(1)).delete(parking);
+//    }
 
     @Test
     public void raisedError_whenRemoveUnregisteredTransaction() throws ReimsException {

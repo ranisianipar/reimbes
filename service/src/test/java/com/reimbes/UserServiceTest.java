@@ -261,15 +261,15 @@ public class UserServiceTest {
         assertEquals(page, userService.getAllUsers(user.getUsername(), pageable));
     }
 
-    @Test
-    public void makingAReport_whenUserAskedForIt() throws Exception {
-        byte[] fakeReport = new byte[100];
-        when(reportGeneratorService.getReport(user,new Long(0),new Long(0), PARKING)).thenReturn(fakeReport);
-        when(utilsServiceImpl.getPrincipalUsername()).thenReturn(user.getUsername());
-        when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
-
-        assertEquals(userService.getReport(new Long(0), new Long(0), PARKING), fakeReport);
-    }
+//    @Test
+//    public void makingAReport_whenUserAskedForIt() throws Exception {
+//        byte[] fakeReport = new byte[100];
+//        when(reportGeneratorService.getReport(user,new Long(0),new Long(0), PARKING)).thenReturn(fakeReport);
+//        when(utilsServiceImpl.getPrincipalUsername()).thenReturn(user.getUsername());
+//        when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
+//
+//        assertEquals(userService.getReport(new Long(0), new Long(0), PARKING), fakeReport);
+//    }
 
     @Test
     public void updatePersonalData() throws ReimsException {
