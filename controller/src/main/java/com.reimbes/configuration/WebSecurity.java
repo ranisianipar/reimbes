@@ -66,7 +66,13 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                         API_PREFIX + LOGIN_URL,
                         API_PREFIX + LOGOUT_URL,
                         API_PREFIX + ISLOGIN_URL,
-                        "/v2/api-docs"
+                        "/v2/api-docs",
+                        "/spring-security-rest/api**",
+                        "/configuration/ui",
+                        "/swagger-resources/**",
+                        "/configuration/security",
+                        "/swagger-ui.html",
+                        "/webjars/**"
                 ).permitAll()
                 .antMatchers(
                         API_PREFIX + ADMIN_PREFIX,
