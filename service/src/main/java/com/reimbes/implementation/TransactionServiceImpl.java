@@ -57,10 +57,11 @@ public class TransactionServiceImpl implements TransactionService {
         try {
             imagePath = utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
 
-            log.info("Predicting image content... ");
+            log.info("Predicting image content... " + imagePath);
 
             String receiptMapperResult = receiptMapperService.translateImage(imagePath, imageValue);
-            log.info(String.format("Receipt Mapper Result %s"));
+
+            log.info(String.format("Receipt Mapper Result %s", receiptMapperResult));
 
             transaction = new Transaction(); // default
             transaction.setCategory(PARKING);
@@ -105,7 +106,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void delete(long id) throws ReimsException{
-        ReimsUser user = userService.getUserByUsername(utilsServiceImpl.getPrincipalUsername());
+        ReimsUser user = authService.getCurrentUser();
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getReimsUser() != user) throw new NotFoundException("Transaction with ID "+id);
         utilsServiceImpl.removeImage(transaction.getImage());
@@ -128,7 +129,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction get(long id) throws ReimsException{
-        ReimsUser user = userService.getUserByUsername(utilsServiceImpl.getPrincipalUsername());
+        ReimsUser user = authService.getCurrentUser();
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getReimsUser() != user)
             throw new NotFoundException("Transaction with ID "+id);
@@ -189,12 +190,11 @@ public class TransactionServiceImpl implements TransactionService {
     public List<Transaction> getByDateAndType(Long start, Long end, Transaction.Category category) throws ReimsException {
         ReimsUser user = authService.getCurrentUser();
 
-        if (start == null || end== null) {
+        if (start == null || end == null) {
             return transactionRepository.findByReimsUserAndCategory(user, category);
         }
 
         return transactionRepository.findByReimsUserAndDateBetweenAndCategory(user, start, end, category);
-
 
     }
 

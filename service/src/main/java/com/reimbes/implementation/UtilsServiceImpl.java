@@ -107,6 +107,7 @@ public class UtilsServiceImpl implements UtilsService {
     * RETURN --> relative image path
     * */
     public String uploadImage(String imageValue, long userId, String subfolder) throws ReimsException {
+        System.out.println(String.format("Value: %s, Used Id: %d, Subfolder: %s", imageValue, userId, subfolder));
 
         String[] extractedByte = imageValue.split(",");
         String extension = extractedByte[0];
