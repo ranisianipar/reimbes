@@ -1,6 +1,5 @@
 package com.reimbes.implementation;
 
-import java.time.Instant;
 import java.util.*;
 
 import com.reimbes.*;
@@ -52,20 +51,14 @@ public class TransactionServiceImpl implements TransactionService {
     public Transaction createByImage(String imageValue) throws ReimsException {
         ReimsUser user = authService.getCurrentUser();
         String imagePath;
-
         Transaction transaction;
         try {
             imagePath = utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
-
             log.info("Predicting image content... " + imagePath);
-
             String receiptMapperResult = receiptMapperService.translateImage(imagePath, imageValue);
-
             log.info(String.format("Receipt Mapper Result %s", receiptMapperResult));
-
             transaction = new Transaction(); // default
             transaction.setCategory(PARKING);
-
         } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
         }
@@ -79,6 +72,7 @@ public class TransactionServiceImpl implements TransactionService {
     public Transaction update(TransactionRequest transactionRequest) throws ReimsException {
 
         // make sure update only happen once!
+        System.out.println("[REAL] "+transactionRequest);
         validate(transactionRequest);
 
         Transaction transaction;
@@ -89,34 +83,33 @@ public class TransactionServiceImpl implements TransactionService {
             transaction = parkingService.create(transactionRequest);
         }
 
-        transaction.setCreatedAt(Instant.now().toEpochMilli());
+        transaction.setCreatedAt(utilsServiceImpl.getCurrentTime());
         transaction.setAmount(transactionRequest.getAmount());
-        try {
-            transaction.setDate(transactionRequest.getDate());
-        }   catch (Exception e) {
-            transaction.setDate(Instant.now().toEpochMilli());
-        }
+        transaction.setDate(transactionRequest.getDate());
         transaction.setImage(transactionRequest.getImage());
         transaction.setTitle(transactionRequest.getTitle());
-        transaction.setReimsUser(userService.getUserByUsername(utilsServiceImpl.getPrincipalUsername()));
+        transaction.setReimsUser(authService.getCurrentUser());
 
         return transactionRepository.save(transaction);
     }
 
 
     @Override
-    public void delete(long id) throws ReimsException{
+    public void delete(long id) throws ReimsException {
         ReimsUser user = authService.getCurrentUser();
         Transaction transaction = transactionRepository.findOne(id);
-        if (transaction == null || transaction.getReimsUser() != user) throw new NotFoundException("Transaction with ID "+id);
+        if (transaction == null || transaction.getReimsUser() != user)
+            throw new NotFoundException("Transaction with ID "+id);
         utilsServiceImpl.removeImage(transaction.getImage());
         transactionRepository.delete(transaction);
     }
 
     public void deleteByUser(ReimsUser user) {
         List<Transaction> transactions = transactionRepository.findByReimsUser(user);
-        if (transactions == null)
+        if (transactions == null) {
+            log.info("null transaction");
             return;
+        }
 
         log.info("Removing the images");
         Iterator iterator = transactions.iterator();
@@ -139,7 +132,7 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
-    public Page<Transaction> getAll(Pageable pageRequest, String startDate, String endDate, String title,
+    public Page<Transaction> getAll(Pageable pageRequest, String title, String startDate, String endDate,
                                     Transaction.Category category) throws ReimsException{
 
         /****************************************HANDLING REQUEST PARAM************************************************/
@@ -149,7 +142,7 @@ public class TransactionServiceImpl implements TransactionService {
         Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
 
         /****************************************SERVE REQUEST w/ JPA METHOD*******************************************/
-        ReimsUser user = userService.getUserByUsername(utilsServiceImpl.getPrincipalUsername());
+        ReimsUser user = authService.getCurrentUser();
         if (title == null) title = "";
 
         if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
@@ -169,31 +162,20 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (category == null) {
             return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndDateBetween(
-                    user,
-                    title,
-                    start,
-                    end,
-                    pageable
+                    user, title, start, end, pageable
             );
         } else {
             return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategoryAndDateBetween(
-                    user,
-                    title,
-                    category,
-                    start,
-                    end,
-                    pageable
+                    user, title, category, start, end, pageable
             );
         }
     }
 
     public List<Transaction> getByDateAndType(Long start, Long end, Transaction.Category category) throws ReimsException {
         ReimsUser user = authService.getCurrentUser();
-
         if (start == null || end == null) {
             return transactionRepository.findByReimsUserAndCategory(user, category);
         }
-
         return transactionRepository.findByReimsUserAndDateBetweenAndCategory(user, start, end, category);
 
     }
@@ -220,11 +202,9 @@ public class TransactionServiceImpl implements TransactionService {
         if (!(transaction.getCategory() instanceof Transaction.Category))
             errorMessages.add("UNKNOWN_CATEGORY");
 
-        if (transaction.getDate() == 0)
-            errorMessages.add("NULL_DATE");
+        if (transaction.getDate() == 0) errorMessages.add("NULL_DATE");
 
-        if (transaction.getAmount() == 0)
-            errorMessages.add("ZERO_AMOUNT");
+        if (transaction.getAmount() == 0) errorMessages.add("ZERO_AMOUNT");
 
         if (transaction.getCategory() == null) {
             errorMessages.add("NULL_CATEGORY");
@@ -236,7 +216,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // validate image path
-        if (transaction.getImage()== null || !utilsServiceImpl.isFileExists(transaction.getImage()))
+        if (transaction.getImage() == null || !utilsServiceImpl.isFileExists(transaction.getImage()))
             errorMessages.add("INVALID_IMAGE_PATH");
 
 

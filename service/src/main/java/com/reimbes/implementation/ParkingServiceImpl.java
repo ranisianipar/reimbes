@@ -27,7 +27,6 @@ public class ParkingServiceImpl implements ParkingService {
         transaction.setCategory(Transaction.Category.PARKING);
         transaction.setHours(request.getHours());
         transaction.setType(request.getParkingType());
-        transaction.setLicense(request.getLicense());
         transaction.setLocation(request.getLocation());
         return transaction;
     }

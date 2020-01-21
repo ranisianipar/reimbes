@@ -1,8 +1,10 @@
 package com.reimbes;
 
+import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.*;
+import com.reimbes.request.TransactionRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.domain.*;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.nio.charset.StandardCharsets;
@@ -61,6 +64,9 @@ public class TransactionServiceTest {
     private Fuel fuel = new Fuel();
     private Parking parking = new Parking();
     private List transactions = new ArrayList();
+
+    private Pageable pageRequest = new PageRequest(1, 5, new Sort(Sort.Direction.DESC, "createdAt"));
+    private Pageable pageForQuery = new PageRequest(0, pageRequest.getPageSize(), pageRequest.getSort());
 
     @Before
     public void setup() {
@@ -114,7 +120,6 @@ public class TransactionServiceTest {
 
     }
 
-    // WHY
     @Test
     public void predictedImageReturn_whenUserCreateTransactionByImage() throws Exception {
         String extension = "png";
@@ -215,9 +220,234 @@ public class TransactionServiceTest {
 
     @Test
     public void doNothing_whenUserTryToDeleteTransactionByUser_inConditionUserIsNotExist() {
+        when(transactionRepository.findByReimsUser(user)).thenReturn(null);
         transactionService.deleteByUser(user);
+
         verify(transactionRepository).findByReimsUser(user);
         verifyNoMoreInteractions(transactionRepository);
     }
+
+    @Test
+    public void deleteTransactionByUserSucceessfully() {
+        when(transactionRepository.findByReimsUser(user)).thenReturn(transactions);
+        transactionService.deleteByUser(user);
+
+        verify(transactionRepository, times(1)).delete(transactions);
+    }
+
+    @Test
+    public void returnPageOfTransactions_whenUserGetAllTransactionsWIthCategoryAndNoDateRange() throws ReimsException {
+        String title = "";
+        String start; String end;
+        start = end = "";
+        Transaction.Category category = PARKING;
+
+        Page expectedResult = new PageImpl<>(transactions);
+
+        when(authService.getCurrentUser()).thenReturn(user);
+        when(transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategory(user, title, category, pageForQuery))
+                .thenReturn(expectedResult);
+
+        assertEquals(expectedResult, transactionService.getAll(pageRequest, title, start, end, category));
+    }
+
+    @Test
+    public void returnPageOfTransactions_whenUserGetAllTransactionsWIthNoCategoryAndNoDateRange() throws ReimsException {
+        String title = "";
+        String start; String end;
+        start = end = "";
+        Transaction.Category category = null;
+
+        Page expectedResult = new PageImpl<>(transactions);
+
+        when(authService.getCurrentUser()).thenReturn(user);
+        when(transactionRepository.findByReimsUserAndTitleContainingIgnoreCase(user, title, pageForQuery))
+                .thenReturn(expectedResult);
+
+        assertEquals(expectedResult, transactionService.getAll(pageRequest, title, start, end, category));
+    }
+
+    @Test
+    public void returnPageOfTransactions_whenUserGetAllTransactionsWIthDateRangeAndNoCategory() throws ReimsException {
+        String title = "";
+        String startDate; String endDate;
+        startDate = endDate ="123";
+
+        Long start; Long end;
+        start = end = new Long(endDate);
+
+        Transaction.Category category = null;
+
+        Page expectedResult = new PageImpl<>(transactions);
+
+        when(authService.getCurrentUser()).thenReturn(user);
+        when(transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndDateBetween(user, title, start, end, pageForQuery))
+                .thenReturn(expectedResult);
+
+        assertEquals(expectedResult, transactionService.getAll(pageRequest, title, startDate, endDate, category));
+    }
+
+    @Test
+    public void returnPageOfTransactions_whenUserGetAllTransactionsWIthDateRangeAndCategory() throws ReimsException {
+        String title = "";
+        String startDate; String endDate;
+        startDate = endDate ="123";
+
+        Long start; Long end;
+        start = end = new Long(endDate);
+
+        Transaction.Category category = FUEL;
+
+        Page expectedResult = new PageImpl<>(transactions);
+
+        when(authService.getCurrentUser()).thenReturn(user);
+        when(transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategoryAndDateBetween(user, title, category, start, end, pageForQuery))
+                .thenReturn(expectedResult);
+
+        assertEquals(expectedResult, transactionService.getAll(pageRequest, title, startDate, endDate, category));
+    }
+
+    @Test
+    public void errorThrown_whenUserGetAllTransactionsWithInvalidDateRange() throws ReimsException {
+        String title = "";
+        String startDate; String endDate;
+        startDate = endDate ="xys";
+
+        when(authService.getCurrentUser()).thenReturn(user);
+
+        assertThrows(FormatTypeError.class, () ->  transactionService.getAll(pageRequest, title, startDate, endDate, null));
+    }
+
+    @Test
+    public void returnUpdatedFuel_whenUserInputValidData() throws ReimsException {
+        long now = Instant.now().toEpochMilli();
+
+        TransactionRequest request = new TransactionRequest();
+        request.setTitle("TEST");
+        request.setImage("hahaha/123.jpg");
+        request.setCategory(fuel.getCategory());
+        request.setDate(fuel.getDate());
+        request.setAmount(fuel.getAmount());
+        request.setLiters(fuel.getLiters());
+        request.setFuelType(fuel.getType());
+
+        fuel.setImage(request.getImage()); // update fuel image as in request
+        fuel.setTitle(request.getTitle()); // update fuel title as in request
+
+        when(utilsServiceImpl.isFileExists(request.getImage())).thenReturn(true);
+        when(fuelService.create(request)).thenReturn(fuel);
+        when(utilsServiceImpl.getCurrentTime()).thenReturn(now);
+        when(authService.getCurrentUser()).thenReturn(user);
+        when(transactionRepository.save(fuel)).thenReturn(fuel);
+
+        Transaction expectedResult = new Fuel();
+        expectedResult.setReimsUser(user);
+        expectedResult.setAmount(request.getAmount());
+        expectedResult.setCategory(request.getCategory());
+        ((Fuel) expectedResult).setLiters(fuel.getLiters());
+        expectedResult.setDate(fuel.getDate());
+        expectedResult.setImage(request.getImage());
+        ((Fuel) expectedResult).setType(fuel.getType());
+        expectedResult.setTitle(request.getTitle());
+
+        assertEquals(expectedResult, transactionService.update(request));
+    }
+
+    @Test
+    public void returnUpdatedParking_whenUserInputValidData() throws ReimsException {
+        long now = Instant.now().toEpochMilli();
+
+        TransactionRequest request = new TransactionRequest();
+        request.setTitle("test");
+        request.setImage("hahaha/123.jpg");
+        request.setCategory(parking.getCategory());
+        request.setDate(parking.getDate());
+        request.setAmount(parking.getAmount());
+        request.setHours(parking.getHours());
+        request.setParkingType(parking.getType());
+        request.setDate(parking.getDate());
+
+        parking.setImage(parking.getImage()); // update fuel image as in request
+        parking.setTitle(request.getTitle()); // update fuel title as in request
+
+        when(utilsServiceImpl.isFileExists(request.getImage())).thenReturn(true);
+        when(parkingService.create(request)).thenReturn(parking);
+        when(utilsServiceImpl.getCurrentTime()).thenReturn(now);
+        when(authService.getCurrentUser()).thenReturn(user);
+        when(transactionRepository.save(parking)).thenReturn(parking);
+
+        Transaction expectedResult = new Parking();
+        expectedResult.setReimsUser(user);
+        expectedResult.setAmount(request.getAmount());
+        expectedResult.setCategory(request.getCategory());
+        ((Parking) expectedResult).setHours(parking.getHours());
+        expectedResult.setDate(parking.getDate());
+        expectedResult.setImage(request.getImage());
+        ((Parking) expectedResult).setType(parking.getType());
+        expectedResult.setLocation(parking.getLocation());
+        ((Parking) expectedResult).setLicense(parking.getLicense());
+
+        System.out.println("[TEST] "+ request);
+        assertEquals(expectedResult, transactionService.update(request));
+    }
+
+
+    @Test
+    public void errorThrown_whenUserUpdateTransactionWithInvalidDataInGeneralData() {
+        TransactionRequest request = new TransactionRequest();
+        request.setImage("hahaha/123.jpg");
+        request.setCategory(null);
+        request.setDate(0);
+        request.setAmount(0);
+        request.setHours(0);
+
+        assertThrows(DataConstraintException.class, () -> transactionService.update(request));
+
+    }
+
+    @Test
+    public void errorThrown_whenUserUpdateParkingWithInvalidData() {
+        TransactionRequest request = new TransactionRequest();
+        request.setImage("hahaha/123.jpg");
+        request.setDate(0);
+        request.setAmount(0);
+        request.setCategory(PARKING);
+        request.setParkingType(null);
+        request.setHours(0);
+
+        assertThrows(DataConstraintException.class, () -> transactionService.update(request));
+    }
+
+    @Test
+    public void errorThrown_whenUserUpdateFuelWithInvalidData() {
+        TransactionRequest request = new TransactionRequest();
+        request.setImage("hahaha/123.jpg");
+        request.setDate(0);
+        request.setAmount(0);
+        request.setCategory(FUEL);
+        request.setFuelType(null);
+
+        assertThrows(DataConstraintException.class, () -> transactionService.update(request));
+    }
+
+    @Test
+    public void errorThrown_whenImageIsAlreadyExist() throws ReimsException {
+        long now = Instant.now().toEpochMilli();
+
+        TransactionRequest request = new TransactionRequest();
+        request.setImage("hahaha/123.jpg");
+        request.setCategory(parking.getCategory());
+        request.setDate(parking.getDate());
+        request.setAmount(parking.getAmount());
+        request.setHours(parking.getHours());
+        request.setParkingType(parking.getType());
+
+        when(transactionRepository.existsByImage(request.getImage())).thenReturn(true);
+
+        assertThrows(DataConstraintException.class, () -> transactionService.update(request));
+    }
+
+
+
 
 }

@@ -51,7 +51,7 @@ public class TransactionController {
         Page transactions;
 
         try {
-            transactions = transactionService.getAll(pageRequest, start, end, search, category);
+            transactions = transactionService.getAll(pageRequest, search, start, end, category);
             br.setData(getAllTransactionResponses(transactions.getContent()));
             paging.setTotalPages(transactions.getTotalPages());
             paging.setTotalRecords(transactions.getContent().size());

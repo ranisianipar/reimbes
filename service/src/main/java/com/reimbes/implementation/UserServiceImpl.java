@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -159,16 +160,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public byte[] getReport(Long start, Long end, String reimbursementType) throws Exception {
-        ReimsUser currentUser = authService.getCurrentUser();
-        if (currentUser.getRole() == ADMIN) throw new MethodNotAllowedException("Get Report");
-
-        return reportGeneratorService.getReport(currentUser,
-                start, end, reimbursementType.toLowerCase());
+        return reportGeneratorService.getReport(authService.getCurrentUser(), start, end, reimbursementType.toLowerCase());
     }
 
     @Override
     public byte[] getImage(String imagePath) throws ReimsException {
-        return utilsServiceImpl.getImage(authService.getCurrentUser(), imagePath);
+        ReimsUser user = authService.getCurrentUser();
+        try {
+            if (imagePath.contains(String.format("/%d/", user.getId()))) return utilsServiceImpl.getFile(imagePath);
+            throw new NotFoundException("Image: " + imagePath);
+        }   catch (IOException e) {
+            throw new NotFoundException(e.getMessage());
+        }
+
     }
 
 

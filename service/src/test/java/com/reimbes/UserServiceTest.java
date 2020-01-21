@@ -1,5 +1,6 @@
 package com.reimbes;
 
+import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.*;
 import org.junit.Before;
@@ -261,15 +262,14 @@ public class UserServiceTest {
         assertEquals(page, userService.getAllUsers(user.getUsername(), pageable));
     }
 
-//    @Test
-//    public void makingAReport_whenUserAskedForIt() throws Exception {
-//        byte[] fakeReport = new byte[100];
-//        when(reportGeneratorService.getReport(user,new Long(0),new Long(0), PARKING)).thenReturn(fakeReport);
-//        when(utilsServiceImpl.getPrincipalUsername()).thenReturn(user.getUsername());
-//        when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
-//
-//        assertEquals(userService.getReport(new Long(0), new Long(0), PARKING), fakeReport);
-//    }
+    @Test
+    public void makingAReport_whenUserAskedForIt() throws Exception {
+        byte[] fakeReport = new byte[100];
+        when(reportGeneratorService.getReport(user,new Long(0),new Long(0), PARKING)).thenReturn(fakeReport);
+        when(authService.getCurrentUser()).thenReturn(user);
+
+        assertEquals(userService.getReport(new Long(0), new Long(0), PARKING), fakeReport);
+    }
 
     @Test
     public void updatePersonalData() throws ReimsException {
@@ -294,6 +294,24 @@ public class UserServiceTest {
         assertEquals(dummyToken, response.getHeader(HEADER_STRING));
         assertEquals(user.getUsername(), reimsUser.getUsername());
         assertEquals(user.getRole(), reimsUser.getRole());
+    }
+
+    @Test
+    public void errorThrown_whenGetImageByInvalidImagePathFormat() throws Exception {
+        byte[] fakeImage = new byte[100];
+        String fakeImagepath = "hahaha/x123.png";
+        when(authService.getCurrentUser()).thenReturn(user);
+        when(utilsServiceImpl.getFile(fakeImagepath)).thenReturn(fakeImage);
+        assertThrows(NotFoundException.class, () -> userService.getImage(fakeImagepath));
+    }
+
+    @Test
+    public void returnImage_whenGetImageByInvalidImagePathFormat() throws Exception {
+        byte[] fakeImage = new byte[100];
+        String fakeImagepath = String.format("/%d/%s", user.getId(), "haha.jpg");
+        when(authService.getCurrentUser()).thenReturn(user);
+        when(utilsServiceImpl.getFile(fakeImagepath)).thenReturn(fakeImage);
+        assertEquals(fakeImage, userService.getImage(fakeImagepath));
     }
 
 }

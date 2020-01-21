@@ -57,7 +57,6 @@ public class ReimsUser extends Patient {
                      Set<FamilyMember> familyMemberOf, String license, String vehicle, Date dateOfBirth, String division,
                      long createdAt, long updatedAt) {
         super(id, username, dateOfBirth, createdAt, updatedAt);
-
         this.username = username;
         this.password = password;
         this.role = role;

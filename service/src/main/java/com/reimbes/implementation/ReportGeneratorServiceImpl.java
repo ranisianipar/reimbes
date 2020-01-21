@@ -98,8 +98,10 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         switch (reimbursementType) {
             case PARKING:
                 writeParkingReport(sheet, start, end);
+                break;
             case FUEL:
                 writeFuelReport(sheet, start, end);
+                break;
             case MEDICAL:
                 writeMedicalReport(sheet, start, end);
         }
@@ -168,7 +170,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         Row row = sheet.createRow(getCurrentRowIndex());
         setCurrentRowIndex(getCurrentRowIndex() + 1);
         createCell(row, 4, "Hours");
-
         int totalAmount = 0;
         int transactionIndex = 0;
 
@@ -187,13 +188,11 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             createCell(row, 4, parking.getHours());
             totalAmount += parking.getAmount();
         }
-
         // footer row
         row = sheet.createRow(getCurrentRowIndex() + 1);
         setCurrentRowIndex(getCurrentRowIndex() + 2);
 
         createCell(row, 1, "TOTAL:").setCellStyle(totalCellStyle);
-
         sheet.addMergedRegion(new CellRangeAddress(
                 row.getRowNum(), //first row of header (0-based)
                 row.getRowNum(), //last row of header (0-based)
@@ -202,7 +201,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         ));
 
         createCell(row, 3, totalAmount);
-
         setCurrentRowIndex(getCurrentRowIndex() + 1);
     }
 
@@ -211,12 +209,10 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         setCurrentRowIndex(getCurrentRowIndex() + 1);
 
         createCell(row, 4, "Liters");
-
         int totalAmount = 0;
         int transactionIndex = 0;
 
         List<Transaction> fuels = transactionService.getByDateAndType(start, end, Transaction.Category.FUEL);
-
         /*LOOP*/
         for (Transaction transaction : fuels) {
             Fuel fuel = (Fuel) transaction;
@@ -245,7 +241,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         ));
 
         createCell(row, 3, totalAmount);
-
         setCurrentRowIndex(getCurrentRowIndex() + 1);
     }
 
@@ -292,7 +287,8 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     // space: 5 rows
     private void initImage(Workbook wb, Sheet sheet) throws IOException {
         // add picture data to this workbook.
-        int pictureIdx = wb.addPicture(utilsServiceImpl.getFile("image/blibli-logo.png"), Workbook.PICTURE_TYPE_PNG);
+        byte[] image = utilsServiceImpl.getFile("image/blibli-logo.png");
+        int pictureIdx = wb.addPicture(image, Workbook.PICTURE_TYPE_PNG);
         CreationHelper helper = wb.getCreationHelper();
 
         // Create the drawing patriarch.  This is the top level container for all shapes.

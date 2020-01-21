@@ -29,7 +29,6 @@ public class ParkingServiceTest {
     public void setup() {
         request.setParkingType(Parking.Type.CAR);
         request.setHours(4);
-        request.setLicense("lwaigtoia");
         request.setLocation("lwigbhla");
     }
 

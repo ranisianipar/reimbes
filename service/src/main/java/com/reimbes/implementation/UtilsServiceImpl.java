@@ -7,6 +7,7 @@ import com.reimbes.interfaces.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -40,40 +41,29 @@ public class UtilsServiceImpl implements UtilsService {
     private static Logger log = LoggerFactory.getLogger(UtilsServiceImpl.class);
 
     public String getPrincipalUsername() {
-        try {
-            return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-        }   catch (Exception e) {
-            e.printStackTrace();
-        }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) return auth.getPrincipal().toString();
         return "";
 
     }
 
     // imagePath: relative path
     public void removeImage(String imagePath) {
-        imagePath = PROJECT_ROOT + imagePath;
-        imagePath = StringUtils.cleanPath(imagePath);
+        imagePath = StringUtils.cleanPath(PROJECT_ROOT + imagePath);
         try {
             Files.delete(Paths.get(imagePath));
-        }   catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public byte[] getImage(ReimsUser currentUser, String imagePath) throws ReimsException {
-
-        if (!imagePath.contains(String.format("/%d/", currentUser.getId()))) throw new NotFoundException("Image");
-        try {
-            return getFile(imagePath);
-        }   catch (IOException e) {
-            throw new ReimsException(e.getMessage(), HttpStatus.BAD_REQUEST, BAD_REQUEST);
+        } catch (Exception e) {
+            // image probably not found
+            log.warn(e.getMessage());
         }
 
     }
 
     // Check file existance using relative file path
     public boolean isFileExists(String filepath) {
-        return Files.exists(Paths.get(PROJECT_ROOT + filepath));
+        String absolutePath = PROJECT_ROOT + filepath;
+        boolean existance = Files.exists(Paths.get(absolutePath));
+        return existance;
     }
 
     // cleanedPath: relative path
@@ -83,10 +73,11 @@ public class UtilsServiceImpl implements UtilsService {
     }
 
     // cleanedPath: relative path
-    public void createDirectory(String cleanedPath) {
+    public Path createDirectory(String cleanedPath) {
         log.info("Create directory: " + cleanedPath);
         boolean isDirectoryCreated = (new File(PROJECT_ROOT + cleanedPath)).mkdirs(); // create directory even parent directeroy haven't created yet
         log.info(String.format("Create directory, path: %s, succeed: %b", cleanedPath, isDirectoryCreated));
+        return Paths.get(PROJECT_ROOT + cleanedPath);
     }
 
     // filepath: relative path of file
