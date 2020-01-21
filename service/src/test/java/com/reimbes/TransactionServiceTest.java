@@ -72,9 +72,11 @@ public class TransactionServiceTest {
     public void setup() {
         fuel.setId(new Long(1));
         fuel.setAmount(61000);
+        fuel.setCreatedAt(Instant.now().toEpochMilli());
         fuel.setReimsUser(user);
-        fuel.setDate(Instant.now().getEpochSecond()*1000);
+        fuel.setDate(Instant.now().toEpochMilli());
         fuel.setLiters(10);
+        fuel.setLocation("DKI Jakarta");
         fuel.setType(Fuel.Type.PERTALITE);
         fuel.setCategory(Transaction.Category.FUEL);
         fuel.setTitle("FUEL TEST");
@@ -109,7 +111,6 @@ public class TransactionServiceTest {
     public void errorThrown_whenUserCreateByWrongFormatImage() throws Exception {
         String extension = "png";
         String imageValue = "random string";
-        String imagePath = user.getId()+"/123."+extension;
 
         when(authService.getCurrentUser()).thenReturn(user);
         when(utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION)).thenThrow(FormatTypeError.class);

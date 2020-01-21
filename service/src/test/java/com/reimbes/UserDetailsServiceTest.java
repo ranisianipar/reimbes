@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.gen5.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -50,8 +51,15 @@ public class UserDetailsServiceTest {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
         UserDetailsImpl expectedResult = new UserDetailsImpl(user, authorities);
+        UserDetailsImpl result = (UserDetailsImpl) userDetailsService.loadUserByUsername(user.getUsername());
 
-        assertEquals(expectedResult, userDetailsService.loadUserByUsername(user.getUsername()));
+        assertTrue(result.isAccountNonExpired());
+        assertTrue(result.isAccountNonLocked());
+        assertTrue(result.isCredentialsNonExpired());
+        assertTrue(result.isEnabled());
+        assertEquals(expectedResult.getUserId(), result.getUserId());
+        assertEquals(expectedResult.getPassword(), result.getPassword());
+        assertEquals(expectedResult, result);
     }
 
     @Test
