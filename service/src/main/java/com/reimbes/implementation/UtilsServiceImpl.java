@@ -123,7 +123,7 @@ public class UtilsServiceImpl implements UtilsService {
             * */
 
             // confirm folder existence
-            String folderPath = StringUtils.cleanPath(String.format("%s/%d/%s/", STORAGE_FOLDER, userId, subfolder));
+            String folderPath = StringUtils.cleanPath(String.format("/%s/%d/%s/", STORAGE_FOLDER, userId, subfolder));
             log.info("Done generate folder path.");
 
             if (!isFileExists(folderPath)) {

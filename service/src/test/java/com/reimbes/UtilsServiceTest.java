@@ -1,5 +1,6 @@
 package com.reimbes;
 
+import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.UtilsServiceImpl;
 import org.junit.After;
 import org.junit.Before;
@@ -14,12 +15,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static com.reimbes.constant.UrlConstants.*;
 import static org.junit.Assert.*;
 import static org.powermock.api.mockito.PowerMockito.verifyNoMoreInteractions;
 
@@ -110,6 +114,58 @@ public class UtilsServiceTest {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
         assertEquals(user.getUsername(), utils.getPrincipalUsername());
+    }
+
+    @Test
+    public void returnNull_uploadImageWithUnknownExtension() throws ReimsException {
+        ReimsUser user = ReimsUser.ReimsUserBuilder()
+                .id(123)
+                .username("test")
+                .role(ReimsUser.Role.USER)
+                .build();
+        String invalidImage = "data:image/.xx;bsae64";
+        assertNull(utils.uploadImage(invalidImage, user.getId(), SUB_FOLDER_REPORT));
+    }
+
+    @Test
+    public void uploadImageSuccessfullyWithPngExtension() throws IOException, ReimsException {
+        ReimsUser user = ReimsUser.ReimsUserBuilder()
+                .id(123)
+                .username("test")
+                .role(ReimsUser.Role.USER)
+                .build();
+        String imageValue = "png,iVBORw0";
+        String imagePath = utils.uploadImage(imageValue, user.getId(), SUB_FOLDER_REPORT);
+        assertNotNull(imagePath);
+
+        file_directory_path = Paths.get(PROJECT_ROOT + imagePath);
+    }
+
+    @Test
+    public void uploadImageSuccessfullyWithJpgExtension() throws IOException, ReimsException {
+        ReimsUser user = ReimsUser.ReimsUserBuilder()
+                .id(123)
+                .username("test")
+                .role(ReimsUser.Role.USER)
+                .build();
+        String imageValue = "jpg,iVBORw0";
+        String imagePath = utils.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
+        assertNotNull(imagePath);
+
+        file_directory_path = Paths.get(PROJECT_ROOT + imagePath);
+    }
+
+    @Test
+    public void uploadImageSuccessfullyWithJpegExtension() throws IOException, ReimsException {
+        ReimsUser user = ReimsUser.ReimsUserBuilder()
+                .id(123)
+                .username("test")
+                .role(ReimsUser.Role.USER)
+                .build();
+        String imageValue = "jpeg,iVBORw0";
+        String imagePath = utils.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
+        assertNotNull(imagePath);
+        file_directory_path = Paths.get(PROJECT_ROOT + imagePath);
     }
 
 

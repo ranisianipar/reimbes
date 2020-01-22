@@ -110,7 +110,6 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getReimsUser() != user)
             throw new NotFoundException("Transaction with ID "+id);
-
         return transactionRepository.findOne(id);
     }
 
@@ -168,14 +167,12 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findByReimsUser(user);
     }
 
-
     @Override
     public List<Transaction> getByUserAndDate(ReimsUser user, long start, long end) {
         if (start == new Long(0) || end == new Long(0)) return transactionRepository.findByReimsUser(user);
         return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }
 
-    // COPY
     private void validate(Transaction transaction) throws ReimsException {
         // validate the data and data type
         // date dicek harus ada isinya, dan sesuai ketentuan Date
