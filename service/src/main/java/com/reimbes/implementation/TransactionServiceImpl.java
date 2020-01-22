@@ -9,7 +9,6 @@ import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.interfaces.TransactionService;
-import com.reimbes.request.TransactionRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +24,6 @@ import static com.reimbes.constant.UrlConstants.SUB_FOLDER_TRANSACTION;
 public class TransactionServiceImpl implements TransactionService {
 
     private static Logger log = LoggerFactory.getLogger(TransactionServiceImpl.class);
-
-    @Autowired
-    private ParkingServiceImpl parkingService;
-
-    @Autowired
-    private FuelServiceImpl fuelService;
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -69,25 +62,16 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction update(TransactionRequest transactionRequest) throws ReimsException {
+    public Transaction update(Transaction transaction) throws ReimsException {
 
         // make sure update only happen once!
-        System.out.println("[REAL] "+transactionRequest);
-        validate(transactionRequest);
-
-        Transaction transaction;
-
-        if (transactionRequest.getCategory().equals(Transaction.Category.FUEL)) {
-            transaction = fuelService.create(transactionRequest);
-        } else {
-            transaction = parkingService.create(transactionRequest);
-        }
+        validate(transaction);
 
         transaction.setCreatedAt(utilsServiceImpl.getCurrentTime());
-        transaction.setAmount(transactionRequest.getAmount());
-        transaction.setDate(transactionRequest.getDate());
-        transaction.setImage(transactionRequest.getImage());
-        transaction.setTitle(transactionRequest.getTitle());
+        transaction.setAmount(transaction.getAmount());
+        transaction.setDate(transaction.getDate());
+        transaction.setImage(transaction.getImage());
+        transaction.setTitle(transaction.getTitle());
         transaction.setReimsUser(authService.getCurrentUser());
 
         return transactionRepository.save(transaction);
@@ -191,7 +175,8 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }
 
-    private void validate(TransactionRequest transaction) throws ReimsException {
+    // COPY
+    private void validate(Transaction transaction) throws ReimsException {
         // validate the data and data type
         // date dicek harus ada isinya, dan sesuai ketentuan Date
 
@@ -199,21 +184,23 @@ public class TransactionServiceImpl implements TransactionService {
 
         List<String> errorMessages = new ArrayList();
 
-        if (!(transaction.getCategory() instanceof Transaction.Category))
-            errorMessages.add("UNKNOWN_CATEGORY");
-
         if (transaction.getDate() == 0) errorMessages.add("NULL_DATE");
 
         if (transaction.getAmount() == 0) errorMessages.add("ZERO_AMOUNT");
 
-        if (transaction.getCategory() == null) {
+        if (transaction.getCategory() != null) {
+            switch (transaction.getCategory()) {
+                case PARKING:
+                    if (((Parking) transaction).getHours() == 0) errorMessages.add("ZERO_PARKING_HOURS");
+                    break;
+                case FUEL:
+                    if (((Fuel) transaction).getLiters() == 0) errorMessages.add("ZERO_FUEL_LITERS");
+                    break;
+            }
+        } else {
             errorMessages.add("NULL_CATEGORY");
-        } else if (transaction.getCategory().equals(PARKING)) {
-            if (transaction.getParkingType() == null) errorMessages.add("NULL_PARKING_TYPE");
-            if (transaction.getHours() == 0) errorMessages.add("ZERO_PARKING_HOURS");
-        } else if (transaction.getCategory().equals(Transaction.Category.FUEL)) {
-            if (transaction.getLiters() == 0) errorMessages.add("ZERO_FUEL_LITERS");
         }
+
 
         // validate image path
         if (transaction.getImage() == null || !utilsServiceImpl.isFileExists(transaction.getImage()))

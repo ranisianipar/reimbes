@@ -36,12 +36,6 @@ import static org.mockito.Mockito.*;
 public class TransactionServiceTest {
 
     @Mock
-    private ParkingServiceImpl parkingService;
-
-    @Mock
-    private FuelServiceImpl fuelService;
-
-    @Mock
     private TransactionRepository transactionRepository;
 
     @Mock
@@ -336,7 +330,7 @@ public class TransactionServiceTest {
         fuel.setTitle(request.getTitle()); // update fuel title as in request
 
         when(utilsServiceImpl.isFileExists(request.getImage())).thenReturn(true);
-        when(fuelService.create(request)).thenReturn(fuel);
+        when(transactionService.update(fuel)).thenReturn(fuel);
         when(utilsServiceImpl.getCurrentTime()).thenReturn(now);
         when(authService.getCurrentUser()).thenReturn(user);
         when(transactionRepository.save(fuel)).thenReturn(fuel);
@@ -351,7 +345,7 @@ public class TransactionServiceTest {
         ((Fuel) expectedResult).setType(fuel.getType());
         expectedResult.setTitle(request.getTitle());
 
-        assertEquals(expectedResult, transactionService.update(request));
+        assertEquals(expectedResult, transactionService.update(fuel));
     }
 
     @Test
@@ -360,7 +354,7 @@ public class TransactionServiceTest {
 
         TransactionRequest request = new TransactionRequest();
         request.setTitle("test");
-        request.setImage("hahaha/123.jpg");
+        request.setImage(String.format("/%d/transaction/123.jpg", user.getId()));
         request.setCategory(parking.getCategory());
         request.setDate(parking.getDate());
         request.setAmount(parking.getAmount());
@@ -368,11 +362,11 @@ public class TransactionServiceTest {
         request.setParkingType(parking.getType());
         request.setDate(parking.getDate());
 
-        parking.setImage(parking.getImage()); // update fuel image as in request
+        parking.setImage(request.getImage()); // update fuel image as in request
         parking.setTitle(request.getTitle()); // update fuel title as in request
 
         when(utilsServiceImpl.isFileExists(request.getImage())).thenReturn(true);
-        when(parkingService.create(request)).thenReturn(parking);
+        when(transactionService.update(parking)).thenReturn(parking);
         when(utilsServiceImpl.getCurrentTime()).thenReturn(now);
         when(authService.getCurrentUser()).thenReturn(user);
         when(transactionRepository.save(parking)).thenReturn(parking);
@@ -389,44 +383,44 @@ public class TransactionServiceTest {
         ((Parking) expectedResult).setLicense(parking.getLicense());
 
         System.out.println("[TEST] "+ request);
-        assertEquals(expectedResult, transactionService.update(request));
+        assertEquals(expectedResult, transactionService.update(parking));
     }
 
-
-    @Test
-    public void errorThrown_whenUserUpdateTransactionWithInvalidDataInGeneralData() {
-        TransactionRequest request = new TransactionRequest();
-        request.setImage("hahaha/123.jpg");
-        request.setCategory(null);
-        request.setDate(0);
-        request.setAmount(0);
-        request.setHours(0);
-
-        assertThrows(DataConstraintException.class, () -> transactionService.update(request));
-
-    }
 
     @Test
     public void errorThrown_whenUserUpdateParkingWithInvalidData() {
-        TransactionRequest request = new TransactionRequest();
+        Transaction request = new Parking();
         request.setImage("hahaha/123.jpg");
+        request.setCategory(PARKING);
         request.setDate(0);
         request.setAmount(0);
-        request.setCategory(PARKING);
-        request.setParkingType(null);
-        request.setHours(0);
+        ((Parking) request).setHours(0);
+        ((Parking) request).setType(null);
 
         assertThrows(DataConstraintException.class, () -> transactionService.update(request));
+
     }
 
     @Test
     public void errorThrown_whenUserUpdateFuelWithInvalidData() {
-        TransactionRequest request = new TransactionRequest();
+        Transaction request = new Fuel();
         request.setImage("hahaha/123.jpg");
         request.setDate(0);
         request.setAmount(0);
         request.setCategory(FUEL);
-        request.setFuelType(null);
+        ((Fuel) request).setType(null);
+        ((Fuel) request).setLiters(0);
+
+        assertThrows(DataConstraintException.class, () -> transactionService.update(request));
+    }
+
+    @Test
+    public void errorThrown_whenUserUpdateTransactionWithInvalidData() {
+        Transaction request = new Fuel();
+        request.setImage("hahaha/123.jpg");
+        request.setDate(0);
+        request.setAmount(0);
+        request.setCategory(null);
 
         assertThrows(DataConstraintException.class, () -> transactionService.update(request));
     }
@@ -435,13 +429,13 @@ public class TransactionServiceTest {
     public void errorThrown_whenImageIsAlreadyExist() throws ReimsException {
         long now = Instant.now().toEpochMilli();
 
-        TransactionRequest request = new TransactionRequest();
+        Transaction request = new Parking();
         request.setImage("hahaha/123.jpg");
         request.setCategory(parking.getCategory());
         request.setDate(parking.getDate());
         request.setAmount(parking.getAmount());
-        request.setHours(parking.getHours());
-        request.setParkingType(parking.getType());
+        ((Parking) request).setHours(parking.getHours());
+        ((Parking) request).setType(parking.getType());
 
         when(transactionRepository.existsByImage(request.getImage())).thenReturn(true);
 

@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.List;
 
+import static com.reimbes.constant.Mapper.getTransactionRequestMapper;
+
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
 @RequestMapping(UrlConstants.API_PREFIX + UrlConstants.TRANSACTION_PREFIX)
@@ -82,7 +84,9 @@ public class TransactionController {
     public BaseResponse<TransactionResponse> updateTransaction(@RequestBody TransactionRequest newTransaction) {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(getTransactionResponse(transactionService.update(newTransaction)));
+            br.setData(getTransactionResponse(
+                    transactionService.update(getTransactionRequest(newTransaction)))
+            );
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -143,6 +147,19 @@ public class TransactionController {
         else
             transactionResponse = getTransactionMapper(transaction)
                     .map(transaction, FuelResponse.class);
+        return transactionResponse;
+    }
+
+    private Transaction getTransactionRequest(TransactionRequest transaction) {
+        if (transaction == null) return null;
+        Transaction transactionResponse;
+
+        if (transaction.getCategory().equals(Transaction.Category.PARKING))
+            transactionResponse = getTransactionRequestMapper(transaction)
+                    .map(transaction, Parking.class);
+        else
+            transactionResponse = getTransactionRequestMapper(transaction)
+                    .map(transaction, Fuel.class);
         return transactionResponse;
     }
 
