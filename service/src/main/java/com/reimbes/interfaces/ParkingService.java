@@ -8,5 +8,4 @@ import java.util.List;
 
 public interface ParkingService {
     Parking create(TransactionRequest request);
-    Parking map(String[] source);
 }

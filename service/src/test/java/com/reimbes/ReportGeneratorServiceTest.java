@@ -101,6 +101,27 @@ public class ReportGeneratorServiceTest {
         user.setMedicals(medicals);
     }
 
+    @Test
+    public void whenCreateReportWithRangeOfDateAndTypeMedical_thenReturnReportContainsListOfMedicals() throws Exception{
+        Long time = Instant.now().toEpochMilli();
+        String reportName = String.format("%s_%s_%s_%s.xls", user.getUsername(), MEDICAL, time, time);
+        String BLIBLI_LOGO_PATH = "image/blibli-logo.png";
+
+        when(authService.getCurrentUser()).thenReturn(user);
+        when(medicalService.getByDate(time, time)).thenReturn(new ArrayList<>(medicals));
+        when(utilsServiceImpl.getFile(reportName)).thenReturn(new byte[19]);
+        when(utilsServiceImpl.getFile(BLIBLI_LOGO_PATH))
+                .thenReturn(Files.readAllBytes(Paths.get("C:\\Users\\Z\\Documents\\code\\haha\\reimbes\\" + BLIBLI_LOGO_PATH)));
+
+        reportGeneratorService.getReport(user, time, time, MEDICAL);
+
+        verify(medicalService, times(1)).getByDate(time, time);
+
+
+        Files.deleteIfExists(Paths.get(PROJECT_ROOT + "\\" + reportName));
+
+    }
+
 
     @Test
     public void whenCreateReportWithoutRangeOfDateAndWithTypeMedical_thenReturnReportContainsListOfMedicals() throws Exception{

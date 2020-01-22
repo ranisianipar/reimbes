@@ -6,9 +6,9 @@ import net.bytebuddy.build.ToStringPlugin;
 import javax.persistence.*;
 
 @Data
-@Entity
+@Entity(name = "transactions")
 @Inheritance(strategy = InheritanceType.JOINED)
-
+@DiscriminatorColumn(name = "TRANSACTION_TYPE")
 public class Transaction {
 
     @Id

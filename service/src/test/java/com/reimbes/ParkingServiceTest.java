@@ -29,19 +29,16 @@ public class ParkingServiceTest {
     public void setup() {
         request.setParkingType(Parking.Type.CAR);
         request.setHours(4);
-        request.setLocation("lwigbhla");
+        request.setLocation("Sudirman");
     }
 
     @Test
-    public void createFuelTest() {
-//        Parking parking = parkingService.create(request);
-//
-//        assertEquals(PARKING, parking.getCategory());
-//        assertEquals(request.getParkingType(), parking.getType());
-//        assertEquals(request.getHours(), parking.getHours());
-//        assertEquals(request.getLocation(), parking.getLocation());
-//        assertEquals(request.getLicense(), parking.getLicense());
+    public void createParkingTest() {
+        Parking parking = parkingService.create(request);
 
-        assertTrue(true);
+        assertEquals(PARKING, parking.getCategory());
+        assertEquals(request.getParkingType(), parking.getType());
+        assertEquals(request.getHours(), parking.getHours());
+        assertEquals(request.getLocation(), parking.getLocation());
     }
 }

@@ -51,7 +51,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     // Cell style
     @Setter @Getter
     private CellStyle tableHeaderCellStyle;
-    @Setter @Getter
     private CellStyle defaultCellStyle;
     private CellStyle totalCellStyle;
 
