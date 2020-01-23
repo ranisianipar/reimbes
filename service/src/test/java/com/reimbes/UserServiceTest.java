@@ -1,5 +1,6 @@
 package com.reimbes;
 
+import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.*;
@@ -16,6 +17,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -91,6 +93,12 @@ public class UserServiceTest {
     }
 
     @Test
+    public void errorThrown_AfterCreateReimsUserWithEmptyPassword() throws ReimsException {
+        user.setPassword("");
+        assertThrows(DataConstraintException.class, () -> userService.create(user));
+    }
+
+    @Test
     public void returnUserAfterCreateReimsUserWithDuplicateUsername() {
         when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
         when(userRepository.save(user)).thenReturn(userWithEncodedPass);
@@ -154,10 +162,8 @@ public class UserServiceTest {
 
         when(userRepository.findOne(newUser.getId())).thenReturn(newUser);
 
-
         newUser.setUsername(null);
-        newUser.setPassword(null);
-
+        newUser.setPassword("");
 
         assertThrows(ReimsException.class, () -> {
             userService.update(newUser.getId(), newUser);
@@ -302,6 +308,14 @@ public class UserServiceTest {
         String fakeImagepath = "hahaha/x123.png";
         when(authService.getCurrentUser()).thenReturn(user);
         when(utilsServiceImpl.getFile(fakeImagepath)).thenReturn(fakeImage);
+        assertThrows(NotFoundException.class, () -> userService.getImage(fakeImagepath));
+    }
+
+    @Test
+    public void errorThrown_whenGetUnexistImage() throws Exception {
+        String fakeImagepath = String.format("/%d/%s", user.getId(), "xoxo.jpg");
+        when(authService.getCurrentUser()).thenReturn(user);
+        when(utilsServiceImpl.getFile(fakeImagepath)).thenThrow(new IOException());
         assertThrows(NotFoundException.class, () -> userService.getImage(fakeImagepath));
     }
 

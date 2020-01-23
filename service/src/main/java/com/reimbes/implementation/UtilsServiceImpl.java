@@ -1,7 +1,5 @@
 package com.reimbes.implementation;
 
-import com.reimbes.ReimsUser;
-import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.interfaces.UtilsService;
 import org.slf4j.Logger;
@@ -23,9 +21,8 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.UUID;
 
-import static com.reimbes.constant.ResponseCode.BAD_REQUEST;
 import static com.reimbes.constant.UrlConstants.PROJECT_ROOT;
-import static com.reimbes.constant.UrlConstants.STORAGE_FOLDER;
+import static com.reimbes.constant.UrlConstants.STORAGE_FOLDERNAME;
 
 /*
 * Author: Rani Lasma Uli
@@ -123,7 +120,7 @@ public class UtilsServiceImpl implements UtilsService {
             * */
 
             // confirm folder existence
-            String folderPath = StringUtils.cleanPath(String.format("/%s/%d/%s/", STORAGE_FOLDER, userId, subfolder));
+            String folderPath = StringUtils.cleanPath(String.format("/%s/%d/%s/", STORAGE_FOLDERNAME, userId, subfolder));
             log.info("Done generate folder path.");
 
             if (!isFileExists(folderPath)) {
