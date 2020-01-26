@@ -450,6 +450,8 @@
 - Request Body : -
 
 - Response Body (Success) : image in array of bytes
+- Response Header (Success) :
+    - Content-Type : [`image/jpeg`, `image/jpg`, `image/png`]
 
 - Response Body (Failure) : []
 ```

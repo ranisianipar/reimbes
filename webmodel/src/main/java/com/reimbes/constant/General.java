@@ -20,5 +20,9 @@ public class General {
     public static final long NULL_USER_ID_CODE = new Long(0);
     public static final long INFINITE_DATE_RANGE = new Long(0);
 
+    public static final String MEDIA_TYPE_JPG = "image/jpg";
+    public static final String MEDIA_TYPE_JPEG = "image/jpeg";
+    public static final String MEDIA_TYPE_PNG = "image/png";
+
 
 }

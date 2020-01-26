@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 
+import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -165,6 +166,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public byte[] getImage(String imagePath) throws ReimsException {
+        log.info("GET Image by path");
         ReimsUser user = authService.getCurrentUser();
         try {
             if (imagePath.contains(String.format("/%d/", user.getId()))) return utilsServiceImpl.getFile(imagePath);
