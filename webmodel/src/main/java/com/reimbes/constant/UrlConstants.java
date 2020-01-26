@@ -29,6 +29,8 @@ public class UrlConstants {
     // others
     public static final String ID_PARAM = "/{id:.+}";
     public static final String IMAGE_PARAM = "/{image:.+}";
-    public static final String IMAGE_URI = UrlConstants.ID_PARAM + UrlConstants.IMAGE_PARAM;
+
+    // other service
+    public static final String URL_RECEIPT_MAPPER = "http://receipt-mapper.herokuapp.com/image";
 
 }
