@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import static com.reimbes.Transaction.Category.FUEL;
 import static com.reimbes.Transaction.Category.PARKING;
 import static com.reimbes.constant.UrlConstants.SUB_FOLDER_TRANSACTION;
 
@@ -48,10 +49,10 @@ public class TransactionServiceImpl implements TransactionService {
         try {
             imagePath = utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
             log.info("Predicting image content... " + imagePath);
-            String receiptMapperResult = receiptMapperService.translateImage(imagePath, imageValue);
-            log.info(String.format("Receipt Mapper Result %s", receiptMapperResult));
-            transaction = new Transaction(); // default
-            transaction.setCategory(PARKING);
+            transaction = receiptMapperService.translateImage(imagePath, imageValue);
+            log.info(String.format("Receipt Mapper Result %s", transaction));
+
+            transaction.setCategory(FUEL);
         } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
         }

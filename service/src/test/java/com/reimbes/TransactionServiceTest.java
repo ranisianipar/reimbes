@@ -123,7 +123,8 @@ public class TransactionServiceTest {
 
         when(authService.getCurrentUser()).thenReturn(user);
         when(utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION)).thenReturn(imagePath);
-        when(receiptMapperService.translateImage(imagePath, imageValue)).thenReturn("result");
+        when(receiptMapperService.translateImage(imagePath, imageValue)).thenReturn(fuel);
+
 
         Transaction transaction = transactionService.createByImage(imageValue);
         assertEquals(user, transaction.getReimsUser());
