@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.reimbes.constant.General.*;
+import static com.reimbes.constant.UrlConstants.GDN_LOGO_PATH;
 
 @Service
 public class ReportGeneratorServiceImpl implements ReportGeneratorService {
@@ -286,7 +287,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     // space: 5 rows
     private void initImage(Workbook wb, Sheet sheet) throws IOException {
         // add picture data to this workbook.
-        byte[] image = utilsServiceImpl.getFile("image/blibli-logo.png");
+        byte[] image = utilsServiceImpl.getFile(GDN_LOGO_PATH);
         int pictureIdx = wb.addPicture(image, Workbook.PICTURE_TYPE_PNG);
         CreationHelper helper = wb.getCreationHelper();
 

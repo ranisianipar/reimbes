@@ -79,7 +79,12 @@ public class UtilsServiceImpl implements UtilsService {
 
     // filepath: relative path of file
     public byte[] getFile(String filepath) throws IOException {
-        return Files.readAllBytes(Paths.get(PROJECT_ROOT + filepath));
+        try {
+            return Files.readAllBytes(Paths.get(PROJECT_ROOT + filepath));
+        }   catch (Exception e) {
+            return Files.readAllBytes(Paths.get(String.format("%s/%s", PROJECT_ROOT, filepath)));
+        }
+
     }
 
     public String generateFilename(String extension) {
