@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import javax.servlet.http.HttpServletResponse;
 
 public interface UserService {
-    ReimsUser create(ReimsUser user) throws Exception;
+    ReimsUser create(ReimsUser user) throws ReimsException;
     ReimsUser update(long id, ReimsUser user) throws ReimsException;
     ReimsUser updateMyData(ReimsUser newData, HttpServletResponse response) throws ReimsException;
     ReimsUser getUserByUsername(String username);

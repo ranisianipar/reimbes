@@ -1,11 +1,10 @@
 package com.reimbes.implementation;
 
 import com.reimbes.*;
-import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
-import com.reimbes.interfaces.MedicalService;
+import com.reimbes.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static com.reimbes.ReimsUser.Role.ADMIN;
+import static com.reimbes.constant.UrlConstants.SUB_FOLDER_REPORT;
 import static com.reimbes.interfaces.UtilsService.countAge;
 
 @Service
@@ -29,16 +29,16 @@ public class MedicalServiceImpl implements MedicalService {
     private MedicalRepository medicalRepository;
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Autowired
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Autowired
-    private FamilyMemberServiceImpl familyMemberService;
+    private FamilyMemberService familyMemberService;
 
     @Autowired
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsService;
 
     //    MULTIPLE upload
     @Override
@@ -55,7 +55,7 @@ public class MedicalServiceImpl implements MedicalService {
             for (String file : files) {
                 reports.add(
                         MedicalReport.builder()
-                                .image(utilsServiceImpl.uploadImage(file, currentUser.getId(), UrlConstants.SUB_FOLDER_REPORT))
+                                .image(utilsService.uploadImage(file, currentUser.getId(), SUB_FOLDER_REPORT))
                                 .medicalImage(medical)
                                 .build()
                 );
@@ -69,11 +69,9 @@ public class MedicalServiceImpl implements MedicalService {
         medical.setMedicalUser(currentUser);
         medical.setPatient(patient);
         medical.setAge(countAge(patient.getDateOfBirth()));
-        medical.setCreatedAt(utilsServiceImpl.getCurrentTime());
+        medical.setCreatedAt(utilsService.getCurrentTime());
 
-        Medical result = medicalRepository.save(medical);
-
-        return result;
+        return medicalRepository.save(medical);
     }
 
     /*

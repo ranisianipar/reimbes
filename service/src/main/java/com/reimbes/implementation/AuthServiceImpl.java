@@ -9,6 +9,8 @@ import com.reimbes.interfaces.AuthService;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.SecurityConstants;
 import com.reimbes.exception.NotFoundException;
+import com.reimbes.interfaces.UserService;
+import com.reimbes.interfaces.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +39,10 @@ public class AuthServiceImpl implements AuthService {
     private ActiveTokenRepository activeTokenRepository;
 
     @Autowired
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Autowired
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsService;
 
     @Override
     public boolean isLogin(String token) {
@@ -48,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
 
 
-        if (activeToken != null && activeToken.getExpiredTime() >= utilsServiceImpl.getCurrentTime())
+        if (activeToken != null && activeToken.getExpiredTime() >= utilsService.getCurrentTime())
             return true;
 
         // token expired
@@ -62,6 +64,7 @@ public class AuthServiceImpl implements AuthService {
 
         ActiveToken activeToken = activeTokenRepository.findByToken(token);
         if (activeToken == null)
+            log.info("Encapsulate new token...");
             activeToken = new ActiveToken(token);
 
         log.info("Update token expired time.");
@@ -119,7 +122,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ReimsUser getCurrentUser() throws NotFoundException {
-        ReimsUser currentUser = userService.getUserByUsername(utilsServiceImpl.getPrincipalUsername());
+        ReimsUser currentUser = userService.getUserByUsername(utilsService.getPrincipalUsername());
         if (currentUser == null) throw new NotFoundException("Current user. Please do re-login.");
         return currentUser;
     }
@@ -137,7 +140,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public long getUpdatedTime() {
-        return utilsServiceImpl.getCurrentTime() + SecurityConstants.TOKEN_PERIOD;
+        log.info("Get updated time");
+        return utilsService.getCurrentTime() + SecurityConstants.TOKEN_PERIOD;
     }
 
 

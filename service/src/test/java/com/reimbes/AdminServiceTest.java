@@ -1,7 +1,9 @@
 package com.reimbes;
 
 import com.reimbes.exception.ReimsException;
-import com.reimbes.implementation.*;
+import com.reimbes.implementation.AdminServiceImpl;
+import com.reimbes.interfaces.*;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,19 +29,19 @@ import static org.mockito.Mockito.*;
 public class AdminServiceTest {
 
     @Mock
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsService;
 
     @Mock
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Mock
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Mock
-    private MedicalServiceImpl medicalService;
+    private MedicalService medicalService;
 
     @Mock
-    private FamilyMemberServiceImpl familyMemberService;
+    private FamilyMemberService familyMemberService;
 
     @InjectMocks
     private AdminServiceImpl adminService;
@@ -51,6 +53,11 @@ public class AdminServiceTest {
     private FamilyMember familyMember;
     private Pageable pageRequest = new PageRequest(1, 5, new Sort(Sort.Direction.DESC, "createdAt"));
     private Pageable pageForQuery = new PageRequest(0, pageRequest.getPageSize(), pageRequest.getSort());
+
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(utilsService, userService, medicalService, familyMemberService);
+    }
 
     @Before
     public void setup() throws ReimsException {
@@ -72,10 +79,10 @@ public class AdminServiceTest {
 
 
         user2 = ReimsUser.ReimsUserBuilder()
-                .username(user.getUsername()+"123")
+                .username(user.getUsername() + "123")
                 .password("HEHE")
                 .role(ReimsUser.Role.USER)
-                .id(user.getId()+1)
+                .id(user.getId() + 1)
                 .gender(ReimsUser.Gender.MALE)
                 .dateOfBirth(new Date())
                 .build();
@@ -97,53 +104,59 @@ public class AdminServiceTest {
                 .build();
 
         when(authService.getCurrentUser()).thenReturn(admin);
-        when(utilsServiceImpl.getPrincipalUsername()).thenReturn(admin.getUsername());
+        when(utilsService.getPrincipalUsername()).thenReturn(admin.getUsername());
     }
 
     @Test
     public void returnAllUsers() throws ReimsException {
         List users = new ArrayList();
         users.add(user);
-        Page page = new PageImpl(users);
+        Page expectedResult = new PageImpl(users);
+        when(userService.getAllUsers(user.getUsername(), pageForQuery)).thenReturn(expectedResult);
 
-        when(userService.getAllUsers(user.getUsername(), pageForQuery)).thenReturn(page);
+        Page result = adminService.getAllUser(user.getUsername(), pageRequest);
 
-        assertEquals(page, adminService.getAllUser(user.getUsername(), pageRequest));
+        assertEquals(expectedResult, result);
+        verify(userService).getAllUsers(user.getUsername(), pageForQuery);
+    }
+
+    @Test(expected = ReimsException.class)
+    public void expectedError_whenPageRequestIndexIsZero() throws ReimsException {
+        adminService.getAllUser(user.getUsername(), pageForQuery);
     }
 
     @Test
-    public void expectedError_whenPageRequestIndexIsZero() {
-        assertThrows(ReimsException.class, () -> {
-            adminService.getAllUser(user.getUsername(), pageForQuery);
-        });
-    }
-
-    @Test
-    public void returnUserById() throws ReimsException{
+    public void returnUserById() throws ReimsException {
         when(userService.get(user.getId())).thenReturn(user);
 
-        assertEquals(user, adminService.getUser(user.getId()));
+        ReimsUser result = adminService.getUser(user.getId());
+        assertEquals(user, result);
+        verify(userService).get(user.getId());
     }
 
 
     @Test
-    public void returnUser_whenAdminCreateUser() throws Exception{
+    public void returnUser_whenAdminCreateUser() throws Exception {
         when(userService.create(user)).thenReturn(user);
-        assertEquals(user, adminService.createUser(user));
+        ReimsUser result = adminService.createUser(user);
+        assertEquals(user, result);
+        verify(userService).create(user);
     }
 
-    @Test
-    public void thrownError_whenAdminCreateUserWithInvalidData() {
+    @Test(expected = ReimsException.class)
+    public void thrownError_whenAdminCreateUserWithInvalidData() throws ReimsException{
         user.setGender(null);
         user.setDateOfBirth(null);
-        assertThrows(ReimsException.class, () -> {
-            adminService.createUser(user); // no gender and date of birth with role: USER
-        });
+        adminService.createUser(user); // no gender and date of birth with role: USER
+    }
 
+    @Test(expected = ReimsException.class)
+    public void thrownError_whenAdminCreateUserWithNullRole() throws ReimsException {
+        user.setGender(null);
+        user.setDateOfBirth(null);
         user.setRole(null);
-        assertThrows(ReimsException.class, () -> {
-            adminService.createUser(user); // no role assigned
-        });
+
+        adminService.createUser(user); // no role assigned
     }
 
     @Test
@@ -151,7 +164,10 @@ public class AdminServiceTest {
         when(authService.getCurrentUser()).thenReturn(admin);
         when(userService.update(user2.getId(), user2)).thenReturn(user2);
 
-        assertEquals(user2, adminService.updateUser(user2.getId(), user2, null));
+        ReimsUser result = adminService.updateUser(user2.getId(), user2, null);
+        verify(userService).update(user2.getId(), user2);
+
+        assertEquals(user2, result);
     }
 
     @Test
@@ -166,7 +182,10 @@ public class AdminServiceTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         when(userService.updateMyData(admin, response)).thenReturn(userWithNewData); // mock response
 
-        assertEquals(userWithNewData, adminService.updateUser(admin.getId(), admin, response));
+        ReimsUser result = adminService.updateUser(admin.getId(), admin, response);
+
+        verify(userService).updateMyData(userWithNewData, response);
+        assertEquals(userWithNewData, result);
     }
 
     @Test
@@ -184,27 +203,35 @@ public class AdminServiceTest {
     }
 
     /*
-    *
-    * MEDICAL
-    *
-    */
+     *
+     * MEDICAL
+     *
+     */
 
     @Test
     public void returnPageOfMedical_whenAdminGetAllMedicalWithCriteria() throws ReimsException {
-        long start; long end;
+        long start;
+        long end;
         start = end = medical.getDate();
 
         List<Medical> medicals = new ArrayList<>();
         medicals.add(medical);
-        Page<Medical> page = new PageImpl(medicals);
-        when(medicalService.getAll(pageRequest, medical.getTitle(), start, end, user.getId())).thenReturn(page);
-        assertEquals(adminService.getAllMedical(pageRequest, medical.getTitle(), start, end, user.getId()), page);
+        Page<Medical> expectedResult = new PageImpl(medicals);
+        when(medicalService.getAll(pageRequest, medical.getTitle(), start, end, user.getId())).thenReturn(expectedResult);
+
+        Page result = adminService.getAllMedical(pageRequest, medical.getTitle(), start, end, user.getId());
+        verify(medicalService).getAll(pageRequest, medical.getTitle(), start, end, user.getId());
+
+        assertEquals(expectedResult, result);
     }
 
     @Test
     public void returnAMedical_whenAdminGetMedicalById() throws ReimsException {
         when(medicalService.get(medical.getId())).thenReturn(medical);
-        assertEquals(adminService.getMedical(medical.getId()), medical);
+
+        Medical result = adminService.getMedical(medical.getId());
+        verify(medicalService).get(medical.getId());
+        assertEquals(medical, result);
     }
 
     /*
@@ -218,28 +245,41 @@ public class AdminServiceTest {
     public void returnPageOfFamileMember_whenAdminGetAllFamilyMemberWithCriteria() throws ReimsException {
         List<FamilyMember> members = new ArrayList<>();
         members.add(familyMember);
-        Page<FamilyMember> page = new PageImpl(members);
-        when(familyMemberService.getAll(user.getId(), familyMember.getName(), pageRequest)).thenReturn(page);
-        assertEquals(adminService.getAllFamilyMember(user.getId(), familyMember.getName(), pageRequest), page);
+        Page<FamilyMember> expectedResult = new PageImpl(members);
+        when(familyMemberService.getAll(user.getId(), familyMember.getName(), pageRequest)).thenReturn(expectedResult);
+
+        Page result = adminService.getAllFamilyMember(user.getId(), familyMember.getName(), pageRequest);
+        verify(familyMemberService).getAll(user.getId(), familyMember.getName(), pageRequest);
+        assertEquals(expectedResult, result);
     }
 
     @Test
     public void returnAFamilyMember_whenAdminGetFamilyMemberById() throws ReimsException {
         when(familyMemberService.getById(familyMember.getId())).thenReturn(familyMember);
-        assertEquals(adminService.getFamilyMember(familyMember.getId()), familyMember);
+
+        FamilyMember result = adminService.getFamilyMember(familyMember.getId());
+        verify(familyMemberService).getById(familyMember.getId());
+        assertEquals(familyMember, result);
     }
 
     @Test
     public void returnFamilyMember_whenAdminCreateFamilyMemberOfAUser() throws ReimsException {
         when(familyMemberService.create(familyMember.getFamilyMemberOf().getId(), familyMember)).thenReturn(familyMember);
-        assertEquals(adminService.createFamilyMember(familyMember.getFamilyMemberOf().getId(), familyMember), familyMember);
+
+        FamilyMember result = adminService.createFamilyMember(familyMember.getFamilyMemberOf().getId(), familyMember);
+
+        verify(familyMemberService).create(familyMember.getFamilyMemberOf().getId(), familyMember);
+        assertEquals(familyMember, result);
     }
 
     @Test
     public void returnFamilyMemberWithLatestData_whenAdminUpdateFamilyMemberById() throws ReimsException {
         familyMember.setFamilyMemberOf(user2);
         when(familyMemberService.update(familyMember.getId(), familyMember, user2.getId())).thenReturn(familyMember);
-        assertEquals(adminService.updateFamilyMember(familyMember.getId(), familyMember, user2.getId()), familyMember);
+
+        FamilyMember result = adminService.updateFamilyMember(familyMember.getId(), familyMember, user2.getId());
+        verify(familyMemberService).update(familyMember.getId(), familyMember, user2.getId());
+        assertEquals(familyMember, result);
     }
 
     @Test
@@ -247,13 +287,6 @@ public class AdminServiceTest {
         adminService.deleteFamilyMember(familyMember.getId());
         verify(familyMemberService, times(1)).delete(familyMember.getId());
     }
-
-
-
-
-
-
-
 
 
 }

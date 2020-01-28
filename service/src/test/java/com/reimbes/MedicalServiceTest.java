@@ -1,10 +1,14 @@
 package com.reimbes;
 
-import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.*;
+import com.reimbes.interfaces.AuthService;
+import com.reimbes.interfaces.FamilyMemberService;
+import com.reimbes.interfaces.UserService;
+import com.reimbes.interfaces.UtilsService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.reimbes.ReimsUser.Role.USER;
+import static com.reimbes.constant.UrlConstants.SUB_FOLDER_REPORT;
 import static com.reimbes.interfaces.UtilsService.countAge;
 import static org.junit.gen5.api.Assertions.assertEquals;
 import static org.junit.gen5.api.Assertions.assertThrows;
@@ -30,16 +35,16 @@ import static org.mockito.Mockito.*;
 public class MedicalServiceTest {
 
     @Mock
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Mock
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Mock
-    private FamilyMemberServiceImpl familyMemberService;
+    private FamilyMemberService familyMemberService;
 
     @Mock
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsService;
 
     @Mock
     private MedicalRepository repository;
@@ -62,6 +67,10 @@ public class MedicalServiceTest {
     private ReimsUser admin;
     private FamilyMember member;
 
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(utilsService, familyMemberService, userService, authService, repository);
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -126,13 +135,17 @@ public class MedicalServiceTest {
         assertThrows(DataConstraintException.class, () -> {
             service.create(medical, null);
         });
+
+        verify(authService).getCurrentUser();
     }
 
     @Test
     public void returnMedical_whenUserCreateMedical_forHimself() throws ReimsException {
+        Medical result;
+
         when(authService.getCurrentUser()).thenReturn(user);
-        when(utilsServiceImpl.uploadImage(files.get(0), user.getId(), UrlConstants.SUB_FOLDER_REPORT)).thenReturn(report.getImage());
-        when(utilsServiceImpl.getCurrentTime()).thenReturn(medical.getDate());
+        when(utilsService.uploadImage(files.get(0), user.getId(), SUB_FOLDER_REPORT)).thenReturn(report.getImage());
+        when(utilsService.getCurrentTime()).thenReturn(medical.getDate());
 
         medical.setMedicalUser(user);
         medical.setPatient(user);
@@ -144,14 +157,21 @@ public class MedicalServiceTest {
 
         when(repository.save(medical)).thenReturn(medical);
 
-        assertEquals(medical, service.create(medicalRequest, files));
+        result = service.create(medicalRequest, files);
+        verify(authService).getCurrentUser();
+        verify(utilsService).uploadImage(files.get(0), user.getId(), SUB_FOLDER_REPORT); // upload file
+        verify(utilsService).getCurrentTime(); // fill createdAt field
+        verify(repository).save(medical);
+
+        assertEquals(medical, result);
     }
 
     @Test
     public void returnMedical_whenUserCreateMedical_forHisFamilyMember() throws ReimsException {
+        Medical result;
         when(authService.getCurrentUser()).thenReturn(user);
         when(familyMemberService.getById(member.getId())).thenReturn(member);
-        when(utilsServiceImpl.getCurrentTime()).thenReturn(medical.getDate());
+        when(utilsService.getCurrentTime()).thenReturn(medical.getDate());
 
         medical.setMedicalUser(user);
         medical.setPatient(member);
@@ -160,7 +180,13 @@ public class MedicalServiceTest {
         when(repository.save(medical)).thenReturn(medical);
 
         medicalRequest.setPatient(member);
-        assertEquals(medical, service.create(medicalRequest, null));
+        result = service.create(medicalRequest, null);
+        verify(authService).getCurrentUser();
+        verify(utilsService).getCurrentTime(); // fill createdAt field
+        verify(familyMemberService).getById(medical.getPatient().getId()); // determine patient
+        verify(repository).save(medical);
+
+        assertEquals(medical, result);
     }
 
 
@@ -174,28 +200,15 @@ public class MedicalServiceTest {
         assertThrows(DataConstraintException.class, () -> {
             service.update(medical.getId(), medicalRequest, null);
         });
-    }
 
-    @Test
-    public void errorThrown_whenUserUpdateMedical() throws ReimsException {
-        // old medical
-        medical.setMedicalUser(user);
-        medical.setPatient(user);
-        medical.setAge(countAge(user.getDateOfBirth()));
-
-        when(authService.getCurrentUser()).thenReturn(user);
-        when(repository.findOne(medical.getId())).thenReturn(medical);
-
-        medicalRequest.setAmount(0);
-
-
-        assertThrows(DataConstraintException.class, () -> {
-            service.update(medical.getId(), medicalRequest, null);
-        });
+        verify(authService).getCurrentUser();
+        verify(repository).findOne(medical.getId());
     }
 
     @Test
     public void returnMedical_whenUserUpdateMedical() throws ReimsException {
+        Medical result;
+
         // old medical
         medical.setMedicalUser(user);
         medical.setPatient(user);
@@ -220,11 +233,18 @@ public class MedicalServiceTest {
         medicalRequest.setAmount(expectedResult.getAmount());
         when(repository.save(expectedResult)).thenReturn(expectedResult);
 
-        assertEquals(expectedResult ,service.update(medical.getId(), medicalRequest, null));
+        result = service.update(medical.getId(), medicalRequest, null);
+        verify(authService).getCurrentUser();
+        verify(repository).findOne(medical.getId());
+        verify(repository).save(expectedResult);
+
+        assertEquals(expectedResult, result);
     }
 
     @Test
     public void returnMedical_whenUserUpdateMedical_forHisFamilyMember() throws ReimsException {
+        Medical result;
+
         // old medical
         medical.setMedicalUser(user);
         medical.setPatient(user);
@@ -250,16 +270,26 @@ public class MedicalServiceTest {
         medicalRequest.setAge(expectedResult.getAge());
         when(repository.save(expectedResult)).thenReturn(expectedResult);
 
-        assertEquals(expectedResult ,service.update(medical.getId(), medicalRequest, null));
+        result = service.update(medical.getId(), medicalRequest, null);
+        verify(authService).getCurrentUser();
+        verify(repository).findOne(medical.getId());
+        verify(familyMemberService).getById(medical.getPatient().getId());
+        verify(repository).save(expectedResult);
+
+        assertEquals(expectedResult, result);
     }
 
 
 
     @Test
-    public void errorThrown_whenUserTryToGetUnexistMedical() {
+    public void errorThrown_whenUserTryToGetUnexistMedical() throws ReimsException {
+        long id = 211;
         assertThrows(NotFoundException.class, () -> {
-            service.get(219102);
+            service.get(id);
         });
+
+        verify(repository).findOne(id);
+        verify(authService).getCurrentUser();
     }
 
     @Test
@@ -278,41 +308,62 @@ public class MedicalServiceTest {
         assertThrows(NotFoundException.class, () -> {
             service.get(medical.getId());
         });
+
+        verify(authService).getCurrentUser();
+        verify(repository).findOne(medical.getId());
     }
 
     @Test
     public void returnMedical_whenAdminGetMedicalById() throws ReimsException {
+        Medical result;
         when(authService.getCurrentUser()).thenReturn(admin);
         when(repository.findOne(medical.getId())).thenReturn(medical);
         medical.setMedicalUser(user);
 
-        assertEquals(medical, service.get(medical.getId()));
+        result = service.get(medical.getId());
+        verify(authService).getCurrentUser();
+        verify(repository).findOne(medical.getId());
+
+        assertEquals(medical, result);
     }
 
     @Test
     public void returnListOfMedical_whenMedicalsGetByDate() throws ReimsException {
+        List<Medical> result;
+
         long start; long end;
         start = end = new Date().getTime();
         when(repository.findByDateBetweenAndMedicalUser(start, end, user)).thenReturn(medicals);
         when(authService.getCurrentUser()).thenReturn(user);
 
-        assertEquals(medicals, service.getByDate(start, end));
+        result = service.getByDate(start, end);
+        verify(authService).getCurrentUser();
+        verify(repository).findByDateBetweenAndMedicalUser(start, end, user);
+
+        assertEquals(medicals, result);
     }
 
     @Test
     public void returnListOfMedical_whenMedicalsGetByDate_withStartAndEndDateHaveNullValue() throws ReimsException {
+        List<Medical> result;
+
         when(repository.findByMedicalUser(user)).thenReturn(medicals);
         when(authService.getCurrentUser()).thenReturn(user);
 
-        assertEquals(medicals, service.getByDate(null, null));
+        result = service.getByDate(null, null);
+        verify(authService).getCurrentUser();
+        verify(repository).findByMedicalUser(user);
+
+        assertEquals(medicals, result);
     }
 
     @Test
     public void errorThrown_whenUserTryToRemoveUnexistMedical() {
-
+        long id = 15315;
         assertThrows(NotFoundException.class, () -> {
-            service.delete(1241512);
+            service.delete(id);
         });
+        verify(repository).findOne(id);
     }
 
     @Test
@@ -332,6 +383,8 @@ public class MedicalServiceTest {
         assertThrows(NotFoundException.class, () -> {
             service.delete(medical.getId());
         });
+
+        verify(repository).findOne(medical.getId());
     }
 
     @Test
@@ -340,7 +393,9 @@ public class MedicalServiceTest {
         when(repository.findOne(medical.getId())).thenReturn(medical);
 
         service.delete(medical.getId());
-        verify(repository, times(1)).delete(medical.getId());
+        verify(repository).findOne(medical.getId());
+        verify(authService).getCurrentUser();
+        verify(repository).delete(medical.getId());
     }
 
     @Test
@@ -356,7 +411,8 @@ public class MedicalServiceTest {
 
     @Test
     public void returnPageContainedListOfMedicals_whenAdminGetAllMedicals_withUserQueryButNoDateRange() throws ReimsException {
-        Long NULL_IN_LONG = new Long(0);
+        Page result;
+        long nullDate = 0;
         Page expectedResult = new PageImpl(medicals);
 
         when(authService.getCurrentUser()).thenReturn(admin);
@@ -364,27 +420,37 @@ public class MedicalServiceTest {
         when(repository.findByTitleContainingIgnoreCaseAndMedicalUser(medical.getTitle(), user, pageForQuery))
                 .thenReturn(expectedResult);
 
-        assertEquals(expectedResult, service.getAll(pageRequest, medical.getTitle(), NULL_IN_LONG, NULL_IN_LONG, user.getId()));
+        result = service.getAll(pageRequest, medical.getTitle(), nullDate, nullDate, user.getId());
+        verify(authService).getCurrentUser();
+        verify(userService).get(user.getId());
+        verify(repository).findByTitleContainingIgnoreCaseAndMedicalUser(medical.getTitle(), user, pageForQuery);
+
+        assertEquals(expectedResult, result);
     }
 
 
     @Test
     public void returnPageContainedListOfMedicals_whenAdminGetAllMedicals_withDateRangeQuery() throws ReimsException {
-        Long date = medical.getDate();
-        Long NULL_IN_LONG = new Long(0);
+        Page result;
+        long date = medical.getDate();
+        long nullDate = 0;
         Page expectedResult = new PageImpl(medicals);
 
         when(authService.getCurrentUser()).thenReturn(admin);
-        when(userService.get(user.getId())).thenReturn(user);
         when(repository.findByTitleContainingIgnoreCaseAndDateBetween(medical.getTitle(), date, date, pageForQuery))
                 .thenReturn(expectedResult);
 
-        assertEquals(expectedResult, service.getAll(pageRequest, medical.getTitle(), date, date, NULL_IN_LONG));
+        result = service.getAll(pageRequest, medical.getTitle(), date, date, nullDate);
+        verify(authService).getCurrentUser();
+        verify(repository).findByTitleContainingIgnoreCaseAndDateBetween(medical.getTitle(), date, date, pageForQuery);
+
+        assertEquals(expectedResult, result);
     }
 
     @Test
     public void returnPageContainedListOfMedicals_whenAdminGetAllMedicals_withUserAndDateRangeQuery() throws ReimsException {
-        Long date = medical.getDate();
+        Page result;
+        long date = medical.getDate();
         Page expectedResult = new PageImpl(medicals);
 
         when(authService.getCurrentUser()).thenReturn(admin);
@@ -392,33 +458,46 @@ public class MedicalServiceTest {
         when(repository.findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(medical.getTitle(), date, date, user, pageForQuery))
                 .thenReturn(expectedResult);
 
-        assertEquals(expectedResult, service.getAll(pageRequest, medical.getTitle(), date, date, user.getId()));
+        result = service.getAll(pageRequest, medical.getTitle(), date, date, user.getId());
+        verify(authService).getCurrentUser();
+        verify(userService).get(user.getId());
+        verify(repository).findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(medical.getTitle(), date, date, user, pageForQuery);
+
+        assertEquals(expectedResult, result);
     }
 
     @Test
     public void returnPageContainedListOfMedicals_whenUserGetAllMedicals_withDateRangeQuery() throws ReimsException {
-        Long date = medical.getDate();
+        Page result;
+        long date = medical.getDate();
         Page expectedResult = new PageImpl(medicals);
 
         when(authService.getCurrentUser()).thenReturn(user);
-        when(userService.get(user.getId())).thenReturn(user);
         when(repository.findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(medical.getTitle(), date, date, user, pageForQuery))
                 .thenReturn(expectedResult);
 
-        assertEquals(expectedResult, service.getAll(pageRequest, medical.getTitle(), date, date, new Long(0)));
+        result = service.getAll(pageRequest, medical.getTitle(), date, date, new Long(0));
+        verify(authService).getCurrentUser();
+        verify(repository).findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(medical.getTitle(), date, date, user, pageForQuery);
+
+        assertEquals(expectedResult, result);
     }
 
     @Test
     public void returnPageContainedListOfMedicals_whenUserGetAllMedicals_withoutDateRange() throws ReimsException {
-        Long NULL_IN_LONG = new Long(0);
+        Page result;
+        long nullLong = 0;
         Page expectedResult = new PageImpl(medicals);
 
         when(authService.getCurrentUser()).thenReturn(user);
-        when(userService.get(user.getId())).thenReturn(user);
         when(repository.findByTitleContainingIgnoreCaseAndMedicalUser(medical.getTitle(), user, pageForQuery))
                 .thenReturn(expectedResult);
 
-        assertEquals(expectedResult, service.getAll(pageRequest, medical.getTitle(), NULL_IN_LONG, NULL_IN_LONG, user.getId()));
+        result = service.getAll(pageRequest, medical.getTitle(), nullLong, nullLong, user.getId());
+        verify(authService).getCurrentUser();
+        verify(repository).findByTitleContainingIgnoreCaseAndMedicalUser(medical.getTitle(), user, pageForQuery);
+
+        assertEquals(expectedResult, result);
     }
 
 

@@ -5,6 +5,7 @@ import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.MethodNotAllowedException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.interfaces.AuthService;
 import com.reimbes.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class UserServiceImpl implements UserService {
     private ReportGeneratorServiceImpl reportGeneratorService;
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Autowired
     private UtilsServiceImpl utilsServiceImpl;

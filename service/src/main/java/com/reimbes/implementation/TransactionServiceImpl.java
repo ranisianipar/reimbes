@@ -48,7 +48,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction;
         try {
             imagePath = utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
-            log.info("Predicting image content... " + imagePath);
+            log.info("Predicting image content... ", imagePath);
             transaction = receiptMapperService.translateImage(imagePath, imageValue);
             log.info(String.format("Receipt Mapper Result %s", transaction));
 

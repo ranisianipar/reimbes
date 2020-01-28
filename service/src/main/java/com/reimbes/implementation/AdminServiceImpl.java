@@ -1,6 +1,6 @@
 package com.reimbes.implementation;
 
-import com.reimbes.interfaces.AdminService;
+import com.reimbes.interfaces.*;
 import com.reimbes.FamilyMember;
 import com.reimbes.Medical;
 import com.reimbes.ReimsUser;
@@ -29,19 +29,19 @@ public class AdminServiceImpl implements AdminService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsService;
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Autowired
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Autowired
-    private FamilyMemberServiceImpl familyMemberService;
+    private FamilyMemberService familyMemberService;
 
     @Autowired
-    private MedicalServiceImpl medicalService;
+    private MedicalService medicalService;
 
     @Override
     public Page getAllUser(String search, Pageable pageRequest) throws ReimsException {
@@ -85,7 +85,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void deleteUser(long id) throws ReimsException{
+    public void deleteUser(long id) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
         if (currentUser.getId() == id) throw new ReimsException("SELF_DELETION", HttpStatus.METHOD_NOT_ALLOWED, 405);
 
@@ -112,7 +112,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void deleteFamilyMember(long familyMemberId) throws ReimsException{
+    public void deleteFamilyMember(long familyMemberId) throws ReimsException {
         log.info(String.format("Delete family member with ID: %d", familyMemberId));
         familyMemberService.delete(familyMemberId);
     }
@@ -150,6 +150,6 @@ public class AdminServiceImpl implements AdminService {
             errors.add("NULL_ATTRIBUTE_DATE_OF_BIRTH");
 
         if (!errors.isEmpty())
-            throw new ReimsException(errors.toString(),HttpStatus.BAD_REQUEST, ResponseCode.BAD_REQUEST);
+            throw new ReimsException(errors.toString(), HttpStatus.BAD_REQUEST, ResponseCode.BAD_REQUEST);
     }
 }
