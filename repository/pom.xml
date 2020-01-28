@@ -17,7 +17,6 @@
             <groupId>com.reimbes</groupId>
             <artifactId>model</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
 
     </dependencies>

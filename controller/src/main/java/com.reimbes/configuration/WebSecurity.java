@@ -66,20 +66,27 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                         API_PREFIX + LOGIN_URL,
                         API_PREFIX + LOGOUT_URL,
                         API_PREFIX + ISLOGIN_URL,
-                        "/v2/api-docs"
+                        // Swagger URL
+                        "/v2/api-docs",
+                        "/spring-security-rest/api**",
+                        "/configuration/ui",
+                        "/swagger-resources/**",
+                        "/configuration/security",
+                        "/swagger-ui.html",
+                        "/webjars/**"
                 ).permitAll()
                 .antMatchers(
                         API_PREFIX + ADMIN_PREFIX,
-                        API_PREFIX + ADMIN_PREFIX+"/**"
-                    ).hasAuthority("ADMIN")
+                        API_PREFIX + ADMIN_PREFIX + "/**"
+                ).hasAuthority("ADMIN")
                 .antMatchers(
                         API_PREFIX + USER_PREFIX,
-                        API_PREFIX + USER_PREFIX+"/**",
+                        API_PREFIX + USER_PREFIX + "/**",
                         API_PREFIX + TRANSACTION_PREFIX,
-                        API_PREFIX + TRANSACTION_PREFIX+"/**",
+                        API_PREFIX + TRANSACTION_PREFIX + "/**",
                         API_PREFIX + MEDICAL_PREFIX,
-                        API_PREFIX + MEDICAL_PREFIX+"/**"
-                    ).hasAuthority("USER")
+                        API_PREFIX + MEDICAL_PREFIX + "/**"
+                ).hasAuthority("USER")
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(jwtAuthenticationFilter(authenticationManager()))

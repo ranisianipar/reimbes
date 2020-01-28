@@ -2,7 +2,6 @@ package com.reimbes.authentication.filter;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.reimbes.ReimsUser;
 import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.UserDetailsImpl;
@@ -90,7 +89,10 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         userResponse.setId(user.getUserId());
         userResponse.setRole(authService.getRoleByString(authorities.iterator().next().toString()));
 
-        String userJsonString = new Gson().toJson(userResponse);
+        // Creating Object of ObjectMapper define in Jakson Api
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        String userJsonString = objectMapper.writeValueAsString(userResponse);
 
         PrintWriter out = res.getWriter();
         res.setContentType("application/json");

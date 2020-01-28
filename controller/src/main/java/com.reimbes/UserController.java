@@ -9,11 +9,12 @@ import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 
-import static com.reimbes.constant.General.IDENTITY_CODE;
+import static com.reimbes.constant.General.*;
 import static com.reimbes.constant.UrlConstants.*;
 
 
@@ -69,7 +70,7 @@ public class UserController {
         return br;
     }
 
-    @GetMapping(UrlConstants.IMAGE_PREFIX)
+    @GetMapping(value = UrlConstants.IMAGE_PREFIX, produces = {MEDIA_TYPE_JPEG, MEDIA_TYPE_JPG, MEDIA_TYPE_PNG})
     public byte[] getImage(@RequestParam(value = "path") String imagePath) {
         try {
             return userService.getImage(imagePath);

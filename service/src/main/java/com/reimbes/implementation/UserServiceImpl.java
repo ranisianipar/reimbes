@@ -5,6 +5,7 @@ import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.MethodNotAllowedException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +13,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 
+import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
-import java.time.Instant;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,7 +27,6 @@ import java.util.List;
 import static com.reimbes.ReimsUser.Role.ADMIN;
 import static com.reimbes.constant.General.IDENTITY_CODE;
 import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
-import static com.reimbes.implementation.Utils.getCurrentTime;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -39,7 +40,7 @@ public class UserServiceImpl implements UserService {
     private AuthServiceImpl authService;
 
     @Autowired
-    private Utils utils;
+    private UtilsServiceImpl utilsServiceImpl;
 
     @Autowired
     private TransactionServiceImpl transactionService;
@@ -59,7 +60,7 @@ public class UserServiceImpl implements UserService {
         validate(user, null);
 
         user.setName(user.getUsername()); // default
-        user.setCreatedAt(Instant.now().toEpochMilli());
+        user.setCreatedAt(utilsServiceImpl.getCurrentTime());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return userRepository.save(user);
@@ -69,7 +70,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser update(long id, ReimsUser newUser) throws ReimsException {
         ReimsUser oldUser;
 
-        if (id == IDENTITY_CODE) oldUser = userRepository.findByUsername(utils.getPrincipalUsername());
+        if (id == IDENTITY_CODE) oldUser = userRepository.findByUsername(utilsServiceImpl.getPrincipalUsername());
         else oldUser = userRepository.findOne(id);
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
@@ -81,7 +82,7 @@ public class UserServiceImpl implements UserService {
         oldUser.setUsername(newUser.getUsername());
         if (newUser.getPassword() != null)
             oldUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        oldUser.setUpdatedAt(getCurrentTime());
+        oldUser.setUpdatedAt(utilsServiceImpl.getCurrentTime());
 
         oldUser.setDivision(newUser.getDivision());
         oldUser.setGender(newUser.getGender());
@@ -125,7 +126,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser get(long id) throws ReimsException {
         ReimsUser user;
 
-        if (id == IDENTITY_CODE) return userRepository.findByUsername(utils.getPrincipalUsername());
+        if (id == IDENTITY_CODE) return userRepository.findByUsername(utilsServiceImpl.getPrincipalUsername());
         else user = userRepository.findOne(id);
 
         log.info(String.format("Get user with ID %d. Found => %s", id, user));
@@ -160,15 +161,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public byte[] getReport(Long start, Long end, String reimbursementType) throws Exception {
-        ReimsUser currentUser = authService.getCurrentUser();
-        if (currentUser.getRole() == ADMIN) throw new MethodNotAllowedException("Get Report");
-
-        return reportGeneratorService.getReport(currentUser,
-                start, end, reimbursementType.toLowerCase());
+        return reportGeneratorService.getReport(authService.getCurrentUser(), start, end, reimbursementType.toLowerCase());
     }
 
-    public byte[] getImage(String imagePath) throws ReimsException{
-        return utils.getImage(authService.getCurrentUser(), imagePath);
+    @Override
+    public byte[] getImage(String imagePath) throws ReimsException {
+        log.info("GET Image by path");
+        ReimsUser user = authService.getCurrentUser();
+        try {
+            if (imagePath.contains(String.format("/%d/", user.getId()))) return utilsServiceImpl.getFile(imagePath);
+            throw new NotFoundException("Image: " + imagePath);
+        }   catch (IOException e) {
+            throw new NotFoundException(e.getMessage());
+        }
+
     }
 
 

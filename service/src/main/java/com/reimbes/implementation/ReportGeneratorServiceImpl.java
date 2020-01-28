@@ -2,6 +2,7 @@ package com.reimbes.implementation;
 
 import com.reimbes.*;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.interfaces.ReportGeneratorService;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -18,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.reimbes.constant.General.*;
+import static com.reimbes.constant.UrlConstants.GDN_LOGO_PATH;
 
 @Service
 public class ReportGeneratorServiceImpl implements ReportGeneratorService {
@@ -34,7 +36,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private AuthServiceImpl authService;
 
     @Autowired
-    private Utils utils;
+    private UtilsServiceImpl utilsServiceImpl;
 
     // Header sizes
     private final short SUPER_LARGE_TEXT = (short)24;
@@ -50,7 +52,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     // Cell style
     @Setter @Getter
     private CellStyle tableHeaderCellStyle;
-    @Setter @Getter
     private CellStyle defaultCellStyle;
     private CellStyle totalCellStyle;
 
@@ -97,8 +98,10 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         switch (reimbursementType) {
             case PARKING:
                 writeParkingReport(sheet, start, end);
+                break;
             case FUEL:
                 writeFuelReport(sheet, start, end);
+                break;
             case MEDICAL:
                 writeMedicalReport(sheet, start, end);
         }
@@ -110,7 +113,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         wb.write(fileOut);
 
         fileOut.close();
-        return utils.getFile(filename);
+        return utilsServiceImpl.getFile(filename);
 
     }
 
@@ -167,7 +170,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         Row row = sheet.createRow(getCurrentRowIndex());
         setCurrentRowIndex(getCurrentRowIndex() + 1);
         createCell(row, 4, "Hours");
-
         int totalAmount = 0;
         int transactionIndex = 0;
 
@@ -186,13 +188,11 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             createCell(row, 4, parking.getHours());
             totalAmount += parking.getAmount();
         }
-
         // footer row
         row = sheet.createRow(getCurrentRowIndex() + 1);
         setCurrentRowIndex(getCurrentRowIndex() + 2);
 
         createCell(row, 1, "TOTAL:").setCellStyle(totalCellStyle);
-
         sheet.addMergedRegion(new CellRangeAddress(
                 row.getRowNum(), //first row of header (0-based)
                 row.getRowNum(), //last row of header (0-based)
@@ -201,7 +201,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         ));
 
         createCell(row, 3, totalAmount);
-
         setCurrentRowIndex(getCurrentRowIndex() + 1);
     }
 
@@ -210,12 +209,10 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         setCurrentRowIndex(getCurrentRowIndex() + 1);
 
         createCell(row, 4, "Liters");
-
         int totalAmount = 0;
         int transactionIndex = 0;
 
         List<Transaction> fuels = transactionService.getByDateAndType(start, end, Transaction.Category.FUEL);
-
         /*LOOP*/
         for (Transaction transaction : fuels) {
             Fuel fuel = (Fuel) transaction;
@@ -244,7 +241,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         ));
 
         createCell(row, 3, totalAmount);
-
         setCurrentRowIndex(getCurrentRowIndex() + 1);
     }
 
@@ -291,7 +287,8 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     // space: 5 rows
     private void initImage(Workbook wb, Sheet sheet) throws IOException {
         // add picture data to this workbook.
-        int pictureIdx = wb.addPicture(utils.getFile("image/blibli-logo.png"), Workbook.PICTURE_TYPE_PNG);
+        byte[] image = utilsServiceImpl.getFile(GDN_LOGO_PATH);
+        int pictureIdx = wb.addPicture(image, Workbook.PICTURE_TYPE_PNG);
         CreationHelper helper = wb.getCreationHelper();
 
         // Create the drawing patriarch.  This is the top level container for all shapes.

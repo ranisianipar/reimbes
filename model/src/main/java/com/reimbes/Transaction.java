@@ -6,9 +6,9 @@ import net.bytebuddy.build.ToStringPlugin;
 import javax.persistence.*;
 
 @Data
-@Entity
+@Entity(name = "transactions")
 @Inheritance(strategy = InheritanceType.JOINED)
-
+@DiscriminatorColumn(name = "TRANSACTION_TYPE")
 public class Transaction {
 
     @Id
@@ -24,6 +24,8 @@ public class Transaction {
     // epoch format
     private long date;
     private String image;
+
+    private String location;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @ToStringPlugin.Exclude

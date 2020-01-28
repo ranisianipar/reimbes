@@ -8,6 +8,7 @@ import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.MethodNotAllowedException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.interfaces.FamilyMemberService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +17,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.reimbes.ReimsUser.Role.ADMIN;
 
 @Service
-public class FamilyMemberServiceImpl {
+public class FamilyMemberServiceImpl implements FamilyMemberService {
 
     private static Logger log = LoggerFactory.getLogger(FamilyMemberServiceImpl.class);
 
@@ -42,9 +40,7 @@ public class FamilyMemberServiceImpl {
     private AuthServiceImpl authService;
 
     @Autowired
-    private Utils utils;
-
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private UtilsServiceImpl utilsServiceImpl;
 
 
     public FamilyMember create(Long userId, FamilyMember member) throws ReimsException {
@@ -61,7 +57,7 @@ public class FamilyMemberServiceImpl {
 
         validate(null, familyMember);
 
-        familyMember.setCreatedAt(utils.getCurrentTime());
+        familyMember.setCreatedAt(utilsServiceImpl.getCurrentTime());
 
         log.info("Done mapping! FAMILY_MEMBER: " + familyMember.toString());
 
@@ -77,7 +73,6 @@ public class FamilyMemberServiceImpl {
             return member;
 
         else throw new NotFoundException(member.getName());
-
     }
 
     public Page getAll(Long userId, String nameFilter, Pageable pageRequest) throws ReimsException{
@@ -91,7 +86,7 @@ public class FamilyMemberServiceImpl {
         ReimsUser currentUser = authService.getCurrentUser();
         // ADMIN
         if (currentUser.getRole() == ADMIN) {
-            log.info("[ADMIN] Query Family Member");
+            log.info("[ADMIN] Query Family Member ");
             if (userId == null) return getAllByUser(null, nameFilter, pageable);
             return getAllByUser(userService.get(userId), nameFilter, pageable);
         }
@@ -121,14 +116,16 @@ public class FamilyMemberServiceImpl {
         familyMemberRepository.delete(id);
     }
 
-
     public FamilyMember update(long id, FamilyMember latestData, long userId) throws ReimsException {
         FamilyMember member = familyMemberRepository.findOne(id);
 
         latestData.setFamilyMemberOf(member.getFamilyMemberOf());
 
         if (userId != new Long(0)) {
-            latestData.setFamilyMemberOf(userService.get(userId));
+            ReimsUser user = userService.get(userId);
+            if (user.getRole() != ADMIN)
+                latestData.setFamilyMemberOf(userService.get(userId));
+            else throw new DataConstraintException("Family Member can't be assigned to user with role ADMIN");
         }
 
         // validate
@@ -155,13 +152,10 @@ public class FamilyMemberServiceImpl {
             errors.add("NULL_DATE_OF_BIRTH");
         if (newData.getRelationship() == null)
             errors.add("NULL_RELATIONSHIP");
-        if (newData.getFamilyMemberOf() == null)
-            errors.add("NULL_FAMILY_MEMBER_OF");
 
         // compare new medicalUser data with other medicalUser data
         if (errors.isEmpty()){
             FamilyMember familyMember = familyMemberRepository.findByName(newData.getName());
-
             // update
             if (oldData != null && familyMember != null &&
                     familyMember.getFamilyMemberOf().getId() == oldData.getFamilyMemberOf().getId() &&
@@ -172,8 +166,8 @@ public class FamilyMemberServiceImpl {
             else if (oldData == null && familyMember != null &&
                     familyMember.getFamilyMemberOf().getId() == newData.getFamilyMemberOf().getId())
                 errors.add("UNIQUENESS_NAME");
-
         }
+
 
         if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
 

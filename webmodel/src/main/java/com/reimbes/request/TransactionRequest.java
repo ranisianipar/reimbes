@@ -32,6 +32,5 @@ public class TransactionRequest {
     private int hours;
     private Parking.Type parkingType;
     private String location;
-    private String license;
 
 }

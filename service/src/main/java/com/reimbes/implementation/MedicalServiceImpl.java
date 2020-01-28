@@ -3,27 +3,21 @@ package com.reimbes.implementation;
 import com.reimbes.*;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.DataConstraintException;
-import com.reimbes.exception.MethodNotAllowedException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.interfaces.MedicalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.time.Instant;
 import java.util.*;
 
 import static com.reimbes.ReimsUser.Role.ADMIN;
-import static com.reimbes.constant.General.INFINITE_DATE_RANGE;
-import static com.reimbes.constant.ResponseCode.BAD_REQUEST;
-import static com.reimbes.implementation.Utils.countAge;
-import static com.reimbes.implementation.Utils.getCurrentTime;
+import static com.reimbes.interfaces.UtilsService.countAge;
 
 @Service
 public class MedicalServiceImpl implements MedicalService {
@@ -44,12 +38,12 @@ public class MedicalServiceImpl implements MedicalService {
     private FamilyMemberServiceImpl familyMemberService;
 
     @Autowired
-    private Utils utils;
+    private UtilsServiceImpl utilsServiceImpl;
 
-//    MULTIPLE upload
+    //    MULTIPLE upload
+    @Override
     public Medical create(Medical medical, List<String> files) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
-        if (currentUser.getRole() == ADMIN) throw new MethodNotAllowedException("Only User allowed.");
 
         log.info("Create method called. With files: " + files);
 
@@ -58,10 +52,10 @@ public class MedicalServiceImpl implements MedicalService {
         if (files != null) {
             Set<MedicalReport> reports = new HashSet<>();
             log.info("Create register all medical attachments those have been attached.");
-            for (String file: files) {
+            for (String file : files) {
                 reports.add(
                         MedicalReport.builder()
-                                .image(utils.uploadImage(file, currentUser.getId(), UrlConstants.SUB_FOLDER_REPORT))
+                                .image(utilsServiceImpl.uploadImage(file, currentUser.getId(), UrlConstants.SUB_FOLDER_REPORT))
                                 .medicalImage(medical)
                                 .build()
                 );
@@ -69,20 +63,21 @@ public class MedicalServiceImpl implements MedicalService {
             medical.setAttachments(reports);
         }
 
-        // [CHECK]: user claim medical for himself or not
-        // POTENTIALLY THROW ERROR
         Patient patient = (medical.getPatient() == null || medical.getPatient().getId() == 0)
                 ? currentUser : familyMemberService.getById(medical.getPatient().getId());
 
         medical.setMedicalUser(currentUser);
         medical.setPatient(patient);
         medical.setAge(countAge(patient.getDateOfBirth()));
-        medical.setCreatedAt(getCurrentTime());
-        return medicalRepository.save(medical);
+        medical.setCreatedAt(utilsServiceImpl.getCurrentTime());
+
+        Medical result = medicalRepository.save(medical);
+
+        return result;
     }
 
     /*
-    * User cant update medical attachment
+     * User cant update medical attachment
      */
     @Override
     public Medical update(long id, Medical newMedical, List<String> files) throws ReimsException {
@@ -92,7 +87,7 @@ public class MedicalServiceImpl implements MedicalService {
         validate(newMedical);
         old.setAmount(newMedical.getAmount());
 
-        Patient patient = (newMedical.getPatient() == null || newMedical.getPatient().getId() == 0)
+        Patient patient = (newMedical.getPatient() == null || newMedical.getPatient().getId() == currentUser.getId())
                 ? currentUser : familyMemberService.getById(newMedical.getPatient().getId());
 
         old.setPatient(patient);
@@ -106,7 +101,7 @@ public class MedicalServiceImpl implements MedicalService {
     public Medical get(long id) throws ReimsException {
         Medical report = medicalRepository.findOne(id);
         ReimsUser currentUser = authService.getCurrentUser();
-        if (report == null || currentUser.getRole() == ADMIN || report.getMedicalUser() != currentUser)
+        if (report == null || (report.getMedicalUser() != currentUser && currentUser.getRole() != ADMIN))
             throw new NotFoundException("MEDICAL_REPORT");
         return report;
     }
@@ -114,7 +109,6 @@ public class MedicalServiceImpl implements MedicalService {
     @Override
     public Page<Medical> getAll(Pageable pageRequest, String title, Long start, Long end, Long userId) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
-
 
         // enabling query by specific for admin. In the other hand, user get his medical report list
         ReimsUser queryUser;
@@ -138,19 +132,19 @@ public class MedicalServiceImpl implements MedicalService {
             log.info(String.format("GET MEDICAL by User with criteria title: %s;queryUser: %s", title, queryUser));
             return medicalRepository.findByTitleContainingIgnoreCaseAndMedicalUser(title, queryUser, page);
         } else {
-            if (queryUser == null) return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetween(title, start, end, page);
+            if (queryUser == null)
+                return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetween(title, start, end, page);
             return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(title, start, end, queryUser, page);
         }
     }
 
-
-    public List<Medical> getByDate(Long start, Long end) throws ReimsException{
+    @Override
+    public List<Medical> getByDate(Long start, Long end) throws ReimsException {
         ReimsUser user = authService.getCurrentUser();
         if (start == null && end == null)
             return medicalRepository.findByMedicalUser(user);
         return medicalRepository.findByDateBetweenAndMedicalUser(start, end, user);
     }
-
 
 
     @Override
@@ -167,7 +161,6 @@ public class MedicalServiceImpl implements MedicalService {
         ArrayList<String> errors = new ArrayList();
 
         if (report.getAmount() <= 0) errors.add("PROHIBITED_AMOUNT");
-
         if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
     }
 }

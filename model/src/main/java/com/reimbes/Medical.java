@@ -21,7 +21,6 @@ import java.util.Set;
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-@ToString(onlyExplicitlyIncluded = true)
 public class Medical {
 
     @Id
@@ -41,7 +40,7 @@ public class Medical {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reimsUser", nullable = false)
-    @JsonIgnore
+    @JsonIgnore @ToString.Exclude
     private ReimsUser medicalUser;
 
     //    Mapped to multiple images

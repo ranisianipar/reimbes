@@ -10,11 +10,7 @@ public class UrlConstants {
     public static final String ISLOGIN_URL = "/isLogin";
     public static final String PROJECT_ROOT = Paths.get("").toAbsolutePath().toString();
 
-    // folder path
-    public static final String TESSERACT_TRAINNED_DATA_PATH = PROJECT_ROOT + "\\lib\\tesseract\\tessdata\\";
-    // DEPRECATED
-    public static final String IMAGE_FOLDER_PATH = PROJECT_ROOT + "\\reims-img\\";
-    public static final String STORAGE_FOLDER = "storage";
+    public static final String STORAGE_FOLDERNAME = "storage";
 
     //prefix
     public static final String ADMIN_PREFIX = "/admin";
@@ -33,6 +29,9 @@ public class UrlConstants {
     // others
     public static final String ID_PARAM = "/{id:.+}";
     public static final String IMAGE_PARAM = "/{image:.+}";
-    public static final String IMAGE_URI = UrlConstants.ID_PARAM + UrlConstants.IMAGE_PARAM;
+    public static final String GDN_LOGO_PATH = "/image/blibli-logo.png";
+
+    // other service
+    public static final String URL_RECEIPT_MAPPER = "http://receipt-mapper.herokuapp.com/image";
 
 }

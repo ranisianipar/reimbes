@@ -7,6 +7,7 @@ import javax.persistence.*;
 
 @Table(name="Fuels")
 @Data
+@DiscriminatorValue("FUEL")
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Fuel extends Transaction {

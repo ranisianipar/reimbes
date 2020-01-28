@@ -102,10 +102,8 @@ only for USER
 ```
 
 ## Get Image
-- Endpoint : `api/medicals/image?path={imagePath}`
-- HTTP Method : `GET`
-- Request Body : -
-- Response Body : byte[]
+*Note:* Please check User Api Spec
+
 
 ## Create Medical
 - Endpoint : `api/medicals`
