@@ -96,6 +96,7 @@ public class AuthServiceTest {
         ActiveToken activeToken = new ActiveToken(token); //
 
         authService.registerToken(token);
+        verify(activeTokenRepository).findByToken(token);
         verify(utilsService, times(2)).getCurrentTime();
 
         activeToken.setExpiredTime(authService.getUpdatedTime());

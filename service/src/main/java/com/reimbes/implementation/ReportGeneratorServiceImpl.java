@@ -2,7 +2,7 @@ package com.reimbes.implementation;
 
 import com.reimbes.*;
 import com.reimbes.exception.ReimsException;
-import com.reimbes.interfaces.ReportGeneratorService;
+import com.reimbes.interfaces.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -27,16 +27,16 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private static Logger log = LoggerFactory.getLogger(ReportGeneratorServiceImpl.class);
 
     @Autowired
-    private TransactionServiceImpl transactionService;
+    private TransactionService transactionService;
 
     @Autowired
-    private MedicalServiceImpl medicalService;
+    private MedicalService medicalService;
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Autowired
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsService;
 
     // Header sizes
     private final short SUPER_LARGE_TEXT = (short)24;
@@ -104,6 +104,8 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                 writeMedicalReport(sheet, start, end);
         }
 
+        initFooter(sheet);
+
         if(wb instanceof XSSFWorkbook) filename += "x";
 
         //save workbook
@@ -111,7 +113,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         wb.write(fileOut);
 
         fileOut.close();
-        return utilsServiceImpl.getFile(filename);
+        return utilsService.getFile(filename);
 
     }
 
@@ -301,7 +303,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     // space: 5 rows
     private void initImage(Workbook wb, Sheet sheet) throws IOException {
         // add picture data to this workbook.
-        byte[] image = utilsServiceImpl.getFile(GDN_LOGO_PATH);
+        byte[] image = utilsService.getFile(GDN_LOGO_PATH);
         int pictureIdx = wb.addPicture(image, Workbook.PICTURE_TYPE_PNG);
         CreationHelper helper = wb.getCreationHelper();
 
@@ -430,8 +432,32 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     }
 
-    private void initFooter(Workbook wb, Sheet sheet) {
-        /*TO-DO*/
+    private void initFooter(Sheet sheet) {
+        Row row = sheet.createRow(getCurrentRowIndex());
+
+        String date = DATE_FORMAT_CLEAN.format(new Date());
+        String place = DEFAULT_PLACE;
+
+        createCell(row, 0, String.format("%s, %s", place, date)).setCellStyle(tableHeaderCellStyle);
+
+        sheet.addMergedRegion(new CellRangeAddress(
+                row.getRowNum(), //first row of header (0-based)
+                row.getRowNum(), //last row of header (0-based)
+                0, //first column of header (0-based)
+                2  //last column of header (0-based)
+        ));
+
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
+
+        row = sheet.createRow(getCurrentRowIndex());
+
+        createCell(row, 0, "Dibuat secara otomatis oleh Reims.").setCellStyle(tableHeaderCellStyle);
+        sheet.addMergedRegion(new CellRangeAddress(
+                row.getRowNum(), //first row of header (0-based)
+                row.getRowNum(), //last row of header (0-based)
+                0, //first column of header (0-based)
+                2  //last column of header (0-based)
+        ));
     }
 
 }

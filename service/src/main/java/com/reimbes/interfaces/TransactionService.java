@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface TransactionService {
+    List<Transaction>getByDateAndType(Long start, Long end, Transaction.Category category) throws ReimsException;
     Transaction createByImage(String transaction) throws ReimsException;
     Transaction update(Transaction transaction) throws ReimsException;
     void delete(long id) throws ReimsException;

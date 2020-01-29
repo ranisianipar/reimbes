@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.reimbes.ReimsUser.Role.USER;
+import static com.reimbes.constant.General.DEFAULT_LONG_VALUE;
 import static com.reimbes.constant.UrlConstants.SUB_FOLDER_REPORT;
 import static com.reimbes.interfaces.UtilsService.countAge;
 import static org.junit.gen5.api.Assertions.assertEquals;
@@ -350,7 +351,7 @@ public class MedicalServiceTest {
         when(repository.findByMedicalUser(user)).thenReturn(medicals);
         when(authService.getCurrentUser()).thenReturn(user);
 
-        result = service.getByDate(null, null);
+        result = service.getByDate(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE);
         verify(authService).getCurrentUser();
         verify(repository).findByMedicalUser(user);
 
@@ -402,11 +403,15 @@ public class MedicalServiceTest {
     public void returnPageContainedListOfMedicals_whenAdminGetAllMedicals_withoutQuery() throws ReimsException {
         Long NULL_IN_LONG = new Long(0);
         Page expectedResult = new PageImpl(medicals);
+        Page result;
 
         when(authService.getCurrentUser()).thenReturn(admin);
         when(repository.findByTitleContainingIgnoreCase(medical.getTitle(), pageForQuery)).thenReturn(expectedResult);
 
-        assertEquals(expectedResult, service.getAll(pageRequest, medical.getTitle(), NULL_IN_LONG, NULL_IN_LONG, NULL_IN_LONG));
+        result = service.getAll(pageRequest, medical.getTitle(), NULL_IN_LONG, NULL_IN_LONG, NULL_IN_LONG);
+        verify(authService).getCurrentUser();
+        verify(repository).findByTitleContainingIgnoreCase(medical.getTitle(), pageForQuery);
+        assertEquals(expectedResult, result);
     }
 
     @Test
