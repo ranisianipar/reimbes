@@ -81,7 +81,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         initFont(wb);
         initCellStyle(wb);
         initImage(wb, sheet); // end in 5th row, how can get image position dynamically?
-        initHeader(wb, sheet);
+        initHeader(wb, sheet, reimbursementType);
         initPersonalInfo(wb, sheet);
 
         // set column width
@@ -91,18 +91,16 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         sheet.setColumnWidth(3, 12 * 256); // autosize first column, depends on maximum width of applied cells
         sheet.setColumnWidth(4, 15 * 256); // autosize first column, depends on maximum width of applied cells
 
-        // assign user report value
-        writeHeaderCell(sheet); // init header cell
 
         // determine report type
         switch (reimbursementType) {
-            case PARKING:
+            case PARKING_VALUE:
                 writeParkingReport(sheet, start, end);
                 break;
-            case FUEL:
+            case FUEL_VALUE:
                 writeFuelReport(sheet, start, end);
                 break;
-            case MEDICAL:
+            case MEDICAL_VALUE:
                 writeMedicalReport(sheet, start, end);
         }
 
@@ -141,13 +139,11 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     // general attribute
     private void writeHeaderCell(Sheet sheet) {
         Row row = sheet.createRow(getCurrentRowIndex());
-        setCurrentRowIndex(getCurrentRowIndex() + 1);
         log.info(String.format("Write Header Cell in row index %d", row.getRowNum()));
 
         createCell(row, 0, "No.").setCellStyle(getTableHeaderCellStyle());
-        createCell(row, 1, "Title").setCellStyle(getTableHeaderCellStyle());
-        createCell(row, 2, "Date").setCellStyle(getTableHeaderCellStyle());
-        createCell(row, 3, "Amount").setCellStyle(getTableHeaderCellStyle());
+        createCell(row, 1, "Date").setCellStyle(getTableHeaderCellStyle());
+        createCell(row, 2, "Title").setCellStyle(getTableHeaderCellStyle());
 
     }
 
@@ -162,14 +158,19 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         totalCellStyle = wb.createCellStyle();
         totalCellStyle.setFont(fontDefaultStrong);
-        totalCellStyle.setAlignment(CellStyle.ALIGN_LEFT);
+        totalCellStyle.setAlignment(CellStyle.ALIGN_RIGHT);
 
     }
 
     private void writeParkingReport(Sheet sheet, Long start, Long end) throws ReimsException {
-        Row row = sheet.createRow(getCurrentRowIndex());
+        writeHeaderCell(sheet); // init header cell
+
+        // init more specific column [HEADER]
+        Row row = sheet.getRow(getCurrentRowIndex());
+        createCell(row, 3, "Amount").setCellStyle(getTableHeaderCellStyle());
+
         setCurrentRowIndex(getCurrentRowIndex() + 1);
-        createCell(row, 4, "Hours");
+
         int totalAmount = 0;
         int transactionIndex = 0;
 
@@ -181,11 +182,10 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             ++transactionIndex;
             row = sheet.createRow(getCurrentRowIndex());
             setCurrentRowIndex(getCurrentRowIndex() + 1);
-            createCell(row, 0, transactionIndex);
-            createCell(row, 1, parking.getTitle());
-            createCell(row, 2, DATE_FORMAT.format(new Date(parking.getDate())));
+            createCell(row, 0, transactionIndex).setCellStyle(tableHeaderCellStyle);
+            createCell(row, 1, DATE_FORMAT.format(new Date(parking.getDate())));
+            createCell(row, 2, parking.getTitle());
             createCell(row, 3, parking.getAmount());
-            createCell(row, 4, parking.getHours());
             totalAmount += parking.getAmount();
         }
         // footer row
@@ -196,7 +196,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         sheet.addMergedRegion(new CellRangeAddress(
                 row.getRowNum(), //first row of header (0-based)
                 row.getRowNum(), //last row of header (0-based)
-                1, //first column of header (0-based)
+                0, //first column of header (0-based)
                 2  //last column of header (0-based)
         ));
 
@@ -205,10 +205,16 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     }
 
     private void writeFuelReport(Sheet sheet, Long start, Long end) throws ReimsException {
-        Row row = sheet.createRow(getCurrentRowIndex());
+        writeHeaderCell(sheet); // init header cell
+
+        // write more specific column [HEADER]
+        Row row = sheet.getRow(getCurrentRowIndex());
+        createCell(row, 3, "Kilometers");
+        createCell(row, 4, "Liters");
+        createCell(row, 5, "Amount");
+
         setCurrentRowIndex(getCurrentRowIndex() + 1);
 
-        createCell(row, 4, "Liters");
         int totalAmount = 0;
         int transactionIndex = 0;
 
@@ -218,13 +224,14 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             Fuel fuel = (Fuel) transaction;
             ++transactionIndex;
             row = sheet.createRow(getCurrentRowIndex());
-            setCurrentRowIndex(getCurrentRowIndex() + 1);
-            createCell(row, 0, transactionIndex);
-            createCell(row, 1, fuel.getTitle());
-            createCell(row, 2, DATE_FORMAT.format(new Date(fuel.getDate())));
-            createCell(row, 3, fuel.getAmount());
+            createCell(row, 0, transactionIndex).setCellStyle(tableHeaderCellStyle);
+            createCell(row, 1, DATE_FORMAT.format(new Date(fuel.getDate())));
+            createCell(row, 2, fuel.getTitle());
+            createCell(row, 3, fuel.getKilometers());
             createCell(row, 4, fuel.getLiters());
+            createCell(row, 5, fuel.getAmount());
             totalAmount += fuel.getAmount();
+            setCurrentRowIndex(getCurrentRowIndex() + 1);
         }
 
         // footer row
@@ -236,18 +243,24 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         sheet.addMergedRegion(new CellRangeAddress(
                 row.getRowNum(), //first row of header (0-based)
                 row.getRowNum(), //last row of header (0-based)
-                1, //first column of header (0-based)
-                2  //last column of header (0-based)
+                0, //first column of header (0-based)
+                4  //last column of header (0-based)
         ));
 
-        createCell(row, 3, totalAmount);
+        createCell(row, 5, totalAmount);
         setCurrentRowIndex(getCurrentRowIndex() + 1);
     }
 
     private void writeMedicalReport(Sheet sheet, Long start, Long end) throws ReimsException {
-        Row row = sheet.getRow(getCurrentRowIndex() - 1); // write specific attribute based on report type
-        createCell(row, 4, "Patient").setCellStyle(getTableHeaderCellStyle());
+        writeHeaderCell(sheet); // init header cell
 
+        // write more specific column [HEADER]
+        Row row = sheet.getRow(getCurrentRowIndex());
+        createCell(row, 3, "Patient").setCellStyle(getTableHeaderCellStyle());
+        createCell(row, 4, "Amount").setCellStyle(getTableHeaderCellStyle());
+
+
+        setCurrentRowIndex(getCurrentRowIndex() + 1);
         int totalAmount = 0;
         int medicalIndex = 0 ;
 
@@ -257,29 +270,30 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         for (Medical medical : medicals) {
             ++medicalIndex;
             row = sheet.createRow(getCurrentRowIndex());
-            setCurrentRowIndex(getCurrentRowIndex() + 1);
-            createCell(row, 0, medicalIndex);
-            createCell(row, 1, medical.getTitle());
-            createCell(row, 2, DATE_FORMAT.format(new Date(medical.getDate())));
-            createCell(row, 3, medical.getAmount());
-            createCell(row, 4, medical.getPatient().getName());
+            createCell(row, 0, medicalIndex).setCellStyle(tableHeaderCellStyle);
+            createCell(row, 1, DATE_FORMAT.format(new Date(medical.getDate())));
+            createCell(row, 2, medical.getTitle());
+            createCell(row, 3, medical.getPatient().getName());
+            createCell(row, 4, medical.getAmount());
             totalAmount += medical.getAmount();
+
+            setCurrentRowIndex(getCurrentRowIndex() + 1);
         }
 
         // footer row
         row = sheet.createRow(getCurrentRowIndex() + 1);
         setCurrentRowIndex(getCurrentRowIndex() + 2);
 
-        createCell(row, 1, "TOTAL:").setCellStyle(totalCellStyle);
+        createCell(row, 0, "TOTAL:").setCellStyle(totalCellStyle);
 
         sheet.addMergedRegion(new CellRangeAddress(
                 row.getRowNum(), //first row of header (0-based)
                 row.getRowNum(), //last row of header (0-based)
-                1, //first column of header (0-based)
-                2  //last column of header (0-based)
+                0, //first column of header (0-based)
+                3  //last column of header (0-based)
         ));
 
-        createCell(row, 3, totalAmount);
+        createCell(row, 4, totalAmount);
 
         setCurrentRowIndex(getCurrentRowIndex() + 1);
     }
@@ -299,19 +313,19 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         // set top-left corner of the picture,
         // subsequent call of Picture#resize() will operate relative to it
-        anchor.setCol1(1);
+        anchor.setCol1(0);
         anchor.setRow1(1);
         Picture pict = drawing.createPicture(anchor, pictureIdx);
 
         //auto-size picture relative to its top-left corner
-        pict.resize(0.25);
+        pict.resize(0.5);
 
         setCurrentRowIndex(getCurrentRowIndex() + 5);
     }
 
     // need to be refactored!
     // (row) start: 5; end: 6;
-    private void initHeader(Workbook wb, Sheet sheet){
+    private void initHeader(Workbook wb, Sheet sheet, String reimbursementType){
         int startColumnIndex = 0;
         int endColumnIndex = 5;
 
@@ -338,7 +352,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         setCurrentRowIndex(getCurrentRowIndex() + 1);
 
         Cell cell2 = rowHeader2.createCell(0);
-        cell2.setCellValue("REKAP BIAYA [PARKIR]");
+        cell2.setCellValue(String.format("REKAP BIAYA %s", reimbursementType.toUpperCase()));
         cell2.setCellStyle(headerStyle2);
 
         // merge cells
@@ -414,6 +428,10 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         fontHeader2.setFontHeightInPoints(LARGE_TEXT);
         fontHeader2.setBoldweight(Font.BOLDWEIGHT_BOLD);
 
+    }
+
+    private void initFooter(Workbook wb, Sheet sheet) {
+        /*TO-DO*/
     }
 
 }

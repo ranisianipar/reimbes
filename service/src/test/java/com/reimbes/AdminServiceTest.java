@@ -204,7 +204,7 @@ public class AdminServiceTest {
 
     /*
      *
-     * MEDICAL
+     * MEDICAL_VALUE
      *
      */
 

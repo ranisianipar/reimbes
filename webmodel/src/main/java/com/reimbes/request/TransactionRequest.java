@@ -23,14 +23,13 @@ public class TransactionRequest {
 
     // all uncovered attributes of specific transaction
 
-    /* FUEL */
+    /* FUEL_VALUE */
     private float liters;
     private Fuel.Type fuelType;
 
 
-    /* PARKING */
+    /* PARKING_VALUE */
     private int hours;
-    private Parking.Type parkingType;
     private String location;
 
 }

@@ -15,7 +15,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.*;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -73,18 +72,15 @@ public class TransactionServiceTest {
         fuel.setLocation("DKI Jakarta");
         fuel.setType(Fuel.Type.PERTALITE);
         fuel.setCategory(Transaction.Category.FUEL);
-        fuel.setTitle("FUEL TEST");
+        fuel.setTitle("FUEL_VALUE TEST");
 
         parking.setId(new Long(2));
         parking.setAmount(21000);
         parking.setReimsUser(user);
         parking.setDate(Instant.now().getEpochSecond()*1000);
-        parking.setHours(3);
-        parking.setLicense("B XXXX YK");
         parking.setLocation("Grha Niaga Thamrin");
-        parking.setType(Parking.Type.CAR);
         parking.setCategory(PARKING);
-        parking.setTitle("PARKING TEST");
+        parking.setTitle("PARKING_VALUE TEST");
 
         transactions.add(fuel);
         transactions.add(parking);
@@ -359,8 +355,6 @@ public class TransactionServiceTest {
         request.setCategory(parking.getCategory());
         request.setDate(parking.getDate());
         request.setAmount(parking.getAmount());
-        request.setHours(parking.getHours());
-        request.setParkingType(parking.getType());
         request.setDate(parking.getDate());
 
         parking.setImage(request.getImage()); // update fuel image as in request
@@ -376,12 +370,9 @@ public class TransactionServiceTest {
         expectedResult.setReimsUser(user);
         expectedResult.setAmount(request.getAmount());
         expectedResult.setCategory(request.getCategory());
-        ((Parking) expectedResult).setHours(parking.getHours());
         expectedResult.setDate(parking.getDate());
         expectedResult.setImage(request.getImage());
-        ((Parking) expectedResult).setType(parking.getType());
         expectedResult.setLocation(parking.getLocation());
-        ((Parking) expectedResult).setLicense(parking.getLicense());
 
         System.out.println("[TEST] "+ request);
         assertEquals(expectedResult, transactionService.update(parking));
@@ -395,8 +386,6 @@ public class TransactionServiceTest {
         request.setCategory(PARKING);
         request.setDate(0);
         request.setAmount(0);
-        ((Parking) request).setHours(0);
-        ((Parking) request).setType(null);
 
         assertThrows(DataConstraintException.class, () -> transactionService.update(request));
 
@@ -435,8 +424,6 @@ public class TransactionServiceTest {
         request.setCategory(parking.getCategory());
         request.setDate(parking.getDate());
         request.setAmount(parking.getAmount());
-        ((Parking) request).setHours(parking.getHours());
-        ((Parking) request).setType(parking.getType());
 
         when(transactionRepository.existsByImage(request.getImage())).thenReturn(true);
 

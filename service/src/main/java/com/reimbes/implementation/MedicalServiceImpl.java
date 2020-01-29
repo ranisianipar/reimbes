@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static com.reimbes.ReimsUser.Role.ADMIN;
+import static com.reimbes.constant.General.DEFAULT_LONG_VALUE;
 import static com.reimbes.constant.UrlConstants.SUB_FOLDER_REPORT;
 import static com.reimbes.interfaces.UtilsService.countAge;
 
@@ -127,7 +128,7 @@ public class MedicalServiceImpl implements MedicalService {
 
         if (start == 0 && end == 0) {
             if (queryUser == null) return medicalRepository.findByTitleContainingIgnoreCase(title, page);
-            log.info(String.format("GET MEDICAL by User with criteria title: %s;queryUser: %s", title, queryUser));
+            log.info(String.format("GET MEDICAL_VALUE by User with criteria title: %s;queryUser: %s", title, queryUser));
             return medicalRepository.findByTitleContainingIgnoreCaseAndMedicalUser(title, queryUser, page);
         } else {
             if (queryUser == null)
@@ -139,7 +140,7 @@ public class MedicalServiceImpl implements MedicalService {
     @Override
     public List<Medical> getByDate(Long start, Long end) throws ReimsException {
         ReimsUser user = authService.getCurrentUser();
-        if (start == null && end == null)
+        if (start == DEFAULT_LONG_VALUE && end == DEFAULT_LONG_VALUE)
             return medicalRepository.findByMedicalUser(user);
         return medicalRepository.findByDateBetweenAndMedicalUser(start, end, user);
     }

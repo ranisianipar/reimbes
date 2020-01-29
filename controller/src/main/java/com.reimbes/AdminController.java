@@ -103,7 +103,7 @@ public class AdminController {
         return br;
     }
 
-//    MEDICAL
+//    MEDICAL_VALUE
     @GetMapping(UrlConstants.MEDICAL_PREFIX)
     public BaseResponse<Medical> getAllMedical(
             @RequestParam(value = "page", defaultValue = "1") int page,

@@ -55,7 +55,7 @@ only for authenticated User
       "userId": 32769,
       "date": "2019-01-01T00:00+07:00",
       "amount": 27000,
-      "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
+      "attachments": ["/storage/3/transaction/59d164b1-0aa5-4f48-8ea9-7ad703809a4f.png"],
       "title": "HR Team nobar",
       "hours": 6,
       "type": "CAR",
@@ -88,10 +88,8 @@ only for authenticated User
     "userId": 32769,
     "date": "2019-01-01T00:00+07:00",
     "amount": 27000,
-    "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
+    "attachments": ["/storage/3/transaction/59d164b1-0aa5-4f48-8ea9-7ad703809a4f.png"],
     "title": "HR Team nobar",
-    "hours": 6,
-    "type": "CAR",
     "location": "GI"
   },
   "success": true
@@ -136,12 +134,10 @@ only for authenticated User
     "id": 0,
     "category": "PARKING",
     "userId": 32769,
-    "date": "2019-07-25T13:14+07:00",
+    "date": 1565281355000,
     "amount": 15000,
-    "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
+    "attachments": ["/storage/3/transaction/59d164b1-0aa5-4f48-8ea9-7ad703809a4f.png"],
     "title": "gkiih nirga tharrin",
-    "hours": 0,
-    "type": "CAR",
     "location": null
   },
   "success": true
@@ -159,14 +155,12 @@ only for authenticated User
 *PARKING*
 ```json
 {
-    "date": "2019-01-01T00:00+07:00",
+    "date": 1565281355000,
     "category": "PARKING",
     "userId": 32769,
     "amount": 27000,
-    "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
+    "attachments": ["/storage/3/transaction/59d164b1-0aa5-4f48-8ea9-7ad703809a4f.png"],
     "title": "HR Team nobar",
-    "hours": 6,
-    "parkingType": "CAR",
     "location": "GI"
 }
 ```
@@ -174,11 +168,11 @@ only for authenticated User
 *FUEL*
 ```json
 {
-    "date": "2019-01-01T00:00+07:00",
+    "date": 1565281355000,
     "category": "FUEL",
     "userId": 32770,
     "amount": 210000,
-    "image": "32770/5e0cb09c-5e45-43a9-af7f-5e6ff9726a70.png",
+    "attachments": ["/storage/3/transaction/59d164b1-0aa5-4f48-8ea9-7ad703809a4f.png"],
     "title": "Jalan-jalan",
     "liters": 21,
     "fuelType": "PREMIUM"
@@ -195,7 +189,7 @@ only for authenticated User
     "data": {
         "id": 500000026,
         "category": "PARKING",
-        "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
+        "date":1565281355000,
         "price":9000,
         "title":"1st Day Work",
         "created_at":1559058600

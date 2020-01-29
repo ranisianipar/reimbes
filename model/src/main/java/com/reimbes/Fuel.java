@@ -13,6 +13,7 @@ import javax.persistence.*;
 public class Fuel extends Transaction {
 
     private float liters;
+    private long kilometers;
     private Fuel.Type type;
 
     public enum Type {

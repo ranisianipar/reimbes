@@ -188,9 +188,6 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (transaction.getCategory() != null) {
             switch (transaction.getCategory()) {
-                case PARKING:
-                    if (((Parking) transaction).getHours() == 0) errorMessages.add("ZERO_PARKING_HOURS");
-                    break;
                 case FUEL:
                     if (((Fuel) transaction).getLiters() == 0) errorMessages.add("ZERO_FUEL_LITERS");
                     break;

@@ -147,6 +147,12 @@ public class TransactionController {
         else
             transactionResponse = getTransactionMapper(transaction)
                     .map(transaction, FuelResponse.class);
+
+        if (transaction.getImage() != null) {
+            String[] attachments = {transaction.getImage()};
+            transactionResponse.setAttachments(Arrays.asList(attachments));
+
+        }
         return transactionResponse;
     }
 

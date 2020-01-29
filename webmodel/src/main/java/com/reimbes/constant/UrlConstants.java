@@ -29,7 +29,7 @@ public class UrlConstants {
     // others
     public static final String ID_PARAM = "/{id:.+}";
     public static final String IMAGE_PARAM = "/{image:.+}";
-    public static final String GDN_LOGO_PATH = "/image/blibli-logo.png";
+    public static final String GDN_LOGO_PATH = "/image/gdn-logo.jpg";
 
     // other service
     public static final String URL_RECEIPT_MAPPER = "http://receipt-mapper.herokuapp.com/image";
