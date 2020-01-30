@@ -50,16 +50,29 @@ only for authenticated User
   },
   "data": [
     {
-      "id": 262149,
-      "category": "PARKING",
-      "userId": 32769,
-      "date": "2019-01-01T00:00+07:00",
-      "amount": 27000,
-      "attachments": ["/storage/3/transaction/59d164b1-0aa5-4f48-8ea9-7ad703809a4f.png"],
-      "title": "HR Team nobar",
-      "hours": 6,
-      "type": "CAR",
-      "location": "GI"
+          "id": 98305,
+          "category": "FUEL",
+          "userId": 3,
+          "date": 1565281355000,
+          "amount": 100000,
+          "attachments": [
+            "/storage/3/transaction/b114928a-adbd-4dc3-85ef-14664b4bbc8b.jpeg"
+          ],
+          "title": "Nyoba bensin pake atribut baru",
+          "liters": 17.0,
+          "kilometers": 11,
+          "type": "SOLAR"
+    },
+    {
+          "id": 32768,
+          "category": "PARKING",
+          "userId": 3,
+          "date": 1565281355000,
+          "amount": 120000,
+          "attachments": [
+            "/storage/3/transaction/f7b4498e-a410-4576-b5ac-f0011fb2be3a.jpeg"
+          ],
+          "title": "Main-main ke WTC"
     }
   ],
   "success": true
@@ -86,7 +99,7 @@ only for authenticated User
     "id": 262149,
     "category": "PARKING",
     "userId": 32769,
-    "date": "2019-01-01T00:00+07:00",
+    "date": 1565281355000,
     "amount": 27000,
     "attachments": ["/storage/3/transaction/59d164b1-0aa5-4f48-8ea9-7ad703809a4f.png"],
     "title": "HR Team nobar",
@@ -118,7 +131,7 @@ only for authenticated User
 - Request Body :
 ``` json
 {
-    "image":"[]",
+    "attachments":"[]",
 }
 ```
 *Note*: Imagedata will be contain the image bytes
@@ -168,14 +181,15 @@ only for authenticated User
 *FUEL*
 ```json
 {
-    "date": 1565281355000,
-    "category": "FUEL",
-    "userId": 32770,
-    "amount": 210000,
-    "attachments": ["/storage/3/transaction/59d164b1-0aa5-4f48-8ea9-7ad703809a4f.png"],
-    "title": "Jalan-jalan",
-    "liters": 21,
-    "fuelType": "PREMIUM"
+	"date": 1565281355000,
+	"category": "FUEL",
+    "amount": 100000,
+    "attachments": ["/storage/3/transaction/b114928a-adbd-4dc3-85ef-14664b4bbc8b.jpeg"],
+    "title": "Nyoba bensin pake atribut baru",
+	"liters":17,
+	"kilometers":11,
+	"fuelType":"SOLAR",
+    "location": "dimana ya"
 }
 ```
 
@@ -190,7 +204,7 @@ only for authenticated User
         "id": 500000026,
         "category": "PARKING",
         "date":1565281355000,
-        "price":9000,
+        "amount":9000,
         "title":"1st Day Work",
         "created_at":1559058600
     }
