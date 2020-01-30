@@ -58,6 +58,8 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     @Setter @Getter
     private int currentRowIndex;
 
+    private final int startColumn = 0;
+
     @Override
     public byte[] getReport(ReimsUser user, Long start, Long end, String reimbursementType) throws Exception {
 
@@ -85,11 +87,12 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         initPersonalInfo(wb, sheet);
 
         // set column width
-        sheet.autoSizeColumn(0); // autosize first column, depends on maximum width of applied cells
-        sheet.setColumnWidth(1, 20 * 256); // autosize first column, depends on maximum width of applied cells
-        sheet.setColumnWidth(2, 12 * 256); // autosize first column, depends on maximum width of applied cells
-        sheet.setColumnWidth(3, 12 * 256); // autosize first column, depends on maximum width of applied cells
-        sheet.setColumnWidth(4, 15 * 256); // autosize first column, depends on maximum width of applied cells
+        sheet.autoSizeColumn(0); // autosize first column, depends on maximum width of applied cells [No.]
+        sheet.setColumnWidth(1, 20 * 256); // [Date]
+        sheet.setColumnWidth(2, 25 * 256); // [Title]
+        sheet.setColumnWidth(3, 15 * 256); //
+        sheet.setColumnWidth(4, 15 * 256); //
+        sheet.setColumnWidth(5, 15 * 256); //
 
 
         // determine report type
@@ -187,22 +190,23 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             createCell(row, 0, transactionIndex).setCellStyle(tableHeaderCellStyle);
             createCell(row, 1, DATE_FORMAT.format(new Date(parking.getDate())));
             createCell(row, 2, parking.getTitle());
-            createCell(row, 3, parking.getAmount());
+            createCell(row, 3, convertAmountInString(parking.getAmount()));
             totalAmount += parking.getAmount();
         }
         // footer row
         row = sheet.createRow(getCurrentRowIndex() + 1);
         setCurrentRowIndex(getCurrentRowIndex() + 2);
 
-        createCell(row, 1, "TOTAL:").setCellStyle(totalCellStyle);
+        createCell(row, startColumn, "TOTAL:").setCellStyle(totalCellStyle);
         sheet.addMergedRegion(new CellRangeAddress(
                 row.getRowNum(), //first row of header (0-based)
                 row.getRowNum(), //last row of header (0-based)
-                0, //first column of header (0-based)
+                startColumn, //first column of header (0-based)
                 2  //last column of header (0-based)
         ));
 
-        createCell(row, 3, totalAmount);
+        createCell(row, 3, convertAmountInString(totalAmount));
+        sheet.autoSizeColumn(3); // autosize 'amount' column
         setCurrentRowIndex(getCurrentRowIndex() + 1);
     }
 
@@ -211,9 +215,9 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         // write more specific column [HEADER]
         Row row = sheet.getRow(getCurrentRowIndex());
-        createCell(row, 3, "Kilometers");
-        createCell(row, 4, "Liters");
-        createCell(row, 5, "Amount");
+        createCell(row, 3, "Kilometers").setCellStyle(tableHeaderCellStyle);
+        createCell(row, 4, "Liters").setCellStyle(tableHeaderCellStyle);
+        createCell(row, 5, "Amount").setCellStyle(tableHeaderCellStyle);
 
         setCurrentRowIndex(getCurrentRowIndex() + 1);
 
@@ -231,7 +235,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             createCell(row, 2, fuel.getTitle());
             createCell(row, 3, fuel.getKilometers());
             createCell(row, 4, fuel.getLiters());
-            createCell(row, 5, fuel.getAmount());
+            createCell(row, 5, convertAmountInString(fuel.getAmount()));
             totalAmount += fuel.getAmount();
             setCurrentRowIndex(getCurrentRowIndex() + 1);
         }
@@ -240,16 +244,17 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         row = sheet.createRow(getCurrentRowIndex() + 1);
         setCurrentRowIndex(getCurrentRowIndex() + 2);
 
-        createCell(row, 1, "TOTAL:").setCellStyle(totalCellStyle);
+        createCell(row, startColumn, "TOTAL:").setCellStyle(totalCellStyle);
 
         sheet.addMergedRegion(new CellRangeAddress(
                 row.getRowNum(), //first row of header (0-based)
                 row.getRowNum(), //last row of header (0-based)
-                0, //first column of header (0-based)
+                startColumn, //first column of header (0-based)
                 4  //last column of header (0-based)
         ));
 
-        createCell(row, 5, totalAmount);
+        createCell(row, 5, convertAmountInString(totalAmount));
+        sheet.autoSizeColumn(5); // autosize 'amount' column
         setCurrentRowIndex(getCurrentRowIndex() + 1);
     }
 
@@ -260,7 +265,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         Row row = sheet.getRow(getCurrentRowIndex());
         createCell(row, 3, "Patient").setCellStyle(getTableHeaderCellStyle());
         createCell(row, 4, "Amount").setCellStyle(getTableHeaderCellStyle());
-
 
         setCurrentRowIndex(getCurrentRowIndex() + 1);
         int totalAmount = 0;
@@ -276,7 +280,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             createCell(row, 1, DATE_FORMAT.format(new Date(medical.getDate())));
             createCell(row, 2, medical.getTitle());
             createCell(row, 3, medical.getPatient().getName());
-            createCell(row, 4, medical.getAmount());
+            createCell(row, 4, convertAmountInString(medical.getAmount()));
             totalAmount += medical.getAmount();
 
             setCurrentRowIndex(getCurrentRowIndex() + 1);
@@ -286,16 +290,17 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         row = sheet.createRow(getCurrentRowIndex() + 1);
         setCurrentRowIndex(getCurrentRowIndex() + 2);
 
-        createCell(row, 0, "TOTAL:").setCellStyle(totalCellStyle);
+        createCell(row, startColumn, "TOTAL:").setCellStyle(totalCellStyle);
 
         sheet.addMergedRegion(new CellRangeAddress(
                 row.getRowNum(), //first row of header (0-based)
                 row.getRowNum(), //last row of header (0-based)
-                0, //first column of header (0-based)
+                startColumn, //first column of header (0-based)
                 3  //last column of header (0-based)
         ));
 
-        createCell(row, 4, totalAmount);
+        createCell(row, 4, convertAmountInString(totalAmount));
+        sheet.autoSizeColumn(4); // autosize 'amount' column
 
         setCurrentRowIndex(getCurrentRowIndex() + 1);
     }
@@ -323,6 +328,10 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         pict.resize(0.5);
 
         setCurrentRowIndex(getCurrentRowIndex() + 5);
+    }
+
+    private String convertAmountInString(long amount) {
+        return String.format("Rp. %d", amount);
     }
 
     // need to be refactored!
@@ -384,27 +393,23 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         // apply style and text in header cell
         Row personalInfoRow = sheet.createRow(getCurrentRowIndex());
         setCurrentRowIndex(getCurrentRowIndex() + 1);
-        createCell(personalInfoRow, 0, "Nama").setCellStyle(personalInfoStyle);
-        createCell(personalInfoRow, 1, ":").setCellStyle(personalInfoStyle);
-        createCell(personalInfoRow, 2, user.getUsername());
+        createCell(personalInfoRow, 0, "Nama :").setCellStyle(personalInfoStyle);
+        createCell(personalInfoRow, 1, user.getUsername());
 
         personalInfoRow = sheet.createRow(getCurrentRowIndex());
         setCurrentRowIndex(getCurrentRowIndex() + 1);
-        createCell(personalInfoRow, 0, "Divisi").setCellStyle(personalInfoStyle);
-        createCell(personalInfoRow, 1, ":").setCellStyle(personalInfoStyle);
-        createCell(personalInfoRow, 2, user.getDivision());
+        createCell(personalInfoRow, 0, "Divisi :").setCellStyle(personalInfoStyle);
+        createCell(personalInfoRow, 1, user.getDivision());
 
         personalInfoRow = sheet.createRow(getCurrentRowIndex());
         setCurrentRowIndex(getCurrentRowIndex() + 1);
-        createCell(personalInfoRow, 0, "No. Polisi").setCellStyle(personalInfoStyle);
-        createCell(personalInfoRow, 1, ":").setCellStyle(personalInfoStyle);
-        createCell(personalInfoRow, 2, user.getLicense());
+        createCell(personalInfoRow, 0, "No. Polisi :").setCellStyle(personalInfoStyle);
+        createCell(personalInfoRow, 1, user.getLicense());
 
         personalInfoRow = sheet.createRow(getCurrentRowIndex());
         setCurrentRowIndex(getCurrentRowIndex() + 1);
-        createCell(personalInfoRow, 0, "Kendaraan").setCellStyle(personalInfoStyle);
-        createCell(personalInfoRow, 1, ":").setCellStyle(personalInfoStyle);
-        createCell(personalInfoRow, 2, user.getVehicle());
+        createCell(personalInfoRow, 0, "Kendaraan :").setCellStyle(personalInfoStyle);
+        createCell(personalInfoRow, 1, user.getVehicle());
 
         setCurrentRowIndex(getCurrentRowIndex() + 2);
     }
@@ -444,7 +449,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                 row.getRowNum(), //first row of header (0-based)
                 row.getRowNum(), //last row of header (0-based)
                 0, //first column of header (0-based)
-                2  //last column of header (0-based)
+                3  //last column of header (0-based)
         ));
 
         setCurrentRowIndex(getCurrentRowIndex() + 1);
@@ -456,7 +461,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                 row.getRowNum(), //first row of header (0-based)
                 row.getRowNum(), //last row of header (0-based)
                 0, //first column of header (0-based)
-                2  //last column of header (0-based)
+                3  //last column of header (0-based)
         ));
     }
 

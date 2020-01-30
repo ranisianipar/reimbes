@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import static com.reimbes.Transaction.Category.FUEL;
 import static com.reimbes.Transaction.Category.PARKING;
+import static com.reimbes.constant.General.DEFAULT_LONG_VALUE;
 import static com.reimbes.constant.UrlConstants.SUB_FOLDER_TRANSACTION;
 
 @Service
@@ -157,7 +158,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     public List<Transaction> getByDateAndType(Long start, Long end, Transaction.Category category) throws ReimsException {
         ReimsUser user = authService.getCurrentUser();
-        if (start == null || end == null) {
+        if (start == DEFAULT_LONG_VALUE && end == DEFAULT_LONG_VALUE) {
             return transactionRepository.findByReimsUserAndCategory(user, category);
         }
         return transactionRepository.findByReimsUserAndDateBetweenAndCategory(user, start, end, category);
