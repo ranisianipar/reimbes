@@ -80,7 +80,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         setCurrentRowIndex(0);
         initFont(wb);
         initCellStyle(wb);
-        initImage(wb, sheet); // end in 5th row, how can get image position dynamically?
+        initImage(wb, sheet); // end in 5th row, how can get attachments position dynamically?
         initHeader(wb, sheet, reimbursementType);
         initPersonalInfo(wb, sheet);
 

@@ -123,7 +123,7 @@ public class UtilsServiceTest {
                 .username("test")
                 .role(ReimsUser.Role.USER)
                 .build();
-        String invalidImage = "data:image/.xx;bsae64";
+        String invalidImage = "data:attachments/.xx;bsae64";
         assertNull(utils.uploadImage(invalidImage, user.getId(), SUB_FOLDER_REPORT));
     }
 

@@ -48,7 +48,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction;
         try {
             imagePath = utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
-            log.info("Predicting image content... ", imagePath);
+            log.info("Predicting attachments content... ", imagePath);
             transaction = receiptMapperService.translateImage(imagePath, imageValue);
             log.info(String.format("Receipt Mapper Result %s", transaction));
 
@@ -196,13 +196,11 @@ public class TransactionServiceImpl implements TransactionService {
             errorMessages.add("NULL_CATEGORY");
         }
 
-
-        // validate image path
+        // validate attachments path
         if (transaction.getImage() == null || !utilsServiceImpl.isFileExists(transaction.getImage()))
             errorMessages.add("INVALID_IMAGE_PATH");
 
-
-        // make sure the transaction use its own [NEW] image
+        // make sure the transaction use its own [NEW] attachments
         if (transactionRepository.existsByImage(transaction.getImage()))
             errorMessages.add("FORBIDDEN_DUPLICATE_IMAGE");
 

@@ -1,10 +1,10 @@
 package com.reimbes.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class UploadImageByteRequest {
-    @JsonProperty("image")
-    private String image;
+    private List<String> attachments;
 }

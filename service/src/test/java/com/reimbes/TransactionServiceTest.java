@@ -314,19 +314,22 @@ public class TransactionServiceTest {
     public void returnUpdatedFuel_whenUserInputValidData() throws ReimsException {
         long now = Instant.now().toEpochMilli();
 
+        List<String> images = new ArrayList<>();
+        images.add("hahaha/123.jpg");
+
         TransactionRequest request = new TransactionRequest();
         request.setTitle("TEST");
-        request.setImage("hahaha/123.jpg");
+        request.setAttachments(images);
         request.setCategory(fuel.getCategory());
         request.setDate(fuel.getDate());
         request.setAmount(fuel.getAmount());
         request.setLiters(fuel.getLiters());
         request.setFuelType(fuel.getType());
 
-        fuel.setImage(request.getImage()); // update fuel image as in request
+        fuel.setImage(request.getAttachments().get(0)); // update fuel attachments as in request
         fuel.setTitle(request.getTitle()); // update fuel title as in request
 
-        when(utilsServiceImpl.isFileExists(request.getImage())).thenReturn(true);
+        when(utilsServiceImpl.isFileExists(request.getAttachments().get(0))).thenReturn(true);
         when(transactionService.update(fuel)).thenReturn(fuel);
         when(utilsServiceImpl.getCurrentTime()).thenReturn(now);
         when(authService.getCurrentUser()).thenReturn(user);
@@ -338,7 +341,7 @@ public class TransactionServiceTest {
         expectedResult.setCategory(request.getCategory());
         ((Fuel) expectedResult).setLiters(fuel.getLiters());
         expectedResult.setDate(fuel.getDate());
-        expectedResult.setImage(request.getImage());
+        expectedResult.setImage(request.getAttachments().get(0));
         ((Fuel) expectedResult).setType(fuel.getType());
         expectedResult.setTitle(request.getTitle());
 
@@ -348,19 +351,21 @@ public class TransactionServiceTest {
     @Test
     public void returnUpdatedParking_whenUserInputValidData() throws ReimsException {
         long now = Instant.now().toEpochMilli();
+        List<String> images = new ArrayList<>();
+        images.add(String.format("/%d/transaction/123.jpg", user.getId()));
 
         TransactionRequest request = new TransactionRequest();
         request.setTitle("test");
-        request.setImage(String.format("/%d/transaction/123.jpg", user.getId()));
+        request.setAttachments(images);
         request.setCategory(parking.getCategory());
         request.setDate(parking.getDate());
         request.setAmount(parking.getAmount());
         request.setDate(parking.getDate());
 
-        parking.setImage(request.getImage()); // update fuel image as in request
+        parking.setImage(request.getAttachments().get(0)); // update fuel attachments as in request
         parking.setTitle(request.getTitle()); // update fuel title as in request
 
-        when(utilsServiceImpl.isFileExists(request.getImage())).thenReturn(true);
+        when(utilsServiceImpl.isFileExists(request.getAttachments().get(0))).thenReturn(true);
         when(transactionService.update(parking)).thenReturn(parking);
         when(utilsServiceImpl.getCurrentTime()).thenReturn(now);
         when(authService.getCurrentUser()).thenReturn(user);
@@ -371,7 +376,7 @@ public class TransactionServiceTest {
         expectedResult.setAmount(request.getAmount());
         expectedResult.setCategory(request.getCategory());
         expectedResult.setDate(parking.getDate());
-        expectedResult.setImage(request.getImage());
+        expectedResult.setImage(request.getAttachments().get(0));
         expectedResult.setLocation(parking.getLocation());
 
         System.out.println("[TEST] "+ request);

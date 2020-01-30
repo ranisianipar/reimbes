@@ -98,7 +98,7 @@ public class TransactionController {
         BaseResponse br = new BaseResponse();
 
         try {
-            br.setData(getTransactionResponse(transactionService.createByImage(request.getImage())));
+            br.setData(getTransactionResponse(transactionService.createByImage(request.getAttachments().get(0))));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -166,6 +166,10 @@ public class TransactionController {
         else
             transactionResponse = getTransactionRequestMapper(transaction)
                     .map(transaction, Fuel.class);
+
+        // get attachments of transaction
+        if (transaction.getAttachments() != null) transactionResponse.setImage(transaction.getAttachments().get(0));
+
         return transactionResponse;
     }
 

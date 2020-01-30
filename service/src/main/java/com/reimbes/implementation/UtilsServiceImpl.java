@@ -50,7 +50,7 @@ public class UtilsServiceImpl implements UtilsService {
         try {
             Files.delete(Paths.get(imagePath));
         } catch (Exception e) {
-            // image probably not found
+            // attachments probably not found
             log.warn(e.getMessage());
         }
 
@@ -93,14 +93,14 @@ public class UtilsServiceImpl implements UtilsService {
 
     /*
     *
-    * imageValue: string those contains encoded image value in Base64 format
+    * imageValue: string those contains encoded attachments value in Base64 format
     * userId: used to direct the user folder
     * subfolder: transaction, medical, etc.
     *
-    * RETURN --> relative image path
+    * RETURN --> relative attachments path
     * */
     public String uploadImage(String imageValue, long userId, String subfolder) throws ReimsException {
-        System.out.println(String.format("Value: %s, Used Id: %d, Subfolder: %s", imageValue, userId, subfolder));
+        System.out.println(String.format("Value: %s, User Id: %d, Subfolder: %s", imageValue, userId, subfolder));
 
         String[] extractedByte = imageValue.split(",");
         String extension = extractedByte[0];
@@ -113,15 +113,15 @@ public class UtilsServiceImpl implements UtilsService {
         else return null;
 
         try {
-            log.info("Decoding image.");
+            log.info("Decoding attachments.");
             byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
                     .getBytes(StandardCharsets.UTF_8)));
 
-            log.info("Decoding image succeed.");
-            log.info("Uploading the image...");
+            log.info("Decoding attachments succeed.");
+            log.info("Uploading the attachments...");
 
             /*
-            * do upload image
+            * do upload attachments
             * */
 
             // confirm folder existence
@@ -135,7 +135,7 @@ public class UtilsServiceImpl implements UtilsService {
 
             imagePath = folderPath + generateFilename(extension); // relative path
 
-            log.info(String.format("Write image in this path: %s", imagePath));
+            log.info(String.format("Write attachments in this path: %s", imagePath));
             Path path = createFile(imagePath, imageByte);
             log.info(String.format("Image writing succeed: %b", (path != null)));
 

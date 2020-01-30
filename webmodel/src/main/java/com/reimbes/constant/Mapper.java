@@ -87,7 +87,6 @@ public class Mapper {
     public static MapperFacade getParkingRequestMapper() {
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
         mapperFactory.classMap(TransactionRequest.class, Parking.class)
-                .field("parkingType", "type")
                 .byDefault().register();
         return mapperFactory.getMapperFacade();
     }

@@ -20,7 +20,7 @@ public class UrlConstants {
     public static final String USER_PREFIX = "/users";
     public static final String TRANSACTION_PREFIX = "/transactions";
     public static final String REPORT_PREFIX = "/report";
-    public static final String IMAGE_PREFIX = "/image";
+    public static final String IMAGE_PREFIX = "/attachments";
 
     //Sub-folder name
     public static final String SUB_FOLDER_REPORT = "report";
@@ -28,10 +28,10 @@ public class UrlConstants {
 
     // others
     public static final String ID_PARAM = "/{id:.+}";
-    public static final String IMAGE_PARAM = "/{image:.+}";
-    public static final String GDN_LOGO_PATH = "/image/gdn-logo.jpg";
+    public static final String IMAGE_PARAM = "/{attachments:.+}";
+    public static final String GDN_LOGO_PATH = "/attachments/gdn-logo.jpg";
 
     // other service
-    public static final String URL_RECEIPT_MAPPER = "http://receipt-mapper.herokuapp.com/image";
+    public static final String URL_RECEIPT_MAPPER = "http://receipt-mapper.herokuapp.com/attachments";
 
 }

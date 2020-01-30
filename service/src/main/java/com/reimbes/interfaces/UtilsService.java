@@ -18,11 +18,11 @@ public interface UtilsService {
 
     /*
      *
-     * imageValue: string those contains encoded image value in Base64 format
+     * imageValue: string those contains encoded attachments value in Base64 format
      * userId: used to direct the user folder
      * subfolder: transaction, medical, etc.
      *
-     * RETURN --> relative image path
+     * RETURN --> relative attachments path
      * */
     String uploadImage(String imageValue, long userId, String subfolder) throws ReimsException;
     long getCurrentTime();
