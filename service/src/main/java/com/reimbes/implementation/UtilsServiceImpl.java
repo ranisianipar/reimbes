@@ -103,21 +103,14 @@ public class UtilsServiceImpl implements UtilsService {
         System.out.println(String.format("Value: %s, User Id: %d, Subfolder: %s", imageValue, userId, subfolder));
 
         String[] extractedByte = imageValue.split(",");
-        String extension = extractedByte[0];
+        String extension = getExtension(extractedByte[0]);
         String imagePath;
-
-        // getByUser the extension
-        if (extension.contains("jpg")) extension = "jpg";
-        else if (extension.contains("png")) extension = "png";
-        else if (extension.contains("jpeg")) extension = "jpeg";
-        else return null;
 
         try {
             log.info("Decoding attachments.");
             byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
                     .getBytes(StandardCharsets.UTF_8)));
 
-            log.info("Decoding attachments succeed.");
             log.info("Uploading the attachments...");
 
             /*
@@ -144,6 +137,14 @@ public class UtilsServiceImpl implements UtilsService {
         }
 
         return imagePath; // relative path
+    }
+
+    private String getExtension(String textContainExtension) {
+        // getByUser the extension
+        if (textContainExtension.contains("jpg")) return "jpg";
+        else if (textContainExtension.contains("png")) return  "png";
+        else if (textContainExtension.contains("jpeg")) return "jpeg";
+        else return null;
     }
 
     // millis

@@ -4,7 +4,12 @@ import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.*;
+import com.reimbes.interfaces.AuthService;
+import com.reimbes.interfaces.ReceiptMapperService;
+import com.reimbes.interfaces.UserService;
+import com.reimbes.interfaces.UtilsService;
 import com.reimbes.request.TransactionRequest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,16 +43,16 @@ public class TransactionServiceTest {
     private TransactionRepository transactionRepository;
 
     @Mock
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Mock
-    private ReceiptMapperServiceImpl receiptMapperService;
+    private ReceiptMapperService receiptMapperService;
 
     @Mock
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Mock
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsService;
 
     @InjectMocks
     private TransactionServiceImpl transactionService;
@@ -60,6 +65,11 @@ public class TransactionServiceTest {
 
     private Pageable pageRequest = new PageRequest(1, 5, new Sort(Sort.Direction.DESC, "createdAt"));
     private Pageable pageForQuery = new PageRequest(0, pageRequest.getPageSize(), pageRequest.getSort());
+
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(transactionRepository, userService, receiptMapperService, authService, utilsService);
+    }
 
     @Before
     public void setup() {
@@ -92,25 +102,23 @@ public class TransactionServiceTest {
                 .id(1)
                 .transactions(new HashSet(transactions))
                 .build();
-
-        when(userService.getUserByUsername(utilsServiceImpl.getPrincipalUsername())).thenReturn(user);
-
     }
 
     @Test
     public void errorThrown_whenUserCreateByWrongFormatImage() throws Exception {
-        String extension = "png";
         String imageValue = "random string";
         Transaction transactionRequst = new Transaction();
         transactionRequst.setImage(imageValue);
 
         when(authService.getCurrentUser()).thenReturn(user);
-        when(utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION)).thenThrow(FormatTypeError.class);
+        when(utilsService.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION)).thenThrow(FormatTypeError.class);
 
-        assertThrows(Exception.class, () -> {
+        assertThrows(FormatTypeError.class, () -> {
             transactionService.createByImageAndCategory(transactionRequst);
         });
 
+        verify(authService).getCurrentUser();
+        verify(utilsService).uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
     }
 
     @Test
@@ -119,19 +127,22 @@ public class TransactionServiceTest {
         String imageValue = Base64.getEncoder().encodeToString("HAHAHA".getBytes());
         String imagePath = user.getId()+"/123."+extension;
 
-        when(authService.getCurrentUser()).thenReturn(user);
-        when(utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION)).thenReturn(imagePath);
-        when(receiptMapperService.map(fuel)).thenReturn(fuel);
-
-
         Transaction transactionRequest = new Transaction();
         transactionRequest.setImage(imageValue);
+
+        when(authService.getCurrentUser()).thenReturn(user);
+        when(utilsService.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION)).thenReturn(imagePath);
+        when(receiptMapperService.map(transactionRequest)).thenReturn(fuel);
 
         Transaction transaction = transactionService.createByImageAndCategory(transactionRequest);
 
         assertEquals(user, transaction.getReimsUser());
         assertEquals(imagePath, transaction.getImage());
         assertNotNull(transaction.getCategory());
+
+        verify(authService).getCurrentUser();
+        verify(utilsService).uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
+        verify(receiptMapperService).map(transactionRequest);
 
     }
 
@@ -140,17 +151,25 @@ public class TransactionServiceTest {
         when(transactionRepository.findOne(parking.getId())).thenReturn(parking);
         when(authService.getCurrentUser()).thenReturn(user);
         parking.setReimsUser(user);
+
         assertEquals(parking, transactionService.get(parking.getId()));
+
+        verify(authService).getCurrentUser();
+        verify(transactionRepository).findOne(parking.getId());
+
     }
 
     @Test
-    public void raiseError_whenDserGetTransactionThatDoesntBelongToCurrentUser() {
-        user.setId(user.getId()+1);
+    public void raiseError_whenDserGetTransactionThatDoesntBelongToCurrentUser() throws ReimsException {
+        user.setId(user.getId() + 1);
         parking.setReimsUser(user);
 
         assertThrows(ReimsException.class, () -> {
            transactionService.get(parking.getId());
         });
+
+        verify(authService).getCurrentUser();
+        verify(transactionRepository).findOne(parking.getId());
     }
 
     @Test
@@ -161,8 +180,11 @@ public class TransactionServiceTest {
         when(authService.getCurrentUser()).thenReturn(user);
 
         transactionService.delete(parking.getId());
-        verify(utilsServiceImpl, times(1)).removeImage(parking.getImage());
-        verify(transactionRepository, times(1)).delete(parking);
+
+        verify(authService).getCurrentUser();
+        verify(transactionRepository).findOne(parking.getId());
+        verify(utilsService).removeImage(parking.getImage());
+        verify(transactionRepository).delete(parking);
     }
 
     @Test
@@ -335,9 +357,9 @@ public class TransactionServiceTest {
         fuel.setImage(request.getAttachments().get(0)); // update fuel attachments as in request
         fuel.setTitle(request.getTitle()); // update fuel title as in request
 
-        when(utilsServiceImpl.isFileExists(request.getAttachments().get(0))).thenReturn(true);
+        when(utilsService.isFileExists(request.getAttachments().get(0))).thenReturn(true);
         when(transactionService.update(fuel)).thenReturn(fuel);
-        when(utilsServiceImpl.getCurrentTime()).thenReturn(now);
+        when(utilsService.getCurrentTime()).thenReturn(now);
         when(authService.getCurrentUser()).thenReturn(user);
         when(transactionRepository.save(fuel)).thenReturn(fuel);
 
@@ -371,9 +393,9 @@ public class TransactionServiceTest {
         parking.setImage(request.getAttachments().get(0)); // update fuel attachments as in request
         parking.setTitle(request.getTitle()); // update fuel title as in request
 
-        when(utilsServiceImpl.isFileExists(request.getAttachments().get(0))).thenReturn(true);
+        when(utilsService.isFileExists(request.getAttachments().get(0))).thenReturn(true);
         when(transactionService.update(parking)).thenReturn(parking);
-        when(utilsServiceImpl.getCurrentTime()).thenReturn(now);
+        when(utilsService.getCurrentTime()).thenReturn(now);
         when(authService.getCurrentUser()).thenReturn(user);
         when(transactionRepository.save(parking)).thenReturn(parking);
 

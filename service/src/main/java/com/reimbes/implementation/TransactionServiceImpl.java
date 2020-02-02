@@ -8,7 +8,7 @@ import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
-import com.reimbes.interfaces.TransactionService;
+import com.reimbes.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +29,16 @@ public class TransactionServiceImpl implements TransactionService {
     private TransactionRepository transactionRepository;
 
     @Autowired
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Autowired
-    private ReceiptMapperServiceImpl receiptMapperService;
+    private ReceiptMapperService receiptMapperService;
 
     @Autowired
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsServiceImpl;
 
     @Override
     public Transaction createByImageAndCategory(Transaction transaction) throws ReimsException {
@@ -48,9 +48,10 @@ public class TransactionServiceImpl implements TransactionService {
             imagePath = utilsServiceImpl.uploadImage(transaction.getImage(), user.getId(), SUB_FOLDER_TRANSACTION);
 
             log.info("Predicting attachments content... ", imagePath);
-            transaction = receiptMapperService.map(transaction);
 
             if (transaction.getCategory() ==  null) transaction.setCategory(Transaction.Category.FUEL);
+
+            transaction = receiptMapperService.map(transaction);
 
             log.info(String.format("Receipt Mapper Result %s", transaction));
 
@@ -112,7 +113,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getReimsUser() != user)
             throw new NotFoundException("Transaction with ID "+id);
-        return transactionRepository.findOne(id);
+        return transaction;
     }
 
 

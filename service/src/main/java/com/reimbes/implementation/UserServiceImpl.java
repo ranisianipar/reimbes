@@ -144,7 +144,7 @@ public class UserServiceImpl implements UserService {
         ReimsUser user = userRepository.findOne(id);
 
         if (user == null) {
-            log.info("User with ID: "+id+" not found.");
+            log.info("User with ID: ", id, " not found.");
             return;
         }
         // manually delete the transaction
