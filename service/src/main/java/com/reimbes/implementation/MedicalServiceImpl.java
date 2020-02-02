@@ -128,11 +128,14 @@ public class MedicalServiceImpl implements MedicalService {
 
         if (start == 0 && end == 0) {
             if (queryUser == null) return medicalRepository.findByTitleContainingIgnoreCase(title, page);
-            log.info(String.format("GET MEDICAL_VALUE by User with criteria title: %s;queryUser: %s", title, queryUser));
+            log.info(String.format("GET Medical by title: %s; user: %d;", title, queryUser.getId()));
             return medicalRepository.findByTitleContainingIgnoreCaseAndMedicalUser(title, queryUser, page);
         } else {
-            if (queryUser == null)
+            if (queryUser == null) {
+                log.info(String.format("GET Medical by title: %s; start: %s; end: %s", title, start, end));
                 return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetween(title, start, end, page);
+            }
+            log.info(String.format("GET Medical by title: %s; start: %s; end: %s, user: %d", title, start, end, queryUser.getId()));
             return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(title, start, end, queryUser, page);
         }
     }

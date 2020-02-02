@@ -19,8 +19,8 @@ public class General {
     public static final String FUEL_VALUE = "fuel";
     public static final String MEDICAL_VALUE = "medical";
 
-    public static final long NULL_USER_ID_CODE = new Long(0);
-    public static final long DEFAULT_LONG_VALUE = new Long(0);
+    public static final long NULL_USER_ID_CODE = 0;
+    public static final long DEFAULT_LONG_VALUE = 0;
 
     public static final String MEDIA_TYPE_JPG = "image/jpg";
     public static final String MEDIA_TYPE_JPEG = "image/jpeg";
