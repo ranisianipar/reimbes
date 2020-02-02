@@ -131,10 +131,13 @@ only for authenticated User
 - Request Body :
 ``` json
 {
-    "attachments":"[]",
+    "category": "PARKING",
+	"attachments":[
+		"data:image/png;base64,iVBORw..."
+	]
 }
 ```
-*Note*: Imagedata will be contain the image bytes
+*Note*: The `attachments` attribute contains ONLY 1 image in base64 (string) format
 - Response Body (Success) :
 
 ```json

@@ -101,12 +101,14 @@ public class TransactionServiceTest {
     public void errorThrown_whenUserCreateByWrongFormatImage() throws Exception {
         String extension = "png";
         String imageValue = "random string";
+        Transaction transactionRequst = new Transaction();
+        transactionRequst.setImage(imageValue);
 
         when(authService.getCurrentUser()).thenReturn(user);
         when(utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION)).thenThrow(FormatTypeError.class);
 
         assertThrows(Exception.class, () -> {
-            transactionService.createByImage(imageValue);
+            transactionService.createByImageAndCategory(transactionRequst);
         });
 
     }
@@ -119,10 +121,14 @@ public class TransactionServiceTest {
 
         when(authService.getCurrentUser()).thenReturn(user);
         when(utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION)).thenReturn(imagePath);
-        when(receiptMapperService.translateImage(imagePath, imageValue)).thenReturn(fuel);
+        when(receiptMapperService.map(fuel)).thenReturn(fuel);
 
 
-        Transaction transaction = transactionService.createByImage(imageValue);
+        Transaction transactionRequest = new Transaction();
+        transactionRequest.setImage(imageValue);
+
+        Transaction transaction = transactionService.createByImageAndCategory(transactionRequest);
+
         assertEquals(user, transaction.getReimsUser());
         assertEquals(imagePath, transaction.getImage());
         assertNotNull(transaction.getCategory());

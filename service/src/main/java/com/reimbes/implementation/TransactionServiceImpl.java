@@ -17,8 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import static com.reimbes.Transaction.Category.FUEL;
-import static com.reimbes.Transaction.Category.PARKING;
 import static com.reimbes.constant.General.DEFAULT_LONG_VALUE;
 import static com.reimbes.constant.UrlConstants.SUB_FOLDER_TRANSACTION;
 
@@ -43,17 +41,17 @@ public class TransactionServiceImpl implements TransactionService {
     private UtilsServiceImpl utilsServiceImpl;
 
     @Override
-    public Transaction createByImage(String imageValue) throws ReimsException {
+    public Transaction createByImageAndCategory(Transaction transaction) throws ReimsException {
         ReimsUser user = authService.getCurrentUser();
         String imagePath;
-        Transaction transaction;
         try {
-            imagePath = utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
+            imagePath = utilsServiceImpl.uploadImage(transaction.getImage(), user.getId(), SUB_FOLDER_TRANSACTION);
+
             log.info("Predicting attachments content... ", imagePath);
-            transaction = receiptMapperService.translateImage(imagePath, imageValue);
+            transaction = receiptMapperService.map(transaction);
+
             log.info(String.format("Receipt Mapper Result %s", transaction));
 
-            transaction.setCategory(FUEL);
         } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
         }
