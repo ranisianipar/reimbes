@@ -70,14 +70,15 @@ public class UserController {
         return br;
     }
 
-    @GetMapping(value = UrlConstants.IMAGE_PREFIX, produces = {MEDIA_TYPE_JPEG, MEDIA_TYPE_JPG, MEDIA_TYPE_PNG})
-    public byte[] getImage(@RequestParam(value = "path") String imagePath) {
+    @GetMapping(value = UrlConstants.IMAGE_PREFIX)
+    public BaseResponse getImage(@RequestParam(value = "path") String imagePath) {
+        BaseResponse<String> br = new BaseResponse();
         try {
-            return userService.getImage(imagePath);
-        } catch (Exception e) {
-            return new byte[0];
+            br.setData(userService.getImage(imagePath));
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
         }
-
+        return br;
     }
 
 

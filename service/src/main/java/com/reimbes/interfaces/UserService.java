@@ -18,5 +18,5 @@ public interface UserService {
     void delete(long id);
     boolean isExist(String username);
     byte[] getReport(Long start, Long end, String reimbursementType) throws Exception;
-    byte[] getImage(String imagePath) throws ReimsException;
+    String getImage(String imagePath) throws ReimsException;
 }

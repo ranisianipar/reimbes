@@ -449,9 +449,18 @@
     - Content-Type : `application/json`
 - Request Body : -
 
-- Response Body (Success) : image in array of bytes
+- Response Body (Success) :
+```json
+{
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": null,
+  "data": "/9j/4AAQSkZJRgABAQEAYABgAAD//gAWdG...",
+  "success": true
+```
 - Response Header (Success) :
-    - Content-Type : [`image/jpeg`, `image/jpg`, `image/png`]
+    - Content-Type : `application/json`
 
 - Response Body (Failure) : []
 ```

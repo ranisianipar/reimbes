@@ -2,7 +2,6 @@ package com.reimbes.implementation;
 
 import com.reimbes.*;
 import com.reimbes.exception.DataConstraintException;
-import com.reimbes.exception.MethodNotAllowedException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.interfaces.AuthService;
@@ -14,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 
-import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,10 +20,10 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 
-import static com.reimbes.ReimsUser.Role.ADMIN;
 import static com.reimbes.constant.General.IDENTITY_CODE;
 import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 
@@ -41,7 +39,7 @@ public class UserServiceImpl implements UserService {
     private AuthService authService;
 
     @Autowired
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsServiceImpl utilsService;
 
     @Autowired
     private TransactionServiceImpl transactionService;
@@ -61,7 +59,7 @@ public class UserServiceImpl implements UserService {
         validate(user, null);
 
         user.setName(user.getUsername()); // default
-        user.setCreatedAt(utilsServiceImpl.getCurrentTime());
+        user.setCreatedAt(utilsService.getCurrentTime());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return userRepository.save(user);
@@ -71,7 +69,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser update(long id, ReimsUser newUser) throws ReimsException {
         ReimsUser oldUser;
 
-        if (id == IDENTITY_CODE) oldUser = userRepository.findByUsername(utilsServiceImpl.getPrincipalUsername());
+        if (id == IDENTITY_CODE) oldUser = userRepository.findByUsername(utilsService.getPrincipalUsername());
         else oldUser = userRepository.findOne(id);
 
         if (oldUser == null) throw new NotFoundException("USER ID "+id);
@@ -83,7 +81,7 @@ public class UserServiceImpl implements UserService {
         oldUser.setUsername(newUser.getUsername());
         if (newUser.getPassword() != null)
             oldUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        oldUser.setUpdatedAt(utilsServiceImpl.getCurrentTime());
+        oldUser.setUpdatedAt(utilsService.getCurrentTime());
 
         oldUser.setDivision(newUser.getDivision());
         oldUser.setGender(newUser.getGender());
@@ -127,7 +125,7 @@ public class UserServiceImpl implements UserService {
     public ReimsUser get(long id) throws ReimsException {
         ReimsUser user;
 
-        if (id == IDENTITY_CODE) return userRepository.findByUsername(utilsServiceImpl.getPrincipalUsername());
+        if (id == IDENTITY_CODE) return userRepository.findByUsername(utilsService.getPrincipalUsername());
         else user = userRepository.findOne(id);
 
         log.info(String.format("Get user with ID %d. Found => %s", id, user));
@@ -165,12 +163,18 @@ public class UserServiceImpl implements UserService {
         return reportGeneratorService.getReport(authService.getCurrentUser(), start, end, reimbursementType.toLowerCase());
     }
 
+    /*
+       This method return image in String, Base64 format
+    */
     @Override
-    public byte[] getImage(String imagePath) throws ReimsException {
+    public String getImage(String imagePath) throws ReimsException {
         log.info("GET Image by path");
         ReimsUser user = authService.getCurrentUser();
         try {
-            if (imagePath.contains(String.format("/%d/", user.getId()))) return utilsServiceImpl.getFile(imagePath);
+            if (isUserFile(imagePath, user)) {
+                byte[] file = utilsService.getFile(imagePath);
+                return Base64.getEncoder().encodeToString(file);
+            }
             throw new NotFoundException("Image: " + imagePath);
         }   catch (IOException e) {
             throw new NotFoundException(e.getMessage());
@@ -178,6 +182,9 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    private boolean isUserFile(String imagePath, ReimsUser user) {
+        return imagePath.contains(String.format("/%d/", user.getId()));
+    }
 
     /* Old User Data NOT NULL indicate update medicalUser activity */
     private void validate(ReimsUser newUserData, ReimsUser oldUserData) throws DataConstraintException{
