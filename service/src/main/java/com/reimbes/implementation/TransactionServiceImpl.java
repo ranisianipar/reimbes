@@ -50,6 +50,8 @@ public class TransactionServiceImpl implements TransactionService {
             log.info("Predicting attachments content... ", imagePath);
             transaction = receiptMapperService.map(transaction);
 
+            if (transaction.getCategory() ==  null) transaction.setCategory(Transaction.Category.FUEL);
+
             log.info(String.format("Receipt Mapper Result %s", transaction));
 
         } catch (Exception e) {
