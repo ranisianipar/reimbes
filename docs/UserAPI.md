@@ -185,7 +185,7 @@
 	"password" : "blibli12345",
 	"role": "USER",
 	"gender":"MALE",
-	"dateOfBirth":"1970-11-1",
+	"dateOfBirth":"1970-11-01",
 	"license":"B XXXX XX",
 	"vehicle":"CAR"
 }
@@ -202,7 +202,7 @@
         "username": "eko1@pyeongyang.com",
         "role": "USER",
 	    "gender":"MALE",
-	    "dateOfBirth":"1970-11-1",
+	    "dateOfBirth":"1970-11-01",
 	    "license":"B XXXX XX",
 	    "vehicle":"CAR"
         "created_at":1559058600,
@@ -347,7 +347,7 @@
         "username": "eko1@pyeongyang.com",
         "role": "USER",
         "gender":"MALE",
-        "dateOfBirth":"1970-11-1",
+        "dateOfBirth":"1970-11-01",
         "license":"B XXXX XX",
         "vehicle":"CAR",
         "created_at":1559058600,
@@ -384,7 +384,7 @@
 	"password" : "blibli12345",
 	"role": "USER",
 	"gender":"MALE",
-	"dateOfBirth":"1970-11-1",
+	"dateOfBirth":"1970-11-01",
 	"license":"B XXXX XX",
 	"vehicle":"CAR"
 }

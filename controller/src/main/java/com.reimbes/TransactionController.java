@@ -107,6 +107,7 @@ public class TransactionController {
 
     @DeleteMapping(UrlConstants.ID_PARAM)
     public BaseResponse deleteById(@PathVariable Long id) {
+        log.info("Delete transaction with ID", id);
         BaseResponse br = new BaseResponse();
         try {
             transactionService.delete(id);

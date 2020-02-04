@@ -45,9 +45,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     /*
-    * where we parse the reimsUser's credentials and issue them to the AuthenticationManager
-    *
-    * */
+     * where we parse the reimsUser's credentials and issue them to the AuthenticationManager
+     *
+     * */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req,
                                                 HttpServletResponse res) throws AuthenticationException {
@@ -80,7 +80,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info("Authentication succeed!");
         UserDetailsImpl user = (UserDetailsImpl) auth.getPrincipal();
         Collection authorities = user.getAuthorities();
-        String token = authService.generateToken(user,authorities);
+        String token = authService.generateToken(user, authorities);
 
         // retrieve informative response for frontend needs
         res.setHeader(HEADER_STRING, token);
@@ -89,7 +89,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         userResponse.setId(user.getUserId());
         userResponse.setRole(authService.getRoleByString(authorities.iterator().next().toString()));
 
-        // Creating Object of ObjectMapper define in Jakson Api
+        // Creating Object of ObjectMapper define in Jackson Api
         ObjectMapper objectMapper = new ObjectMapper();
 
         String userJsonString = objectMapper.writeValueAsString(userResponse);

@@ -14,7 +14,8 @@ import java.util.Date;
 
 @Table(name = "Family_Member")
 @Entity
-@Data @NoArgsConstructor
+@Data
+@NoArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class FamilyMember extends Patient {

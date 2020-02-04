@@ -5,7 +5,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 
-@Table(name="Fuels")
+@Table(name = "Fuels")
 @Data
 @DiscriminatorValue("FUEL")
 @Entity

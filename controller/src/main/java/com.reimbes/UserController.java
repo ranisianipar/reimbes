@@ -9,7 +9,11 @@ import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -31,17 +35,22 @@ public class UserController {
 
     // .xls
     @GetMapping(REPORT_PREFIX)
-    public BaseResponse getReport(
+    public ResponseEntity<ByteArrayResource> getReport(
             @RequestParam(value = "start", defaultValue = "0") String start,
             @RequestParam(value = "end", defaultValue = "0") String end,
             @RequestParam(value = "type") String type
     ) {
         try {
-            userService.getReport(new Long(start), new Long(end), type);
+            byte[] file = userService.getReport(new Long(start), new Long(end), type);
+            HttpHeaders header = new HttpHeaders();
+            header.setContentType(new MediaType("application", "force-download"));
+            header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report.xlsx");
+            return new ResponseEntity<>(new ByteArrayResource(file),
+                    header, HttpStatus.CREATED);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new BaseResponse();
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // update profile

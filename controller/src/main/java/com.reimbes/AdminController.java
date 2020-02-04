@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 
+import static com.reimbes.constant.General.DATE_FORMAT;
 import static com.reimbes.constant.Mapper.*;
 import static com.reimbes.constant.UrlConstants.*;
 
@@ -74,7 +75,8 @@ public class AdminController {
         log.info(String.format("[GET] Get user with ID: %d", id));
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setData(getUserResponseMapper().map(adminService.getUser(id), UserResponse.class));
+            ReimsUser user = adminService.getUser(id);
+            br.setData(getUserResponseMapper().map(user, UserResponse.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }

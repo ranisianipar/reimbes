@@ -4,7 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 
-@Table(name="Active_Tokens")
+@Table(name = "Active_Tokens")
 @Data
 @Entity
 public class ActiveToken {
@@ -21,6 +21,7 @@ public class ActiveToken {
         this.token = token;
     }
 
-    public ActiveToken(){}
+    public ActiveToken() {
+    }
 
 }

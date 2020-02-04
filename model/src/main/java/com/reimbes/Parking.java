@@ -11,4 +11,5 @@ import javax.persistence.*;
 @DiscriminatorValue("PARKING")
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Parking extends Transaction {}
+public class Parking extends Transaction {
+}

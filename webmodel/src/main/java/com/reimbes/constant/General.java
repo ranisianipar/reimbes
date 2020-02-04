@@ -7,7 +7,7 @@ import java.util.TimeZone;
 public class General {
 
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
-    public static final DateFormat DATE_FORMAT_CLEAN = new SimpleDateFormat("dd/MM/yyyy");
+    public static final DateFormat DATE_FORMAT_2 = new SimpleDateFormat("dd/MM/yyyy");
     public static final String DEFAULT_PLACE = "Jakarta";
     public static final TimeZone TIME_ZONE = TimeZone.getTimeZone("GMT+7");
 

@@ -12,6 +12,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -73,7 +74,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         /* INIT */
         //create a new workbook
-        Workbook wb = new HSSFWorkbook();
+        XSSFWorkbook wb = new XSSFWorkbook();
         DATE_FORMAT.setTimeZone(TIME_ZONE);
 
         Sheet sheet = wb.createSheet(String.format("%s report", reimbursementType));
@@ -109,14 +110,16 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         initFooter(sheet);
 
-        if(wb instanceof XSSFWorkbook) filename += "x";
+//        if(wb instanceof XSSFWorkbook) filename += "x";
 
         //save workbook
-        OutputStream fileOut = new FileOutputStream(filename);
+
+        ByteArrayOutputStream fileOut = new ByteArrayOutputStream();
+
         wb.write(fileOut);
 
         fileOut.close();
-        return utilsService.getFile(filename);
+        return fileOut.toByteArray();
 
     }
 
@@ -440,7 +443,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private void initFooter(Sheet sheet) {
         Row row = sheet.createRow(getCurrentRowIndex());
 
-        String date = DATE_FORMAT_CLEAN.format(new Date());
+        String date = DATE_FORMAT_2.format(new Date());
         String place = DEFAULT_PLACE;
 
         createCell(row, 0, String.format("%s, %s", place, date)).setCellStyle(tableHeaderCellStyle);

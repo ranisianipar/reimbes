@@ -87,7 +87,7 @@ public class TransactionServiceTest {
         parking.setId(new Long(2));
         parking.setAmount(21000);
         parking.setReimsUser(user);
-        parking.setDate(Instant.now().getEpochSecond()*1000);
+        parking.setDate(Instant.now().getEpochSecond() * 1000);
         parking.setLocation("Grha Niaga Thamrin");
         parking.setCategory(PARKING);
         parking.setTitle("PARKING_VALUE TEST");
@@ -125,7 +125,7 @@ public class TransactionServiceTest {
     public void predictedImageReturn_whenUserCreateTransactionByImage() throws Exception {
         String extension = "png";
         String imageValue = Base64.getEncoder().encodeToString("HAHAHA".getBytes());
-        String imagePath = user.getId()+"/123."+extension;
+        String imagePath = user.getId() + "/123." + extension;
 
         Transaction transactionRequest = new Transaction();
         transactionRequest.setImage(imageValue);
@@ -165,7 +165,7 @@ public class TransactionServiceTest {
         parking.setReimsUser(user);
 
         assertThrows(ReimsException.class, () -> {
-           transactionService.get(parking.getId());
+            transactionService.get(parking.getId());
         });
 
         verify(authService).getCurrentUser();
@@ -210,14 +210,15 @@ public class TransactionServiceTest {
 
     @Test
     public void returnUserTransactionsFilteredByDate() {
-        when(transactionRepository.findByReimsUserAndDateBetween(user,1, 2)).thenReturn(transactions);
+        when(transactionRepository.findByReimsUserAndDateBetween(user, 1, 2)).thenReturn(transactions);
         assertEquals(transactions, transactionService.getByUserAndDate(user, 1, 2));
     }
 
-    
+
     @Test
     public void returnListOfTransaction_whenUserGetByDateAndType() throws ReimsException {
-        Long start; Long end;
+        Long start;
+        Long end;
         start = end = new Long(10);
 
         when(authService.getCurrentUser()).thenReturn(user);
@@ -228,7 +229,8 @@ public class TransactionServiceTest {
 
     @Test
     public void returnListOfTransaction_whenUserGetByTyoeAndNullDate() throws ReimsException {
-        Long start; Long end;
+        Long start;
+        Long end;
         start = end = null;
 
         when(authService.getCurrentUser()).thenReturn(user);
@@ -258,7 +260,8 @@ public class TransactionServiceTest {
     @Test
     public void returnPageOfTransactions_whenUserGetAllTransactionsWIthCategoryAndNoDateRange() throws ReimsException {
         String title = "";
-        String start; String end;
+        String start;
+        String end;
         start = end = "";
         Transaction.Category category = PARKING;
 
@@ -274,7 +277,8 @@ public class TransactionServiceTest {
     @Test
     public void returnPageOfTransactions_whenUserGetAllTransactionsWIthNoCategoryAndNoDateRange() throws ReimsException {
         String title = "";
-        String start; String end;
+        String start;
+        String end;
         start = end = "";
         Transaction.Category category = null;
 
@@ -290,10 +294,12 @@ public class TransactionServiceTest {
     @Test
     public void returnPageOfTransactions_whenUserGetAllTransactionsWIthDateRangeAndNoCategory() throws ReimsException {
         String title = "";
-        String startDate; String endDate;
-        startDate = endDate ="123";
+        String startDate;
+        String endDate;
+        startDate = endDate = "123";
 
-        Long start; Long end;
+        Long start;
+        Long end;
         start = end = new Long(endDate);
 
         Transaction.Category category = null;
@@ -310,10 +316,12 @@ public class TransactionServiceTest {
     @Test
     public void returnPageOfTransactions_whenUserGetAllTransactionsWIthDateRangeAndCategory() throws ReimsException {
         String title = "";
-        String startDate; String endDate;
-        startDate = endDate ="123";
+        String startDate;
+        String endDate;
+        startDate = endDate = "123";
 
-        Long start; Long end;
+        Long start;
+        Long end;
         start = end = new Long(endDate);
 
         Transaction.Category category = FUEL;
@@ -330,12 +338,13 @@ public class TransactionServiceTest {
     @Test
     public void errorThrown_whenUserGetAllTransactionsWithInvalidDateRange() throws ReimsException {
         String title = "";
-        String startDate; String endDate;
-        startDate = endDate ="xys";
+        String startDate;
+        String endDate;
+        startDate = endDate = "xys";
 
         when(authService.getCurrentUser()).thenReturn(user);
 
-        assertThrows(FormatTypeError.class, () ->  transactionService.getAll(pageRequest, title, startDate, endDate, null));
+        assertThrows(FormatTypeError.class, () -> transactionService.getAll(pageRequest, title, startDate, endDate, null));
     }
 
     @Test
@@ -407,7 +416,7 @@ public class TransactionServiceTest {
         expectedResult.setImage(request.getAttachments().get(0));
         expectedResult.setLocation(parking.getLocation());
 
-        System.out.println("[TEST] "+ request);
+        System.out.println("[TEST] " + request);
         assertEquals(expectedResult, transactionService.update(parking));
     }
 
@@ -462,8 +471,6 @@ public class TransactionServiceTest {
 
         assertThrows(DataConstraintException.class, () -> transactionService.update(request));
     }
-
-
 
 
 }

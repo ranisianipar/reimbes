@@ -8,7 +8,7 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Table(name="Medical_Report")
+@Table(name = "Medical_Report")
 @AllArgsConstructor
 @Builder
 @Data
@@ -25,14 +25,14 @@ public class MedicalReport {
     @NonNull
     private String image;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "medicalImage", nullable = false)
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     private Medical medicalImage;
 
     @Override
-    public String toString(){
+    public String toString() {
         return image;
     }
 }

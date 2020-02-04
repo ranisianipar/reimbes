@@ -72,12 +72,12 @@ public class UserServiceImpl implements UserService {
         if (id == IDENTITY_CODE) oldUser = userRepository.findByUsername(utilsService.getPrincipalUsername());
         else oldUser = userRepository.findOne(id);
 
-        if (oldUser == null) throw new NotFoundException("USER ID "+id);
+        if (oldUser == null) throw new NotFoundException("USER ID " + id);
 
         validate(newUser, oldUser);
 
         if (id != IDENTITY_CODE) oldUser.setRole(newUser.getRole());
-        
+
         oldUser.setUsername(newUser.getUsername());
         if (newUser.getPassword() != null)
             oldUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
         ReimsUser userWithNewData = update(IDENTITY_CODE, user);
 
         // update token with latest username
-        Collection authorities =  new ArrayList();
+        Collection authorities = new ArrayList();
 
         authorities.add(new SimpleGrantedAuthority(userWithNewData.getRole().toString()));
 
@@ -130,7 +130,7 @@ public class UserServiceImpl implements UserService {
 
         log.info(String.format("Get user with ID %d. Found => %s", id, user));
         if (user == null)
-            throw new NotFoundException("USER "+id);
+            throw new NotFoundException("USER " + id);
         return user;
     }
 
@@ -176,7 +176,7 @@ public class UserServiceImpl implements UserService {
                 return Base64.getEncoder().encodeToString(file);
             }
             throw new NotFoundException("Image: " + imagePath);
-        }   catch (IOException e) {
+        } catch (IOException e) {
             throw new NotFoundException(e.getMessage());
         }
 
@@ -187,7 +187,7 @@ public class UserServiceImpl implements UserService {
     }
 
     /* Old User Data NOT NULL indicate update medicalUser activity */
-    private void validate(ReimsUser newUserData, ReimsUser oldUserData) throws DataConstraintException{
+    private void validate(ReimsUser newUserData, ReimsUser oldUserData) throws DataConstraintException {
         List errors = new ArrayList();
 
         // Validate the credential data
@@ -198,14 +198,14 @@ public class UserServiceImpl implements UserService {
             errors.add("NULL_PASSWORD");
 
         // compare new medicalUser data with other medicalUser data
-        if (errors.isEmpty()){
+        if (errors.isEmpty()) {
             ReimsUser user = userRepository.findByUsername(newUserData.getUsername());
 
             // update
             if (oldUserData != null && user != null && user.getId() != oldUserData.getId())
                 errors.add("UNIQUENESS_USERNAME");
 
-            // create
+                // create
             else if (oldUserData == null && user != null)
                 errors.add("UNIQUENESS_USERNAME");
         }
