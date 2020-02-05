@@ -5,17 +5,17 @@ import com.reimbes.exception.ReimsException;
 import com.reimbes.interfaces.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +26,15 @@ import static com.reimbes.constant.UrlConstants.GDN_LOGO_PATH;
 public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     private static Logger log = LoggerFactory.getLogger(ReportGeneratorServiceImpl.class);
+
+    // Header sizes
+    private final short SUPER_LARGE_TEXT = (short) 24;
+
+    private final short LARGE_TEXT = (short) 18;
+
+    private final short DEFAULT_TEXT_SIZE = (short) 12;
+
+    private final int startColumn = 0;
 
     @Autowired
     private TransactionService transactionService;
@@ -39,38 +48,38 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     @Autowired
     private UtilsService utilsService;
 
-    // Header sizes
-    private final short SUPER_LARGE_TEXT = (short)24;
-    private final short LARGE_TEXT = (short)18;
-    private final short DEFAULT_TEXT_SIZE = (short)12;
-
     // Font object
     private Font fontDefault;
+
     private Font fontDefaultStrong;
+
     private Font fontHeader1;
+
     private Font fontHeader2;
 
     // Cell style
-    @Setter @Getter
+    @Setter
+    @Getter
     private CellStyle tableHeaderCellStyle;
+
     private CellStyle defaultCellStyle;
+
     private CellStyle totalCellStyle;
 
-    @Setter @Getter
+    @Setter
+    @Getter
     private int currentRowIndex;
 
-    private final int startColumn = 0;
-
     @Override
-    public byte[] getReport(ReimsUser user, Long start, Long end, String reimbursementType) throws Exception {
+    public String getReport(ReimsUser user, Long start, Long end, String reimbursementType) throws Exception {
 
-        String filename;
-
-        filename = String.format("%s_%s_%s.xls", user.getUsername(), reimbursementType, "ALL");
-        if (start != 0 && end != 0){
-            filename = String.format("%s_%s_%s_%s.xls", user.getUsername(), reimbursementType, start+"", end+"");
-
-        }
+//        String filename;
+//
+//        filename = String.format("%s_%s_%s.xls", user.getUsername(), reimbursementType, "ALL");
+//        if (start != 0 && end != 0) {
+//            filename = String.format("%s_%s_%s_%s.xls", user.getUsername(), reimbursementType, start + "", end + "");
+//
+//        }
 
         /* INIT */
         //create a new workbook
@@ -89,11 +98,11 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         // set column width
         sheet.autoSizeColumn(0); // autosize first column, depends on maximum width of applied cells [No.]
-        sheet.setColumnWidth(1, 20 * 256); // [Date]
-        sheet.setColumnWidth(2, 25 * 256); // [Title]
-        sheet.setColumnWidth(3, 15 * 256); //
-        sheet.setColumnWidth(4, 15 * 256); //
-        sheet.setColumnWidth(5, 15 * 256); //
+        sheet.setColumnWidth(1, getSizeOf(20)); // [Date]
+        sheet.setColumnWidth(2, getSizeOf(25)); // [Title]
+        sheet.setColumnWidth(3, getSizeOf(15)); //
+        sheet.setColumnWidth(4, getSizeOf(15)); //
+        sheet.setColumnWidth(5, getSizeOf(15)); //
 
 
         // determine report type
@@ -112,15 +121,16 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
 //        if(wb instanceof XSSFWorkbook) filename += "x";
 
-        //save workbook
-
         ByteArrayOutputStream fileOut = new ByteArrayOutputStream();
-
         wb.write(fileOut);
-
         fileOut.close();
-        return fileOut.toByteArray();
+        byte[] file = fileOut.toByteArray();
+        return Base64.getEncoder().encodeToString(file);
 
+    }
+
+    private int getSizeOf(int pixel) {
+        return pixel * 256;
     }
 
     private Cell createCell(Row row, int index, String value) {
@@ -271,7 +281,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         setCurrentRowIndex(getCurrentRowIndex() + 1);
         int totalAmount = 0;
-        int medicalIndex = 0 ;
+        int medicalIndex = 0;
 
         List<Medical> medicals = medicalService.getByDate(start, end);
 
@@ -339,7 +349,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     // need to be refactored!
     // (row) start: 5; end: 6;
-    private void initHeader(Workbook wb, Sheet sheet, String reimbursementType){
+    private void initHeader(Workbook wb, Sheet sheet, String reimbursementType) {
         int startColumnIndex = 0;
         int endColumnIndex = 5;
 

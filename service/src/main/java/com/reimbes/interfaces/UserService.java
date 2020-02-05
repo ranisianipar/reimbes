@@ -17,6 +17,6 @@ public interface UserService {
     Page getAllUsers(String username, Pageable pageable);
     void delete(long id);
     boolean isExist(String username);
-    byte[] getReport(Long start, Long end, String reimbursementType) throws Exception;
+    String getReport(Long start, Long end, String reimbursementType) throws Exception;
     String getImage(String imagePath) throws ReimsException;
 }

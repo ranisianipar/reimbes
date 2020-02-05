@@ -9,16 +9,13 @@ import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 
-import static com.reimbes.constant.General.*;
+import static com.reimbes.constant.General.IDENTITY_CODE;
+import static com.reimbes.constant.ResponseCode.INTERNAL_SERVER_ERROR;
 import static com.reimbes.constant.UrlConstants.*;
 
 
@@ -31,22 +28,26 @@ public class UserController {
     private UserServiceImpl userService;
 
 
-    @GetMapping(value = REPORT_PREFIX, produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    public ResponseEntity<ByteArrayResource> getReport(
+    @GetMapping(value = REPORT_PREFIX)
+    public BaseResponse<String> getReport(
             @RequestParam(value = "start", defaultValue = "0") String start,
             @RequestParam(value = "end", defaultValue = "0") String end,
             @RequestParam(value = "type") String type
     ) {
+        BaseResponse br = new BaseResponse();
         try {
-            String filename = String.format("report-dummy-%s.xlsx",type);
-            byte[] file = userService.getReport(new Long(start), new Long(end), type);
-            HttpHeaders header = new HttpHeaders();
-            header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
-            return new ResponseEntity<>(new ByteArrayResource(file), header, HttpStatus.CREATED);
+            String file = userService.getReport(new Long(start), new Long(end), type);
+            br.setData(file);
+
         } catch (Exception e) {
-            e.printStackTrace();
+            br.setErrorResponse(ReimsException.builder()
+                    .code(INTERNAL_SERVER_ERROR)
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(e.getMessage())
+                    .build());
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        return br;
     }
 
     @PutMapping

@@ -270,7 +270,7 @@ public class UserServiceTest {
 
     @Test
     public void makingAReport_whenUserAskedForIt() throws Exception {
-        byte[] fakeReport = new byte[100];
+        String fakeReport = "webfw";
         when(reportGeneratorService.getReport(user,new Long(0),new Long(0), PARKING_VALUE)).thenReturn(fakeReport);
         when(authService.getCurrentUser()).thenReturn(user);
 

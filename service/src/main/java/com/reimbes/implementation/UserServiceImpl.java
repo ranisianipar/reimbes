@@ -1,6 +1,8 @@
 package com.reimbes.implementation;
 
-import com.reimbes.*;
+import com.reimbes.ReimsUser;
+import com.reimbes.ReimsUserRepository;
+import com.reimbes.UserDetailsImpl;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
@@ -11,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -147,6 +147,7 @@ public class UserServiceImpl implements UserService {
             log.info("User with ID: ", id, " not found.");
             return;
         }
+
         // manually delete the transaction
         transactionService.deleteByUser(user);
 
@@ -159,7 +160,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public byte[] getReport(Long start, Long end, String reimbursementType) throws Exception {
+    public String getReport(Long start, Long end, String reimbursementType) throws Exception {
         return reportGeneratorService.getReport(authService.getCurrentUser(), start, end, reimbursementType.toLowerCase());
     }
 

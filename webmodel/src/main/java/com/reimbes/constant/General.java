@@ -22,9 +22,5 @@ public class General {
     public static final long NULL_USER_ID_CODE = 0;
     public static final long DEFAULT_LONG_VALUE = 0;
 
-    public static final String MEDIA_TYPE_JPG = "image/jpg";
-    public static final String MEDIA_TYPE_JPEG = "image/jpeg";
-    public static final String MEDIA_TYPE_PNG = "image/png";
-
 
 }
