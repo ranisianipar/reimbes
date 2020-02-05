@@ -31,8 +31,7 @@ public class UserController {
     private UserServiceImpl userService;
 
 
-    @GetMapping(value = REPORT_PREFIX)
-//    produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    @GetMapping(value = REPORT_PREFIX, produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     public ResponseEntity<ByteArrayResource> getReport(
             @RequestParam(value = "start", defaultValue = "0") String start,
             @RequestParam(value = "end", defaultValue = "0") String end,
@@ -42,7 +41,6 @@ public class UserController {
             String filename = String.format("report-dummy-%s.xlsx",type);
             byte[] file = userService.getReport(new Long(start), new Long(end), type);
             HttpHeaders header = new HttpHeaders();
-            header.setContentType(new MediaType("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
             header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
             return new ResponseEntity<>(new ByteArrayResource(file), header, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -51,7 +49,6 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // update profile
     @PutMapping
     public BaseResponse updateUser(@RequestBody ReimsUser user, HttpServletResponse response) {
         BaseResponse br = new BaseResponse();

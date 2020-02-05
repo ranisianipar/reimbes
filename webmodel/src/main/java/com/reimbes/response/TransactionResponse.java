@@ -22,5 +22,7 @@ public class TransactionResponse {
 
     private String title;
 
+    private String location;
+
 
 }
