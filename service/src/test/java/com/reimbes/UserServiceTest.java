@@ -214,7 +214,7 @@ public class UserServiceTest {
     @Test
     public void removeUnregisteredUser(){
         userService.delete(100);
-        verify(transactionService, times(0)).deleteByUser(user);
+        verify(transactionService, times(0)).deleteTransactionImageByUser(user);
         verify(userRepository, times(0)).delete(user);
     }
 
@@ -223,7 +223,7 @@ public class UserServiceTest {
         when(userRepository.findOne(user.getId())).thenReturn(user);
 
         userService.delete(user.getId());
-        verify(transactionService, times(1)).deleteByUser(user);
+        verify(transactionService, times(1)).deleteTransactionImageByUser(user);
         verify(userRepository, times(1)).delete(user);
 
     }
@@ -292,7 +292,7 @@ public class UserServiceTest {
         authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
 
         // add token
-        when(authService.generateToken(new UserDetailsImpl(user, authorities), authorities)).thenReturn(dummyToken);
+        when(authService.generateToken(new UserDetailsImpl(user, authorities))).thenReturn(dummyToken);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         ReimsUser reimsUser = userService.updateMyData(user, response);

@@ -243,7 +243,7 @@ public class TransactionServiceTest {
     @Test
     public void doNothing_whenUserTryToDeleteTransactionByUser_inConditionUserIsNotExist() {
         when(transactionRepository.findByReimsUser(user)).thenReturn(null);
-        transactionService.deleteByUser(user);
+        transactionService.deleteTransactionImageByUser(user);
 
         verify(transactionRepository).findByReimsUser(user);
         verifyNoMoreInteractions(transactionRepository);
@@ -252,7 +252,7 @@ public class TransactionServiceTest {
     @Test
     public void deleteTransactionByUserSucceessfully() {
         when(transactionRepository.findByReimsUser(user)).thenReturn(transactions);
-        transactionService.deleteByUser(user);
+        transactionService.deleteTransactionImageByUser(user);
 
         verify(transactionRepository, times(1)).delete(transactions);
     }

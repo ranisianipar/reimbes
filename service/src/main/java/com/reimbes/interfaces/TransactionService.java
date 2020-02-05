@@ -14,7 +14,7 @@ public interface TransactionService {
     Transaction createByImageAndCategory(Transaction transaction) throws ReimsException;
     Transaction update(Transaction transaction) throws ReimsException;
     void delete(long id) throws ReimsException;
-    void deleteByUser(ReimsUser user);
+    void deleteTransactionImageByUser(ReimsUser user);
     Transaction get(long id) throws ReimsException;
     Page<Transaction> getAll(Pageable pageable, String startDate, String endDate, String searchTitle,
                              Transaction.Category category) throws ReimsException;

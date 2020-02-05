@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService {
         authorities.add(new SimpleGrantedAuthority(userWithNewData.getRole().toString()));
 
         // add token
-        String token = authService.generateToken(new UserDetailsImpl(user, authorities), authorities);
+        String token = authService.generateToken(new UserDetailsImpl(user, authorities));
 
         // register token
         authService.registerToken(token);
@@ -111,9 +111,7 @@ public class UserServiceImpl implements UserService {
         response.setHeader(HEADER_STRING, token);
 
         // Modify Login Response
-
         return userWithNewData;
-
     }
 
     @Override
@@ -142,15 +140,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(long id) {
         ReimsUser user = userRepository.findOne(id);
-
         if (user == null) {
             log.info("User with ID: ", id, " not found.");
             return;
         }
-
-        // manually delete the transaction
-        transactionService.deleteByUser(user);
-
+        transactionService.deleteTransactionImageByUser(user);
         userRepository.delete(user);
     }
 

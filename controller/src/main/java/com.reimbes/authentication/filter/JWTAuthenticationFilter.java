@@ -80,7 +80,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info("Authentication succeed!");
         UserDetailsImpl user = (UserDetailsImpl) auth.getPrincipal();
         Collection authorities = user.getAuthorities();
-        String token = authService.generateToken(user, authorities);
+        String token = authService.generateToken(user);
 
         // retrieve informative response for frontend needs
         res.setHeader(HEADER_STRING, token);

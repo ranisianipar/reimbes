@@ -104,7 +104,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         sheet.setColumnWidth(4, getSizeOf(15)); //
         sheet.setColumnWidth(5, getSizeOf(15)); //
 
-
         // determine report type
         switch (reimbursementType) {
             case PARKING_VALUE:
@@ -126,7 +125,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         fileOut.close();
         byte[] file = fileOut.toByteArray();
         return Base64.getEncoder().encodeToString(file);
-
     }
 
     private int getSizeOf(int pixel) {

@@ -91,7 +91,7 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.delete(transaction);
     }
 
-    public void deleteByUser(ReimsUser user) {
+    public void deleteTransactionImageByUser(ReimsUser user) {
         List<Transaction> transactions = transactionRepository.findByReimsUser(user);
         if (transactions == null) {
             log.info("null transaction");
@@ -103,8 +103,6 @@ public class TransactionServiceImpl implements TransactionService {
         while (iterator.hasNext()) {
             utilsServiceImpl.removeImage(((Transaction) iterator.next()).getImage());
         }
-
-        transactionRepository.delete(transactions);
     }
 
     @Override

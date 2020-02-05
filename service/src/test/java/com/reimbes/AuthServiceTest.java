@@ -76,7 +76,7 @@ public class AuthServiceTest {
 
     @Test
     public void generateTokenInJWT() {
-        String result = authService.generateToken(userDetails, authorities);
+        String result = authService.generateToken(userDetails);
         verify(utilsService).getCurrentTime();
 
         assertNotEquals("", result);
@@ -90,7 +90,7 @@ public class AuthServiceTest {
                 ZoneOffset.UTC));
 
         when(utilsService.getCurrentTime()).thenReturn(now.toEpochMilli());
-        String token = authService.generateToken(userDetails, authorities);
+        String token = authService.generateToken(userDetails);
         verify(utilsService).getCurrentTime();
 
         ActiveToken activeToken = new ActiveToken(token); //
@@ -111,7 +111,7 @@ public class AuthServiceTest {
                 Instant.parse("2018-08-22T10:00:00Z"),
                 ZoneOffset.UTC));
 
-        String token = authService.generateToken(userDetails, authorities);
+        String token = authService.generateToken(userDetails);
         verify(utilsService, times(1)).getCurrentTime();
 
         ActiveToken activeToken = new ActiveToken(token);
@@ -135,7 +135,7 @@ public class AuthServiceTest {
 
         when(utilsService.getCurrentTime()).thenReturn(now.toEpochMilli());
 
-        String token = authService.generateToken(userDetails, authorities);
+        String token = authService.generateToken(userDetails);
         verify(utilsService, times(1)).getCurrentTime();
 
         MockHttpServletRequest request = new MockHttpServletRequest();

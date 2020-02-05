@@ -1,6 +1,6 @@
 package com.reimbes;
 
-import com.reimbes.implementation.*;
+import com.reimbes.implementation.ReportGeneratorServiceImpl;
 import com.reimbes.interfaces.AuthService;
 import com.reimbes.interfaces.MedicalService;
 import com.reimbes.interfaces.TransactionService;
@@ -111,7 +111,7 @@ public class ReportGeneratorServiceTest {
     }
 
     @Test
-    public void whenCreateReportWithRangeOfDateAndTypeMedical_thenReturnReportContainsListOfMedicals() throws Exception{
+    public void whenCreateReportWithRangeOfDateAndTypeMedical_thenReturnReportContainsListOfMedicals() throws Exception {
         Long time = Instant.now().toEpochMilli();
         String reportName = String.format("%s_%s_%s_%s.xls", user.getUsername(), MEDICAL_VALUE, time, time);
 
@@ -126,7 +126,6 @@ public class ReportGeneratorServiceTest {
         verify(authService).getCurrentUser();
         verify(medicalService).getByDate(time, time);
         verify(utilsService).getFile(GDN_LOGO_PATH);
-        verify(utilsService).getFile(reportName);
 
         Files.deleteIfExists(Paths.get(PROJECT_ROOT + "\\" + reportName));
 
@@ -134,7 +133,7 @@ public class ReportGeneratorServiceTest {
 
 
     @Test
-    public void whenCreateReportWithoutRangeOfDateAndWithTypeMedical_thenReturnReportContainsListOfMedicals() throws Exception{
+    public void whenCreateReportWithoutRangeOfDateAndWithTypeMedical_thenReturnReportContainsListOfMedicals() throws Exception {
         String reportName = String.format("%s_%s_%s.xls", user.getUsername(), MEDICAL_VALUE, "ALL");
 
         when(authService.getCurrentUser()).thenReturn(user);
@@ -148,14 +147,13 @@ public class ReportGeneratorServiceTest {
         verify(authService).getCurrentUser();
         verify(medicalService).getByDate(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE);
         verify(utilsService).getFile(GDN_LOGO_PATH);
-        verify(utilsService).getFile(reportName);
 
         Files.deleteIfExists(Paths.get(PROJECT_ROOT + "\\" + reportName));
 
     }
 
     @Test
-    public void whenCreateReportWithoutRangeOfDateAndWithTypeFuel_thenReturnReportOfAllTransactions() throws Exception{
+    public void whenCreateReportWithoutRangeOfDateAndWithTypeFuel_thenReturnReportOfAllTransactions() throws Exception {
         String reportName = String.format("%s_%s_%s.xls", user.getUsername(), FUEL_VALUE, "ALL");
 
         when(authService.getCurrentUser()).thenReturn(user);
@@ -169,14 +167,13 @@ public class ReportGeneratorServiceTest {
         verify(authService).getCurrentUser();
         verify(transactionService).getByDateAndType(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.FUEL);
         verify(utilsService).getFile(GDN_LOGO_PATH);
-        verify(utilsService).getFile(reportName);
 
         Files.deleteIfExists(Paths.get(PROJECT_ROOT + "\\" + reportName));
 
     }
 
     @Test
-    public void whenCreateReportWithoutRangeOfDateAndWithTypeParking_thenReturnReportOfAllTransactions() throws Exception{
+    public void whenCreateReportWithoutRangeOfDateAndWithTypeParking_thenReturnReportOfAllTransactions() throws Exception {
         String reportName = String.format("%s_%s_%s.xls", user.getUsername(), PARKING_VALUE, "ALL");
 
         when(authService.getCurrentUser()).thenReturn(user);
@@ -190,7 +187,6 @@ public class ReportGeneratorServiceTest {
         verify(authService).getCurrentUser();
         verify(transactionService).getByDateAndType(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.PARKING);
         verify(utilsService).getFile(GDN_LOGO_PATH);
-        verify(utilsService).getFile(reportName);
 
         Files.deleteIfExists(Paths.get(PROJECT_ROOT + "\\" + reportName));
 

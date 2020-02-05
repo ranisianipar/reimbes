@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 
 public interface AuthService {
-    String generateToken(UserDetails user, Collection authorities);
+    String generateToken(UserDetails user);
     boolean isLogin(String token);
     ActiveToken registerToken(String token);
     void logout(HttpServletRequest req);

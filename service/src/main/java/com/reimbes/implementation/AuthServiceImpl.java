@@ -89,12 +89,10 @@ public class AuthServiceImpl implements AuthService {
                     .build()
                     .verify(token.replace(TOKEN_PREFIX, ""));
             String user = decodedJWT.getSubject();
-
             String role = decodedJWT.getClaim("role").asString();
 
             if (user != null) {
                 HashMap<String, Object> userDetails = new HashMap<>();
-                // will be useful if we provide multi-access to reimsUser
                 Collection<GrantedAuthority> roles = new ArrayList();
                 roles.add(new SimpleGrantedAuthority(role));
                 userDetails.put("username", user);
@@ -106,8 +104,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String generateToken(UserDetails user, Collection authorities) {
-        String role = authorities.iterator().next().toString();
+    public String generateToken(UserDetails user) {
+        String role = user.getAuthorities().iterator().next().toString();
         log.info(String.format("Generate new token. Username: %s, Role: %s", user.getUsername(), role));
 
         String token = TOKEN_PREFIX + JWT.create()
