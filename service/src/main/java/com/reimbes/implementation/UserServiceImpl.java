@@ -177,8 +177,24 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public boolean changePassword(String password) throws NotFoundException {
+        ReimsUser user = authService.getCurrentUser();
+        if (!isValidPassword(password)) {
+            return false;
+        }
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+        return true;
+    }
+
     private boolean isUserFile(String imagePath, ReimsUser user) {
         return imagePath.contains(String.format("/%d/", user.getId()));
+    }
+
+    private boolean isValidPassword(String password) {
+        if (password.length() < 8) return false;
+        return true;
     }
 
     /* Old User Data NOT NULL indicate update medicalUser activity */

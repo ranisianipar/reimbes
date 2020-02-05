@@ -3,6 +3,7 @@ package com.reimbes;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.UserServiceImpl;
+import com.reimbes.request.ChangePasswordRequest;
 import com.reimbes.response.BaseResponse;
 import com.reimbes.response.UserResponse;
 import ma.glasnost.orika.MapperFacade;
@@ -62,6 +63,18 @@ public class UserController {
         return br;
     }
 
+    @PutMapping(value = CHANGE_PASSWORD_PREFIX)
+    public BaseResponse changePassword(@RequestBody ChangePasswordRequest request) {
+        BaseResponse br = new BaseResponse();
+        try {
+            userService.changePassword(request.getPassword());
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
+        return br;
+    }
+
     @GetMapping
     public BaseResponse getUser() {
         BaseResponse br = new BaseResponse();
@@ -74,7 +87,7 @@ public class UserController {
         return br;
     }
 
-    @GetMapping(value = UrlConstants.IMAGE_PREFIX)
+    @GetMapping(value = IMAGE_PREFIX)
     public BaseResponse getImage(@RequestParam(value = "path") String imagePath) {
         BaseResponse<String> br = new BaseResponse();
         try {
