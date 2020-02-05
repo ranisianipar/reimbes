@@ -31,22 +31,20 @@ public class UserController {
     private UserServiceImpl userService;
 
 
-
-
-    // .xls
-    @GetMapping(REPORT_PREFIX)
+    @GetMapping(value = REPORT_PREFIX)
+//    produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     public ResponseEntity<ByteArrayResource> getReport(
             @RequestParam(value = "start", defaultValue = "0") String start,
             @RequestParam(value = "end", defaultValue = "0") String end,
             @RequestParam(value = "type") String type
     ) {
         try {
+            String filename = String.format("report-dummy-%s.xlsx",type);
             byte[] file = userService.getReport(new Long(start), new Long(end), type);
             HttpHeaders header = new HttpHeaders();
-            header.setContentType(new MediaType("application", "force-download"));
-            header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report.xlsx");
-            return new ResponseEntity<>(new ByteArrayResource(file),
-                    header, HttpStatus.CREATED);
+            header.setContentType(new MediaType("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+            header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
+            return new ResponseEntity<>(new ByteArrayResource(file), header, HttpStatus.CREATED);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -59,10 +57,9 @@ public class UserController {
         BaseResponse br = new BaseResponse();
         try {
             br.setData(userService.updateMyData(user, response));
-        }   catch (ReimsException r) {
+        } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
-
 
         return br;
     }
@@ -72,7 +69,7 @@ public class UserController {
         BaseResponse br = new BaseResponse();
         try {
             br.setData(getMapper().map(userService.get(IDENTITY_CODE), UserResponse.class));
-        }   catch (ReimsException r) {
+        } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
 
@@ -97,8 +94,6 @@ public class UserController {
                 .byDefault().register();
         return mapperFactory.getMapperFacade();
     }
-
-
 
 
 }
