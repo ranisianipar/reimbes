@@ -97,10 +97,18 @@ public class UserServiceTest {
         when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
         when(userRepository.save(user)).thenReturn(userWithEncodedPass);
 
-        ReimsUser newUser = userService.create(user);
-        assertNotNull(newUser);
-        assertEquals(userWithEncodedPass.getPassword(), newUser.getPassword());
-        assertEquals(userWithEncodedPass, newUser);
+        ReimsUser result = userService.create(user);
+        verify(utilsService).getCurrentTime();
+        verify(passwordEncoder).encode(user.getPassword());
+
+        // validation
+        verify(userRepository).findByUsername(user.getUsername());
+
+        verify(userRepository).save(user);
+
+        assertNotNull(result);
+        assertEquals(userWithEncodedPass.getPassword(), result.getPassword());
+        assertEquals(userWithEncodedPass, result);
     }
 
     @Test
@@ -119,27 +127,37 @@ public class UserServiceTest {
         assertThrows(ReimsException.class, () -> {
             userService.create(user);
         });
+
+        verify(userRepository).findByUsername(user.getUsername());
     }
 
     @Test
     public void returnUpdatedUserData_whenAdminUpdateUser() throws ReimsException{
+        ReimsUser oldUser = user;
+        ReimsUser newUser = ReimsUser.ReimsUserBuilder()
+                .id(oldUser.getId())
+                .password(oldUser.getPassword())
+                .role(oldUser.getRole()).build();
+
         when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
         when(userRepository.save(user)).thenReturn(userWithEncodedPass);
+        when(userRepository.findOne(user.getId())).thenReturn(user);
 
-        ReimsUser newUser = userService.create(user);
+        newUser.setUsername(oldUser.getUsername() + "123"); // update data
 
-        when(userRepository.findOne(newUser.getId())).thenReturn(newUser);
-
-        String oldUsername = newUser.getUsername();
-        newUser.setUsername(newUser.getUsername()+"123");
-
-        when(userRepository.findByUsername(newUser.getUsername())).thenReturn(newUser);
+        when(userRepository.findByUsername(oldUser.getUsername())).thenReturn(oldUser);
         when(userRepository.save(newUser)).thenReturn(newUser);
 
-        newUser = userService.update(newUser.getId(), newUser);
+        ReimsUser result = userService.update(oldUser.getId(), newUser);
+        verify(userRepository).findOne(oldUser.getId());
 
-        assertNotEquals(newUser.getUsername(), oldUsername);
-        assertNotNull(newUser.getUpdatedAt());
+        // validation
+        verify(userRepository).findByUsername(oldUser.getUsername());
+
+        verify(passwordEncoder).encode(newUser.getPassword());
+        verify(utilsService).getCurrentTime();
+        verify(userRepository).save(newUser);
+        assertEquals(newUser, result);
     }
 
     @Test

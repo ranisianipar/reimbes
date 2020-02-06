@@ -57,8 +57,10 @@ public class UserServiceImpl implements UserService {
     public ReimsUser create(ReimsUser user) throws ReimsException {
         validate(user, null);
 
+        long currentTime = utilsService.getCurrentTime();
+
         user.setName(user.getUsername()); // default
-        user.setCreatedAt(utilsService.getCurrentTime());
+        user.setCreatedAt(currentTime);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return userRepository.save(user);
@@ -75,13 +77,16 @@ public class UserServiceImpl implements UserService {
 
         validate(newUser, oldUser);
 
-        if (id != IDENTITY_CODE) oldUser.setRole(newUser.getRole());
+        long currentTime = utilsService.getCurrentTime();
 
+        if (id != IDENTITY_CODE) {
+            oldUser.setRole(newUser.getRole());
+        }
         oldUser.setUsername(newUser.getUsername());
-        if (newUser.getPassword() != null)
+        if (newUser.getPassword() != null) {
             oldUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        oldUser.setUpdatedAt(utilsService.getCurrentTime());
-
+        }
+        oldUser.setUpdatedAt(currentTime);
         oldUser.setDivision(newUser.getDivision());
         oldUser.setGender(newUser.getGender());
         oldUser.setLicense(newUser.getLicense());
