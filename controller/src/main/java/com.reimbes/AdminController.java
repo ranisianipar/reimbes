@@ -3,6 +3,7 @@ package com.reimbes;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.interfaces.AdminService;
+import com.reimbes.request.ChangePasswordRequest;
 import com.reimbes.response.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +102,18 @@ public class AdminController {
         log.info(String.format("[DELETE] Delete user with ID: %d", id));
         BaseResponse<UserResponse> br = new BaseResponse<>();
         adminService.deleteUser(id);
+
+        return br;
+    }
+
+    @PutMapping(value = CHANGE_PASSWORD_PREFIX)
+    public BaseResponse changePassword(@RequestBody ChangePasswordRequest request) {
+        BaseResponse br = new BaseResponse();
+        try {
+            adminService.changePassword(request.getPassword());
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
 
         return br;
     }

@@ -1,5 +1,6 @@
 package com.reimbes.implementation;
 
+import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.interfaces.UtilsService;
 import org.slf4j.Logger;
@@ -132,8 +133,8 @@ public class UtilsServiceImpl implements UtilsService {
             Path path = createFile(imagePath, imageByte);
             log.info(String.format("Image writing succeed: %b", (path != null)));
 
-        } catch (IOException e) {
-            throw new ReimsException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, 500);
+        } catch (Exception e) {
+            throw new FormatTypeError(e.getMessage());
         }
 
         return imagePath; // relative path

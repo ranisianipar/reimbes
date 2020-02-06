@@ -71,6 +71,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public boolean changePassword(String password) throws NotFoundException {
+        return userService.changePassword(password);
+    }
+
+    @Override
     public ReimsUser updateUser(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
 

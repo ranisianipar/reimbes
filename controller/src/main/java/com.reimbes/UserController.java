@@ -1,6 +1,5 @@
 package com.reimbes;
 
-import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.UserServiceImpl;
 import com.reimbes.request.ChangePasswordRequest;

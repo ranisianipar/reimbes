@@ -157,7 +157,7 @@ public class ReportGeneratorServiceTest {
         String reportName = String.format("%s_%s_%s.xls", user.getUsername(), FUEL_VALUE, "ALL");
 
         when(authService.getCurrentUser()).thenReturn(user);
-        when(transactionService.getByDateAndType(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.FUEL)).thenReturn(new ArrayList<>(fuels));
+        when(transactionService.getByDateAndCategory(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.FUEL)).thenReturn(new ArrayList<>(fuels));
         when(utilsService.getFile(reportName)).thenReturn(new byte[19]);
         when(utilsService.getFile(GDN_LOGO_PATH))
                 .thenReturn(Files.readAllBytes(Paths.get(projectRootPath + GDN_LOGO_PATH)));
@@ -165,7 +165,7 @@ public class ReportGeneratorServiceTest {
         reportGeneratorService.getReport(user, DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, FUEL_VALUE);
 
         verify(authService).getCurrentUser();
-        verify(transactionService).getByDateAndType(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.FUEL);
+        verify(transactionService).getByDateAndCategory(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.FUEL);
         verify(utilsService).getFile(GDN_LOGO_PATH);
 
         Files.deleteIfExists(Paths.get(PROJECT_ROOT + "\\" + reportName));
@@ -177,7 +177,7 @@ public class ReportGeneratorServiceTest {
         String reportName = String.format("%s_%s_%s.xls", user.getUsername(), PARKING_VALUE, "ALL");
 
         when(authService.getCurrentUser()).thenReturn(user);
-        when(transactionService.getByDateAndType(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.PARKING)).thenReturn(new ArrayList<>(parkings));
+        when(transactionService.getByDateAndCategory(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.PARKING)).thenReturn(new ArrayList<>(parkings));
         when(utilsService.getFile(reportName)).thenReturn(new byte[19]);
         when(utilsService.getFile(GDN_LOGO_PATH))
                 .thenReturn(Files.readAllBytes(Paths.get(projectRootPath + GDN_LOGO_PATH)));
@@ -185,7 +185,7 @@ public class ReportGeneratorServiceTest {
         reportGeneratorService.getReport(user, DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, PARKING_VALUE);
 
         verify(authService).getCurrentUser();
-        verify(transactionService).getByDateAndType(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.PARKING);
+        verify(transactionService).getByDateAndCategory(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.PARKING);
         verify(utilsService).getFile(GDN_LOGO_PATH);
 
         Files.deleteIfExists(Paths.get(PROJECT_ROOT + "\\" + reportName));

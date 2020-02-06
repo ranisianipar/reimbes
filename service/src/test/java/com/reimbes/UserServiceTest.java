@@ -4,6 +4,11 @@ import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.*;
+import com.reimbes.interfaces.AuthService;
+import com.reimbes.interfaces.ReportGeneratorService;
+import com.reimbes.interfaces.TransactionService;
+import com.reimbes.interfaces.UtilsService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +24,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,16 +42,16 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
 
     @Mock
-    private ReportGeneratorServiceImpl reportGeneratorService;
+    private ReportGeneratorService reportGeneratorService;
 
     @Mock
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsService;
 
     @Mock
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Mock
-    private TransactionServiceImpl transactionService;
+    private TransactionService transactionService;
 
     @Mock
     private ReimsUserRepository userRepository;
@@ -61,6 +67,11 @@ public class UserServiceTest {
     private ReimsUser user;
 
     private ReimsUser userWithEncodedPass;
+
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(utilsService, authService, transactionService, userRepository, passwordEncoder);
+    }
 
     @Before
     public void setup() {
@@ -137,7 +148,7 @@ public class UserServiceTest {
         when(userRepository.save(user)).thenReturn(userWithEncodedPass);
         ReimsUser newUser = userService.create(user);
 
-        when(utilsServiceImpl.getPrincipalUsername()).thenReturn(newUser.getUsername());
+        when(utilsService.getPrincipalUsername()).thenReturn(newUser.getUsername());
         when(userRepository.findByUsername(newUser.getUsername())).thenReturn(newUser);
 
         String oldUsername = newUser.getUsername();
@@ -243,7 +254,7 @@ public class UserServiceTest {
 
     @Test
     public void returnCurrentUserData() throws ReimsException{
-        when(utilsServiceImpl.getPrincipalUsername()).thenReturn(user.getUsername());
+        when(utilsService.getPrincipalUsername()).thenReturn(user.getUsername());
         when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
 
         assertEquals(user,userService.get(1));
@@ -281,7 +292,7 @@ public class UserServiceTest {
     public void updatePersonalData() throws ReimsException {
         when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
         when(userRepository.save(user)).thenReturn(userWithEncodedPass);
-        when(utilsServiceImpl.getPrincipalUsername()).thenReturn(user.getUsername());
+        when(utilsService.getPrincipalUsername()).thenReturn(user.getUsername());
         when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
 
         String dummyToken = "123";
@@ -307,7 +318,7 @@ public class UserServiceTest {
         byte[] fakeImage = new byte[100];
         String fakeImagepath = "hahaha/x123.png";
         when(authService.getCurrentUser()).thenReturn(user);
-        when(utilsServiceImpl.getFile(fakeImagepath)).thenReturn(fakeImage);
+        when(utilsService.getFile(fakeImagepath)).thenReturn(fakeImage);
         assertThrows(NotFoundException.class, () -> userService.getImage(fakeImagepath));
     }
 
@@ -315,17 +326,39 @@ public class UserServiceTest {
     public void errorThrown_whenGetUnexistImage() throws Exception {
         String fakeImagepath = String.format("/%d/%s", user.getId(), "xoxo.jpg");
         when(authService.getCurrentUser()).thenReturn(user);
-        when(utilsServiceImpl.getFile(fakeImagepath)).thenThrow(new IOException());
+        when(utilsService.getFile(fakeImagepath)).thenThrow(new IOException());
         assertThrows(NotFoundException.class, () -> userService.getImage(fakeImagepath));
     }
 
     @Test
-    public void returnImage_whenGetImageByInvalidImagePathFormat() throws Exception {
-        byte[] fakeImage = new byte[100];
+    public void returnImage_whenGetImageByValidImagePathFormat() throws Exception {
+        byte[] expectedImage = new byte[10];
+        String expectedResult = Base64.getEncoder().encodeToString(expectedImage);
         String fakeImagepath = String.format("/%d/%s", user.getId(), "haha.jpg");
         when(authService.getCurrentUser()).thenReturn(user);
-        when(utilsServiceImpl.getFile(fakeImagepath)).thenReturn(fakeImage);
-        assertEquals(fakeImage, userService.getImage(fakeImagepath));
+        when(utilsService.getFile(fakeImagepath)).thenReturn(expectedImage);
+        assertEquals(expectedResult, userService.getImage(fakeImagepath));
+    }
+
+    @Test
+    public void returnTrue_whenChangePasswordSucceed() throws NotFoundException {
+        ReimsUser user = ReimsUser.ReimsUserBuilder().username("user 1").password("xoxoxox").build();
+        String newPassword = user.getPassword() + "123";
+        String passwordAfterEncoding = newPassword + "8913ihgvq";
+        ReimsUser userWithLatestData = ReimsUser.ReimsUserBuilder()
+                .username(user.getUsername())
+                .password(passwordAfterEncoding)
+                .build();
+
+        when(authService.getCurrentUser()).thenReturn(user);
+        when(passwordEncoder.encode(newPassword)).thenReturn(passwordAfterEncoding);
+
+        boolean result = userService.changePassword(newPassword);
+        verify(authService).getCurrentUser();
+        verify(passwordEncoder).encode(newPassword);
+        verify(userRepository).save(userWithLatestData);
+        assertTrue(result);
+
     }
 
 }

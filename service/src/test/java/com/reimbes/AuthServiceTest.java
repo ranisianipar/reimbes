@@ -15,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -39,7 +41,7 @@ public class AuthServiceTest {
 
     private UserDetails userDetails;
     private ReimsUser user;
-    private Collection authorities;
+    private Collection<GrantedAuthority> authorities;
 
 
     @Mock
@@ -69,7 +71,7 @@ public class AuthServiceTest {
                 .build();
 
         authorities = new ArrayList();
-        authorities.add(user.getRole());
+        authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
 
         userDetails = new UserDetailsImpl(user, authorities);
     }

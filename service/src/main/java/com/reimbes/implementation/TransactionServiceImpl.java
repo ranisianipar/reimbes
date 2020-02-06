@@ -38,27 +38,25 @@ public class TransactionServiceImpl implements TransactionService {
     private ReceiptMapperService receiptMapperService;
 
     @Autowired
-    private UtilsService utilsServiceImpl;
+    private UtilsService utilsService;
 
     @Override
     public Transaction createByImageAndCategory(Transaction transaction) throws ReimsException {
         ReimsUser user = authService.getCurrentUser();
         String imagePath;
         try {
-            imagePath = utilsServiceImpl.uploadImage(transaction.getImage(), user.getId(), SUB_FOLDER_TRANSACTION);
-
+            imagePath = utilsService.uploadImage(transaction.getImage(), user.getId(), SUB_FOLDER_TRANSACTION);
             log.info("Predicting attachments content... ", imagePath);
-
-            if (transaction.getCategory() ==  null) transaction.setCategory(Transaction.Category.FUEL);
-
+            if (transaction.getCategory() ==  null) {
+                transaction.setCategory(Transaction.Category.FUEL);
+            }
             transaction = receiptMapperService.map(transaction);
-
             log.info(String.format("Receipt Mapper Result %s", transaction));
+            log.info("Mapping the OCR result.");
 
         } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
         }
-            log.info("Mapping the OCR result.");
             transaction.setReimsUser(user);
             transaction.setImage(imagePath);
         return transaction;
@@ -66,43 +64,43 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction update(Transaction transaction) throws ReimsException {
+        ReimsUser user = authService.getCurrentUser();
+        long currentTime = utilsService.getCurrentTime();
 
-        // make sure update only happen once!
         validate(transaction);
 
-        transaction.setCreatedAt(utilsServiceImpl.getCurrentTime());
+        transaction.setCreatedAt(currentTime);
         transaction.setAmount(transaction.getAmount());
         transaction.setDate(transaction.getDate());
         transaction.setImage(transaction.getImage());
         transaction.setTitle(transaction.getTitle());
-        transaction.setReimsUser(authService.getCurrentUser());
+        transaction.setReimsUser(user);
 
         return transactionRepository.save(transaction);
     }
 
 
     @Override
-    public void delete(long id) throws ReimsException {
+    public boolean delete(long id) throws NotFoundException {
         ReimsUser user = authService.getCurrentUser();
         Transaction transaction = transactionRepository.findOne(id);
-        if (transaction == null || transaction.getReimsUser() != user)
+        if (transaction == null || transaction.getReimsUser() != user) {
             throw new NotFoundException("Transaction with ID "+id);
-        utilsServiceImpl.removeImage(transaction.getImage());
+        }
+        utilsService.removeImage(transaction.getImage());
         transactionRepository.delete(transaction);
+        return true;
     }
 
-    public void deleteTransactionImageByUser(ReimsUser user) {
+    public boolean deleteTransactionImageByUser(ReimsUser user) {
         List<Transaction> transactions = transactionRepository.findByReimsUser(user);
         if (transactions == null) {
-            log.info("null transaction");
-            return;
+            log.info("Find no transaction.");
+            return false;
         }
-
-        log.info("Removing the images");
-        Iterator iterator = transactions.iterator();
-        while (iterator.hasNext()) {
-            utilsServiceImpl.removeImage(((Transaction) iterator.next()).getImage());
-        }
+        log.info("Remove the images.");
+        transactions.forEach(transaction -> utilsService.removeImage(transaction.getImage()));
+        return true;
     }
 
     @Override
@@ -130,8 +128,9 @@ public class TransactionServiceImpl implements TransactionService {
         if (title == null) title = "";
 
         if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
-            if (category != null)
+            if (category != null) {
                 return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategory(user, title, category, pageable);
+            }
             return transactionRepository.findByReimsUserAndTitleContainingIgnoreCase(user, title, pageable);
         }
 
@@ -155,7 +154,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    public List<Transaction> getByDateAndType(Long start, Long end, Transaction.Category category) throws ReimsException {
+    public List<Transaction> getByDateAndCategory(Long start, Long end, Transaction.Category category) throws ReimsException {
         ReimsUser user = authService.getCurrentUser();
         if (start == DEFAULT_LONG_VALUE && end == DEFAULT_LONG_VALUE) {
             return transactionRepository.findByReimsUserAndCategory(user, category);
@@ -170,7 +169,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<Transaction> getByUserAndDate(ReimsUser user, long start, long end) {
-        if (start == new Long(0) || end == new Long(0)) return transactionRepository.findByReimsUser(user);
+        if (start == DEFAULT_LONG_VALUE || end == DEFAULT_LONG_VALUE) {
+            return transactionRepository.findByReimsUser(user);
+        }
         return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }
 
@@ -197,7 +198,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // validate attachments path
-        if (transaction.getImage() == null || !utilsServiceImpl.isFileExists(transaction.getImage()))
+        if (transaction.getImage() == null || !utilsService.isFileExists(transaction.getImage()))
             errorMessages.add("INVALID_IMAGE_PATH");
 
         // make sure the transaction use its own [NEW] attachments

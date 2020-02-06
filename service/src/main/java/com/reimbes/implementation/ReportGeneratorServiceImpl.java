@@ -190,7 +190,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         int totalAmount = 0;
         int transactionIndex = 0;
 
-        List<Transaction> parkings = transactionService.getByDateAndType(start, end, Transaction.Category.PARKING);
+        List<Transaction> parkings = transactionService.getByDateAndCategory(start, end, Transaction.Category.PARKING);
 
         /*LOOP*/
         for (Transaction transaction : parkings) {
@@ -235,7 +235,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         int totalAmount = 0;
         int transactionIndex = 0;
 
-        List<Transaction> fuels = transactionService.getByDateAndType(start, end, Transaction.Category.FUEL);
+        List<Transaction> fuels = transactionService.getByDateAndCategory(start, end, Transaction.Category.FUEL);
         /*LOOP*/
         for (Transaction transaction : fuels) {
             Fuel fuel = (Fuel) transaction;

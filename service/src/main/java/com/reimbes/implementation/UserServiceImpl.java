@@ -6,8 +6,7 @@ import com.reimbes.UserDetailsImpl;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
-import com.reimbes.interfaces.AuthService;
-import com.reimbes.interfaces.UserService;
+import com.reimbes.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +32,16 @@ public class UserServiceImpl implements UserService {
     private static Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
-    private ReportGeneratorServiceImpl reportGeneratorService;
+    private ReportGeneratorService reportGeneratorService;
 
     @Autowired
     private AuthService authService;
 
     @Autowired
-    private UtilsServiceImpl utilsService;
+    private UtilsService utilsService;
 
     @Autowired
-    private TransactionServiceImpl transactionService;
+    private TransactionService transactionService;
 
     @Autowired
     private ReimsUserRepository userRepository;
@@ -51,7 +50,7 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private FamilyMemberServiceImpl familyMemberService;
+    private FamilyMemberService familyMemberService;
 
 
     @Override
