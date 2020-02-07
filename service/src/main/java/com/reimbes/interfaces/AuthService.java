@@ -15,8 +15,7 @@ public interface AuthService {
     ReimsUser getCurrentUser() throws NotFoundException;
     ReimsUser.Role getRoleByString(String roleString);
     Session getSessionByToken(String token);
-    Session registerSession(String token, String principal);
-    Session updateSession(Session newSession) throws NotFoundException;
-    String generateToken(UserDetails user);
+    Session registerOrUpdateSession(Session session);
+    String generateOrGetToken(UserDetails user);
     void logout(HttpServletRequest req);
 }

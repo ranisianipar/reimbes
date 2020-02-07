@@ -75,11 +75,40 @@ public class AuthServiceTest {
 
     @Test
     public void generateTokenInJWT() {
-        String result = authService.generateToken(userDetails);
+        String result = authService.generateOrGetToken(userDetails);
+        verify(sessionRepository).findByUsername(userDetails.getUsername());
         verify(utilsService).getCurrentTime();
 
         assertNotEquals("", result);
         assertTrue(result.contains(TOKEN_PREFIX));
+    }
+
+    @Test
+    public void updateExpirationDate_whenTheAccountHasBeenLoggedIn() {
+        Instant now = Instant.now(Clock.fixed(
+                Instant.parse("2018-08-22T10:00:00Z"),
+                ZoneOffset.UTC));
+
+        Session session = Session.builder()
+                .token("agwehliw")
+                .username(userDetails.getUsername())
+                .expiredTime(now.toEpochMilli() + SecurityConstants.TOKEN_PERIOD)
+                .build();
+
+        when(utilsService.getCurrentTime()).thenReturn(now.toEpochMilli());
+        when(sessionRepository.findByUsername(userDetails.getUsername())).thenReturn(session);
+        when(sessionRepository.findByToken(session.getToken())).thenReturn(session);
+        when(sessionRepository.save(session)).thenReturn(session);
+
+        String result = authService.generateOrGetToken(userDetails);
+
+        verify(sessionRepository).findByUsername(userDetails.getUsername());
+        verify(sessionRepository).findByToken(session.getToken());
+        verify(sessionRepository).existsByUsername(session.getUsername());
+        verify(utilsService).getCurrentTime();
+        verify(sessionRepository).save(session);
+
+        assertEquals(session.getToken(), result);
     }
 
     @Test
@@ -88,20 +117,24 @@ public class AuthServiceTest {
                 Instant.parse("2018-08-22T10:00:00Z"),
                 ZoneOffset.UTC));
 
+        String token = "jwbeflkbawf";
+
+        Session session = Session.builder()
+                .token(token)
+                .username("ksgf")
+                .expiredTime(now.toEpochMilli() + SecurityConstants.TOKEN_PERIOD)
+                .build();
+
         when(utilsService.getCurrentTime()).thenReturn(now.toEpochMilli());
-        String token = authService.generateToken(userDetails);
-        verify(utilsService).getCurrentTime();
+        when(sessionRepository.save(session)).thenReturn(session);
 
-        Session activeToken = Session.builder().token(token).build();
-
-        authService.registerSession(token);
+        Session result = authService.registerOrUpdateSession(session);
         verify(sessionRepository).findByToken(token);
-        verify(utilsService, times(2)).getCurrentTime();
+        verify(sessionRepository).existsByUsername(session.getUsername());
+        verify(utilsService).getCurrentTime();
+        verify(sessionRepository).save(session);
 
-        activeToken.setExpiredTime(authService.getUpdatedTime());
-        verify(utilsService, times(3)).getCurrentTime();
-
-        verify(sessionRepository, times(1)).save(activeToken);
+        assertEquals(session.getToken(), result.getToken());
     }
 
     @Test
@@ -110,19 +143,19 @@ public class AuthServiceTest {
                 Instant.parse("2018-08-22T10:00:00Z"),
                 ZoneOffset.UTC));
 
-        String token = authService.generateToken(userDetails);
-        verify(utilsService, times(1)).getCurrentTime();
+        String token = "kuawgeflwigef";
 
-        Session activeToken = Session.builder().token(token).build();
-        activeToken.setExpiredTime(now.toEpochMilli() + SecurityConstants.TOKEN_PERIOD);
+        Session session = Session.builder().token(token).build();
+        session.setExpiredTime(now.toEpochMilli() + SecurityConstants.TOKEN_PERIOD);
 
         when(utilsService.getCurrentTime()).thenReturn(now.toEpochMilli());
-        when(sessionRepository.findByToken(activeToken.getToken())).thenReturn(activeToken);
-        when(sessionRepository.save(activeToken)).thenReturn(activeToken);
+        when(sessionRepository.findByToken(session.getToken())).thenReturn(session);
+        when(sessionRepository.save(session)).thenReturn(session);
 
-        Session result = authService.registerSession(token);
-        verify(utilsService, times(2)).getCurrentTime(); // 2nd calling of getCurrentTime method
+        Session result = authService.registerOrUpdateSession(session);
         verify(sessionRepository).findByToken(result.getToken());
+        verify(sessionRepository).existsByUsername(session.getUsername());
+        verify(utilsService).getCurrentTime();
         verify(sessionRepository).save(result);
     }
 
@@ -134,20 +167,19 @@ public class AuthServiceTest {
 
         when(utilsService.getCurrentTime()).thenReturn(now.toEpochMilli());
 
-        String token = authService.generateToken(userDetails);
-        verify(utilsService, times(1)).getCurrentTime();
+        String token = "kuawgeflwigef";
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(HEADER_STRING, token);
 
-        Session activeToken = Session.builder().token(token).build();
-        activeToken.setExpiredTime(authService.getUpdatedTime());
-        verify(utilsService, times(2)).getCurrentTime();
+        Session session = Session.builder().token(token).build();
+        session.setExpiredTime(authService.getUpdatedTime());
+        verify(utilsService).getCurrentTime();
 
-        when(sessionRepository.findByToken(token)).thenReturn(activeToken);
+        when(sessionRepository.findByToken(token)).thenReturn(session);
         authService.logout(request);
         verify(sessionRepository).findByToken(token);
-        verify(sessionRepository, times(1)).delete(activeToken);
+        verify(sessionRepository, times(1)).delete(session);
     }
 
 

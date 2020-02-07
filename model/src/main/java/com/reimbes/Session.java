@@ -23,4 +23,14 @@ public class Session {
 
     private ReimsUser.Role role;
 
+    public Session(long id, String token, long expiredTime, String username, ReimsUser.Role role) {
+        this.id = id;
+        this.token = token;
+        this.expiredTime = expiredTime;
+        this.username = username;
+        this.role = role;
+    }
+
+    public Session(){}
+
 }

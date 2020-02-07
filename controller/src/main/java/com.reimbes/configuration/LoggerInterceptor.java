@@ -3,7 +3,8 @@ package com.reimbes.configuration;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.reimbes.implementation.AuthServiceImpl;
+import com.reimbes.Session;
+import com.reimbes.interfaces.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +27,13 @@ public class LoggerInterceptor extends HandlerInterceptorAdapter {
     private static Logger log = LoggerFactory.getLogger(LoggerInterceptor.class);
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Override
     public boolean preHandle(
             HttpServletRequest request,
             HttpServletResponse response,
-            Object handler) throws Exception {
+            Object handler) {
 
         log.info("[PRE HANDLE][" + request + "]" + "[" + request.getMethod()
                 + "]" + request.getRequestURI() + getParameters(request));
@@ -40,7 +41,7 @@ public class LoggerInterceptor extends HandlerInterceptorAdapter {
 
 
         String token = request.getHeader(HEADER_STRING);
-        log.info("TOKEN: "+token+" AUTH SERVICE: "+authService);
+        log.info("TOKEN:", token, "AUTH SERVICE:", authService);
         if (token != null && authService != null) {
             // parse the token.
             DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
@@ -61,7 +62,7 @@ public class LoggerInterceptor extends HandlerInterceptorAdapter {
                 log.info(userDetails.toString());
 
                 // cek di baggage buat masukkin
-                authService.registerSession(token);
+                authService.registerOrUpdateSession(Session.builder().token(token).build());
                 response.setStatus(200);
 
                 return true;
@@ -93,7 +94,7 @@ public class LoggerInterceptor extends HandlerInterceptorAdapter {
         }
         String ip = request.getHeader("X-FORWARDED-FOR");
         String ipAddr = (ip == null) ? getRemoteAddr(request) : ip;
-        if (ipAddr!=null && !ipAddr.equals("")) {
+        if (ipAddr!= null && !ipAddr.equals("")) {
             posted.append("&_psip=" + ipAddr);
         }
         return posted.toString();

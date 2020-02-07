@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
         if (id != IDENTITY_CODE) {
             oldUser.setRole(newUser.getRole());
         }
-
+        oldUser.setName(newUser.getUsername());
         oldUser.setUsername(newUser.getUsername());
         oldUser.setUpdatedAt(currentTime);
         oldUser.setDivision(newUser.getDivision());
@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService {
                 .token(token)
                 .username(user.getUsername())
                 .build();
-        authService.updateSession(session);
+        authService.registerOrUpdateSession(session);
         return userWithNewData;
     }
 

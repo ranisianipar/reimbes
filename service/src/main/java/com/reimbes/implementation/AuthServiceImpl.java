@@ -47,9 +47,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean isLogin(String token) {
         log.info("Check the token is in the Active Token Repo or not");
-        Session activeToken = sessionRepository.findByToken(token);
+        Session session = sessionRepository.findByToken(token);
 
-        if (activeToken != null && activeToken.getExpiredTime() >= utilsService.getCurrentTime()) {
+        if (session != null && session.getExpiredTime() >= utilsService.getCurrentTime()) {
             return true;
         }
         log.info("Unauthenticated User try to request!");
@@ -57,32 +57,20 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Session registerSession(String token, String principal) {
+    public Session registerOrUpdateSession(Session sessionRequest) {
         log.info("Register new token...");
+        Session session = sessionRepository.findByToken(sessionRequest.getToken());
+        boolean hasLoggedIn = sessionRepository.existsByUsername(sessionRequest.getUsername());
 
-        Session session = sessionRepository.findByToken(token);
-        ReimsUser user = userService.getUserByUsername(principal);
-        if (session == null) {
-            log.info("Encapsulate new token...");
-            session = Session.builder().token(token).build();
+        if (!hasLoggedIn && (session == null)) {
+            log.info("Generate session.");
+            session = Session.builder().token(sessionRequest.getToken()).build();
         }
         log.info("Update token expired time.");
-        session.setUsername(user.getUsername());
-        session.setRole(user.getRole());
+        session.setUsername(sessionRequest.getUsername());
+        session.setRole(sessionRequest.getRole());
         session.setExpiredTime(getUpdatedTime());
         return sessionRepository.save(session);
-    }
-
-    @Override
-    public Session updateSession(Session newSession) throws NotFoundException {
-        Session oldSession = sessionRepository.findByToken(newSession.getToken());
-        if (oldSession != null) {
-            oldSession.setUsername(newSession.getUsername());
-            log.info("Update session.");
-            return sessionRepository.save(oldSession);
-        }
-        log.info("Token not found!");
-        throw new NotFoundException(String.format("Token: %s", newSession.getToken()));
     }
 
     @Override
@@ -122,8 +110,15 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String generateToken(UserDetails user) {
+    public String generateOrGetToken(UserDetails user) {
+        Session session = sessionRepository.findByUsername(user.getUsername());
+
+        if (session != null) {
+            session = registerOrUpdateSession(session);
+            return session.getToken();
+        }
         String role = user.getAuthorities().iterator().next().toString();
+
         log.info(String.format("Generate new token. Username: %s, Role: %s", user.getUsername(), role));
 
         String token = TOKEN_PREFIX + JWT.create()
@@ -139,7 +134,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ReimsUser getCurrentUser() throws NotFoundException {
         ReimsUser currentUser = userService.getUserByUsername(utilsService.getPrincipalUsername());
-        if (currentUser == null) throw new NotFoundException("Current user. Please do re-login.");
+        if (currentUser == null) {
+            throw new NotFoundException("Current user. Please do re-login.");
+        }
         return currentUser;
     }
 

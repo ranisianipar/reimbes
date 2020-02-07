@@ -3,6 +3,7 @@ package com.reimbes.interfaces;
 import com.reimbes.FamilyMember;
 import com.reimbes.Medical;
 import com.reimbes.ReimsUser;
+import com.reimbes.Session;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.springframework.data.domain.Page;
@@ -17,7 +18,7 @@ public interface AdminService {
     boolean changePassword(String password) throws NotFoundException;
 
     //  ReimsUser / Login User
-    Object updateUser(long id, ReimsUser user, HttpServletResponse response) throws ReimsException;
+    Object updateUser(long id, ReimsUser user, String token) throws ReimsException;
     void deleteUser(long id) throws ReimsException;
 
     // Family Member

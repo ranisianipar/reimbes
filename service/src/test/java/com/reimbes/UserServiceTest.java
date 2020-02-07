@@ -358,7 +358,7 @@ public class UserServiceTest {
 //        authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
 //
 //        // add token
-//        when(authService.generateToken(new UserDetailsImpl(user, authorities))).thenReturn(dummyToken);
+//        when(authService.generateOrGetToken(new UserDetailsImpl(user, authorities))).thenReturn(dummyToken);
 //
 //        MockHttpServletResponse response = new MockHttpServletResponse();
 //        ReimsUser result = userService.updateMyData(user, response);

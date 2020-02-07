@@ -14,11 +14,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 
 import static com.reimbes.constant.General.DATE_FORMAT;
 import static com.reimbes.constant.Mapper.*;
+import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 import static com.reimbes.constant.UrlConstants.*;
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
@@ -85,12 +87,12 @@ public class AdminController {
     }
 
     @PutMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM)
-    public BaseResponse<UserResponse> updateUser(@PathVariable long id, @RequestBody ReimsUser user, HttpServletResponse response){
+    public BaseResponse<UserResponse> updateUser(@PathVariable long id, @RequestBody ReimsUser user, HttpServletRequest request){
         log.info(String.format("[PUT] Update user with ID: %d", id));
 
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setData(getUserResponseMapper().map(adminService.updateUser(id, user, response), UserResponse.class));
+            br.setData(getUserResponseMapper().map(adminService.updateUser(id, user, request.getHeader(HEADER_STRING)), UserResponse.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }

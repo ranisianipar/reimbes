@@ -27,6 +27,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         registry.addInterceptor(loggerInterceptor()).addPathPatterns("/users/**","/transactions/**","/admin/**");
     }
 
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("swagger-ui.html")

@@ -3,8 +3,10 @@ package com.reimbes.authentication.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reimbes.ReimsUser;
-import com.reimbes.implementation.AuthServiceImpl;
+import com.reimbes.Session;
 import com.reimbes.UserDetailsImpl;
+import com.reimbes.interfaces.AuthService;
+import com.reimbes.request.LoginRequest;
 import com.reimbes.response.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private static Logger log = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
 
     public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
@@ -53,8 +55,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                                 HttpServletResponse res) throws AuthenticationException {
         log.info("Attempting authentication");
         try {
-            ReimsUser creds = new ObjectMapper()
-                    .readValue(req.getInputStream(), ReimsUser.class);
+            LoginRequest creds = new ObjectMapper()
+                    .readValue(req.getInputStream(), LoginRequest.class);
 
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -80,14 +82,15 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info("Authentication succeed!");
         UserDetailsImpl user = (UserDetailsImpl) auth.getPrincipal();
         Collection authorities = user.getAuthorities();
-        String token = authService.generateToken(user);
+        String token = authService.generateOrGetToken(user);
+        ReimsUser.Role role = authService.getRoleByString(authorities.iterator().next().toString());
 
         // retrieve informative response for frontend needs
         res.setHeader(HEADER_STRING, token);
         UserResponse userResponse = new UserResponse();
         userResponse.setUsername(user.getUsername());
         userResponse.setId(user.getUserId());
-        userResponse.setRole(authService.getRoleByString(authorities.iterator().next().toString()));
+        userResponse.setRole(role);
 
         // Creating Object of ObjectMapper define in Jackson Api
         ObjectMapper objectMapper = new ObjectMapper();
@@ -100,6 +103,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         out.print(userJsonString);
         out.flush();
 
-        authService.registerSession(token, user.getUsername());
+        Session session = Session.builder().token(token).username(user.getUsername()).role(role).build();
+        authService.registerOrUpdateSession(session);
     }
 }

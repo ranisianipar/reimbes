@@ -179,12 +179,14 @@ public class AdminServiceTest {
                 .id(admin.getId())
                 .build();
 
+        String token = "hehehe";
+
         MockHttpServletResponse response = new MockHttpServletResponse();
-        when(userService.updateMyData(admin, response)).thenReturn(userWithNewData); // mock response
+        when(userService.updateMyData(admin, token)).thenReturn(userWithNewData); // mock response
 
-        ReimsUser result = adminService.updateUser(admin.getId(), admin, response);
+        ReimsUser result = adminService.updateUser(admin.getId(), admin, token);
 
-        verify(userService).updateMyData(userWithNewData, response);
+        verify(userService).updateMyData(userWithNewData, token);
         assertEquals(userWithNewData, result);
     }
 

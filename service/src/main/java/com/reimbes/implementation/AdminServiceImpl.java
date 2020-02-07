@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,14 +77,16 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public ReimsUser updateUser(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
+    public ReimsUser updateUser(long id, ReimsUser user, String token) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
 
         validate(user);
 
         log.info("Check User update type, either his own data or other user");
         // if admin try to update his data
-        if (currentUser.getId() == id) return userService.updateMyData(user, response);
+        if (currentUser.getId() == id) {
+            return userService.updateMyData(user, token);
+        }
 
         log.info(String.format("Update User data with ID: %d", id));
         return userService.update(id, user);
