@@ -100,6 +100,6 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         out.print(userJsonString);
         out.flush();
 
-        authService.registerToken(token);
+        authService.registerSession(token, user.getUsername());
     }
 }

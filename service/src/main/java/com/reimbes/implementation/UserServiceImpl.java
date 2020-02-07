@@ -2,7 +2,7 @@ package com.reimbes.implementation;
 
 import com.reimbes.ReimsUser;
 import com.reimbes.ReimsUserRepository;
-import com.reimbes.UserDetailsImpl;
+import com.reimbes.Session;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
@@ -12,19 +12,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.List;
 
 import static com.reimbes.constant.General.IDENTITY_CODE;
-import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -70,10 +66,15 @@ public class UserServiceImpl implements UserService {
     public ReimsUser update(long id, ReimsUser newUser) throws ReimsException {
         ReimsUser oldUser;
 
-        if (id == IDENTITY_CODE) oldUser = userRepository.findByUsername(utilsService.getPrincipalUsername());
-        else oldUser = userRepository.findOne(id);
+        if (id == IDENTITY_CODE) {
+            oldUser = userRepository.findByUsername(utilsService.getPrincipalUsername());
+        } else {
+            oldUser = userRepository.findOne(id);
+        }
 
-        if (oldUser == null) throw new NotFoundException("USER ID " + id);
+        if (oldUser == null) {
+            throw new NotFoundException("USER ID " + id);
+        }
 
         validate(newUser, oldUser);
 
@@ -82,10 +83,8 @@ public class UserServiceImpl implements UserService {
         if (id != IDENTITY_CODE) {
             oldUser.setRole(newUser.getRole());
         }
+
         oldUser.setUsername(newUser.getUsername());
-        if (newUser.getPassword() != null) {
-            oldUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        }
         oldUser.setUpdatedAt(currentTime);
         oldUser.setDivision(newUser.getDivision());
         oldUser.setGender(newUser.getGender());
@@ -98,23 +97,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ReimsUser updateMyData(ReimsUser user, HttpServletResponse response) throws ReimsException {
+    public ReimsUser updateMyData(ReimsUser user, String token) throws ReimsException {
         ReimsUser userWithNewData = update(IDENTITY_CODE, user);
-
-        // update token with latest username
-        Collection authorities = new ArrayList();
-
-        authorities.add(new SimpleGrantedAuthority(userWithNewData.getRole().toString()));
-
-        // add token
-        String token = authService.generateToken(new UserDetailsImpl(user, authorities));
-
-        // register token
-        authService.registerToken(token);
-
-        response.setHeader(HEADER_STRING, token);
-
-        // Modify Login Response
+        Session session = Session.builder()
+                .token(token)
+                .username(user.getUsername())
+                .build();
+        authService.updateSession(session);
         return userWithNewData;
     }
 
@@ -127,12 +116,16 @@ public class UserServiceImpl implements UserService {
     public ReimsUser get(long id) throws ReimsException {
         ReimsUser user;
 
-        if (id == IDENTITY_CODE) return userRepository.findByUsername(utilsService.getPrincipalUsername());
-        else user = userRepository.findOne(id);
+        if (id == IDENTITY_CODE) {
+            return userRepository.findByUsername(utilsService.getPrincipalUsername());
+        } else {
+            user = userRepository.findOne(id);
+        }
 
         log.info(String.format("Get user with ID %d. Found => %s", id, user));
-        if (user == null)
+        if (user == null) {
             throw new NotFoundException("USER " + id);
+        }
         return user;
     }
 
@@ -142,14 +135,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(long id) {
+    public boolean delete(long id) {
         ReimsUser user = userRepository.findOne(id);
         if (user == null) {
             log.info("User with ID: ", id, " not found.");
-            return;
+            return false;
         }
         transactionService.deleteTransactionImageByUser(user);
         userRepository.delete(user);
+        return true;
     }
 
     @Override
@@ -197,8 +191,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private boolean isValidPassword(String password) {
-        if (password.length() < 8) return false;
-        return true;
+        return password.length() >= 8;
     }
 
     /* Old User Data NOT NULL indicate update medicalUser activity */

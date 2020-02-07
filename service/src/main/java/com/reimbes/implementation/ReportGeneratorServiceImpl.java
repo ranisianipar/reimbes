@@ -72,15 +72,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     @Override
     public String getReport(ReimsUser user, Long start, Long end, String reimbursementType) throws Exception {
-
-//        String filename;
-//
-//        filename = String.format("%s_%s_%s.xls", user.getUsername(), reimbursementType, "ALL");
-//        if (start != 0 && end != 0) {
-//            filename = String.format("%s_%s_%s_%s.xls", user.getUsername(), reimbursementType, start + "", end + "");
-//
-//        }
-
         /* INIT */
         //create a new workbook
         XSSFWorkbook wb = new XSSFWorkbook();

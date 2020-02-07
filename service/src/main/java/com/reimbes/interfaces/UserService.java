@@ -12,11 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 public interface UserService {
     ReimsUser create(ReimsUser user) throws ReimsException;
     ReimsUser update(long id, ReimsUser user) throws ReimsException;
-    ReimsUser updateMyData(ReimsUser newData, HttpServletResponse response) throws ReimsException;
+    ReimsUser updateMyData(ReimsUser newData, String token) throws ReimsException;
     ReimsUser getUserByUsername(String username);
     ReimsUser get(long id) throws ReimsException;
     Page getAllUsers(String username, Pageable pageable);
-    void delete(long id);
+    boolean delete(long id);
     boolean isExist(String username);
     String getReport(Long start, Long end, String reimbursementType) throws Exception;
     String getImage(String imagePath) throws ReimsException;

@@ -3,8 +3,8 @@ package com.reimbes.implementation;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.reimbes.ActiveToken;
-import com.reimbes.ActiveTokenRepository;
+import com.reimbes.Session;
+import com.reimbes.SessionRepository;
 import com.reimbes.interfaces.AuthService;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.SecurityConstants;
@@ -36,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
     private static Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     @Autowired
-    private ActiveTokenRepository activeTokenRepository;
+    private SessionRepository sessionRepository;
 
     @Autowired
     private UserService userService;
@@ -47,37 +47,50 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean isLogin(String token) {
         log.info("Check the token is in the Active Token Repo or not");
-        ActiveToken activeToken = activeTokenRepository.findByToken(token);
+        Session activeToken = sessionRepository.findByToken(token);
 
-
-        if (activeToken != null && activeToken.getExpiredTime() >= utilsService.getCurrentTime())
+        if (activeToken != null && activeToken.getExpiredTime() >= utilsService.getCurrentTime()) {
             return true;
-
-        // token expired
+        }
         log.info("Unauthenticated User try to request!");
         return false;
     }
 
     @Override
-    public ActiveToken registerToken(String token) {
-        log.info("Registering new token...");
+    public Session registerSession(String token, String principal) {
+        log.info("Register new token...");
 
-        ActiveToken activeToken = activeTokenRepository.findByToken(token);
-        if (activeToken == null)
+        Session session = sessionRepository.findByToken(token);
+        ReimsUser user = userService.getUserByUsername(principal);
+        if (session == null) {
             log.info("Encapsulate new token...");
-            activeToken = new ActiveToken(token);
-
+            session = Session.builder().token(token).build();
+        }
         log.info("Update token expired time.");
-        activeToken.setExpiredTime(getUpdatedTime());
-        return activeTokenRepository.save(activeToken);
+        session.setUsername(user.getUsername());
+        session.setRole(user.getRole());
+        session.setExpiredTime(getUpdatedTime());
+        return sessionRepository.save(session);
+    }
+
+    @Override
+    public Session updateSession(Session newSession) throws NotFoundException {
+        Session oldSession = sessionRepository.findByToken(newSession.getToken());
+        if (oldSession != null) {
+            oldSession.setUsername(newSession.getUsername());
+            log.info("Update session.");
+            return sessionRepository.save(oldSession);
+        }
+        log.info("Token not found!");
+        throw new NotFoundException(String.format("Token: %s", newSession.getToken()));
     }
 
     @Override
     public void logout(HttpServletRequest req) {
         log.info("User is logging out.");
         String token = req.getHeader(HEADER_STRING);
-        ActiveToken activeToken = activeTokenRepository.findByToken(token);
-        activeTokenRepository.delete(activeToken);
+        Session activeToken = sessionRepository.findByToken(token);
+        sessionRepository.delete(activeToken);
     }
 
     @Override
@@ -101,6 +114,11 @@ public class AuthServiceImpl implements AuthService {
             }
         }
         return null;
+    }
+
+    @Override
+    public Session getSessionByToken(String token) {
+        return sessionRepository.findByToken(token);
     }
 
     @Override

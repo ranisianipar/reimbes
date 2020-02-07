@@ -91,7 +91,7 @@ public class TransactionRepositoryTest {
 //        assertTrue(transactionRepository.existsByImage(parking.getImage()));
 //
 //        assertFalse(transactionRepository.existsByImage("123/hey.jpg"));
-        assertTrue(true);
+
     }
 
 

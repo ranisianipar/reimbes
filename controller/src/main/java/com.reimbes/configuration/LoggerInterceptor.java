@@ -61,7 +61,7 @@ public class LoggerInterceptor extends HandlerInterceptorAdapter {
                 log.info(userDetails.toString());
 
                 // cek di baggage buat masukkin
-                authService.registerToken(token);
+                authService.registerSession(token);
                 response.setStatus(200);
 
                 return true;

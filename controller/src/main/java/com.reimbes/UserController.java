@@ -12,10 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static com.reimbes.constant.General.IDENTITY_CODE;
 import static com.reimbes.constant.ResponseCode.INTERNAL_SERVER_ERROR;
+import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 import static com.reimbes.constant.UrlConstants.*;
 
 
@@ -51,10 +53,10 @@ public class UserController {
     }
 
     @PutMapping
-    public BaseResponse updateUser(@RequestBody ReimsUser user, HttpServletResponse response) {
+    public BaseResponse updateUser(@RequestBody ReimsUser user, HttpServletRequest request) {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(userService.updateMyData(user, response));
+            br.setData(userService.updateMyData(user, request.getHeader(HEADER_STRING)));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }

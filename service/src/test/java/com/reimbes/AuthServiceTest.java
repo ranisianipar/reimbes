@@ -45,7 +45,7 @@ public class AuthServiceTest {
 
 
     @Mock
-    private ActiveTokenRepository activeTokenRepository;
+    private SessionRepository sessionRepository;
 
     @Mock
     private UserService userService;
@@ -58,21 +58,18 @@ public class AuthServiceTest {
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(utilsService, userService, activeTokenRepository);
+        verifyNoMoreInteractions(utilsService, userService, sessionRepository);
     }
 
     @Before
     public void setup() {
-
         user = ReimsUser.ReimsUserBuilder()
                 .username("HAHA")
                 .password("HEHE")
                 .role(USER)
                 .build();
-
         authorities = new ArrayList();
         authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
-
         userDetails = new UserDetailsImpl(user, authorities);
     }
 
@@ -95,16 +92,16 @@ public class AuthServiceTest {
         String token = authService.generateToken(userDetails);
         verify(utilsService).getCurrentTime();
 
-        ActiveToken activeToken = new ActiveToken(token); //
+        Session activeToken = Session.builder().token(token).build();
 
-        authService.registerToken(token);
-        verify(activeTokenRepository).findByToken(token);
+        authService.registerSession(token);
+        verify(sessionRepository).findByToken(token);
         verify(utilsService, times(2)).getCurrentTime();
 
         activeToken.setExpiredTime(authService.getUpdatedTime());
         verify(utilsService, times(3)).getCurrentTime();
 
-        verify(activeTokenRepository, times(1)).save(activeToken);
+        verify(sessionRepository, times(1)).save(activeToken);
     }
 
     @Test
@@ -116,17 +113,17 @@ public class AuthServiceTest {
         String token = authService.generateToken(userDetails);
         verify(utilsService, times(1)).getCurrentTime();
 
-        ActiveToken activeToken = new ActiveToken(token);
+        Session activeToken = Session.builder().token(token).build();
         activeToken.setExpiredTime(now.toEpochMilli() + SecurityConstants.TOKEN_PERIOD);
 
         when(utilsService.getCurrentTime()).thenReturn(now.toEpochMilli());
-        when(activeTokenRepository.findByToken(activeToken.getToken())).thenReturn(activeToken);
-        when(activeTokenRepository.save(activeToken)).thenReturn(activeToken);
+        when(sessionRepository.findByToken(activeToken.getToken())).thenReturn(activeToken);
+        when(sessionRepository.save(activeToken)).thenReturn(activeToken);
 
-        ActiveToken result = authService.registerToken(token);
+        Session result = authService.registerSession(token);
         verify(utilsService, times(2)).getCurrentTime(); // 2nd calling of getCurrentTime method
-        verify(activeTokenRepository).findByToken(result.getToken());
-        verify(activeTokenRepository).save(result);
+        verify(sessionRepository).findByToken(result.getToken());
+        verify(sessionRepository).save(result);
     }
 
     @Test
@@ -143,14 +140,14 @@ public class AuthServiceTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(HEADER_STRING, token);
 
-        ActiveToken activeToken = new ActiveToken(token);
+        Session activeToken = Session.builder().token(token).build();
         activeToken.setExpiredTime(authService.getUpdatedTime());
         verify(utilsService, times(2)).getCurrentTime();
 
-        when(activeTokenRepository.findByToken(token)).thenReturn(activeToken);
+        when(sessionRepository.findByToken(token)).thenReturn(activeToken);
         authService.logout(request);
-        verify(activeTokenRepository).findByToken(token);
-        verify(activeTokenRepository, times(1)).delete(activeToken);
+        verify(sessionRepository).findByToken(token);
+        verify(sessionRepository, times(1)).delete(activeToken);
     }
 
 
@@ -158,22 +155,23 @@ public class AuthServiceTest {
     public void isLoginReturnFalse_whenRequestDoesntHaveValidToken() {
         String token = "hahah";
         assertFalse(authService.isLogin(token));
-        verify(activeTokenRepository).findByToken(token);
+        verify(sessionRepository).findByToken(token);
     }
 
     @Test
     public void isLoginReturnTrue_whenRequestHasValidToken() {
         String dummyToken = "hahahaha";
-        ActiveToken token = new ActiveToken();
-        token.setToken(dummyToken);
-        token.setExpiredTime(authService.getUpdatedTime());
+        Session token = Session.builder()
+                .token(dummyToken)
+                .expiredTime(authService.getUpdatedTime())
+                .build();
         verify(utilsService, times(1)).getCurrentTime();
-        when(activeTokenRepository.findByToken(dummyToken)).thenReturn(token);
+        when(sessionRepository.findByToken(dummyToken)).thenReturn(token);
 
         boolean result = authService.isLogin(dummyToken);
         assertTrue(result);
         verify(utilsService, times(2)).getCurrentTime();
-        verify(activeTokenRepository).findByToken(dummyToken);
+        verify(sessionRepository).findByToken(dummyToken);
     }
 
     @Test
@@ -186,7 +184,7 @@ public class AuthServiceTest {
 
         String token = TOKEN_PREFIX + JWT.create()
                 .withSubject(user.getUsername())
-                .withClaim("expire",Instant.now().getEpochSecond())
+                .withClaim("expire", Instant.now().getEpochSecond())
                 .withClaim("role", user.getRole().toString())
                 .sign(HMAC512(SECRET.getBytes()));
 
@@ -195,6 +193,7 @@ public class AuthServiceTest {
         HashMap result = authService.getCurrentUserDetails(request);
         assertNotNull(result);
     }
+
     @Test
     public void returnNull_whenGetCurrentUserDetailsWithNoToken() {
         MockHttpServletRequest request = new MockHttpServletRequest();

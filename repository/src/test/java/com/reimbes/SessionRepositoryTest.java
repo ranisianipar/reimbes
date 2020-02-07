@@ -13,48 +13,47 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-@SpringBootTest(classes = ActiveTokenRepository.class)
-public class ActiveTokenRepositoryTest {
+@SpringBootTest(classes = SessionRepository.class)
+public class SessionRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
 
     @Autowired
-    private ActiveTokenRepository activeTokenRepository;
+    private SessionRepository sessionRepository;
 
-    private ActiveToken token;
+    private Session token;
 
     @Before
     public void setup() {
         // given
-        token = new ActiveToken("xxx");
+        token = Session.builder().token("xxx").build();
         entityManager.persistAndFlush(token);
     }
 
     @Test
     public void whenFindByToken_thenReturnActiveToken() {
-        ActiveToken wantedToken = activeTokenRepository.findByToken("xxx");
+        Session wantedToken = sessionRepository.findByToken(token.getToken());
         assertEquals(token, wantedToken);
     }
 
     @Test
     public void whenDeleteByToken_thenTokenDeleted() {
-
-        ActiveToken removeSoonToken = new ActiveToken("remove me please");
+        Session removeSoonToken = Session.builder().token("remove me please").build();
         entityManager.persistAndFlush(removeSoonToken);
 
-        assertTrue(activeTokenRepository.existsByToken(removeSoonToken.getToken()));
+        assertTrue(sessionRepository.existsByToken(removeSoonToken.getToken()));
 
-        activeTokenRepository.deleteByToken(removeSoonToken.getToken());
+        sessionRepository.deleteByToken(removeSoonToken.getToken());
 
-        assertFalse(activeTokenRepository.existsByToken(removeSoonToken.getToken()));
+        assertFalse(sessionRepository.existsByToken(removeSoonToken.getToken()));
 
     }
 
     @Test
     public void whenCheckTokenExistance_thenReturnTokenExistance() {
-        assertTrue(activeTokenRepository.existsByToken("xxx"));
-        assertFalse(activeTokenRepository.existsByToken("HAHAHAH"));
+        assertTrue(sessionRepository.existsByToken(token.getToken()));
+        assertFalse(sessionRepository.existsByToken("HAHAHAH"));
 
     }
 }

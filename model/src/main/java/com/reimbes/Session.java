@@ -1,13 +1,15 @@
 package com.reimbes;
 
+import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.*;
 
-@Table(name = "Active_Tokens")
+@Table(name = "Sessions")
+@Builder
 @Data
 @Entity
-public class ActiveToken {
+public class Session {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,11 +19,8 @@ public class ActiveToken {
 
     private long expiredTime;
 
-    public ActiveToken(String token) {
-        this.token = token;
-    }
+    private String username;
 
-    public ActiveToken() {
-    }
+    private ReimsUser.Role role;
 
 }

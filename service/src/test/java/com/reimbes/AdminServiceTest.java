@@ -240,7 +240,6 @@ public class AdminServiceTest {
      *
      */
 
-
     @Test
     public void returnPageOfFamileMember_whenAdminGetAllFamilyMemberWithCriteria() throws ReimsException {
         List<FamilyMember> members = new ArrayList<>();
