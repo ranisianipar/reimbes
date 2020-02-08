@@ -24,6 +24,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body : -
 - Response Body (Success) : -
 - Response Body (Failure) : -
@@ -35,6 +36,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body : -
 
 - Response Body (Success) :
@@ -84,6 +86,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 
 - Request Body : -
 
@@ -135,6 +138,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body : -
 
 - Response Body (Success) :
@@ -177,6 +181,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body :
 
 ```json
@@ -272,6 +277,7 @@
 - Allowed User: `PUBLIC`
 - Request Header :
     - Accept : `application/json`
+    - Authorization : [token]
 - Response Body (Success) :
 
 ```json
@@ -288,6 +294,7 @@
 - Allowed User: `ADMIN`
 - Request Header :
     - Accept : `application/json`
+    - Authorization : [token]
 - Response Body (Success) :
 
 ```json
@@ -304,6 +311,7 @@
 - Allowed User: `ADMIN`
 - Request Header : 
     - Accept : `application/json`
+    - Authorization : [token]
 - Response Body (Success) :
 
 ```json
@@ -320,6 +328,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body :
 
 ```json
@@ -376,6 +385,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body :
 
 ```json
@@ -436,6 +446,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body : -
 - Response Body (Success) : -
 - Response Body (Failure) : -
@@ -447,6 +458,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body : -
 
 - Response Body (Success) :
@@ -465,3 +477,28 @@
 - Response Body (Failure) : []
 ```
   
+## Change Password
+- Endpoint : `/api/users/changepassword` [USER] | `/api/admin/users/changepassword` [ADMIN]
+- HTTP Method : `PUT`
+- Allowed User: `Authorized User`
+- Request Header :
+    - Accept : `application/json`
+    - Content-Type : `application/json`
+    - Authorization : [token]
+- Request Body : -
+
+- Response Body (Success) :
+```json
+{
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": null,
+  "data": null,
+  "success": true
+```
+- Response Header (Success) :
+    - Content-Type : `application/json`
+
+- Response Body (Failure) : -
+```

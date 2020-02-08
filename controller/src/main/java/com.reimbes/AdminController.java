@@ -108,8 +108,9 @@ public class AdminController {
         return br;
     }
 
-    @PutMapping(value = CHANGE_PASSWORD_PREFIX)
+    @PutMapping(UrlConstants.USER_PREFIX + CHANGE_PASSWORD_PREFIX)
     public BaseResponse changePassword(@RequestBody ChangePasswordRequest request) {
+        log.info(String.format("[PUT] Admin change password."));
         BaseResponse br = new BaseResponse();
         try {
             adminService.changePassword(request.getPassword());
@@ -120,7 +121,7 @@ public class AdminController {
         return br;
     }
 
-//    MEDICAL_VALUE
+    // MEDICAL_VALUE
     @GetMapping(UrlConstants.MEDICAL_PREFIX)
     public BaseResponse<Medical> getAllMedical(
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -131,8 +132,6 @@ public class AdminController {
             @RequestParam(value = "user-id", required = false) String userId,
             @RequestParam (value = "search", defaultValue = "") String search
     ) {
-        log.info(String.format("[GET] Get all medicals with criteria page: %d, size: %d, sortBy: %s, search: %s, time range: %d-%d",
-                page, size, sortBy, search, start, end));
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
 
@@ -168,7 +167,7 @@ public class AdminController {
     }
 
 
-//    FAMILY MEMBER
+    // FAMILY MEMBER
     @PostMapping(FAMILY_MEMBER_PREFIX)
     public BaseResponse<FamilyMemberResponse> addFamilyMember(
             @RequestParam(value = "user-id", defaultValue = "0") String id,
