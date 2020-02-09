@@ -132,11 +132,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ReimsUser getCurrentUser() throws NotFoundException {
+    public ReimsUser getCurrentUser() {
         ReimsUser currentUser = userService.getUserByUsername(utilsService.getPrincipalUsername());
-        if (currentUser == null) {
-            throw new NotFoundException("Current user. Please do re-login.");
-        }
         return currentUser;
     }
 

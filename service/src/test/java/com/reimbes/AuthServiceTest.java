@@ -252,7 +252,17 @@ public class AuthServiceTest {
         verify(utilsService).getPrincipalUsername();
         verify(userService).getUserByUsername(user.getUsername());
         assertEquals(user, result);
+    }
 
+    @Test
+    public void returnSession_whenPassingTokenToMethodGetSessionByToken() {
+        String token = "dummytoken";
+        Session expectedResult = Session.builder().token(token).build();
+        when(sessionRepository.findByToken(token)).thenReturn(expectedResult);
+
+        Session result = authService.getSessionByToken(token);
+        verify(sessionRepository).findByToken(token);
+        assertEquals(expectedResult, result);
     }
 
 }

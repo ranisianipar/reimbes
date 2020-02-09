@@ -1,5 +1,6 @@
 package com.reimbes;
 
+import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.AdminServiceImpl;
 import com.reimbes.interfaces.*;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.gen5.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -202,6 +203,26 @@ public class AdminServiceTest {
             adminService.deleteUser(admin.getId());
         });
 
+    }
+
+    @Test
+    public void returnTrue_whenAdminDoChangePasswordSuccessfully() throws NotFoundException {
+        String newPassword = "anyidea?";
+        when(userService.changePassword(newPassword)).thenReturn(true);
+
+        boolean result = adminService.changePassword(newPassword);
+        verify(userService).changePassword(newPassword);
+        assertTrue(result);
+    }
+
+    @Test
+    public void returnFalse_whenAdminFailedChangePassword() throws NotFoundException {
+        String newPassword = "anyidea?";
+        when(userService.changePassword(newPassword)).thenThrow( new NotFoundException("User"));
+
+        boolean result = adminService.changePassword(newPassword);
+        verify(userService).changePassword(newPassword);
+        assertFalse(result);
     }
 
     /*

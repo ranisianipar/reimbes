@@ -80,9 +80,6 @@ public class UserServiceImpl implements UserService {
 
         long currentTime = utilsService.getCurrentTime();
 
-        if (id != IDENTITY_CODE) {
-            oldUser.setRole(newUser.getRole());
-        }
         oldUser.setName(newUser.getUsername());
         oldUser.setUsername(newUser.getUsername());
         oldUser.setUpdatedAt(currentTime);

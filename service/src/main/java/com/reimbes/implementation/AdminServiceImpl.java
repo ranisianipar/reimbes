@@ -72,8 +72,13 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public boolean changePassword(String password) throws NotFoundException {
-        return userService.changePassword(password);
+    public boolean changePassword(String password) {
+        try {
+            return userService.changePassword(password);
+        } catch (ReimsException e) {
+            return false;
+        }
+
     }
 
     @Override
