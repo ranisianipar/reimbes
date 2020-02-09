@@ -27,7 +27,7 @@ public class Patient {
     private String name;
 
     @Temporal(TemporalType.DATE)
-    @JsonFormat(pattern="dd-MM-yyyy")
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date dateOfBirth;
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.REMOVE)

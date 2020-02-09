@@ -190,7 +190,7 @@
 	"password" : "blibli12345",
 	"role": "USER",
 	"gender":"MALE",
-	"dateOfBirth":"1970-11-01",
+	"dateOfBirth": "1998-08-22",
 	"license":"B XXXX XX",
 	"vehicle":"CAR"
 }
@@ -207,11 +207,9 @@
         "username": "eko1@pyeongyang.com",
         "role": "USER",
 	    "gender":"MALE",
-	    "dateOfBirth":"1970-11-01",
+	    "dateOfBirth": "1998-08-22",
 	    "license":"B XXXX XX",
 	    "vehicle":"CAR"
-        "created_at":1559058600,
-        "updated_at":0
     }
 }
 ```
@@ -333,15 +331,12 @@
 
 ```json
 {
-	"username" : "eko1@pyeongyang.com",
-	"password" : "blibli12345",
+	"username" : "eko1@pyeongyang.com"
 	"role": "USER",
 	"gender":"MALE",
-	"dateOfBirth":"1970-11-1",
+	"dateOfBirth": "1998-08-22",
 	"license":"B XXXX XX",
 	"vehicle":"CAR"
-    "created_at":1559058600,
-    "updated_at":0
 }
 ```
 
@@ -356,11 +351,9 @@
         "username": "eko1@pyeongyang.com",
         "role": "USER",
         "gender":"MALE",
-        "dateOfBirth":"1970-11-01",
+        "dateOfBirth": "1998-08-22",
         "license":"B XXXX XX",
-        "vehicle":"CAR",
-        "created_at":1559058600,
-        "updated_at":1559058655
+        "vehicle":"CAR"
     }
 }
 ```
@@ -394,7 +387,7 @@
 	"password" : "blibli12345",
 	"role": "USER",
 	"gender":"MALE",
-	"dateOfBirth":"1970-11-01",
+	"dateOfBirth": "1998-08-22",
 	"license":"B XXXX XX",
 	"vehicle":"CAR"
 }
@@ -411,11 +404,9 @@
         "username": "eko1@pyeongyang.com",
         "role": "USER",
         "gender":"MALE",
-        "dateOfBirth":"1970-11-1",
+        "dateOfBirth": "1998-08-22",
         "license":"B XXXX XX",
-        "vehicle":"CAR",
-        "created_at":1559058600,
-        "updated_at":1559058655
+        "vehicle":"CAR"
     }
 }
 ```
@@ -485,7 +476,12 @@
     - Accept : `application/json`
     - Content-Type : `application/json`
     - Authorization : [token]
-- Request Body : -
+- Request Body :
+```json
+{
+    "password": "anyidea?"
+}
+```
 
 - Response Body (Success) :
 ```json

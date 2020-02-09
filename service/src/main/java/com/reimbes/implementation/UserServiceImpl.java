@@ -122,10 +122,11 @@ public class UserServiceImpl implements UserService {
             user = userRepository.findOne(id);
         }
 
-        log.info(String.format("Get user with ID %d. Found => %s", id, user));
         if (user == null) {
             throw new NotFoundException("USER " + id);
         }
+
+        log.info(String.format("Get user with ID %d.", id));
         return user;
     }
 
