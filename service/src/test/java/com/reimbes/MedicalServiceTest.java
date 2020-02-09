@@ -68,6 +68,8 @@ public class MedicalServiceTest {
     private ReimsUser admin;
     private FamilyMember member;
 
+    private Date now = new Date();
+
     @After
     public void tearDown() {
         verifyNoMoreInteractions(utilsService, familyMemberService, userService, authService, repository);
@@ -94,7 +96,7 @@ public class MedicalServiceTest {
 
         member = FamilyMember.FamilyMemberBuilder()
                 .name("Decemberkid")
-                .dateOfBirth(new Date())
+                .dateOfBirth(now)
                 .relationship(FamilyMember.Relationship.SPOUSE)
                 .familyMemberOf(user)
                 .id(user.getId() * 10)
@@ -108,18 +110,18 @@ public class MedicalServiceTest {
         medical = Medical.builder()
                 .medicalUser(user)
                 .amount(123)
-                .date(new Date().getTime())
+                .date(now.getTime())
                 .title("HEHE")
-                .createdAt(new Date().getTime())
+                .createdAt(now.getTime())
                 .id(1)
                 .build();
 
         medicalRequest = Medical.builder()
                 .medicalUser(user)
                 .amount(123)
-                .date(new Date().getTime())
+                .date(now.getTime())
                 .title("HEHE")
-                .createdAt(new Date().getTime())
+                .createdAt(now.getTime())
                 .id(1)
                 .build();
 
