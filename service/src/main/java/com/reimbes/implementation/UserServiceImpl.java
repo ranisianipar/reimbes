@@ -174,7 +174,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean changePassword(String password) throws NotFoundException {
+    public boolean changePassword(String password) {
         ReimsUser user = authService.getCurrentUser();
         if (!isValidPassword(password)) {
             return false;
@@ -194,29 +194,30 @@ public class UserServiceImpl implements UserService {
 
     /* Old User Data NOT NULL indicate update medicalUser activity */
     private void validate(ReimsUser newUserData, ReimsUser oldUserData) throws DataConstraintException {
-        List errors = new ArrayList();
+        List<String> errors = new ArrayList<>();
 
-        // Validate the credential data
-        if (newUserData.getUsername() == null || newUserData.getUsername().isEmpty())
-            errors.add("NULL_USERNAME");
-        // when create user
-        if (oldUserData == null && (newUserData.getPassword() == null || newUserData.getPassword().isEmpty()))
+        if (newUserData.getUsername() == null || newUserData.getUsername().isEmpty()) {
+            errors.add("NULL_NAME");
+        }
+        // CREATE USER
+        if (oldUserData == null && (newUserData.getPassword() == null || newUserData.getPassword().isEmpty())) {
             errors.add("NULL_PASSWORD");
+        }
 
-        // compare new medicalUser data with other medicalUser data
         if (errors.isEmpty()) {
             ReimsUser user = userRepository.findByUsername(newUserData.getUsername());
 
-            // update
-            if (oldUserData != null && user != null && user.getId() != oldUserData.getId())
+            // UPDATE
+            if (oldUserData != null && user != null && user.getId() != oldUserData.getId()) {
                 errors.add("UNIQUENESS_USERNAME");
-
-                // create
-            else if (oldUserData == null && user != null)
+            } else if (oldUserData == null && user != null) {
+                // CREATE
                 errors.add("UNIQUENESS_USERNAME");
+            }
         }
-
-        if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
+        if (!errors.isEmpty()) {
+            throw new DataConstraintException(errors.toString());
+        }
 
     }
 

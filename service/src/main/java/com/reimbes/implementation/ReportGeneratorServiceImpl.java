@@ -107,9 +107,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                 writeMedicalReport(sheet, start, end);
         }
 
-        initFooter(sheet);
-
-//        if(wb instanceof XSSFWorkbook) filename += "x";
+        initFooter(sheet);w
 
         ByteArrayOutputStream fileOut = new ByteArrayOutputStream();
         wb.write(fileOut);

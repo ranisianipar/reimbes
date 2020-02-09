@@ -5,6 +5,9 @@ import com.reimbes.exception.ReimsException;
 import com.reimbes.interfaces.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,7 +43,9 @@ public class UtilsServiceImpl implements UtilsService {
 
     public String getPrincipalUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) return auth.getPrincipal().toString();
+        if (auth != null) {
+            return auth.getPrincipal().toString();
+        }
         return "";
 
     }
@@ -73,7 +78,7 @@ public class UtilsServiceImpl implements UtilsService {
     // cleanedPath: relative path
     public Path createDirectory(String cleanedPath) {
         log.info("Create directory: " + cleanedPath);
-        boolean isDirectoryCreated = (new File(PROJECT_ROOT + cleanedPath)).mkdirs(); // create directory even parent directeroy haven't created yet
+        boolean isDirectoryCreated = (new File(PROJECT_ROOT + cleanedPath)).mkdirs();
         log.info(String.format("Create directory, path: %s, succeed: %b", cleanedPath, isDirectoryCreated));
         return Paths.get(PROJECT_ROOT + cleanedPath);
     }
@@ -121,37 +126,41 @@ public class UtilsServiceImpl implements UtilsService {
             // confirm folder existence
             String folderPath = StringUtils.cleanPath(String.format("/%s/%d/%s/", STORAGE_FOLDERNAME, userId, subfolder));
             log.info("Done generate folder path.");
-
             if (!isFileExists(folderPath)) {
                 log.info(String.format("Directory '%s' not found! Make directory first.", folderPath));
                 createDirectory(folderPath);
             }
-
             imagePath = folderPath + generateFilename(extension); // relative path
-
-            log.info(String.format("Write attachments in this path: %s", imagePath));
             Path path = createFile(imagePath, imageByte);
             log.info(String.format("Image writing succeed: %b", (path != null)));
-
         } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
         }
-
         return imagePath; // relative path
     }
 
-    private String getExtension(String textContainExtension) {
-        // getByUser the extension
-        if (textContainExtension.contains("jpg")) return "jpg";
-        else if (textContainExtension.contains("png")) return  "png";
-        else if (textContainExtension.contains("jpeg")) return "jpeg";
-        else return null;
+    @Override
+    public Pageable getPageRequest(Pageable pageRequest) {
+        int index = pageRequest.getPageNumber() - 1;
+        return new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
     }
 
-    // millis
     @Override
     public long getCurrentTime() {
         Instant instant = Instant.now();
         return instant.toEpochMilli();
+    }
+
+    private String getExtension(String textContainExtension) {
+        // getByUser the extension
+        if (textContainExtension.contains("jpg")) {
+            return "jpg";
+        } else if (textContainExtension.contains("png")) {
+            return "png";
+        } else if (textContainExtension.contains("jpeg")) {
+            return "jpeg";
+        }
+        return null;
+
     }
 }
