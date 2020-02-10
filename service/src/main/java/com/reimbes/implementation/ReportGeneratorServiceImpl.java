@@ -107,7 +107,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                 writeMedicalReport(sheet, start, end);
         }
 
-        initFooter(sheet);w
+        initFooter(sheet);
 
         ByteArrayOutputStream fileOut = new ByteArrayOutputStream();
         wb.write(fileOut);

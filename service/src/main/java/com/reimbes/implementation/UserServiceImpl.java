@@ -67,19 +67,15 @@ public class UserServiceImpl implements UserService {
         ReimsUser oldUser;
 
         if (id == IDENTITY_CODE) {
-            oldUser = userRepository.findByUsername(utilsService.getPrincipalUsername());
+            oldUser = authService.getCurrentUser();
         } else {
             oldUser = userRepository.findOne(id);
         }
-
         if (oldUser == null) {
             throw new NotFoundException("USER ID " + id);
         }
-
         validate(newUser, oldUser);
-
         long currentTime = utilsService.getCurrentTime();
-
         oldUser.setName(newUser.getUsername());
         oldUser.setUsername(newUser.getUsername());
         oldUser.setUpdatedAt(currentTime);

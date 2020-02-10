@@ -289,11 +289,13 @@ public class TransactionServiceTest {
         Page result;
 
         when(authService.getCurrentUser()).thenReturn(user);
+        when(utilsService.getPageRequest(pageRequest)).thenReturn(pageForQuery);
         when(transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategory(user, title, category, pageForQuery))
                 .thenReturn(expectedResult);
 
         result = transactionService.getAll(pageRequest, title, start, end, category);
         verify(authService).getCurrentUser();
+        verify(utilsService).getPageRequest(pageRequest);
         verify(transactionRepository).findByReimsUserAndTitleContainingIgnoreCaseAndCategory(user, title, category, pageForQuery);
         assertEquals(expectedResult, result);
     }
@@ -310,10 +312,12 @@ public class TransactionServiceTest {
         Page result;
 
         when(authService.getCurrentUser()).thenReturn(user);
+        when(utilsService.getPageRequest(pageRequest)).thenReturn(pageForQuery);
         when(transactionRepository.findByReimsUserAndTitleContainingIgnoreCase(user, title, pageForQuery)).thenReturn(expectedResult);
 
         result = transactionService.getAll(pageRequest, title, start, end, category);
         verify(authService).getCurrentUser();
+        verify(utilsService).getPageRequest(pageRequest);
         verify(transactionRepository).findByReimsUserAndTitleContainingIgnoreCase(user, title, pageForQuery);
         assertEquals(expectedResult, result);
     }
@@ -335,11 +339,13 @@ public class TransactionServiceTest {
         Page result;
 
         when(authService.getCurrentUser()).thenReturn(user);
+        when(utilsService.getPageRequest(pageRequest)).thenReturn(pageForQuery);
         when(transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndDateBetween(user, title, start, end, pageForQuery))
                 .thenReturn(expectedResult);
 
         result = transactionService.getAll(pageRequest, title, startDate, endDate, category);
         verify(authService).getCurrentUser();
+        verify(utilsService).getPageRequest(pageRequest);
         verify(transactionRepository).findByReimsUserAndTitleContainingIgnoreCaseAndDateBetween(user, title, start, end, pageForQuery);
         assertEquals(expectedResult, result);
     }
@@ -363,11 +369,13 @@ public class TransactionServiceTest {
         Page result;
 
         when(authService.getCurrentUser()).thenReturn(user);
+        when(utilsService.getPageRequest(pageRequest)).thenReturn(pageForQuery);
         when(transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategoryAndDateBetween(user, title, category, start, end, pageForQuery))
                 .thenReturn(expectedResult);
 
         result = transactionService.getAll(pageRequest, title, startDate, endDate, category);
         verify(authService).getCurrentUser();
+        verify(utilsService).getPageRequest(pageRequest);
         verify(transactionRepository).findByReimsUserAndTitleContainingIgnoreCaseAndCategoryAndDateBetween(user, title, category, start, end, pageForQuery);
         assertEquals(expectedResult, result);
     }
@@ -380,9 +388,11 @@ public class TransactionServiceTest {
         startDate = endDate = "xys";
 
         when(authService.getCurrentUser()).thenReturn(user);
+        when(utilsService.getPageRequest(pageRequest)).thenReturn(pageForQuery);
 
         assertThrows(FormatTypeError.class, () -> transactionService.getAll(pageRequest, title, startDate, endDate, null));
         verify(authService).getCurrentUser();
+        verify(utilsService).getPageRequest(pageRequest);
     }
 
     @Test

@@ -408,10 +408,12 @@ public class MedicalServiceTest {
         Page result;
 
         when(authService.getCurrentUser()).thenReturn(admin);
+        when(utilsService.getPageRequest(pageRequest)).thenReturn(pageForQuery);
         when(repository.findByTitleContainingIgnoreCase(medical.getTitle(), pageForQuery)).thenReturn(expectedResult);
 
         result = service.getAll(pageRequest, medical.getTitle(), NULL_IN_LONG, NULL_IN_LONG, NULL_IN_LONG);
         verify(authService).getCurrentUser();
+        verify(utilsService).getPageRequest(pageRequest);
         verify(repository).findByTitleContainingIgnoreCase(medical.getTitle(), pageForQuery);
         assertEquals(expectedResult, result);
     }
@@ -424,12 +426,14 @@ public class MedicalServiceTest {
 
         when(authService.getCurrentUser()).thenReturn(admin);
         when(userService.get(user.getId())).thenReturn(user);
+        when(utilsService.getPageRequest(pageRequest)).thenReturn(pageForQuery);;
         when(repository.findByTitleContainingIgnoreCaseAndMedicalUser(medical.getTitle(), user, pageForQuery))
                 .thenReturn(expectedResult);
 
         result = service.getAll(pageRequest, medical.getTitle(), nullDate, nullDate, user.getId());
         verify(authService).getCurrentUser();
         verify(userService).get(user.getId());
+        verify(utilsService).getPageRequest(pageRequest);
         verify(repository).findByTitleContainingIgnoreCaseAndMedicalUser(medical.getTitle(), user, pageForQuery);
 
         assertEquals(expectedResult, result);
@@ -444,11 +448,13 @@ public class MedicalServiceTest {
         Page expectedResult = new PageImpl(medicals);
 
         when(authService.getCurrentUser()).thenReturn(admin);
+        when(utilsService.getPageRequest(pageRequest)).thenReturn(pageForQuery);
         when(repository.findByTitleContainingIgnoreCaseAndDateBetween(medical.getTitle(), date, date, pageForQuery))
                 .thenReturn(expectedResult);
 
         result = service.getAll(pageRequest, medical.getTitle(), date, date, nullDate);
         verify(authService).getCurrentUser();
+        verify(utilsService).getPageRequest(pageRequest);
         verify(repository).findByTitleContainingIgnoreCaseAndDateBetween(medical.getTitle(), date, date, pageForQuery);
 
         assertEquals(expectedResult, result);
@@ -462,12 +468,14 @@ public class MedicalServiceTest {
 
         when(authService.getCurrentUser()).thenReturn(admin);
         when(userService.get(user.getId())).thenReturn(user);
+        when(utilsService.getPageRequest(pageRequest)).thenReturn(pageForQuery);
         when(repository.findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(medical.getTitle(), date, date, user, pageForQuery))
                 .thenReturn(expectedResult);
 
         result = service.getAll(pageRequest, medical.getTitle(), date, date, user.getId());
         verify(authService).getCurrentUser();
         verify(userService).get(user.getId());
+        verify(utilsService).getPageRequest(pageRequest);
         verify(repository).findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(medical.getTitle(), date, date, user, pageForQuery);
 
         assertEquals(expectedResult, result);
@@ -480,11 +488,13 @@ public class MedicalServiceTest {
         Page expectedResult = new PageImpl(medicals);
 
         when(authService.getCurrentUser()).thenReturn(user);
+        when(utilsService.getPageRequest(pageRequest)).thenReturn(pageForQuery);
         when(repository.findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(medical.getTitle(), date, date, user, pageForQuery))
                 .thenReturn(expectedResult);
 
-        result = service.getAll(pageRequest, medical.getTitle(), date, date, new Long(0));
+        result = service.getAll(pageRequest, medical.getTitle(), date, date, DEFAULT_LONG_VALUE);
         verify(authService).getCurrentUser();
+        verify(utilsService).getPageRequest(pageRequest);
         verify(repository).findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(medical.getTitle(), date, date, user, pageForQuery);
 
         assertEquals(expectedResult, result);
@@ -497,11 +507,13 @@ public class MedicalServiceTest {
         Page expectedResult = new PageImpl(medicals);
 
         when(authService.getCurrentUser()).thenReturn(user);
+        when(utilsService.getPageRequest(pageRequest)).thenReturn(pageForQuery);
         when(repository.findByTitleContainingIgnoreCaseAndMedicalUser(medical.getTitle(), user, pageForQuery))
                 .thenReturn(expectedResult);
 
         result = service.getAll(pageRequest, medical.getTitle(), nullLong, nullLong, user.getId());
         verify(authService).getCurrentUser();
+        verify(utilsService).getPageRequest(pageRequest);
         verify(repository).findByTitleContainingIgnoreCaseAndMedicalUser(medical.getTitle(), user, pageForQuery);
 
         assertEquals(expectedResult, result);

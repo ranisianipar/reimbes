@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -49,8 +48,8 @@ public class FamilyMemberServiceImpl implements FamilyMemberService {
 
     public FamilyMember create(Long userId, FamilyMember member) throws ReimsException {
         ReimsUser user = userService.get(userId);
-        if (!isAllowedToCreate(user)) {
-            return null;
+        if (!isAllowedToAccess(user)) {
+            throw new DataConstraintException("Family Member can't be assigned ADMIN or may be user has reach family member limit");
         }
         FamilyMember familyMember = FamilyMember.FamilyMemberBuilder()
                 .familyMemberOf(user)
@@ -101,7 +100,8 @@ public class FamilyMemberServiceImpl implements FamilyMemberService {
 
     public void delete(long id) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
-        if (isAdmin(currentUser)) {
+        FamilyMember member = familyMemberRepository.findOne(id);
+        if (member.getFamilyMemberOf() != currentUser) {
             throw new MethodNotAllowedException("Delete family member with ID " + id);
         }
         familyMemberRepository.delete(id);
@@ -112,7 +112,7 @@ public class FamilyMemberServiceImpl implements FamilyMemberService {
         latestData.setFamilyMemberOf(member.getFamilyMemberOf());
         if (userId != NULL_USER_ID_CODE) {
             ReimsUser user = userService.get(userId);
-            if (isAdmin(user)) {
+            if (!isAdmin(user)) {
                 latestData.setFamilyMemberOf(user);
             } else {
                 throw new DataConstraintException("Family Member can't be assigned to user with role ADMIN");
@@ -129,11 +129,11 @@ public class FamilyMemberServiceImpl implements FamilyMemberService {
 
     private boolean isSufficientFamilyMemberSpace(ReimsUser user) {
         int countFamilyMember = familyMemberRepository.countByFamilyMemberOf(user);
-        return (countFamilyMember >= FAMILY_MEMBER_LIMIT);
+        return (countFamilyMember < FAMILY_MEMBER_LIMIT);
     }
 
-    private boolean isAllowedToCreate(ReimsUser user) {
-        return (isAdmin(user) || !isSufficientFamilyMemberSpace(user));
+    private boolean isAllowedToAccess(ReimsUser user) {
+        return (!isAdmin(user) && isSufficientFamilyMemberSpace(user));
     }
 
     private boolean isAdmin(ReimsUser user) {
