@@ -92,7 +92,6 @@ public class MedicalServiceImpl implements MedicalService {
         old.setPatient(patient);
         old.setAge(countAge(patient.getDateOfBirth()));
         old.setDate(newMedical.getDate());
-
         return medicalRepository.save(old);
     }
 
@@ -122,29 +121,25 @@ public class MedicalServiceImpl implements MedicalService {
             queryUser = currentUser;
         }
 
-        int index = pageRequest.getPageNumber() - 1;
-        if (index < 0) index = 0;
-        Pageable page = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
+        Pageable page = utilsService.getPageRequest(pageRequest);
 
         if (start == 0 && end == 0) {
             if (queryUser == null) return medicalRepository.findByTitleContainingIgnoreCase(title, page);
-            log.info(String.format("GET Medical by title: %s; user: %d;", title, queryUser.getId()));
             return medicalRepository.findByTitleContainingIgnoreCaseAndMedicalUser(title, queryUser, page);
         } else {
             if (queryUser == null) {
-                log.info(String.format("GET Medical by title: %s; start: %s; end: %s", title, start, end));
                 return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetween(title, start, end, page);
             }
-            log.info(String.format("GET Medical by title: %s; start: %s; end: %s, user: %d", title, start, end, queryUser.getId()));
             return medicalRepository.findByTitleContainingIgnoreCaseAndDateBetweenAndMedicalUser(title, start, end, queryUser, page);
         }
     }
 
     @Override
-    public List<Medical> getByDate(Long start, Long end) throws ReimsException {
+    public List<Medical> getByDate(Long start, Long end) {
         ReimsUser user = authService.getCurrentUser();
-        if (start == DEFAULT_LONG_VALUE && end == DEFAULT_LONG_VALUE)
+        if (start == DEFAULT_LONG_VALUE && end == DEFAULT_LONG_VALUE) {
             return medicalRepository.findByMedicalUser(user);
+        }
         return medicalRepository.findByDateBetweenAndMedicalUser(start, end, user);
     }
 
@@ -152,17 +147,20 @@ public class MedicalServiceImpl implements MedicalService {
     @Override
     public void delete(long id) throws ReimsException {
         Medical report = medicalRepository.findOne(id);
-        if (report == null || report.getMedicalUser() != authService.getCurrentUser())
+        if (report == null || report.getMedicalUser() != authService.getCurrentUser()) {
             throw new NotFoundException("MEDICAL_REPORT");
-
+        }
         medicalRepository.delete(id);
     }
 
 
     private void validate(Medical report) throws DataConstraintException {
         ArrayList<String> errors = new ArrayList();
-
-        if (report.getAmount() <= 0) errors.add("PROHIBITED_AMOUNT");
-        if (!errors.isEmpty()) throw new DataConstraintException(errors.toString());
+        if (report.getAmount() <= 0) {
+            errors.add("PROHIBITED_AMOUNT");
+        }
+        if (!errors.isEmpty()) {
+            throw new DataConstraintException(errors.toString());
+        }
     }
 }

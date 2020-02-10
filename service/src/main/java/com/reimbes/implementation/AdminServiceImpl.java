@@ -1,12 +1,12 @@
 package com.reimbes.implementation;
 
-import com.reimbes.interfaces.*;
 import com.reimbes.FamilyMember;
 import com.reimbes.Medical;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.ResponseCode;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +17,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.reimbes.constant.General.*;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -47,13 +47,12 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Page getAllUser(String search, Pageable pageRequest) throws ReimsException {
         log.info(String.format("Get all users by criteria, search: %s", search));
-
         // tha page number default is 1, but querying things start from 0.
         int index = pageRequest.getPageNumber() - 1;
-
-        if (index < 0) throw new NotFoundException("Page with negative index");
+        if (index < 0) {
+            throw new NotFoundException("Page with negative index");
+        }
         Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
-
         return userService.getAllUsers(search, pageable);
     }
 
@@ -84,15 +83,11 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public ReimsUser updateUser(long id, ReimsUser user, String token) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
-
         validate(user);
-
         log.info("Check User update type, either his own data or other user");
-        // if admin try to update his data
         if (currentUser.getId() == id) {
             return userService.updateMyData(user, token);
         }
-
         log.info(String.format("Update User data with ID: %d", id));
         return userService.update(id, user);
     }
@@ -100,8 +95,9 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void deleteUser(long id) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
-        if (currentUser.getId() == id) throw new ReimsException("SELF_DELETION", HttpStatus.METHOD_NOT_ALLOWED, 405);
-
+        if (currentUser.getId() == id) {
+            throw new ReimsException("SELF_DELETION", HttpStatus.METHOD_NOT_ALLOWED, 405);
+        }
         log.info(String.format("Delete user with ID: %d", id));
         userService.delete(id);
     }
@@ -136,8 +132,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Page<Medical> getAllMedical(Pageable page, String title, Long start, Long end, Long userId)
-            throws ReimsException {
+    public Page<Medical> getAllMedical(Pageable page, String title, Long start, Long end, Long userId) throws ReimsException {
         log.info(String.format("GET all medicals with criteria title: %s, time range: %d-%d, User Id: %d",
                 title, start, end, userId));
         return medicalService.getAll(page, title, start, end, userId);
@@ -151,18 +146,17 @@ public class AdminServiceImpl implements AdminService {
 
     private void validate(ReimsUser newUser) throws ReimsException {
         log.info("Validate user data.");
-
         List<String> errors = new ArrayList<>();
-
-        if (newUser.getRole() == null)
-            errors.add("NULL_ATTRIBUTE_ROLE");
-        else if (newUser.getRole() == ReimsUser.Role.USER && newUser.getGender() == null)
-            errors.add("NULL_ATTRIBUTE_GENDER");
-
-        if (newUser.getRole() == ReimsUser.Role.USER && newUser.getDateOfBirth() == null)
-            errors.add("NULL_ATTRIBUTE_DATE_OF_BIRTH");
-
-        if (!errors.isEmpty())
+        if (newUser.getRole() == null) {
+            errors.add(NULL_ROLE);
+        } else if (newUser.getRole() == ReimsUser.Role.USER && newUser.getGender() == null) {
+            errors.add(NULL_GENDER);
+        }
+        if (newUser.getRole() == ReimsUser.Role.USER && newUser.getDateOfBirth() == null) {
+            errors.add(NULL_DATE_OF_BIRTH);
+        }
+        if (!errors.isEmpty()) {
             throw new ReimsException(errors.toString(), HttpStatus.BAD_REQUEST, ResponseCode.BAD_REQUEST);
+        }
     }
 }

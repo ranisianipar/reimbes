@@ -61,7 +61,6 @@ public class AuthServiceImpl implements AuthService {
         log.info("Register new token...");
         Session session = sessionRepository.findByToken(sessionRequest.getToken());
         boolean hasLoggedIn = sessionRepository.existsByUsername(sessionRequest.getUsername());
-
         if (!hasLoggedIn && (session == null)) {
             log.info("Generate session.");
             session = Session.builder().token(sessionRequest.getToken()).build();
@@ -85,7 +84,6 @@ public class AuthServiceImpl implements AuthService {
     public HashMap getCurrentUserDetails(HttpServletRequest request) {
         String token = request.getHeader(HEADER_STRING);
         if (token != null) {
-            // parse the token.
             DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
                     .build()
                     .verify(token.replace(TOKEN_PREFIX, ""));

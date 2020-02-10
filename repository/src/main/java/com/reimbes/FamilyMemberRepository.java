@@ -10,7 +10,8 @@ import java.util.List;
 @Repository
 public interface FamilyMemberRepository extends JpaRepository<FamilyMember, Long> {
      FamilyMember findByName(String name);
-
      Page<FamilyMember> findByFamilyMemberOfAndNameContainingIgnoreCase(ReimsUser employee, String name, Pageable pageable);
      Page<FamilyMember> findByNameContainingIgnoreCase(String name, Pageable pageable);
+     int countByFamilyMemberOf(ReimsUser user);
+
 }
