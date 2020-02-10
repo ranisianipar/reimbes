@@ -73,11 +73,8 @@ public class TransactionRepositoryTest {
         parking.setTitle("The parking");
         parking.setCategory(Transaction.Category.PARKING);
         parking.setImage(String.format("/%d/pqr.jpg",user.getId()));
-        parking.setType(Parking.Type.CAR);
         parking.setLocation("Thamrin");
         parking.setCreatedAt(now.toEpochMilli());
-        parking.setLicense("K JKSZ PJ");
-        parking.setHours(4);
         parking.setAmount(21000);
 
         userRepository.save(user);
@@ -94,7 +91,7 @@ public class TransactionRepositoryTest {
 //        assertTrue(transactionRepository.existsByImage(parking.getImage()));
 //
 //        assertFalse(transactionRepository.existsByImage("123/hey.jpg"));
-        assertTrue(true);
+
     }
 
 

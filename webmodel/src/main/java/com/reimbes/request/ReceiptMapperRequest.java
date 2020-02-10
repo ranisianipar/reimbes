@@ -6,11 +6,9 @@ import lombok.Data;
 @Data
 @Builder
 public class ReceiptMapperRequest {
-    private String requestId;
     private String image;
 
-    public ReceiptMapperRequest(String requestId, String image) {
-        this.requestId = requestId;
+    public ReceiptMapperRequest(String image) {
         this.image = image;
     }
 }

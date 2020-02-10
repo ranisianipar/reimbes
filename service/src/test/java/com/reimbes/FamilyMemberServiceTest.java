@@ -4,10 +4,12 @@ import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.MethodNotAllowedException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
-import com.reimbes.implementation.AuthServiceImpl;
 import com.reimbes.implementation.FamilyMemberServiceImpl;
-import com.reimbes.implementation.UserServiceImpl;
-import com.reimbes.implementation.UtilsServiceImpl;
+import com.reimbes.interfaces.AuthService;
+import com.reimbes.interfaces.FamilyMemberService;
+import com.reimbes.interfaces.UserService;
+import com.reimbes.interfaces.UtilsService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +29,7 @@ import java.util.*;
 
 import static com.reimbes.ReimsUser.Role.ADMIN;
 import static com.reimbes.ReimsUser.Role.USER;
+import static com.reimbes.constant.General.NULL_USER_ID_CODE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.gen5.api.Assertions.assertThrows;
@@ -41,13 +44,13 @@ public class FamilyMemberServiceTest {
     private FamilyMemberRepository repository;
 
     @Mock
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Mock
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Mock
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsService;
 
     @InjectMocks
     private FamilyMemberServiceImpl service;
@@ -63,6 +66,11 @@ public class FamilyMemberServiceTest {
     private FamilyMember familyMember2;
 
     private Set<FamilyMember> familyMembers;
+
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(utilsService, userService, authService, repository);
+    }
 
     @Before
     public void setUp() throws ParseException {
@@ -117,29 +125,49 @@ public class FamilyMemberServiceTest {
     }
 
     @Test
+    public void returnNullWhenCreateFamilyMemberForAdmin() throws Exception {
+        FamilyMember result;
+
+        when(userService.get(admin.getId())).thenReturn(admin);
+
+        // Prohibit family member for ADMIN
+        result = service.create(admin.getId(), familyMember);
+        verify(userService).get(admin.getId());
+
+        assertNull(result);
+    }
+
+    @Test
+    public void throwError_whenAdminCreateFamilyMemberForUnexistUser() throws Exception {
+        ReimsUser dummyUser = ReimsUser.ReimsUserBuilder().id(12414).build();
+        when(userService.get(dummyUser.getId())).thenThrow(new NotFoundException(dummyUser.getId() + ""));
+        assertThrows(NotFoundException.class, () -> service.create(dummyUser.getId(), familyMember));
+        verify(userService).get(dummyUser.getId());
+    }
+
+    @Test
     public void succeedRegisterFamilyMemberForMaleUser() throws Exception {
         Instant now = Instant.now(Clock.fixed(
                 Instant.parse("2018-08-22T10:00:00Z"),
                 ZoneOffset.UTC));
-
-        when(utilsServiceImpl.getCurrentTime()).thenReturn(now.toEpochMilli());
-        when(userService.get(familyMember.getFamilyMemberOf().getId())).thenReturn(familyMember.getFamilyMemberOf());
-
-        // Prohibit family member for ADMIN
-        maleUser.setRole(ADMIN);
-        assertNull(service.create(maleUser.getId(), familyMember));
-
-        // createdAt is set in create() method
-        maleUser.setRole(USER);
+        FamilyMember result;
         familyMember.setCreatedAt(now.toEpochMilli());
-        when(repository.save(familyMember)).thenReturn(familyMember);
 
-        assertEquals(familyMember, service.create(maleUser.getId(), familyMember));
+        when(userService.get(familyMember.getFamilyMemberOf().getId())).thenReturn(familyMember.getFamilyMemberOf());
+        when(utilsService.getCurrentTime()).thenReturn(now.toEpochMilli());
+
+        result = service.create(familyMember.getFamilyMemberOf().getId(), familyMember);
+
+        verify(userService).get(familyMember.getFamilyMemberOf().getId());
+        verify(repository).findByName(familyMember.getName());
+        verify(utilsService).getCurrentTime();
+        verify(repository).save(familyMember);
+
+        assertNull(result);
     }
 
     @Test
     public void errorThrown_whenAdminCreateFamilyMemberWithInvalidData() throws ReimsException {
-        when(authService.getCurrentUser()).thenReturn(admin);
         when(userService.get(maleUser.getId())).thenReturn(maleUser);
 
         familyMember.setName(null);
@@ -149,11 +177,11 @@ public class FamilyMemberServiceTest {
         assertThrows(DataConstraintException.class, () -> {
             service.create(maleUser.getId(), familyMember);
         });
+        verify(userService).get(maleUser.getId());
     }
 
     @Test
     public void errorThrown_whenAdminCreateFamilyMemberWithDuplicateFamilyMemberData() throws ReimsException {
-        when(authService.getCurrentUser()).thenReturn(admin);
         when(userService.get(maleUser.getId())).thenReturn(maleUser);
         familyMember2.setName(familyMember.getName());
         when(repository.findByName(familyMember.getName())).thenReturn(familyMember2);
@@ -161,6 +189,9 @@ public class FamilyMemberServiceTest {
         assertThrows(DataConstraintException.class, () -> {
             service.create(maleUser.getId(), familyMember);
         });
+
+        verify(userService).get(maleUser.getId());
+        verify(repository).findByName(familyMember.getName()); // validation
     }
 
     @Test
@@ -168,7 +199,11 @@ public class FamilyMemberServiceTest {
         when(authService.getCurrentUser()).thenReturn(admin);
         when(repository.findOne(familyMember.getId())).thenReturn(familyMember);
 
-        assertEquals(familyMember, service.getById(familyMember.getId()));
+        FamilyMember result = service.getById(familyMember.getId());
+        verify(authService).getCurrentUser();
+        verify(repository).findOne(familyMember.getId());
+
+        assertEquals(familyMember, result);
     }
 
     @Test
@@ -176,7 +211,11 @@ public class FamilyMemberServiceTest {
         when(authService.getCurrentUser()).thenReturn(maleUser);
         when(repository.findOne(familyMember.getId())).thenReturn(familyMember);
 
-        assertEquals(familyMember, service.getById(familyMember.getId()));
+        FamilyMember result = service.getById(familyMember.getId());
+        verify(authService).getCurrentUser();
+        verify(repository).findOne(familyMember.getId());
+
+        assertEquals(familyMember, result);
     }
 
     @Test
@@ -187,6 +226,9 @@ public class FamilyMemberServiceTest {
         assertThrows(NotFoundException.class, () -> {
             service.getById(familyMember.getId());
         });
+
+        verify(authService).getCurrentUser();
+        verify(repository).findOne(familyMember.getId());
     }
 
     @Test
@@ -195,19 +237,30 @@ public class FamilyMemberServiceTest {
         when(repository.save(familyMember2)).thenReturn(familyMember2);
         when(userService.get(maleUser.getId())).thenReturn(maleUser);
 
-        assertEquals(familyMember2, service.update(familyMember.getId(), familyMember2, maleUser.getId()));
+        FamilyMember result = service.update(familyMember.getId(), familyMember2, maleUser.getId());
+        verify(repository).findOne(familyMember.getId());
+        verify(userService).get(maleUser.getId());
+        verify(repository).findByName(familyMember.getName()); // validation
+        verify(repository).save(familyMember2);
+
+        assertEquals(familyMember2, result);
+
     }
 
     @Test
     public void errorThrown_whenAdminUpdateFamilyMemberAndAssignedMemberToAdmin() throws Exception {
         familyMember.setFamilyMemberOf(admin);
+
         when(repository.findOne(familyMember.getId())).thenReturn(familyMember);
-        when(repository.save(familyMember2)).thenReturn(familyMember2);
         when(userService.get(admin.getId())).thenReturn(admin);
 
         assertThrows(DataConstraintException.class, () -> {
             service.update(familyMember.getId(), familyMember2, admin.getId());
-        } );
+        });
+
+        verify(repository).findOne(familyMember.getId());
+        verify(userService).get(admin.getId());
+
     }
 
     @Test
@@ -216,11 +269,13 @@ public class FamilyMemberServiceTest {
 
         when(repository.findOne(familyMember2.getId())).thenReturn(familyMember2);
         when(repository.findByName(familyMember2.getName())).thenReturn(familyMember);
-        when(userService.get(maleUser.getId())).thenReturn(maleUser);
 
         assertThrows(DataConstraintException.class, () -> {
-            service.update(familyMember2.getId(), familyMember2, new Long(0));
-        } );
+            service.update(familyMember2.getId(), familyMember2, NULL_USER_ID_CODE); // update for himself
+        });
+
+        verify(repository).findOne(familyMember2.getId());
+        verify(repository).findByName(familyMember2.getName());
 
     }
 
@@ -229,43 +284,15 @@ public class FamilyMemberServiceTest {
     public void removeFamilyMember() throws ReimsException {
         when(authService.getCurrentUser()).thenReturn(admin);
         service.delete(familyMember.getId());
+        verify(authService).getCurrentUser();
         verify(repository, times(1)).delete(familyMember.getId());
     }
 
     @Test
     public void errorThrown_whenUserTryToRemoveFamilyMember() throws ReimsException {
         when(authService.getCurrentUser()).thenReturn(maleUser);
-        assertThrows(MethodNotAllowedException.class, () -> {
-            service.delete(familyMember.getId());
-        });
-    }
-
-    @Test
-    public void getAllFamilyMember_forAdmin() throws ReimsException {
-        when(authService.getCurrentUser()).thenReturn(admin);
-
-        service.getAll(maleUser.getId(), familyMember.getName(), pageRequest);
-    }
-
-    @Test
-    public void getAllByUser_noQuery_succeed() {
-        List<FamilyMember> members = new ArrayList<>();
-        members.add(familyMember);
-        Page page = new PageImpl(members);
-
-        when(repository.findByNameContainingIgnoreCase(familyMember.getName(), pageRequest)).thenReturn(page);
-        assertEquals(page, service.getAllByUser(null, familyMember.getName(), pageRequest));
-    }
-
-    @Test
-    public void getAllByUser_withUserQuery_succeed() {
-        List<FamilyMember> members = new ArrayList<>();
-        members.add(familyMember);
-        Page page = new PageImpl(members);
-
-        when(repository.findByFamilyMemberOfAndNameContainingIgnoreCase(maleUser, familyMember.getName(), pageRequest))
-                .thenReturn(page);
-        assertEquals(page, service.getAllByUser(maleUser, familyMember.getName(), pageRequest));
+        assertThrows(MethodNotAllowedException.class, () -> service.delete(familyMember.getId()));
+        verify(authService).getCurrentUser();
     }
 
     @Test
@@ -273,16 +300,16 @@ public class FamilyMemberServiceTest {
         List<FamilyMember> members = new ArrayList<>();
         members.add(familyMember);
         Page page = new PageImpl(members);
+        Page result;
 
         when(authService.getCurrentUser()).thenReturn(maleUser); // set current user
         when(service.getAllByUser(maleUser, familyMember.getName(), pageForQuery)).thenReturn(page);
 
-        assertEquals(page, service.getAll(null, familyMember.getName(), pageRequest));
+        result = service.getAll(null, familyMember.getName(), pageRequest);
+        verify(authService).getCurrentUser();
+        verify(repository).findByFamilyMemberOfAndNameContainingIgnoreCase(maleUser, familyMember.getName(), pageForQuery);
 
-
-        when(repository.findByFamilyMemberOfAndNameContainingIgnoreCase(maleUser, familyMember.getName(), pageRequest))
-                .thenReturn(page);
-        assertEquals(page, service.getAllByUser(maleUser, familyMember.getName(), pageRequest));
+        assertEquals(page, result);
     }
 
     @Test
@@ -290,12 +317,17 @@ public class FamilyMemberServiceTest {
         List<FamilyMember> members = new ArrayList<>();
         members.add(familyMember);
         Page page = new PageImpl(members);
+        Page result;
 
         when(authService.getCurrentUser()).thenReturn(admin); // set current user
         when(userService.get(maleUser.getId())).thenReturn(maleUser); // set current user
-        when(service.getAllByUser(maleUser, familyMember.getName(), pageForQuery)).thenReturn(page);
+        when(repository.findByFamilyMemberOfAndNameContainingIgnoreCase(maleUser, familyMember.getName(), pageForQuery)).thenReturn(page);
 
-        assertEquals(page, service.getAll(maleUser.getId(), familyMember.getName(), pageRequest));
+        result = service.getAll(maleUser.getId(), familyMember.getName(), pageRequest);
+        verify(authService).getCurrentUser();
+        verify(userService).get(maleUser.getId());
+        verify(repository).findByFamilyMemberOfAndNameContainingIgnoreCase(maleUser, familyMember.getName(), pageForQuery);
+        assertEquals(page, result);
     }
 
     @Test
@@ -303,11 +335,15 @@ public class FamilyMemberServiceTest {
         List<FamilyMember> members = new ArrayList<>();
         members.add(familyMember);
         Page page = new PageImpl(members);
+        Page result;
 
         when(authService.getCurrentUser()).thenReturn(admin); // set current user
-        when(service.getAllByUser(null, familyMember.getName(), pageForQuery)).thenReturn(page);
+        when(repository.findByNameContainingIgnoreCase(familyMember.getName(), pageForQuery)).thenReturn(page);
 
-        assertEquals(page, service.getAll(null, familyMember.getName(), pageRequest));
+        result = service.getAll(null, familyMember.getName(), pageRequest);
+        verify(authService).getCurrentUser();
+        verify(repository).findByNameContainingIgnoreCase(familyMember.getName(), pageForQuery);
+        assertEquals(page, result);
     }
 
 

@@ -1,6 +1,11 @@
 package com.reimbes;
 
-import com.reimbes.implementation.*;
+import com.reimbes.implementation.ReportGeneratorServiceImpl;
+import com.reimbes.interfaces.AuthService;
+import com.reimbes.interfaces.MedicalService;
+import com.reimbes.interfaces.TransactionService;
+import com.reimbes.interfaces.UtilsService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +24,7 @@ import java.util.Set;
 
 import static com.reimbes.ReimsUser.Role.USER;
 import static com.reimbes.constant.General.*;
+import static com.reimbes.constant.UrlConstants.GDN_LOGO_PATH;
 import static com.reimbes.constant.UrlConstants.PROJECT_ROOT;
 import static org.mockito.Mockito.*;
 
@@ -29,24 +35,30 @@ import static org.mockito.Mockito.*;
 public class ReportGeneratorServiceTest {
 
     @Mock
-    private TransactionServiceImpl transactionService;
+    private TransactionService transactionService;
 
     @Mock
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsService;
 
     @Mock
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Mock
-    private MedicalServiceImpl medicalService;
+    private MedicalService medicalService;
 
     @InjectMocks
     private ReportGeneratorServiceImpl reportGeneratorService;
 
+    private String projectRootPath = "C:\\Users\\Z\\Documents\\code\\haha\\reimbes\\";
     private ReimsUser user;
     private Set<Transaction> fuels = new HashSet<>();
     private Set<Transaction> parkings = new HashSet<>();
     private Set<Medical> medicals = new HashSet<>();
+
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(medicalService, utilsService, transactionService, authService);
+    }
 
     @Before
     public void setup() {
@@ -72,13 +84,10 @@ public class ReportGeneratorServiceTest {
         Transaction parking = new Parking();
         parking.setTitle("PARKIR");
         parking.setAmount(21000);
-        ((Parking) parking).setType(Parking.Type.CAR);
         parking.setImage("0/b.jpg");
         parking.setDate(Instant.now().getEpochSecond());
         parking.setReimsUser(user);
         parking.setCategory(Transaction.Category.PARKING);
-        ((Parking) parking).setHours(3);
-        ((Parking) parking).setLicense("RI 1");
         parking.setLocation("Thamrin");
 
         fuels.add(fuel);
@@ -102,21 +111,21 @@ public class ReportGeneratorServiceTest {
     }
 
     @Test
-    public void whenCreateReportWithRangeOfDateAndTypeMedical_thenReturnReportContainsListOfMedicals() throws Exception{
+    public void whenCreateReportWithRangeOfDateAndTypeMedical_thenReturnReportContainsListOfMedicals() throws Exception {
         Long time = Instant.now().toEpochMilli();
-        String reportName = String.format("%s_%s_%s_%s.xls", user.getUsername(), MEDICAL, time, time);
-        String BLIBLI_LOGO_PATH = "image/blibli-logo.png";
+        String reportName = String.format("%s_%s_%s_%s.xls", user.getUsername(), MEDICAL_VALUE, time, time);
 
         when(authService.getCurrentUser()).thenReturn(user);
         when(medicalService.getByDate(time, time)).thenReturn(new ArrayList<>(medicals));
-        when(utilsServiceImpl.getFile(reportName)).thenReturn(new byte[19]);
-        when(utilsServiceImpl.getFile(BLIBLI_LOGO_PATH))
-                .thenReturn(Files.readAllBytes(Paths.get("C:\\Users\\Z\\Documents\\code\\haha\\reimbes\\" + BLIBLI_LOGO_PATH)));
+        when(utilsService.getFile(reportName)).thenReturn(new byte[19]);
+        when(utilsService.getFile(GDN_LOGO_PATH))
+                .thenReturn(Files.readAllBytes(Paths.get(projectRootPath + GDN_LOGO_PATH)));
 
-        reportGeneratorService.getReport(user, time, time, MEDICAL);
+        reportGeneratorService.getReport(user, time, time, MEDICAL_VALUE);
 
-        verify(medicalService, times(1)).getByDate(time, time);
-
+        verify(authService).getCurrentUser();
+        verify(medicalService).getByDate(time, time);
+        verify(utilsService).getFile(GDN_LOGO_PATH);
 
         Files.deleteIfExists(Paths.get(PROJECT_ROOT + "\\" + reportName));
 
@@ -124,57 +133,60 @@ public class ReportGeneratorServiceTest {
 
 
     @Test
-    public void whenCreateReportWithoutRangeOfDateAndWithTypeMedical_thenReturnReportContainsListOfMedicals() throws Exception{
-        String reportName = String.format("%s_%s_%s.xls", user.getUsername(), MEDICAL, "ALL");
-        String BLIBLI_LOGO_PATH = "image/blibli-logo.png";
+    public void whenCreateReportWithoutRangeOfDateAndWithTypeMedical_thenReturnReportContainsListOfMedicals() throws Exception {
+        String reportName = String.format("%s_%s_%s.xls", user.getUsername(), MEDICAL_VALUE, "ALL");
 
         when(authService.getCurrentUser()).thenReturn(user);
-        when(medicalService.getByDate(INFINITE_DATE_RANGE, INFINITE_DATE_RANGE)).thenReturn(new ArrayList<>(medicals));
-        when(utilsServiceImpl.getFile(reportName)).thenReturn(new byte[19]);
-        when(utilsServiceImpl.getFile(BLIBLI_LOGO_PATH))
-                .thenReturn(Files.readAllBytes(Paths.get("C:\\Users\\Z\\Documents\\code\\haha\\reimbes\\" + BLIBLI_LOGO_PATH)));
+        when(medicalService.getByDate(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE)).thenReturn(new ArrayList<>(medicals));
+        when(utilsService.getFile(reportName)).thenReturn(new byte[19]);
+        when(utilsService.getFile(GDN_LOGO_PATH))
+                .thenReturn(Files.readAllBytes(Paths.get(projectRootPath + GDN_LOGO_PATH)));
 
-        reportGeneratorService.getReport(user, INFINITE_DATE_RANGE, INFINITE_DATE_RANGE, MEDICAL);
+        reportGeneratorService.getReport(user, DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, MEDICAL_VALUE);
 
-        verify(medicalService, times(1)).getByDate(INFINITE_DATE_RANGE, INFINITE_DATE_RANGE);
+        verify(authService).getCurrentUser();
+        verify(medicalService).getByDate(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE);
+        verify(utilsService).getFile(GDN_LOGO_PATH);
 
         Files.deleteIfExists(Paths.get(PROJECT_ROOT + "\\" + reportName));
 
     }
 
     @Test
-    public void whenCreateReportWithoutRangeOfDateAndWithTypeFuel_thenReturnReportOfAllTransactions() throws Exception{
-        String reportName = String.format("%s_%s_%s.xls", user.getUsername(), FUEL, "ALL");
-        String BLIBLI_LOGO_PATH = "image/blibli-logo.png";
+    public void whenCreateReportWithoutRangeOfDateAndWithTypeFuel_thenReturnReportOfAllTransactions() throws Exception {
+        String reportName = String.format("%s_%s_%s.xls", user.getUsername(), FUEL_VALUE, "ALL");
 
         when(authService.getCurrentUser()).thenReturn(user);
-        when(transactionService.getByDateAndType(INFINITE_DATE_RANGE, INFINITE_DATE_RANGE, Transaction.Category.FUEL)).thenReturn(new ArrayList<>(fuels));
-        when(utilsServiceImpl.getFile(reportName)).thenReturn(new byte[19]);
-        when(utilsServiceImpl.getFile(BLIBLI_LOGO_PATH))
-                .thenReturn(Files.readAllBytes(Paths.get("C:\\Users\\Z\\Documents\\code\\haha\\reimbes\\" + BLIBLI_LOGO_PATH)));
+        when(transactionService.getByDateAndCategory(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.FUEL)).thenReturn(new ArrayList<>(fuels));
+        when(utilsService.getFile(reportName)).thenReturn(new byte[19]);
+        when(utilsService.getFile(GDN_LOGO_PATH))
+                .thenReturn(Files.readAllBytes(Paths.get(projectRootPath + GDN_LOGO_PATH)));
 
-        reportGeneratorService.getReport(user, INFINITE_DATE_RANGE, INFINITE_DATE_RANGE, FUEL);
+        reportGeneratorService.getReport(user, DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, FUEL_VALUE);
 
-        verify(transactionService, times(1)).getByDateAndType(INFINITE_DATE_RANGE, INFINITE_DATE_RANGE, Transaction.Category.FUEL);
+        verify(authService).getCurrentUser();
+        verify(transactionService).getByDateAndCategory(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.FUEL);
+        verify(utilsService).getFile(GDN_LOGO_PATH);
 
         Files.deleteIfExists(Paths.get(PROJECT_ROOT + "\\" + reportName));
 
     }
 
     @Test
-    public void whenCreateReportWithoutRangeOfDateAndWithTypeParking_thenReturnReportOfAllTransactions() throws Exception{
-        String reportName = String.format("%s_%s_%s.xls", user.getUsername(), PARKING, "ALL");
-        String BLIBLI_LOGO_PATH = "image/blibli-logo.png";
+    public void whenCreateReportWithoutRangeOfDateAndWithTypeParking_thenReturnReportOfAllTransactions() throws Exception {
+        String reportName = String.format("%s_%s_%s.xls", user.getUsername(), PARKING_VALUE, "ALL");
 
         when(authService.getCurrentUser()).thenReturn(user);
-        when(transactionService.getByDateAndType(INFINITE_DATE_RANGE, INFINITE_DATE_RANGE, Transaction.Category.PARKING)).thenReturn(new ArrayList<>(parkings));
-        when(utilsServiceImpl.getFile(reportName)).thenReturn(new byte[19]);
-        when(utilsServiceImpl.getFile(BLIBLI_LOGO_PATH))
-                .thenReturn(Files.readAllBytes(Paths.get("C:\\Users\\Z\\Documents\\code\\haha\\reimbes\\" + BLIBLI_LOGO_PATH)));
+        when(transactionService.getByDateAndCategory(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.PARKING)).thenReturn(new ArrayList<>(parkings));
+        when(utilsService.getFile(reportName)).thenReturn(new byte[19]);
+        when(utilsService.getFile(GDN_LOGO_PATH))
+                .thenReturn(Files.readAllBytes(Paths.get(projectRootPath + GDN_LOGO_PATH)));
 
-        reportGeneratorService.getReport(user, INFINITE_DATE_RANGE, INFINITE_DATE_RANGE, PARKING);
+        reportGeneratorService.getReport(user, DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, PARKING_VALUE);
 
-        verify(transactionService, times(1)).getByDateAndType(INFINITE_DATE_RANGE, INFINITE_DATE_RANGE, Transaction.Category.PARKING);
+        verify(authService).getCurrentUser();
+        verify(transactionService).getByDateAndCategory(DEFAULT_LONG_VALUE, DEFAULT_LONG_VALUE, Transaction.Category.PARKING);
+        verify(utilsService).getFile(GDN_LOGO_PATH);
 
         Files.deleteIfExists(Paths.get(PROJECT_ROOT + "\\" + reportName));
 

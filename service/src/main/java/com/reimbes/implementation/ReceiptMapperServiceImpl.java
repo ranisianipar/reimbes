@@ -17,41 +17,39 @@ import static com.reimbes.constant.UrlConstants.URL_RECEIPT_MAPPER;
 public class ReceiptMapperServiceImpl implements ReceiptMapperService {
 
     private static Logger log = LoggerFactory.getLogger(ReceiptMapperServiceImpl.class);
+    private final String uri = URL_RECEIPT_MAPPER;
 
-    @Override
-    public Transaction translateImage(String imageId, String imageValue) throws Exception {
-        // return empty transaction, if only request time reach 10 secs [TIMEOUT]
+    /*
+    * imageId: image path
+    * transaction: consist category and image value
+    *
+    * */
+    public Transaction map(Transaction transaction) {
+        ReceiptMapperResponse result = doPost(transaction.getImage());
 
-        final String uri = URL_RECEIPT_MAPPER;
+        transaction.setAmount(result.getAmount());
+        return transaction;
+    }
+
+    private ReceiptMapperResponse doPost(String imageValue) {
+        ReceiptMapperResponse result = ReceiptMapperResponse.builder().build();
 
         HttpEntity<ReceiptMapperRequest> request = new HttpEntity<>(
                 ReceiptMapperRequest.builder()
-                        .requestId(imageId)
                         .image(imageValue)
                         .build()
         );
 
-        log.info("REQUEST: ", request);
-
-        // do request
         RestTemplate restTemplate = new RestTemplate();
         try {
             Object response = restTemplate.postForEntity(uri, request, ReceiptMapperResponse.class);
-            log.info("RESPONSE: ", response);
 
             ObjectMapper mapper = new ObjectMapper();
-            ReceiptMapperResponse result = mapper.convertValue(response, ReceiptMapperResponse.class);
-            log.info("RESULT: ", result);
-
-            Transaction predictedTransaction = new Transaction();
-            predictedTransaction.setAmount(result.getAmount());
-            predictedTransaction.setImage(result.getRequestId());
-
-            return predictedTransaction;
+            result = mapper.convertValue(response, ReceiptMapperResponse.class);
         } catch (Exception e) {
             log.info("Request error! Message: ", e.getMessage());
-            return new Transaction();
         }
 
+        return result;
     }
 }

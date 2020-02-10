@@ -11,7 +11,8 @@ import java.util.Set;
 
 @Table(name = "Reims_User")
 @Entity
-@Data @NoArgsConstructor
+@Data
+@NoArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ReimsUser extends Patient {
@@ -67,8 +68,6 @@ public class ReimsUser extends Patient {
         this.gender = gender;
         this.division = division;
     }
-
-
 
 
 }

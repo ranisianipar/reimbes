@@ -27,7 +27,7 @@ public class Transaction {
 
     private String location;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @ToStringPlugin.Exclude
     @JoinColumn(name = "reimsUser", nullable = false)
     private ReimsUser reimsUser;

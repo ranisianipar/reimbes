@@ -3,6 +3,8 @@ package com.reimbes.interfaces;
 import com.reimbes.FamilyMember;
 import com.reimbes.Medical;
 import com.reimbes.ReimsUser;
+import com.reimbes.Session;
+import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,10 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 public interface AdminService {
     Page getAllUser(String search, Pageable pageable) throws ReimsException;
     ReimsUser getUser(long id) throws ReimsException;
-    ReimsUser createUser(ReimsUser user) throws ReimsException ;
+    ReimsUser createUser(ReimsUser user) throws ReimsException;
+    boolean changePassword(String password) throws NotFoundException;
 
     //  ReimsUser / Login User
-    Object updateUser(long id, ReimsUser user, HttpServletResponse response) throws ReimsException;
+    Object updateUser(long id, ReimsUser user, String token) throws ReimsException;
     void deleteUser(long id) throws ReimsException;
 
     // Family Member

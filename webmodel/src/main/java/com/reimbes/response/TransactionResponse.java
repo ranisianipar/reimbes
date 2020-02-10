@@ -4,6 +4,7 @@ import com.reimbes.Transaction;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class TransactionResponse {
@@ -17,9 +18,11 @@ public class TransactionResponse {
 
     private long amount;
 
-    private String image;
+    private List<String> attachments;
 
     private String title;
+
+    private String location;
 
 
 }

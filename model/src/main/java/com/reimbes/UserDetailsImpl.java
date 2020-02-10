@@ -13,7 +13,7 @@ public class UserDetailsImpl implements UserDetails {
     private ReimsUser user;
     private Collection authorities;
 
-    public UserDetailsImpl(ReimsUser user, Collection<GrantedAuthority> list){
+    public UserDetailsImpl(ReimsUser user, Collection<GrantedAuthority> list) {
         this.user = user;
         authorities = list;
     }

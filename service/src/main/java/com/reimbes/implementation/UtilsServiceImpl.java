@@ -1,5 +1,6 @@
 package com.reimbes.implementation;
 
+import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.interfaces.UtilsService;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public class UtilsServiceImpl implements UtilsService {
         try {
             Files.delete(Paths.get(imagePath));
         } catch (Exception e) {
-            // image probably not found
+            // attachments probably not found
             log.warn(e.getMessage());
         }
 
@@ -93,35 +94,28 @@ public class UtilsServiceImpl implements UtilsService {
 
     /*
     *
-    * imageValue: string those contains encoded image value in Base64 format
+    * imageValue: string those contains encoded attachments value in Base64 format
     * userId: used to direct the user folder
     * subfolder: transaction, medical, etc.
     *
-    * RETURN --> relative image path
+    * RETURN --> relative attachments path
     * */
     public String uploadImage(String imageValue, long userId, String subfolder) throws ReimsException {
-        System.out.println(String.format("Value: %s, Used Id: %d, Subfolder: %s", imageValue, userId, subfolder));
+        System.out.println(String.format("Value: %s, User Id: %d, Subfolder: %s", imageValue, userId, subfolder));
 
         String[] extractedByte = imageValue.split(",");
-        String extension = extractedByte[0];
+        String extension = getExtension(extractedByte[0]);
         String imagePath;
 
-        // getByUser the extension
-        if (extension.contains("jpg")) extension = "jpg";
-        else if (extension.contains("png")) extension = "png";
-        else if (extension.contains("jpeg")) extension = "jpeg";
-        else return null;
-
         try {
-            log.info("Decoding image.");
+            log.info("Decoding attachments.");
             byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
                     .getBytes(StandardCharsets.UTF_8)));
 
-            log.info("Decoding image succeed.");
-            log.info("Uploading the image...");
+            log.info("Uploading the attachments...");
 
             /*
-            * do upload image
+            * do upload attachments
             * */
 
             // confirm folder existence
@@ -135,15 +129,23 @@ public class UtilsServiceImpl implements UtilsService {
 
             imagePath = folderPath + generateFilename(extension); // relative path
 
-            log.info(String.format("Write image in this path: %s", imagePath));
+            log.info(String.format("Write attachments in this path: %s", imagePath));
             Path path = createFile(imagePath, imageByte);
             log.info(String.format("Image writing succeed: %b", (path != null)));
 
-        } catch (IOException e) {
-            throw new ReimsException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, 500);
+        } catch (Exception e) {
+            throw new FormatTypeError(e.getMessage());
         }
 
         return imagePath; // relative path
+    }
+
+    private String getExtension(String textContainExtension) {
+        // getByUser the extension
+        if (textContainExtension.contains("jpg")) return "jpg";
+        else if (textContainExtension.contains("png")) return  "png";
+        else if (textContainExtension.contains("jpeg")) return "jpeg";
+        else return null;
     }
 
     // millis

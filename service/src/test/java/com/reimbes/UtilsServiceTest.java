@@ -1,5 +1,6 @@
 package com.reimbes;
 
+import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.UtilsServiceImpl;
 import org.junit.After;
@@ -25,6 +26,7 @@ import java.util.Collection;
 
 import static com.reimbes.constant.UrlConstants.*;
 import static org.junit.Assert.*;
+import static org.junit.gen5.api.Assertions.assertThrows;
 import static org.powermock.api.mockito.PowerMockito.verifyNoMoreInteractions;
 
 @RunWith(PowerMockRunner.class)
@@ -117,14 +119,14 @@ public class UtilsServiceTest {
     }
 
     @Test
-    public void returnNull_uploadImageWithUnknownExtension() throws ReimsException {
+    public void throwsError_whenUploadImageWithUnknownExtension() throws ReimsException {
         ReimsUser user = ReimsUser.ReimsUserBuilder()
                 .id(123)
                 .username("test")
                 .role(ReimsUser.Role.USER)
                 .build();
-        String invalidImage = "data:image/.xx;bsae64";
-        assertNull(utils.uploadImage(invalidImage, user.getId(), SUB_FOLDER_REPORT));
+        String invalidImage = "data:attachments/.xx;bsae64";
+        assertThrows(FormatTypeError.class, () -> utils.uploadImage(invalidImage, user.getId(), SUB_FOLDER_REPORT));
     }
 
     @Test

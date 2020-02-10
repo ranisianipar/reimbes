@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-@Table(name="Medical")
+@Table(name = "Medical")
 @AllArgsConstructor
 @Builder
 @Data
@@ -40,11 +40,12 @@ public class Medical {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reimsUser", nullable = false)
-    @JsonIgnore @ToString.Exclude
+    @JsonIgnore
+    @ToString.Exclude
     private ReimsUser medicalUser;
 
     //    Mapped to multiple images
-    @OneToMany(mappedBy = "medicalImage", cascade = CascadeType.ALL , orphanRemoval = true)
+    @OneToMany(mappedBy = "medicalImage", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MedicalReport> attachments;
 
     @Column(updatable = false)

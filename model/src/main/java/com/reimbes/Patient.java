@@ -1,9 +1,6 @@
 package com.reimbes;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,10 +12,9 @@ import java.util.Set;
 @Table(name = "Patient")
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@DiscriminatorColumn(name="patient_type", discriminatorType = DiscriminatorType.STRING)
-
-@Data @NoArgsConstructor
-
+@DiscriminatorColumn(name = "patient_type", discriminatorType = DiscriminatorType.STRING)
+@Data
+@NoArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Patient {
@@ -30,11 +26,11 @@ public class Patient {
 
     private String name;
 
-    // null for ADMIN
     @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date dateOfBirth;
 
-    @OneToMany(mappedBy = "patient")
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.REMOVE)
     @JsonIgnore
     private Set<Medical> medicals;
 
@@ -43,7 +39,6 @@ public class Patient {
 
     @Column
     private long updatedAt;
-
 
 
     @Builder(builderMethodName = "PatientBuilder")

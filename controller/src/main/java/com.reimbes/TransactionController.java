@@ -5,7 +5,6 @@ import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.TransactionServiceImpl;
 import com.reimbes.request.TransactionRequest;
-import com.reimbes.request.UploadImageByteRequest;
 import com.reimbes.response.*;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
@@ -54,7 +53,7 @@ public class TransactionController {
 
         try {
             transactions = transactionService.getAll(pageRequest, search, start, end, category);
-            br.setData(getAllTransactionResponses(transactions.getContent()));
+            br.setData(mapAllTransactionResponses(transactions.getContent()));
             paging.setTotalPages(transactions.getTotalPages());
             paging.setTotalRecords(transactions.getContent().size());
 
@@ -72,7 +71,7 @@ public class TransactionController {
         BaseResponse<TransactionResponse> br = new BaseResponse<>();
 
         try {
-            br.setData(getTransactionResponse(transactionService.get(id)));
+            br.setData(mapTransactionResponse(transactionService.get(id)));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -81,11 +80,11 @@ public class TransactionController {
     }
 
     @PutMapping
-    public BaseResponse<TransactionResponse> updateTransaction(@RequestBody TransactionRequest newTransaction) {
+    public BaseResponse<TransactionResponse> updateTransaction(@RequestBody TransactionRequest request) {
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(getTransactionResponse(
-                    transactionService.update(getTransactionRequest(newTransaction)))
+            br.setData(mapTransactionResponse(
+                    transactionService.update(mapTransactionRequest(request)))
             );
         } catch (ReimsException r) {
             br.setErrorResponse(r);
@@ -94,11 +93,11 @@ public class TransactionController {
     }
 
     @PostMapping
-    public BaseResponse createTransactionByImage(@RequestBody UploadImageByteRequest request) {
+    public BaseResponse createTransactionByImageAndCategory(@RequestBody TransactionRequest request) {
         BaseResponse br = new BaseResponse();
 
         try {
-            br.setData(getTransactionResponse(transactionService.createByImage(request.getImage())));
+            br.setData(mapTransactionResponse(transactionService.createByImageAndCategory(mapTransactionRequest(request))));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -108,6 +107,7 @@ public class TransactionController {
 
     @DeleteMapping(UrlConstants.ID_PARAM)
     public BaseResponse deleteById(@PathVariable Long id) {
+        log.info("Delete transaction with ID", id);
         BaseResponse br = new BaseResponse();
         try {
             transactionService.delete(id);
@@ -125,19 +125,19 @@ public class TransactionController {
         return mapperFactory.getMapperFacade();
     }
 
-    private List<? extends TransactionResponse> getAllTransactionResponses(List<Transaction> transactions) {
+    private List<? extends TransactionResponse> mapAllTransactionResponses(List<Transaction> transactions) {
         log.info("Mapping object to web response...");
         List<TransactionResponse> transactionResponses = new ArrayList<>();
         Iterator<Transaction> iterator = transactions.iterator();
         Transaction transaction;
         while (iterator.hasNext()) {
             transaction = iterator.next();
-            transactionResponses.add(getTransactionResponse(transaction));
+            transactionResponses.add(mapTransactionResponse(transaction));
         }
         return transactionResponses;
     }
 
-    private TransactionResponse getTransactionResponse(Transaction transaction) {
+    private TransactionResponse mapTransactionResponse(Transaction transaction) {
         if (transaction == null) return null;
         TransactionResponse transactionResponse;
 
@@ -147,10 +147,16 @@ public class TransactionController {
         else
             transactionResponse = getTransactionMapper(transaction)
                     .map(transaction, FuelResponse.class);
+
+        if (transaction.getImage() != null) {
+            String[] attachments = {transaction.getImage()};
+            transactionResponse.setAttachments(Arrays.asList(attachments));
+
+        }
         return transactionResponse;
     }
 
-    private Transaction getTransactionRequest(TransactionRequest transaction) {
+    private Transaction mapTransactionRequest(TransactionRequest transaction) {
         if (transaction == null) return null;
         Transaction transactionResponse;
 
@@ -160,6 +166,10 @@ public class TransactionController {
         else
             transactionResponse = getTransactionRequestMapper(transaction)
                     .map(transaction, Fuel.class);
+
+        // get attachments of transaction
+        if (transaction.getAttachments() != null) transactionResponse.setImage(transaction.getAttachments().get(0));
+
         return transactionResponse;
     }
 

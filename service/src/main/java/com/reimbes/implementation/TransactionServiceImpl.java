@@ -8,7 +8,7 @@ import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
-import com.reimbes.interfaces.TransactionService;
+import com.reimbes.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import static com.reimbes.Transaction.Category.FUEL;
-import static com.reimbes.Transaction.Category.PARKING;
+import static com.reimbes.constant.General.DEFAULT_LONG_VALUE;
 import static com.reimbes.constant.UrlConstants.SUB_FOLDER_TRANSACTION;
 
 @Service
@@ -30,33 +29,34 @@ public class TransactionServiceImpl implements TransactionService {
     private TransactionRepository transactionRepository;
 
     @Autowired
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Autowired
-    private ReceiptMapperServiceImpl receiptMapperService;
+    private ReceiptMapperService receiptMapperService;
 
     @Autowired
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsService;
 
     @Override
-    public Transaction createByImage(String imageValue) throws ReimsException {
+    public Transaction createByImageAndCategory(Transaction transaction) throws ReimsException {
         ReimsUser user = authService.getCurrentUser();
         String imagePath;
-        Transaction transaction;
         try {
-            imagePath = utilsServiceImpl.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
-            log.info("Predicting image content... " + imagePath);
-            transaction = receiptMapperService.translateImage(imagePath, imageValue);
+            imagePath = utilsService.uploadImage(transaction.getImage(), user.getId(), SUB_FOLDER_TRANSACTION);
+            log.info("Predicting attachments content... ", imagePath);
+            if (transaction.getCategory() ==  null) {
+                transaction.setCategory(Transaction.Category.FUEL);
+            }
+            transaction = receiptMapperService.map(transaction);
             log.info(String.format("Receipt Mapper Result %s", transaction));
+            log.info("Mapping the OCR result.");
 
-            transaction.setCategory(FUEL);
         } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
         }
-            log.info("Mapping the OCR result.");
             transaction.setReimsUser(user);
             transaction.setImage(imagePath);
         return transaction;
@@ -64,45 +64,43 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction update(Transaction transaction) throws ReimsException {
+        ReimsUser user = authService.getCurrentUser();
+        long currentTime = utilsService.getCurrentTime();
 
-        // make sure update only happen once!
         validate(transaction);
 
-        transaction.setCreatedAt(utilsServiceImpl.getCurrentTime());
+        transaction.setCreatedAt(currentTime);
         transaction.setAmount(transaction.getAmount());
         transaction.setDate(transaction.getDate());
         transaction.setImage(transaction.getImage());
         transaction.setTitle(transaction.getTitle());
-        transaction.setReimsUser(authService.getCurrentUser());
+        transaction.setReimsUser(user);
 
         return transactionRepository.save(transaction);
     }
 
 
     @Override
-    public void delete(long id) throws ReimsException {
+    public boolean delete(long id) throws NotFoundException {
         ReimsUser user = authService.getCurrentUser();
         Transaction transaction = transactionRepository.findOne(id);
-        if (transaction == null || transaction.getReimsUser() != user)
+        if (transaction == null || transaction.getReimsUser() != user) {
             throw new NotFoundException("Transaction with ID "+id);
-        utilsServiceImpl.removeImage(transaction.getImage());
+        }
+        utilsService.removeImage(transaction.getImage());
         transactionRepository.delete(transaction);
+        return true;
     }
 
-    public void deleteByUser(ReimsUser user) {
+    public boolean deleteTransactionImageByUser(ReimsUser user) {
         List<Transaction> transactions = transactionRepository.findByReimsUser(user);
         if (transactions == null) {
-            log.info("null transaction");
-            return;
+            log.info("Find no transaction.");
+            return false;
         }
-
-        log.info("Removing the images");
-        Iterator iterator = transactions.iterator();
-        while (iterator.hasNext()) {
-            utilsServiceImpl.removeImage(((Transaction) iterator.next()).getImage());
-        }
-
-        transactionRepository.delete(transactions);
+        log.info("Remove the images.");
+        transactions.forEach(transaction -> utilsService.removeImage(transaction.getImage()));
+        return true;
     }
 
     @Override
@@ -111,7 +109,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = transactionRepository.findOne(id);
         if (transaction == null || transaction.getReimsUser() != user)
             throw new NotFoundException("Transaction with ID "+id);
-        return transactionRepository.findOne(id);
+        return transaction;
     }
 
 
@@ -130,8 +128,9 @@ public class TransactionServiceImpl implements TransactionService {
         if (title == null) title = "";
 
         if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
-            if (category != null)
+            if (category != null) {
                 return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategory(user, title, category, pageable);
+            }
             return transactionRepository.findByReimsUserAndTitleContainingIgnoreCase(user, title, pageable);
         }
 
@@ -155,9 +154,9 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    public List<Transaction> getByDateAndType(Long start, Long end, Transaction.Category category) throws ReimsException {
+    public List<Transaction> getByDateAndCategory(Long start, Long end, Transaction.Category category) throws ReimsException {
         ReimsUser user = authService.getCurrentUser();
-        if (start == null || end == null) {
+        if (start == DEFAULT_LONG_VALUE && end == DEFAULT_LONG_VALUE) {
             return transactionRepository.findByReimsUserAndCategory(user, category);
         }
         return transactionRepository.findByReimsUserAndDateBetweenAndCategory(user, start, end, category);
@@ -170,7 +169,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<Transaction> getByUserAndDate(ReimsUser user, long start, long end) {
-        if (start == new Long(0) || end == new Long(0)) return transactionRepository.findByReimsUser(user);
+        if (start == DEFAULT_LONG_VALUE || end == DEFAULT_LONG_VALUE) {
+            return transactionRepository.findByReimsUser(user);
+        }
         return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }
 
@@ -188,9 +189,6 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (transaction.getCategory() != null) {
             switch (transaction.getCategory()) {
-                case PARKING:
-                    if (((Parking) transaction).getHours() == 0) errorMessages.add("ZERO_PARKING_HOURS");
-                    break;
                 case FUEL:
                     if (((Fuel) transaction).getLiters() == 0) errorMessages.add("ZERO_FUEL_LITERS");
                     break;
@@ -199,13 +197,11 @@ public class TransactionServiceImpl implements TransactionService {
             errorMessages.add("NULL_CATEGORY");
         }
 
-
-        // validate image path
-        if (transaction.getImage() == null || !utilsServiceImpl.isFileExists(transaction.getImage()))
+        // validate attachments path
+        if (transaction.getImage() == null || !utilsService.isFileExists(transaction.getImage()))
             errorMessages.add("INVALID_IMAGE_PATH");
 
-
-        // make sure the transaction use its own [NEW] image
+        // make sure the transaction use its own [NEW] attachments
         if (transactionRepository.existsByImage(transaction.getImage()))
             errorMessages.add("FORBIDDEN_DUPLICATE_IMAGE");
 

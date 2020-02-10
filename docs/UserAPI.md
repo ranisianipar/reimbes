@@ -24,6 +24,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body : -
 - Response Body (Success) : -
 - Response Body (Failure) : -
@@ -35,6 +36,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body : -
 
 - Response Body (Success) :
@@ -84,6 +86,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 
 - Request Body : -
 
@@ -135,6 +138,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body : -
 
 - Response Body (Success) :
@@ -177,6 +181,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body :
 
 ```json
@@ -185,7 +190,7 @@
 	"password" : "blibli12345",
 	"role": "USER",
 	"gender":"MALE",
-	"dateOfBirth":"1970-11-1",
+	"dateOfBirth": "1998-08-22",
 	"license":"B XXXX XX",
 	"vehicle":"CAR"
 }
@@ -202,11 +207,9 @@
         "username": "eko1@pyeongyang.com",
         "role": "USER",
 	    "gender":"MALE",
-	    "dateOfBirth":"1970-11-1",
+	    "dateOfBirth": "1998-08-22",
 	    "license":"B XXXX XX",
 	    "vehicle":"CAR"
-        "created_at":1559058600,
-        "updated_at":0
     }
 }
 ```
@@ -272,6 +275,7 @@
 - Allowed User: `PUBLIC`
 - Request Header :
     - Accept : `application/json`
+    - Authorization : [token]
 - Response Body (Success) :
 
 ```json
@@ -288,6 +292,7 @@
 - Allowed User: `ADMIN`
 - Request Header :
     - Accept : `application/json`
+    - Authorization : [token]
 - Response Body (Success) :
 
 ```json
@@ -304,6 +309,7 @@
 - Allowed User: `ADMIN`
 - Request Header : 
     - Accept : `application/json`
+    - Authorization : [token]
 - Response Body (Success) :
 
 ```json
@@ -320,19 +326,17 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body :
 
 ```json
 {
-	"username" : "eko1@pyeongyang.com",
-	"password" : "blibli12345",
+	"username" : "eko1@pyeongyang.com"
 	"role": "USER",
 	"gender":"MALE",
-	"dateOfBirth":"1970-11-1",
+	"dateOfBirth": "1998-08-22",
 	"license":"B XXXX XX",
 	"vehicle":"CAR"
-    "created_at":1559058600,
-    "updated_at":0
 }
 ```
 
@@ -347,11 +351,9 @@
         "username": "eko1@pyeongyang.com",
         "role": "USER",
         "gender":"MALE",
-        "dateOfBirth":"1970-11-1",
+        "dateOfBirth": "1998-08-22",
         "license":"B XXXX XX",
-        "vehicle":"CAR",
-        "created_at":1559058600,
-        "updated_at":1559058655
+        "vehicle":"CAR"
     }
 }
 ```
@@ -376,6 +378,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body :
 
 ```json
@@ -384,7 +387,7 @@
 	"password" : "blibli12345",
 	"role": "USER",
 	"gender":"MALE",
-	"dateOfBirth":"1970-11-1",
+	"dateOfBirth": "1998-08-22",
 	"license":"B XXXX XX",
 	"vehicle":"CAR"
 }
@@ -401,11 +404,9 @@
         "username": "eko1@pyeongyang.com",
         "role": "USER",
         "gender":"MALE",
-        "dateOfBirth":"1970-11-1",
+        "dateOfBirth": "1998-08-22",
         "license":"B XXXX XX",
-        "vehicle":"CAR",
-        "created_at":1559058600,
-        "updated_at":1559058655
+        "vehicle":"CAR"
     }
 }
 ```
@@ -436,6 +437,7 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body : -
 - Response Body (Success) : -
 - Response Body (Failure) : -
@@ -447,12 +449,52 @@
 - Request Header :
     - Accept : `application/json`
     - Content-Type : `application/json`
+    - Authorization : [token]
 - Request Body : -
 
-- Response Body (Success) : image in array of bytes
+- Response Body (Success) :
+```json
+{
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": null,
+  "data": "/9j/4AAQSkZJRgABAQEAYABgAAD//gAWdG...",
+  "success": true
+```
 - Response Header (Success) :
-    - Content-Type : [`image/jpeg`, `image/jpg`, `image/png`]
+    - Content-Type : `application/json`
 
 - Response Body (Failure) : []
 ```
   
+## Change Password
+- Endpoint : `/api/users/changepassword` [USER] | `/api/admin/users/changepassword` [ADMIN]
+- HTTP Method : `PUT`
+- Allowed User: `Authorized User`
+- Request Header :
+    - Accept : `application/json`
+    - Content-Type : `application/json`
+    - Authorization : [token]
+- Request Body :
+```json
+{
+    "password": "anyidea?"
+}
+```
+
+- Response Body (Success) :
+```json
+{
+  "code": 200,
+  "status": "OK",
+  "errors": null,
+  "paging": null,
+  "data": null,
+  "success": true
+```
+- Response Header (Success) :
+    - Content-Type : `application/json`
+
+- Response Body (Failure) : -
+```

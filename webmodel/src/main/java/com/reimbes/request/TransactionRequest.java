@@ -5,6 +5,8 @@ import com.reimbes.Parking;
 import com.reimbes.Transaction;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class TransactionRequest {
     private long id;
@@ -15,22 +17,19 @@ public class TransactionRequest {
     private Transaction.Category category;
 
     private long date;
-    private String image;
+    private List<String> attachments;
 
     // standard crud attributes
     private long createdAt;
+    private String location;
 
 
     // all uncovered attributes of specific transaction
 
-    /* FUEL */
+    /* FUEL_VALUE */
     private float liters;
+    private long kilometers;
     private Fuel.Type fuelType;
 
-
-    /* PARKING */
-    private int hours;
-    private Parking.Type parkingType;
-    private String location;
 
 }

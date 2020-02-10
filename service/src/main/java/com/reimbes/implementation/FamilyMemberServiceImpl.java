@@ -8,7 +8,10 @@ import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.MethodNotAllowedException;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
+import com.reimbes.interfaces.AuthService;
 import com.reimbes.interfaces.FamilyMemberService;
+import com.reimbes.interfaces.UserService;
+import com.reimbes.interfaces.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.reimbes.ReimsUser.Role.ADMIN;
+import static com.reimbes.constant.General.NULL_USER_ID_CODE;
 
 @Service
 public class FamilyMemberServiceImpl implements FamilyMemberService {
@@ -34,13 +38,13 @@ public class FamilyMemberServiceImpl implements FamilyMemberService {
     private PatientRepository patientRepository;
 
     @Autowired
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Autowired
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsService;
 
 
     public FamilyMember create(Long userId, FamilyMember member) throws ReimsException {
@@ -57,7 +61,7 @@ public class FamilyMemberServiceImpl implements FamilyMemberService {
 
         validate(null, familyMember);
 
-        familyMember.setCreatedAt(utilsServiceImpl.getCurrentTime());
+        familyMember.setCreatedAt(utilsService.getCurrentTime());
 
         log.info("Done mapping! FAMILY_MEMBER: " + familyMember.toString());
 
@@ -109,7 +113,7 @@ public class FamilyMemberServiceImpl implements FamilyMemberService {
     }
 
 
-    public void delete(long id) throws ReimsException{
+    public void delete(long id) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
         if (currentUser.getRole() != ADMIN)
             throw new MethodNotAllowedException("Delete family member with ID " + id);
@@ -121,10 +125,10 @@ public class FamilyMemberServiceImpl implements FamilyMemberService {
 
         latestData.setFamilyMemberOf(member.getFamilyMemberOf());
 
-        if (userId != new Long(0)) {
+        if (userId != NULL_USER_ID_CODE) {
             ReimsUser user = userService.get(userId);
             if (user.getRole() != ADMIN)
-                latestData.setFamilyMemberOf(userService.get(userId));
+                latestData.setFamilyMemberOf(user);
             else throw new DataConstraintException("Family Member can't be assigned to user with role ADMIN");
         }
 

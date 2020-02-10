@@ -1,6 +1,6 @@
 package com.reimbes.implementation;
 
-import com.reimbes.interfaces.AdminService;
+import com.reimbes.interfaces.*;
 import com.reimbes.FamilyMember;
 import com.reimbes.Medical;
 import com.reimbes.ReimsUser;
@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,19 +30,19 @@ public class AdminServiceImpl implements AdminService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UtilsServiceImpl utilsServiceImpl;
+    private UtilsService utilsService;
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Autowired
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Autowired
-    private FamilyMemberServiceImpl familyMemberService;
+    private FamilyMemberService familyMemberService;
 
     @Autowired
-    private MedicalServiceImpl medicalService;
+    private MedicalService medicalService;
 
     @Override
     public Page getAllUser(String search, Pageable pageRequest) throws ReimsException {
@@ -71,21 +72,33 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public ReimsUser updateUser(long id, ReimsUser user, HttpServletResponse response) throws ReimsException {
+    public boolean changePassword(String password) {
+        try {
+            return userService.changePassword(password);
+        } catch (ReimsException e) {
+            return false;
+        }
+
+    }
+
+    @Override
+    public ReimsUser updateUser(long id, ReimsUser user, String token) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
 
         validate(user);
 
         log.info("Check User update type, either his own data or other user");
         // if admin try to update his data
-        if (currentUser.getId() == id) return userService.updateMyData(user, response);
+        if (currentUser.getId() == id) {
+            return userService.updateMyData(user, token);
+        }
 
         log.info(String.format("Update User data with ID: %d", id));
         return userService.update(id, user);
     }
 
     @Override
-    public void deleteUser(long id) throws ReimsException{
+    public void deleteUser(long id) throws ReimsException {
         ReimsUser currentUser = authService.getCurrentUser();
         if (currentUser.getId() == id) throw new ReimsException("SELF_DELETION", HttpStatus.METHOD_NOT_ALLOWED, 405);
 
@@ -112,7 +125,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void deleteFamilyMember(long familyMemberId) throws ReimsException{
+    public void deleteFamilyMember(long familyMemberId) throws ReimsException {
         log.info(String.format("Delete family member with ID: %d", familyMemberId));
         familyMemberService.delete(familyMemberId);
     }
@@ -150,6 +163,6 @@ public class AdminServiceImpl implements AdminService {
             errors.add("NULL_ATTRIBUTE_DATE_OF_BIRTH");
 
         if (!errors.isEmpty())
-            throw new ReimsException(errors.toString(),HttpStatus.BAD_REQUEST, ResponseCode.BAD_REQUEST);
+            throw new ReimsException(errors.toString(), HttpStatus.BAD_REQUEST, ResponseCode.BAD_REQUEST);
     }
 }
