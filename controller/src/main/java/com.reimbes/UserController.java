@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import static com.reimbes.constant.General.IDENTITY_CODE;
 import static com.reimbes.constant.ResponseCode.INTERNAL_SERVER_ERROR;
@@ -67,12 +66,7 @@ public class UserController {
     @PutMapping(value = CHANGE_PASSWORD_PREFIX)
     public BaseResponse changePassword(@RequestBody ChangePasswordRequest request) {
         BaseResponse br = new BaseResponse();
-        try {
-            userService.changePassword(request.getPassword());
-        } catch (ReimsException r) {
-            br.setErrorResponse(r);
-        }
-
+        userService.changePassword(request.getPassword());
         return br;
     }
 

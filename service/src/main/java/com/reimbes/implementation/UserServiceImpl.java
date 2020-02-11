@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
         ReimsUser user;
 
         if (id == IDENTITY_CODE) {
-            return userRepository.findByUsername(utilsService.getPrincipalUsername());
+            return authService.getCurrentUser();
         } else {
             user = userRepository.findOne(id);
         }

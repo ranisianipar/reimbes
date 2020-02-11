@@ -23,6 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 
 import static com.reimbes.constant.General.*;
@@ -130,6 +131,7 @@ public class UserServiceTest {
 
     @Test
     public void returnUpdatedUserData_whenAdminUpdateUser() throws ReimsException {
+        Date now = new Date();
         ReimsUser oldUser = user;
         ReimsUser newUser = ReimsUser.ReimsUserBuilder()
                 .id(oldUser.getId())
@@ -138,6 +140,7 @@ public class UserServiceTest {
 
         when(userRepository.save(user)).thenReturn(userWithEncodedPass);
         when(userRepository.findOne(user.getId())).thenReturn(user);
+        when(utilsService.getCurrentTime()).thenReturn(now.getTime());
 
         newUser.setUsername(oldUser.getUsername() + "123"); // update data
 
@@ -153,15 +156,14 @@ public class UserServiceTest {
         verify(utilsService).getCurrentTime();
         verify(userRepository).save(newUser);
         assertEquals(newUser, result);
+        assertNotEquals(user.getUpdatedAt(), result.getUpdatedAt());
     }
 
     @Test
-    public void returnUpdatedUserData_whenUserUpdateTheirOwnData() throws ReimsException { ;
-        String token = "241k2jb4";
-        Session session = Session.builder()
-                .token(token)
-                .build();
+    public void returnUpdatedUserData_whenUserUpdateTheirOwnData() throws ReimsException {
+        Date now = new Date();
         when(authService.getCurrentUser()).thenReturn(user);
+        when(utilsService.getCurrentTime()).thenReturn(now.getTime());
 
         ReimsUser newUser = ReimsUser.ReimsUserBuilder()
                 .username(user.getUsername() + "123")
@@ -170,16 +172,22 @@ public class UserServiceTest {
                 .id(2)
                 .build();
 
+        String token = "241k2jb4";
+        Session session = Session.builder()
+                .token(token)
+                .username(newUser.getUsername())
+                .build();
+
         when(userRepository.save(newUser)).thenReturn(newUser);
 
-        ReimsUser result = userService.updateMyData(user, token);
+        ReimsUser result = userService.updateMyData(newUser, token);
         verify(authService).getCurrentUser();
         verify(userRepository).findByUsername(newUser.getUsername());
         verify(utilsService).getCurrentTime();
         verify(userRepository).save(newUser);
         verify(authService).registerOrUpdateSession(session);
-        assertEquals(result, user);
-        assertNotNull(result.getUpdatedAt());
+        assertEquals(result, newUser);
+        assertNotEquals(user.getUpdatedAt(), result.getUpdatedAt());
     }
 
     @Test
@@ -299,12 +307,10 @@ public class UserServiceTest {
     @Test
     public void returnCurrentUserData() throws ReimsException {
         ReimsUser currentUser = user;
-        when(utilsService.getPrincipalUsername()).thenReturn(currentUser.getUsername());
-        when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(currentUser);
+        when(authService.getCurrentUser()).thenReturn(currentUser);
 
         ReimsUser result = userService.get(IDENTITY_CODE);
-        verify(utilsService).getPrincipalUsername();
-        verify(userRepository).findByUsername(currentUser.getUsername());
+        verify(authService).getCurrentUser();
         assertEquals(currentUser, result);
 
     }
@@ -345,7 +351,7 @@ public class UserServiceTest {
 
 
     @Test
-    public void errorThrown_whenGetImageByInvalidImagePathFormat() throws Exception {
+    public void errorThrown_whenGetImageByInvalidImagePathFormat() {
         String fakeImagepath = "hahaha/x123.png";
         when(authService.getCurrentUser()).thenReturn(user);
         assertThrows(NotFoundException.class, () -> userService.getImage(fakeImagepath));
@@ -377,7 +383,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void returnTrue_whenChangePasswordSucceed() throws NotFoundException {
+    public void returnTrue_whenChangePasswordSucceed() {
         ReimsUser user = ReimsUser.ReimsUserBuilder().username("user 1").password("xoxoxox").build();
         String newPassword = user.getPassword() + "123";
         String passwordAfterEncoding = newPassword + "8913ihgvq";
@@ -396,7 +402,6 @@ public class UserServiceTest {
         assertTrue(result);
 
     }
-
 
 
 }
