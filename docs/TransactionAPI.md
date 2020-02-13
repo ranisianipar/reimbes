@@ -50,16 +50,29 @@ only for authenticated User
   },
   "data": [
     {
-      "id": 262149,
-      "category": "PARKING",
-      "userId": 32769,
-      "date": "2019-01-01T00:00+07:00",
-      "amount": 27000,
-      "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
-      "title": "HR Team nobar",
-      "hours": 6,
-      "type": "CAR",
-      "location": "GI"
+          "id": 98305,
+          "category": "FUEL",
+          "userId": 3,
+          "date": 1565281355000,
+          "amount": 100000,
+          "attachments": [
+            "/storage/3/transaction/b114928a-adbd-4dc3-85ef-14664b4bbc8b.jpeg"
+          ],
+          "title": "Nyoba bensin pake atribut baru",
+          "liters": 17.0,
+          "kilometers": 11,
+          "type": "SOLAR"
+    },
+    {
+          "id": 32768,
+          "category": "PARKING",
+          "userId": 3,
+          "date": 1565281355000,
+          "amount": 120000,
+          "attachments": [
+            "/storage/3/transaction/f7b4498e-a410-4576-b5ac-f0011fb2be3a.jpeg"
+          ],
+          "title": "Main-main ke WTC"
     }
   ],
   "success": true
@@ -86,12 +99,10 @@ only for authenticated User
     "id": 262149,
     "category": "PARKING",
     "userId": 32769,
-    "date": "2019-01-01T00:00+07:00",
+    "date": 1565281355000,
     "amount": 27000,
-    "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
+    "attachments": ["/storage/3/transaction/59d164b1-0aa5-4f48-8ea9-7ad703809a4f.png"],
     "title": "HR Team nobar",
-    "hours": 6,
-    "type": "CAR",
     "location": "GI"
   },
   "success": true
@@ -120,10 +131,13 @@ only for authenticated User
 - Request Body :
 ``` json
 {
-    "image":"[]",
+    "category": "PARKING",
+	"attachments":[
+		"data:image/png;base64,iVBORw..."
+	]
 }
 ```
-*Note*: Imagedata will be contain the image bytes
+*Note*: The `attachments` attribute contains ONLY 1 image in base64 (string) format
 - Response Body (Success) :
 
 ```json
@@ -136,12 +150,10 @@ only for authenticated User
     "id": 0,
     "category": "PARKING",
     "userId": 32769,
-    "date": "2019-07-25T13:14+07:00",
+    "date": 1565281355000,
     "amount": 15000,
-    "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
+    "attachments": ["/storage/3/transaction/59d164b1-0aa5-4f48-8ea9-7ad703809a4f.png"],
     "title": "gkiih nirga tharrin",
-    "hours": 0,
-    "type": "CAR",
     "location": null
   },
   "success": true
@@ -159,14 +171,12 @@ only for authenticated User
 *PARKING*
 ```json
 {
-    "date": "2019-01-01T00:00+07:00",
+    "date": 1565281355000,
     "category": "PARKING",
     "userId": 32769,
     "amount": 27000,
-    "image": "32769/5e0cb09c-5e45-43a9-af7f-5e6ff9726a28.png",
+    "attachments": ["/storage/3/transaction/59d164b1-0aa5-4f48-8ea9-7ad703809a4f.png"],
     "title": "HR Team nobar",
-    "hours": 6,
-    "parkingType": "CAR",
     "location": "GI"
 }
 ```
@@ -174,14 +184,15 @@ only for authenticated User
 *FUEL*
 ```json
 {
-    "date": "2019-01-01T00:00+07:00",
-    "category": "FUEL",
-    "userId": 32770,
-    "amount": 210000,
-    "image": "32770/5e0cb09c-5e45-43a9-af7f-5e6ff9726a70.png",
-    "title": "Jalan-jalan",
-    "liters": 21,
-    "fuelType": "PREMIUM"
+	"date": 1565281355000,
+	"category": "FUEL",
+    "amount": 100000,
+    "attachments": ["/storage/3/transaction/b114928a-adbd-4dc3-85ef-14664b4bbc8b.jpeg"],
+    "title": "Nyoba bensin pake atribut baru",
+	"liters":17,
+	"kilometers":11,
+	"fuelType":"SOLAR",
+    "location": "dimana ya"
 }
 ```
 
@@ -195,8 +206,8 @@ only for authenticated User
     "data": {
         "id": 500000026,
         "category": "PARKING",
-        "date":"YYYY-MM-DDTHH:mm:ss.sssZ",
-        "price":9000,
+        "date":1565281355000,
+        "amount":9000,
         "title":"1st Day Work",
         "created_at":1559058600
     }

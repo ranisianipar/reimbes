@@ -160,8 +160,9 @@ This method is only for admin.
 
 ## Update Family Member
 This method is only for admin.
-- Endpoint : `api/admin/family-members/{familyMembersId}`
-- HTTP Method : `POST`
+- Endpoint : `api/admin/family-members/{familyMemberId}?user-id={userId}`
+*Note: Include user-id query if only if Reims User of Family Member need to be update*
+- HTTP Method : `PUT`
 - Request Header : 
     - Accept : `application/json`
     - Content-Type : `application/json`

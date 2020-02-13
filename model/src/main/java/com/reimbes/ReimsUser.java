@@ -11,8 +11,10 @@ import java.util.Set;
 
 @Table(name = "Reims_User")
 @Entity
-@Data @NoArgsConstructor
+@Data
+@NoArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ReimsUser extends Patient {
 
     @NotNull
@@ -28,11 +30,11 @@ public class ReimsUser extends Patient {
     private Gender gender;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "reimsUser")
+    @OneToMany(mappedBy = "reimsUser", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private Set<Transaction> transactions;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "familyMemberOf")
+    @OneToMany(mappedBy = "familyMemberOf", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private Set<FamilyMember> familyMemberOf;
 
     private String license;
@@ -40,12 +42,6 @@ public class ReimsUser extends Patient {
     private String vehicle;
 
     private String division;
-
-    @Column(updatable = false, nullable = false)
-    private long createdAt;
-
-    @Column
-    private Long updatedAt;
 
     public enum Role {
         ADMIN,
@@ -59,9 +55,9 @@ public class ReimsUser extends Patient {
 
     @Builder(builderMethodName = "ReimsUserBuilder")
     public ReimsUser(long id, String username, String password, Role role, Gender gender, Set<Transaction> transactions,
-                     Set<FamilyMember> familyMemberOf, String license, String vehicle, Date dateOfBirth) {
-        super(id, username, dateOfBirth);
-
+                     Set<FamilyMember> familyMemberOf, String license, String vehicle, Date dateOfBirth, String division,
+                     long createdAt, long updatedAt) {
+        super(id, username, dateOfBirth, createdAt, updatedAt);
         this.username = username;
         this.password = password;
         this.role = role;
@@ -70,9 +66,8 @@ public class ReimsUser extends Patient {
         this.license = license;
         this.vehicle = vehicle;
         this.gender = gender;
+        this.division = division;
     }
-
-
 
 
 }

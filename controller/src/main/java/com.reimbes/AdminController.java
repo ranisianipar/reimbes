@@ -2,11 +2,9 @@ package com.reimbes;
 
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
-import com.reimbes.implementation.AdminServiceImpl;
+import com.reimbes.interfaces.AdminService;
+import com.reimbes.request.ChangePasswordRequest;
 import com.reimbes.response.*;
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +14,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
+import static com.reimbes.constant.General.DATE_FORMAT;
 import static com.reimbes.constant.Mapper.*;
+import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 import static com.reimbes.constant.UrlConstants.*;
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
@@ -31,7 +30,7 @@ public class AdminController {
     private static Logger log = LoggerFactory.getLogger(AdminController.class);
 
     @Autowired
-    private AdminServiceImpl adminService;
+    private AdminService adminService;
 
     @PostMapping(UrlConstants.USER_PREFIX)
     public BaseResponse<UserResponse> createUser(@RequestBody ReimsUser user) {
@@ -79,7 +78,8 @@ public class AdminController {
         log.info(String.format("[GET] Get user with ID: %d", id));
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setData(getUserResponseMapper().map(adminService.getUser(id), UserResponse.class));
+            ReimsUser user = adminService.getUser(id);
+            br.setData(getUserResponseMapper().map(user, UserResponse.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -87,12 +87,12 @@ public class AdminController {
     }
 
     @PutMapping(UrlConstants.USER_PREFIX + UrlConstants.ID_PARAM)
-    public BaseResponse<UserResponse> updateUser(@PathVariable long id, @RequestBody ReimsUser user, HttpServletResponse response){
+    public BaseResponse<UserResponse> updateUser(@PathVariable long id, @RequestBody ReimsUser user, HttpServletRequest request){
         log.info(String.format("[PUT] Update user with ID: %d", id));
 
         BaseResponse<UserResponse> br = new BaseResponse<>();
         try {
-            br.setData(getUserResponseMapper().map(adminService.updateUser(id,user, response), UserResponse.class));
+            br.setData(getUserResponseMapper().map(adminService.updateUser(id, user, request.getHeader(HEADER_STRING)), UserResponse.class));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -108,7 +108,20 @@ public class AdminController {
         return br;
     }
 
-//    MEDICAL
+    @PutMapping(UrlConstants.USER_PREFIX + CHANGE_PASSWORD_PREFIX)
+    public BaseResponse changePassword(@RequestBody ChangePasswordRequest request) {
+        log.info(String.format("[PUT] Admin change password."));
+        BaseResponse br = new BaseResponse();
+        try {
+            adminService.changePassword(request.getPassword());
+        } catch (ReimsException r) {
+            br.setErrorResponse(r);
+        }
+
+        return br;
+    }
+
+    // MEDICAL_VALUE
     @GetMapping(UrlConstants.MEDICAL_PREFIX)
     public BaseResponse<Medical> getAllMedical(
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -119,14 +132,12 @@ public class AdminController {
             @RequestParam(value = "user-id", required = false) String userId,
             @RequestParam (value = "search", defaultValue = "") String search
     ) {
-        log.info(String.format("[GET] Get all medicals with criteria page: %d, size: %d, sortBy: %s, search: %s, time range: %d-%d",
-                page, size, sortBy, search, start, end));
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
 
 
         try {
-            Page medicals = adminService.getAllMedical(pageRequest, search, new Long(start), new Long(end), userId);
+            Page medicals = adminService.getAllMedical(pageRequest, search, new Long(start), new Long(end), new Long(userId));
             Paging paging = getPagingMapper().map(pageRequest, Paging.class);
             br.setData(getAllMedicalResponse(
                     medicals.getContent()
@@ -156,31 +167,31 @@ public class AdminController {
     }
 
 
-//    FAMILY MEMBER
+    // FAMILY MEMBER
     @PostMapping(FAMILY_MEMBER_PREFIX)
     public BaseResponse<FamilyMemberResponse> addFamilyMember(
-            @RequestParam(value = "user-id") Long id,
+            @RequestParam(value = "user-id", defaultValue = "0") String id,
             @RequestBody FamilyMember familyMember
     ) {
-        log.info(String.format("[POST] Create Family Member for User with ID: %d", id));
+        log.info(String.format("[POST] Create Family Member for User with ID: %s", id));
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(adminService.createMember(id, familyMember));
+            br.setData(adminService.createFamilyMember(new Long(id), familyMember));
         }   catch (ReimsException r) {
             br.setErrorResponse(r);
         }
         return br;
     }
 
-    @PutMapping(ID_PARAM)
+    @PutMapping(FAMILY_MEMBER_PREFIX + ID_PARAM)
     public BaseResponse update(
             @PathVariable Long id,
-            @RequestParam(value = "user-id") Long userId,
+            @RequestParam(value = "user-id", defaultValue = "0") String userId,
             @RequestBody FamilyMember familyMember) {
-        log.info(String.format("[PUT] Update Family Member with ID: %d", id));
+        log.info(String.format("[PUT] Update Family Member with ID: %s", id));
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(getFamilyMemberResponse(adminService.updateMember(id, familyMember, userId)));
+            br.setData(getFamilyMemberResponse(adminService.updateFamilyMember(id, familyMember, new Long(userId))));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }
@@ -221,7 +232,7 @@ public class AdminController {
         log.info(String.format("[GET] Get Family Member with ID: %d", id));
         BaseResponse br = new BaseResponse();
         try {
-            br.setData(getFamilyMemberResponse(adminService.getMember(id)));
+            br.setData(getFamilyMemberResponse(adminService.getFamilyMember(id)));
         } catch (ReimsException r) {
             br.setErrorResponse(r);
         }

@@ -1,13 +1,14 @@
 package com.reimbes.authentication.filter;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.reimbes.implementation.AuthServiceImpl;
+import com.reimbes.Session;
+import com.reimbes.interfaces.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import static com.reimbes.constant.SecurityConstants.*;
 
@@ -25,7 +27,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     private static Logger log = LoggerFactory.getLogger(JWTAuthorizationFilter.class);
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     public JWTAuthorizationFilter(AuthenticationManager authManager) {
         super(authManager);
@@ -42,35 +44,22 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
             chain.doFilter(req, res);
             return;
         }
-        /*
-        * -----SOON------
-        *
-        * decoding token -> userDetails (reimsUser) & authorities (role)
-        * regenerate token with updated expired time
-        * */
 
         log.info("Token valid. Now, do filter internal.");
-
-
         UsernamePasswordAuthenticationToken authentication = getAuthentication(req);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(req, res);
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-        log.info("Decoding the token...");
-
+        log.info("Get user detail by token");
         String token = request.getHeader(HEADER_STRING);
         if (token != null) {
-            // parse the token.
-            String user = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
-                    .build()
-                    .verify(token.replace(TOKEN_PREFIX, ""))
-                    .getSubject();
-
-            if (user != null) {
-                
-                return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+            Session activeToken = authService.getSessionByToken(token);
+            Collection<GrantedAuthority> authorities = new ArrayList<>();
+            authorities.add(new SimpleGrantedAuthority(activeToken.getRole().toString()));
+            if (activeToken != null) {
+                return new UsernamePasswordAuthenticationToken(activeToken.getUsername(), null, authorities);
             }
             return null;
         }

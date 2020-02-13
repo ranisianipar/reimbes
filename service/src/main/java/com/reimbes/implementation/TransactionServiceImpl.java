@@ -1,26 +1,25 @@
 package com.reimbes.implementation;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.*;
-
-import com.reimbes.*;
-
-import com.reimbes.constant.UrlConstants;
+import com.reimbes.Fuel;
+import com.reimbes.ReimsUser;
+import com.reimbes.Transaction;
+import com.reimbes.TransactionRepository;
 import com.reimbes.exception.DataConstraintException;
 import com.reimbes.exception.FormatTypeError;
 import com.reimbes.exception.NotFoundException;
 import com.reimbes.exception.ReimsException;
-import com.reimbes.request.TransactionRequest;
+import com.reimbes.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.reimbes.constant.General.*;
 import static com.reimbes.constant.UrlConstants.SUB_FOLDER_TRANSACTION;
 
 @Service
@@ -29,213 +28,168 @@ public class TransactionServiceImpl implements TransactionService {
     private static Logger log = LoggerFactory.getLogger(TransactionServiceImpl.class);
 
     @Autowired
-    private ParkingServiceImpl parkingService;
-
-    @Autowired
-    private FuelServiceImpl fuelService;
-
-    @Autowired
     private TransactionRepository transactionRepository;
 
     @Autowired
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Autowired
-    private TesseractService ocrService;
+    private ReceiptMapperService receiptMapperService;
 
     @Autowired
-    private Utils utils;
+    private UtilsService utilsService;
 
     @Override
-    public Transaction createByImage(String imageValue) throws ReimsException {
-
-
-        ReimsUser user = userService.getUserByUsername(utils.getUsername());
-        String[] extractedByte = imageValue.split(",");
+    public Transaction createByImageAndCategory(Transaction transaction) throws ReimsException {
+        ReimsUser user = authService.getCurrentUser();
         String imagePath;
-
-        Transaction transaction;
         try {
-            byte[] imageByte = Base64.getDecoder().decode((extractedByte[1]
-                    .getBytes(StandardCharsets.UTF_8)));
-
-            imagePath = utils.uploadImage(imageValue, user.getId(), SUB_FOLDER_TRANSACTION);
-
-            log.info("Predicting image content... ");
-
-            transaction = ocrService.predictImageContent(imageByte);
+            imagePath = utilsService.uploadImage(transaction.getImage(), user.getId(), SUB_FOLDER_TRANSACTION);
+            log.info("Predicting attachments content... ", imagePath);
+            if (transaction.getCategory() == null) {
+                transaction.setCategory(Transaction.Category.FUEL);
+            }
+            transaction = receiptMapperService.map(transaction);
+            log.info("Mapping the OCR result.");
 
         } catch (Exception e) {
             throw new FormatTypeError(e.getMessage());
         }
-            log.info("Mapping the OCR result.");
-            transaction.setReimsUser(user);
-            transaction.setImage(imagePath);
+        transaction.setReimsUser(user);
+        transaction.setImage(imagePath);
         return transaction;
     }
 
     @Override
-    public Transaction update(TransactionRequest transactionRequest) throws ReimsException {
-
-        // make sure update only happen once!
-        validate(transactionRequest);
-
-        Transaction transaction;
-
-        if (transactionRequest.getCategory().equals(Transaction.Category.FUEL)) {
-            transaction = fuelService.create(transactionRequest);
-        } else {
-            transaction = parkingService.create(transactionRequest);
-        }
-
-        transaction.setCreatedAt(Instant.now().toEpochMilli());
-        transaction.setAmount(transactionRequest.getAmount());
-        try {
-            transaction.setDate(transactionRequest.getDate());
-        }   catch (Exception e) {
-            transaction.setDate(Instant.now().toEpochMilli());
-        }
-        transaction.setImage(transactionRequest.getImage());
-        transaction.setTitle(transactionRequest.getTitle());
-        transaction.setReimsUser(userService.getUserByUsername(utils.getUsername()));
-
+    public Transaction update(Transaction transaction) throws ReimsException {
+        ReimsUser user = authService.getCurrentUser();
+        long currentTime = utilsService.getCurrentTime();
+        validate(transaction);
+        transaction.setCreatedAt(currentTime);
+        transaction.setAmount(transaction.getAmount());
+        transaction.setDate(transaction.getDate());
+        transaction.setImage(transaction.getImage());
+        transaction.setTitle(transaction.getTitle());
+        transaction.setReimsUser(user);
         return transactionRepository.save(transaction);
     }
 
 
     @Override
-    public void delete(long id) throws ReimsException{
-        ReimsUser user = userService.getUserByUsername(utils.getUsername());
+    public boolean delete(long id) throws NotFoundException {
+        ReimsUser user = authService.getCurrentUser();
         Transaction transaction = transactionRepository.findOne(id);
-        if (transaction == null || transaction.getReimsUser() != user) throw new NotFoundException("Transaction with ID "+id);
-        transactionRepository.delete(transaction);
-    }
-
-    public void deleteByUser(ReimsUser user) {
-        List<Transaction> transactions = transactionRepository.findByReimsUser(user);
-        if (transactions == null)
-            return;
-
-        log.info("Removing the images");
-        Iterator iterator = transactions.iterator();
-        while (iterator.hasNext()) {
-            utils.removeImage(((Transaction) iterator.next()).getImage());
+        if (transaction == null || transaction.getReimsUser() != user) {
+            throw new NotFoundException("Transaction with ID " + id);
         }
+        utilsService.removeImage(transaction.getImage());
+        transactionRepository.delete(transaction);
+        return true;
+    }
 
-        transactionRepository.delete(transactions);
+    public boolean deleteTransactionImageByUser(ReimsUser user) {
+        List<Transaction> transactions = transactionRepository.findByReimsUser(user);
+        if (transactions == null) {
+            log.info("Find no transaction.");
+            return false;
+        }
+        log.info("Remove the images.");
+        transactions.forEach(transaction -> utilsService.removeImage(transaction.getImage()));
+        return true;
     }
 
     @Override
-    public Transaction get(long id) throws ReimsException{
-        ReimsUser user = userService.getUserByUsername(utils.getUsername());
+    public Transaction get(long id) throws ReimsException {
+        ReimsUser user = authService.getCurrentUser();
         Transaction transaction = transactionRepository.findOne(id);
-        if (transaction == null || transaction.getReimsUser() != user)
-            throw new NotFoundException("Transaction with ID "+id);
-
-        return transactionRepository.findOne(id);
+        if (transaction == null || transaction.getReimsUser() != user) {
+            throw new NotFoundException(String.format("Transaction with ID " + id));
+        }
+        return transaction;
     }
 
 
     @Override
-    public Page<Transaction> getAll(Pageable pageRequest, String startDate, String endDate, String title,
-                                    Transaction.Category category) throws ReimsException{
-
-        /****************************************HANDLING REQUEST PARAM************************************************/
-
-        int index = pageRequest.getPageNumber() - 1;
-        if (index < 0) index = 0;
-        Pageable pageable = new PageRequest(index, pageRequest.getPageSize(), pageRequest.getSort());
-
-        /****************************************SERVE REQUEST w/ JPA METHOD*******************************************/
-        ReimsUser user = userService.getUserByUsername(utils.getUsername());
+    public Page<Transaction> getAll(Pageable pageRequest, String title, String startDate, String endDate,
+                                    Transaction.Category category) throws ReimsException {
+        Pageable pageable = utilsService.getPageRequest(pageRequest);
+        ReimsUser user = authService.getCurrentUser();
         if (title == null) title = "";
 
         if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
-            if (category != null)
+            if (category != null) {
                 return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategory(user, title, category, pageable);
+            }
             return transactionRepository.findByReimsUserAndTitleContainingIgnoreCase(user, title, pageable);
         }
 
-        Long start;
-        Long end;
+        long start;
+        long end;
         try {
             start = Long.parseLong(startDate);
             end = Long.parseLong(endDate);
-        }   catch (Exception e) {
+        } catch (Exception e) {
             throw new FormatTypeError("value of start and end params");
         }
 
         if (category == null) {
-            return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndDateBetween(
-                    user,
-                    title,
-                    start,
-                    end,
-                    pageable
-            );
+            return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndDateBetween(user, title, start, end, pageable);
         } else {
-            return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategoryAndDateBetween(
-                    user,
-                    title,
-                    category,
-                    start,
-                    end,
-                    pageable
-            );
+            return transactionRepository.findByReimsUserAndTitleContainingIgnoreCaseAndCategoryAndDateBetween(user, title, category, start, end, pageable);
         }
+    }
+
+    public List<Transaction> getByDateAndCategory(Long start, Long end, Transaction.Category category) throws ReimsException {
+        ReimsUser user = authService.getCurrentUser();
+        if (isQueryByDate(start, end)) {
+            return transactionRepository.findByReimsUserAndCategory(user, category);
+        }
+        return transactionRepository.findByReimsUserAndDateBetweenAndCategory(user, start, end, category);
+
     }
 
     public List<Transaction> getByUser(ReimsUser user) {
         return transactionRepository.findByReimsUser(user);
     }
 
-
     @Override
     public List<Transaction> getByUserAndDate(ReimsUser user, long start, long end) {
-        if (start == new Long(0) || end == new Long(0)) return transactionRepository.findByReimsUser(user);
+        if (isQueryByDate(start, end)) {
+            return transactionRepository.findByReimsUser(user);
+        }
         return transactionRepository.findByReimsUserAndDateBetween(user, start, end);
     }
 
-    private void validate(TransactionRequest transaction) throws ReimsException {
-        // validate the data and data type
-        // date dicek harus ada isinya, dan sesuai ketentuan Date
-
+    private void validate(Transaction transaction) throws ReimsException {
         log.info("Validating transction value...");
-
         List<String> errorMessages = new ArrayList();
-
-        if (!(transaction.getCategory() instanceof Transaction.Category))
-            errorMessages.add("UNKNOWN_CATEGORY");
-
-        if (transaction.getDate() == 0)
-            errorMessages.add("NULL_DATE");
-
-        if (transaction.getAmount() == 0)
-            errorMessages.add("ZERO_AMOUNT");
-
-        if (transaction.getCategory() == null) {
-            errorMessages.add("NULL_CATEGORY");
-        } else if (transaction.getCategory().equals(Transaction.Category.PARKING)) {
-            if (transaction.getParkingType() == null) errorMessages.add("NULL_PARKING_TYPE");
-            if (transaction.getHours() == 0) errorMessages.add("ZERO_PARKING_HOURS");
-        } else if (transaction.getCategory().equals(Transaction.Category.FUEL)) {
-            if (transaction.getLiters() == 0) errorMessages.add("ZERO_FUEL_LITERS");
+        if (transaction.getDate() == 0) {
+            errorMessages.add(NULL_DATE);
         }
-
-        // validate image path
-        if (transaction.getImage()== null || !utils.isFileExists(transaction.getImage()))
-            errorMessages.add("INVALID_IMAGE_PATH");
-
-
-        // make sure the transaction use its own [NEW] image
-        if (transactionRepository.existsByImage(transaction.getImage()))
-            errorMessages.add("FORBIDDEN_DUPLICATE_IMAGE");
-
-
+        if (transaction.getAmount() == 0) {
+            errorMessages.add(ZERO_AMOUNT);
+        }
+        if (transaction.getCategory() == Transaction.Category.FUEL) {
+            if (((Fuel) transaction).getLiters() == 0) {
+                errorMessages.add(ZERO_FUEL_LITERS);
+            }
+        } else if (transaction.getCategory() == null) {
+            errorMessages.add(NULL_CATEGORY);
+        }
+        if (transaction.getImage() == null || !utilsService.isFileExists(transaction.getImage())) {
+            errorMessages.add(INVALID_IMAGE_PATH);
+        }
+        if (transactionRepository.existsByImage(transaction.getImage())) {
+            errorMessages.add(FORBIDDEN_DUPLICATE_IMAGE);
+        }
         if (!errorMessages.isEmpty())
             throw new DataConstraintException(errorMessages.toString());
+    }
+
+    private boolean isQueryByDate(long start, long end) {
+        return (start == DEFAULT_LONG_VALUE) || (end == DEFAULT_LONG_VALUE);
     }
 }

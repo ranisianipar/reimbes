@@ -9,10 +9,11 @@ import lombok.*;
 import net.bytebuddy.build.ToStringPlugin;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-@Table(name="Medical")
+@Table(name = "Medical")
 @AllArgsConstructor
 @Builder
 @Data
@@ -20,7 +21,6 @@ import java.util.Set;
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-@ToString(onlyExplicitlyIncluded = true)
 public class Medical {
 
     @Id
@@ -38,12 +38,16 @@ public class Medical {
     @JoinColumn(name = "patient")
     private Patient patient;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reimsUser", nullable = false)
     @JsonIgnore
+    @ToString.Exclude
     private ReimsUser medicalUser;
 
     //    Mapped to multiple images
-    @OneToMany(mappedBy = "medicalImage", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "medicalImage", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MedicalReport> attachments;
+
+    @Column(updatable = false)
+    private long createdAt;
 }

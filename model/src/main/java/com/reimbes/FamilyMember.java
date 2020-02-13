@@ -14,7 +14,8 @@ import java.util.Date;
 
 @Table(name = "Family_Member")
 @Entity
-@Data @NoArgsConstructor
+@Data
+@NoArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class FamilyMember extends Patient {
@@ -22,7 +23,7 @@ public class FamilyMember extends Patient {
     @NotNull
     private Relationship relationship;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "familyMemberOf", nullable = false)
     @ToStringPlugin.Exclude
     @JsonIgnore
@@ -38,8 +39,9 @@ public class FamilyMember extends Patient {
     }
 
     @Builder(builderMethodName = "FamilyMemberBuilder")
-    public FamilyMember(long id, ReimsUser familyMemberOf, Relationship relationship, String name, Date dateOfBirth) {
-        super(id, name, dateOfBirth);
+    public FamilyMember(long id, ReimsUser familyMemberOf, Relationship relationship, String name, Date dateOfBirth,
+                        long createdAt, long updatedAt) {
+        super(id, name, dateOfBirth, createdAt, updatedAt);
         this.familyMemberOf = familyMemberOf;
         this.relationship = relationship;
     }

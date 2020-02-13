@@ -1,8 +1,7 @@
 package com.reimbes.constant;
 
-import com.reimbes.FamilyMember;
-import com.reimbes.Medical;
-import com.reimbes.ReimsUser;
+import com.reimbes.*;
+import com.reimbes.request.TransactionRequest;
 import com.reimbes.response.FamilyMemberResponse;
 import com.reimbes.response.MedicalWebModel;
 import com.reimbes.response.Paging;
@@ -83,6 +82,32 @@ public class Mapper {
         mapperFactory.classMap(ReimsUser.class, UserResponse.class)
                 .byDefault().register();
         return mapperFactory.getMapperFacade();
+    }
+
+    public static MapperFacade getParkingRequestMapper() {
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+        mapperFactory.classMap(TransactionRequest.class, Parking.class)
+                .byDefault().register();
+        return mapperFactory.getMapperFacade();
+    }
+
+    public static MapperFacade getFuelRequestMapper() {
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+        mapperFactory.classMap(TransactionRequest.class, Fuel.class)
+                .field("fuelType", "type")
+                .byDefault().register();
+        return mapperFactory.getMapperFacade();
+    }
+
+    public static MapperFacade getTransactionRequestMapper(TransactionRequest request) {
+        switch (request.getCategory()) {
+            case FUEL:
+                return getFuelRequestMapper();
+            case PARKING:
+                return getParkingRequestMapper();
+            default:
+                return null;
+        }
     }
 
     public static List<UserResponse> getAllUserResponses(List<ReimsUser> users) {

@@ -3,10 +3,8 @@ package com.reimbes;
 import com.reimbes.constant.UrlConstants;
 import com.reimbes.exception.ReimsException;
 import com.reimbes.implementation.MedicalServiceImpl;
+import com.reimbes.interfaces.MedicalService;
 import com.reimbes.response.*;
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import static com.reimbes.constant.General.NULL_USER_ID_CODE;
 import static com.reimbes.constant.Mapper.*;
-import static com.reimbes.constant.UrlConstants.IMAGE_PARAM;
-import static com.reimbes.constant.UrlConstants.IMAGE_PREFIX;
 
 @CrossOrigin(origins = UrlConstants.CROSS_ORIGIN_URL)
 @RestController
@@ -31,7 +24,7 @@ public class MedicalController {
     private static Logger log = LoggerFactory.getLogger(MedicalController.class);
 
     @Autowired
-    private MedicalServiceImpl medicalService;
+    private MedicalService medicalService;
 
     @GetMapping
     public BaseResponse getAll(
@@ -45,9 +38,9 @@ public class MedicalController {
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = new PageRequest(page, size, new Sort(Sort.Direction.ASC, sortBy));
 
-
          try {
-             Page medicals = medicalService.getAll(pageRequest, search, new Long(start), new Long(end), null);
+             log.info("Get All Medicals");
+             Page medicals = medicalService.getAll(pageRequest, search, new Long(start), new Long(end), NULL_USER_ID_CODE);
              Paging paging = getPagingMapper().map(pageRequest, Paging.class);
              br.setData(getAllMedicalResponse(
                      medicals.getContent()
@@ -66,6 +59,7 @@ public class MedicalController {
     public BaseResponse get(@PathVariable long id) {
         BaseResponse br = new BaseResponse();
         try {
+            log.info("Get Medical by ID:" + id);
             Medical result = medicalService.get(id);
             br.setData(getMedicalMapper(result).map(result, MedicalWebModel.class));
         } catch (ReimsException r) {

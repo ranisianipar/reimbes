@@ -3,18 +3,17 @@ package com.reimbes.implementation;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.reimbes.ActiveToken;
-import com.reimbes.ActiveTokenRepository;
-import com.reimbes.AuthService;
+import com.reimbes.Session;
+import com.reimbes.SessionRepository;
+import com.reimbes.interfaces.AuthService;
 import com.reimbes.ReimsUser;
 import com.reimbes.constant.SecurityConstants;
-import com.reimbes.exception.DataConstraintException;
-import com.reimbes.exception.ReimsException;
+import com.reimbes.exception.NotFoundException;
+import com.reimbes.interfaces.UserService;
+import com.reimbes.interfaces.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.sleuth.Span;
-import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,76 +29,73 @@ import java.util.HashMap;
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.reimbes.constant.SecurityConstants.*;
 
+
 @Service
 public class AuthServiceImpl implements AuthService {
 
     private static Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     @Autowired
-    private ActiveTokenRepository activeTokenRepository;
+    private SessionRepository sessionRepository;
 
     @Autowired
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Autowired
-    private Utils utils;
+    private UtilsService utilsService;
 
     @Override
     public boolean isLogin(String token) {
         log.info("Check the token is in the Active Token Repo or not");
-        ActiveToken activeToken = activeTokenRepository.findByToken(token);
+        Session session = sessionRepository.findByToken(token);
 
-
-        if (activeToken != null && activeToken.getExpiredTime() >= Instant.now().getEpochSecond())
+        if (session != null && session.getExpiredTime() >= utilsService.getCurrentTime()) {
             return true;
-
-        // token expired
-
-        log.info("Unauthenticated medicalUser try to request!");
-        log.info("[DEBUG]:"+Instant.now().toEpochMilli());
+        }
+        log.info("Unauthenticated User try to request!");
         return false;
     }
 
     @Override
-    public ActiveToken registerToken(String token) {
-        log.info("Registering new token...");
-
-        ActiveToken activeToken = activeTokenRepository.findByToken(token);
-        if (activeToken == null)
-            activeToken = new ActiveToken(token);
-
+    public Session registerOrUpdateSession(Session sessionRequest) {
+        log.info("Register new token...");
+        Session session = sessionRepository.findByToken(sessionRequest.getToken());
+        boolean hasLoggedIn = sessionRepository.existsByUsername(sessionRequest.getUsername());
+        if (!hasLoggedIn && (session == null)) {
+            log.info("Generate session.");
+            session = Session.builder().token(sessionRequest.getToken()).build();
+        }
         log.info("Update token expired time.");
-        activeToken.setExpiredTime(getUpdatedTime());
-        return activeTokenRepository.save(activeToken);
+        session.setUsername(sessionRequest.getUsername());
+        session.setRole(sessionRequest.getRole());
+        session.setExpiredTime(getUpdatedTime());
+        return sessionRepository.save(session);
     }
 
     @Override
     public void logout(HttpServletRequest req) {
         log.info("User is logging out.");
         String token = req.getHeader(HEADER_STRING);
-        ActiveToken activeToken = activeTokenRepository.findByToken(token);
-        activeTokenRepository.delete(activeToken);
+        Session activeToken = sessionRepository.findByToken(token);
+        sessionRepository.delete(activeToken);
     }
 
     @Override
     public HashMap getCurrentUserDetails(HttpServletRequest request) {
         String token = request.getHeader(HEADER_STRING);
         if (token != null) {
-            // parse the token.
             DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
                     .build()
                     .verify(token.replace(TOKEN_PREFIX, ""));
             String user = decodedJWT.getSubject();
-
             String role = decodedJWT.getClaim("role").asString();
 
             if (user != null) {
                 HashMap<String, Object> userDetails = new HashMap<>();
-                // will be useful if we provide multi-access to reimsUser
                 Collection<GrantedAuthority> roles = new ArrayList();
                 roles.add(new SimpleGrantedAuthority(role));
                 userDetails.put("username", user);
-                userDetails.put("roles",roles);
+                userDetails.put("roles", roles);
                 return userDetails;
             }
         }
@@ -108,13 +103,25 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String generateToken(UserDetails user, Collection authorities) {
-        String role = authorities.iterator().next().toString();
-        log.info("Generate new token. Username: "+user.getUsername()+" Role: "+role);
+    public Session getSessionByToken(String token) {
+        return sessionRepository.findByToken(token);
+    }
+
+    @Override
+    public String generateOrGetToken(UserDetails user) {
+        Session session = sessionRepository.findByUsername(user.getUsername());
+
+        if (session != null) {
+            session = registerOrUpdateSession(session);
+            return session.getToken();
+        }
+        String role = user.getAuthorities().iterator().next().toString();
+
+        log.info(String.format("Generate new token. Username: %s, Role: %s", user.getUsername(), role));
 
         String token = TOKEN_PREFIX + JWT.create()
                 .withSubject(user.getUsername())
-                .withClaim("expire",getUpdatedTime())
+                .withClaim("expire", getUpdatedTime())
                 .withClaim("role", role)
                 .sign(HMAC512(SECRET.getBytes()));
 
@@ -122,17 +129,27 @@ public class AuthServiceImpl implements AuthService {
         return token;
     }
 
+    @Override
     public ReimsUser getCurrentUser() {
-        return userService.getUserByUsername(utils.getUsername());
+        ReimsUser currentUser = userService.getUserByUsername(utilsService.getPrincipalUsername());
+        return currentUser;
     }
 
+    @Override
     public ReimsUser.Role getRoleByString(String roleString) {
-        if (roleString.equals(ReimsUser.Role.ADMIN.toString())) return ReimsUser.Role.ADMIN;
-        return ReimsUser.Role.USER;
+        log.info("GET ROLE BY STRING: " + roleString);
+        switch (roleString) {
+            case "ADMIN":
+                return ReimsUser.Role.ADMIN;
+            default:
+                return ReimsUser.Role.USER;
+        }
     }
 
-    private long getUpdatedTime() {
-        return Instant.now().getEpochSecond() + SecurityConstants.TOKEN_PERIOD;
+    @Override
+    public long getUpdatedTime() {
+        log.info("Get updated time");
+        return utilsService.getCurrentTime() + SecurityConstants.TOKEN_PERIOD;
     }
 
 

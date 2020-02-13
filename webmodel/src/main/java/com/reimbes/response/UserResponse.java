@@ -1,5 +1,6 @@
 package com.reimbes.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.reimbes.ReimsUser;
 import lombok.Data;
 
@@ -17,6 +18,7 @@ public class UserResponse {
 
     private String division;
 
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date dateOfBirth;
 
     private ReimsUser.Gender gender;

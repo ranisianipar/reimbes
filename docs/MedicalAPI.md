@@ -18,11 +18,13 @@ only for USER
     - Format data / Possible data value:
         - search: "`Demam`"
 - Pagination : 
-    - support pagination by URL Path, add this on URL: `page=P&size=S&sortBy=created_at`
+    - support pagination by URL Path, add this on URL: `page=X&size=X&sortBy=created_at&start=X&end=X`
     - Default data :
         - Page : `1`
         - Size : `5`
         - SortBy : `created_at`
+        - Start : - [Epoch format in milliseconds]
+        - End : - [Epoch format in milliseconds]
 
 - Request Header : 
     - Accept : `application/json`
@@ -102,10 +104,8 @@ only for USER
 ```
 
 ## Get Image
-- Endpoint : `api/medicals/image?path={imagePath}`
-- HTTP Method : `GET`
-- Request Body : -
-- Response Body : byte[]
+*Note:* Please check User Api Spec
+
 
 ## Create Medical
 - Endpoint : `api/medicals`

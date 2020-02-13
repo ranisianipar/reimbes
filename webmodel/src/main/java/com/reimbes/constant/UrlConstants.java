@@ -7,19 +7,16 @@ public class UrlConstants {
     public static final String CROSS_ORIGIN_URL = "http://localhost:5000";
     public static final String LOGIN_URL = "/login";
     public static final String LOGOUT_URL = "/logout";
-    public static final String ISLOGIN_URL = "/isLogin";
+    public static final String ISLOGIN_URL = "/isLogin";;
     public static final String PROJECT_ROOT = Paths.get("").toAbsolutePath().toString();
 
-    // folder path
-    public static final String TESSERACT_TRAINNED_DATA_PATH = PROJECT_ROOT + "\\lib\\tesseract\\tessdata\\";
-    // DEPRECATED
-    public static final String IMAGE_FOLDER_PATH = PROJECT_ROOT + "\\reims-img\\";
-    public static final String STORAGE_FOLDER = "\\storage";
+    public static final String STORAGE_FOLDERNAME = "storage";
 
     //prefix
     public static final String ADMIN_PREFIX = "/admin";
     public static final String API_PREFIX = "/api";
     public static final String MEDICAL_PREFIX = "/medicals";
+    public static final String CHANGE_PASSWORD_PREFIX = "/changepassword";
     public static final String FAMILY_MEMBER_PREFIX = "/family-members";
     public static final String USER_PREFIX = "/users";
     public static final String TRANSACTION_PREFIX = "/transactions";
@@ -32,7 +29,9 @@ public class UrlConstants {
 
     // others
     public static final String ID_PARAM = "/{id:.+}";
-    public static final String IMAGE_PARAM = "/{image:.+}";
-    public static final String IMAGE_URI = UrlConstants.ID_PARAM + UrlConstants.IMAGE_PARAM;
+    public static final String GDN_LOGO_PATH = "/image/gdn-logo.jpg";
+
+    // other service
+    public static final String URL_RECEIPT_MAPPER = "http://receipt-mapper.herokuapp.com/image";
 
 }
