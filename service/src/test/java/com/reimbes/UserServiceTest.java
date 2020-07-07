@@ -17,19 +17,16 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.*;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import static com.reimbes.constant.General.*;
-import static com.reimbes.constant.SecurityConstants.HEADER_STRING;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.*;
@@ -132,17 +129,18 @@ public class UserServiceTest {
         verify(userRepository).findByUsername(user.getUsername());
     }
 
-//    @Test
-    public void returnUpdatedUserData_whenAdminUpdateUser() throws ReimsException{
+    @Test
+    public void returnUpdatedUserData_whenAdminUpdateUser() throws ReimsException {
+        Date now = new Date();
         ReimsUser oldUser = user;
         ReimsUser newUser = ReimsUser.ReimsUserBuilder()
                 .id(oldUser.getId())
                 .password(oldUser.getPassword())
                 .role(oldUser.getRole()).build();
 
-        when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
         when(userRepository.save(user)).thenReturn(userWithEncodedPass);
         when(userRepository.findOne(user.getId())).thenReturn(user);
+        when(utilsService.getCurrentTime()).thenReturn(now.getTime());
 
         newUser.setUsername(oldUser.getUsername() + "123"); // update data
 
@@ -155,35 +153,45 @@ public class UserServiceTest {
         // validation
         verify(userRepository).findByUsername(oldUser.getUsername());
 
-        verify(passwordEncoder).encode(newUser.getPassword());
         verify(utilsService).getCurrentTime();
         verify(userRepository).save(newUser);
         assertEquals(newUser, result);
-    }
-
-    //@Test
-    public void returnUpdatedUserData_whenUserUpdateTheirOwnData() throws ReimsException {
-        when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
-        when(userRepository.save(user)).thenReturn(userWithEncodedPass);
-        ReimsUser newUser = userService.create(user);
-
-        when(utilsService.getPrincipalUsername()).thenReturn(newUser.getUsername());
-        when(userRepository.findByUsername(newUser.getUsername())).thenReturn(newUser);
-
-        String oldUsername = newUser.getUsername();
-        newUser.setUsername(newUser.getUsername()+"123");
-
-        when(userRepository.findByUsername(newUser.getUsername())).thenReturn(newUser);
-        when(userRepository.save(newUser)).thenReturn(newUser);
-
-        newUser = userService.update(1, newUser);
-
-        assertNotEquals(newUser.getUsername(), oldUsername);
-        assertNotNull(newUser.getUpdatedAt());
+        assertNotEquals(user.getUpdatedAt(), result.getUpdatedAt());
     }
 
     @Test
-    public void expectedErrorThrown_whenUserUpdateDataWithSomeNullFieldsData() throws ReimsException {
+    public void returnUpdatedUserData_whenUserUpdateTheirOwnData() throws ReimsException {
+        Date now = new Date();
+        when(authService.getCurrentUser()).thenReturn(user);
+        when(utilsService.getCurrentTime()).thenReturn(now.getTime());
+
+        ReimsUser newUser = ReimsUser.ReimsUserBuilder()
+                .username(user.getUsername() + "123")
+                .role(user.getRole())
+                .password(user.getPassword())
+                .id(2)
+                .build();
+
+        String token = "241k2jb4";
+        Session session = Session.builder()
+                .token(token)
+                .username(newUser.getUsername())
+                .build();
+
+        when(userRepository.save(newUser)).thenReturn(newUser);
+
+        ReimsUser result = userService.updateMyData(newUser, token);
+        verify(authService).getCurrentUser();
+        verify(userRepository).findByUsername(newUser.getUsername());
+        verify(utilsService).getCurrentTime();
+        verify(userRepository).save(newUser);
+        verify(authService).registerOrUpdateSession(session);
+        assertEquals(result, newUser);
+        assertNotEquals(user.getUpdatedAt(), result.getUpdatedAt());
+    }
+
+    @Test
+    public void expectedErrorThrown_whenUserUpdateDataWithSomeNullFieldsData() {
         when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
         when(userRepository.save(user)).thenReturn(userWithEncodedPass);
 
@@ -202,7 +210,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void extepctedErrorThrown_whenUserInputInsecurePassAndDuplicateUsername() throws ReimsException{
+    public void extepctedErrorThrown_whenUserInputInsecurePassAndDuplicateUsername() throws ReimsException {
         when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
         when(userRepository.save(user)).thenReturn(userWithEncodedPass);
 
@@ -239,7 +247,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void returnTrueForExistUsername(){
+    public void returnTrueForExistUsername() {
         boolean result;
         when(userRepository.existsByUsername(user.getUsername())).thenReturn(true);
         result = userService.isExist(user.getUsername());
@@ -248,7 +256,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void returnFalseForUnexistUsername(){
+    public void returnFalseForUnexistUsername() {
         String unexistUsername = "haha";
         boolean result;
         result = userService.isExist(unexistUsername);
@@ -258,7 +266,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void removeUnregisteredUser(){
+    public void removeUnregisteredUser() {
         long randomUserId = 100;
         boolean result = userService.delete(randomUserId);
         verify(userRepository).findOne(randomUserId);
@@ -286,7 +294,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void returnUserById() throws ReimsException{
+    public void returnUserById() throws ReimsException {
         ReimsUser expectedResult = user;
         when(userRepository.findOne(expectedResult.getId())).thenReturn(expectedResult);
 
@@ -297,14 +305,12 @@ public class UserServiceTest {
     }
 
     @Test
-    public void returnCurrentUserData() throws ReimsException{
+    public void returnCurrentUserData() throws ReimsException {
         ReimsUser currentUser = user;
-        when(utilsService.getPrincipalUsername()).thenReturn(currentUser.getUsername());
-        when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(currentUser);
+        when(authService.getCurrentUser()).thenReturn(currentUser);
 
         ReimsUser result = userService.get(IDENTITY_CODE);
-        verify(utilsService).getPrincipalUsername();
-        verify(userRepository).findByUsername(currentUser.getUsername());
+        verify(authService).getCurrentUser();
         assertEquals(currentUser, result);
 
     }
@@ -343,36 +349,9 @@ public class UserServiceTest {
         assertEquals(fakeReport, result);
     }
 
-//    @Test
-//    public void updatePersonalData() throws ReimsException {
-//        when(passwordEncoder.encode(user.getPassword())).thenReturn(userWithEncodedPass.getPassword());
-//        when(userRepository.save(user)).thenReturn(userWithEncodedPass);
-//        when(utilsService.getPrincipalUsername()).thenReturn(user.getUsername());
-//        when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
-//
-//        String dummyToken = "123";
-//
-//        // update token with latest username
-//        Collection authorities =  new ArrayList();
-//
-//        authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
-//
-//        // add token
-//        when(authService.generateOrGetToken(new UserDetailsImpl(user, authorities))).thenReturn(dummyToken);
-//
-//        MockHttpServletResponse response = new MockHttpServletResponse();
-//        ReimsUser result = userService.updateMyData(user, response);
-//        verify(utilsService).getPrincipalUsername();
-//        verify(userRepository, times(2)).findByUsername(user.getUsername());
-//        verify(utilsService).getCurrentTime();
-//
-//        assertEquals(dummyToken, response.getHeader(HEADER_STRING));
-//        assertEquals(user.getUsername(), result.getUsername());
-//        assertEquals(user.getRole(), result.getRole());
-//    }
 
     @Test
-    public void errorThrown_whenGetImageByInvalidImagePathFormat() throws Exception {
+    public void errorThrown_whenGetImageByInvalidImagePathFormat() {
         String fakeImagepath = "hahaha/x123.png";
         when(authService.getCurrentUser()).thenReturn(user);
         assertThrows(NotFoundException.class, () -> userService.getImage(fakeImagepath));
@@ -404,7 +383,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void returnTrue_whenChangePasswordSucceed() throws NotFoundException {
+    public void returnTrue_whenChangePasswordSucceed() {
         ReimsUser user = ReimsUser.ReimsUserBuilder().username("user 1").password("xoxoxox").build();
         String newPassword = user.getPassword() + "123";
         String passwordAfterEncoding = newPassword + "8913ihgvq";
@@ -423,5 +402,6 @@ public class UserServiceTest {
         assertTrue(result);
 
     }
+
 
 }

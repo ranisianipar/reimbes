@@ -1,6 +1,7 @@
 package com.reimbes.interfaces;
 
 import com.reimbes.exception.ReimsException;
+import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -15,6 +16,7 @@ public interface UtilsService {
     Path createDirectory(String cleanedPath); // cleanedPath: relative path
     byte[] getFile(String filepath) throws IOException;
     String generateFilename(String extension);
+    Pageable getPageRequest(Pageable pageRequest);
 
     /*
      *

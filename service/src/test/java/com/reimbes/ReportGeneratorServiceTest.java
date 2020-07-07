@@ -174,6 +174,7 @@ public class ReportGeneratorServiceTest {
 
     @Test
     public void whenCreateReportWithoutRangeOfDateAndWithTypeParking_thenReturnReportOfAllTransactions() throws Exception {
+
         String reportName = String.format("%s_%s_%s.xls", user.getUsername(), PARKING_VALUE, "ALL");
 
         when(authService.getCurrentUser()).thenReturn(user);

@@ -109,8 +109,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         initFooter(sheet);
 
-//        if(wb instanceof XSSFWorkbook) filename += "x";
-
         ByteArrayOutputStream fileOut = new ByteArrayOutputStream();
         wb.write(fileOut);
         fileOut.close();

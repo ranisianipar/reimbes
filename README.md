@@ -1,6 +1,8 @@
+![badge](https://github.com/ranisianipar/reimbes/workflows/Java%20CI/badge.svg)
+
 # Reims
 Reims is a reimbursement management system web-based application, which is mobile-friendly. 
-Developed by [Rani Lasma Uli][raniGithub] and Stelli.
+Developed by Rani and Stelli.
 
 ## Tools
   - Database: PostgreSQL

@@ -10,6 +10,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -40,6 +43,12 @@ public class UtilsServiceTest {
     private String file_directory = test_directory + "\\testfile.jpg";
     private Path file_directory_path;
     private Path test_directory_path;
+
+    @After
+    public void deleteOutputFile() throws Exception {
+        if (file_directory_path != null) Files.deleteIfExists(file_directory_path);
+        if (test_directory_path != null) Files.deleteIfExists(test_directory_path);
+    }
 
     @Before
     public void setup() {
@@ -144,7 +153,7 @@ public class UtilsServiceTest {
     }
 
     @Test
-    public void uploadImageSuccessfullyWithJpgExtension() throws IOException, ReimsException {
+    public void uploadImageSuccessfullyWithJpgExtension() throws ReimsException {
         ReimsUser user = ReimsUser.ReimsUserBuilder()
                 .id(123)
                 .username("test")
@@ -158,7 +167,7 @@ public class UtilsServiceTest {
     }
 
     @Test
-    public void uploadImageSuccessfullyWithJpegExtension() throws IOException, ReimsException {
+    public void uploadImageSuccessfullyWithJpegExtension() throws ReimsException {
         ReimsUser user = ReimsUser.ReimsUserBuilder()
                 .id(123)
                 .username("test")
@@ -170,11 +179,16 @@ public class UtilsServiceTest {
         file_directory_path = Paths.get(PROJECT_ROOT + imagePath);
     }
 
-
-    @After
-    public void deleteOutputFile() throws Exception {
-        if (file_directory_path != null) Files.deleteIfExists(file_directory_path);
-        if (test_directory_path != null) Files.deleteIfExists(test_directory_path);
+    @Test
+    public void mapPagingRequest() {
+        int pageNumberRequest = 1;
+        int size = 5;
+        Sort sort = new Sort(Sort.Direction.DESC, "createdAt");
+        Pageable pageRequest = new PageRequest(pageNumberRequest, size, sort);
+        Pageable result = utils.getPageRequest(pageRequest);
+        assertNotEquals(pageNumberRequest, result.getPageNumber());
+        assertEquals(size, result.getPageSize());
+        assertEquals(sort, result.getSort());
     }
 
 
